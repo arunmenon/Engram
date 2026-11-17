@@ -1,0 +1,55 @@
+{
+  "resolved_entities_before_cluster": [
+    {
+      "entity_id": "entity:github",
+      "name": "github",
+      "entity_type": "tool"
+    }
+  ],
+  "source_reference_edges": [
+    [
+      "7be5bcd6-c489-4635-808a-1a15e29440f6",
+      "REFERENCES",
+      "entity:github"
+    ],
+    [
+      "9b783188-37bc-42f0-8734-1fe3402e8b6f",
+      "REFERENCES",
+      "entity:github"
+    ],
+    [
+      "db3c9af3-00d9-49a5-a7c7-54a0eed8372c",
+      "REFERENCES",
+      "entity:github"
+    ],
+    [
+      "f1ddbf75-a13e-445a-b2cd-99fa8c4f0d3d",
+      "REFERENCES",
+      "entity:github"
+    ]
+  ],
+  "cluster_members": [
+    "entity:github",
+    "entity:github-alias-0",
+    "entity:github-alias-1",
+    "entity:github-alias-2"
+  ],
+  "cluster_edges": [
+    [
+      "entity:github-alias-0",
+      "SAME_AS",
+      "entity:github"
+    ],
+    [
+      "entity:github-alias-1",
+      "SAME_AS",
+      "entity:github"
+    ],
+    [
+      "entity:github-alias-2",
+      "SAME_AS",
+      "entity:github"
+    ]
+  ],
+  "scope": "actual extraction exact/alias MERGE plus native cluster public operation; repeated cluster writes idempotent; semantic model resolution not claimed"
+}

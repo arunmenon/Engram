@@ -1,0 +1,58 @@
+{
+  "configured_max_events": 3,
+  "empty_status": 422,
+  "over_max_status": 422,
+  "max_status": 201,
+  "max": {
+    "accepted": 3,
+    "rejected": 0,
+    "results": [
+      {
+        "event_id": "55107236-a09a-4191-a4ca-6fc420ef62c1",
+        "global_position": "2026-10-06T16:23:43.160623000Z/000000/55107236-a09a-4191-a4ca-6fc420ef62c1",
+        "status": "created"
+      },
+      {
+        "event_id": "55107236-a09a-4191-a4ca-6fc420ef62c1",
+        "global_position": "2026-10-06T16:23:43.160623000Z/000000/55107236-a09a-4191-a4ca-6fc420ef62c1",
+        "status": "duplicate"
+      },
+      {
+        "event_id": "26bcc1f6-de39-4ccb-bdd8-8589f1e88bc1",
+        "global_position": "2026-10-06T16:23:43.160623000Z/000001/26bcc1f6-de39-4ccb-bdd8-8589f1e88bc1",
+        "status": "created"
+      }
+    ],
+    "errors": []
+  },
+  "mixed": {
+    "accepted": 2,
+    "rejected": 1,
+    "results": [
+      {
+        "event_id": "4d595a0f-6532-454c-9c75-85f185018460",
+        "global_position": "2026-10-06T16:23:43.348367000Z/000000/4d595a0f-6532-454c-9c75-85f185018460",
+        "status": "created"
+      },
+      {
+        "event_id": "1869ccb5-b71b-441a-ad92-8898f026cd6a",
+        "global_position": "2026-10-06T16:23:43.348367000Z/000001/1869ccb5-b71b-441a-ad92-8898f026cd6a",
+        "status": "created"
+      }
+    ],
+    "errors": [
+      {
+        "index": 1,
+        "event_id": "584c8c25-dc08-4a9c-a8b0-db79fd58c783",
+        "errors": [
+          {
+            "field": "agent_id",
+            "message": "Field required"
+          }
+        ]
+      }
+    ]
+  },
+  "first_payload_preserved": true,
+  "ledger_delta": 4
+}

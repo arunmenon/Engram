@@ -1,0 +1,57 @@
+{
+  "checks": [
+    {
+      "name": "JSON_literal_float_marker_numeric_tag",
+      "scenarios": [
+        "LED-01"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "Spanner float marker changes an ordinary JSON object into a number",
+      "seconds": 0.24
+    },
+    {
+      "name": "JSON_literal_float_marker_text_tag",
+      "scenarios": [
+        "LED-01"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "accepted ordinary JSON marker makes the ledger document unreadable",
+      "seconds": 0.23
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 1
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 3
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 1
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

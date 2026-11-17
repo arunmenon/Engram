@@ -1,0 +1,16 @@
+{"event": "start", "run_id": "20261007-cloud-tenant-response-01", "at": "2026-10-07T14:51:03.057073+00:00", "record": "docs/review/spanner-compatibility/runs/20261007-cloud-tenant-response-01"}
+2026-10-07 20:21:08 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-07 20:21:08 [info     ] llm_client_initialized
+2026-10-07 20:21:12 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0'] ontology_version=sha256:7aa9c7d4db1d5a24 redis_host=localhost
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-07 20:21:13 [info     ] app_stopped
+2026-10-07 20:21:13 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-07 20:21:13 [info     ] llm_client_initialized
+2026-10-07 20:21:16 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0'] ontology_version=sha256:7aa9c7d4db1d5a24 redis_host=localhost
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+2026-10-07 20:21:17 [info     ] app_stopped
+{"event": "finish", "run_id": "20261007-cloud-tenant-response-01", "at": "2026-10-07T14:51:19.608990+00:00", "record": "docs/review/spanner-compatibility/runs/20261007-cloud-tenant-response-01"}
+{"run_id": "20261007-cloud-tenant-response-01", "checks": [{"name": "existing_control_schema_handshake", "passed": true, "scenarios": []}, {"name": "actual_bound_api_cached_response_authorized", "passed": true, "scenarios": []}, {"name": "actual_bound_api_empty_response_authorized", "passed": true, "scenarios": []}, {"name": "unfinished_cursor_and_import_paths_refused_before_effects", "passed": true, "scenarios": []}, {"name": "freeze_after_handler_discards_entire_response_before_success_start", "passed": true, "scenarios": []}, {"name": "frozen_runtime_refused_before_handler", "passed": true, "scenarios": []}, {"name": "renewed_epoch_bound_api_recovers_after_freeze", "passed": true, "scenarios": []}, {"name": "all_owned_child_lifespans_closed", "passed": true, "scenarios": []}, {"name": "existing_schema_preserved", "passed": true, "scenarios": []}, {"name": "all_application_rows_preserved", "passed": true, "scenarios": []}, {"name": "runtime_source_unchanged", "passed": true, "scenarios": []}]}
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

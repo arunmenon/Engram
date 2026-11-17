@@ -1,0 +1,7 @@
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+status 200
+engram_http_requests_total {'method': 'GET', 'endpoint': '/context/{session_id}', 'status': '200'} 1.0
+engram_http_requests_created {'method': 'GET', 'endpoint': '/context/{session_id}', 'status': '200'} 1791391679.461641

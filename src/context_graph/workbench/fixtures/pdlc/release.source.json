@@ -1,0 +1,367 @@
+[
+  {
+    "id": "github_pull_request_opened",
+    "source": "tests/fixtures/webhooks/github_pull_request_opened.json",
+    "provider": "github",
+    "source_payload": {
+      "action": "opened",
+      "number": 7,
+      "pull_request": {
+        "number": 7,
+        "title": "Fix refund retry",
+        "body": "Fixes PAY-341\n\nRetries refunds once.",
+        "head": {
+          "sha": "abc123",
+          "ref": "fix-retry"
+        },
+        "merged": false,
+        "merge_commit_sha": null,
+        "created_at": "2026-10-01T09:00:00Z",
+        "updated_at": "2026-10-01T09:00:00Z",
+        "user": {
+          "login": "ann"
+        }
+      },
+      "repository": {
+        "full_name": "acme/payments",
+        "name": "payments"
+      },
+      "sender": {
+        "login": "ann"
+      }
+    },
+    "source_event": "pull_request",
+    "request": {
+      "event_id": "53ae2eaf-604e-5450-ac8a-e6077f494335",
+      "event_type": "pdlc.change.created",
+      "occurred_at": "2026-10-01T09:00:00Z",
+      "session_id": "acme/payments",
+      "agent_id": "webhook:github",
+      "trace_id": "fixture-0",
+      "payload_ref": "fixture:github_pull_request_opened",
+      "payload": {
+        "repo": "acme/payments",
+        "number": 7,
+        "title": "Fix refund retry",
+        "body": "Fixes PAY-341\n\nRetries refunds once.",
+        "head_sha": "abc123",
+        "files": []
+      }
+    }
+  },
+  {
+    "id": "github_check_run_completed",
+    "source": "tests/fixtures/webhooks/github_check_run_completed.json",
+    "provider": "github",
+    "source_payload": {
+      "action": "completed",
+      "check_run": {
+        "id": 555,
+        "name": "unit-tests",
+        "conclusion": "failure",
+        "head_sha": "abc123",
+        "completed_at": "2026-10-01T10:30:00Z",
+        "pull_requests": [
+          {
+            "number": 7
+          }
+        ]
+      },
+      "repository": {
+        "full_name": "acme/payments",
+        "name": "payments"
+      }
+    },
+    "source_event": "check_run",
+    "request": {
+      "event_id": "8e5093bf-daa1-58f3-8a68-5090742661a4",
+      "event_type": "pdlc.testcaserun.finished",
+      "occurred_at": "2026-10-01T10:30:00Z",
+      "session_id": "acme/payments",
+      "agent_id": "webhook:github",
+      "trace_id": "fixture-1",
+      "payload_ref": "fixture:github_check_run_completed",
+      "payload": {
+        "repo": "acme/payments",
+        "test_id": "unit-tests",
+        "name": "unit-tests",
+        "path": null,
+        "run_id": "555",
+        "outcome": "failure",
+        "commit_sha": "abc123",
+        "change_number": 7
+      }
+    }
+  },
+  {
+    "id": "github_pull_request_review_submitted",
+    "source": "tests/fixtures/webhooks/github_pull_request_review_submitted.json",
+    "provider": "github",
+    "source_payload": {
+      "action": "submitted",
+      "review": {
+        "id": 9001,
+        "state": "approved",
+        "submitted_at": "2026-10-01T11:00:00Z",
+        "user": {
+          "login": "bo"
+        }
+      },
+      "pull_request": {
+        "number": 7,
+        "title": "Fix refund retry"
+      },
+      "repository": {
+        "full_name": "acme/payments",
+        "name": "payments"
+      }
+    },
+    "source_event": "pull_request_review",
+    "request": {
+      "event_id": "6d1eb060-f28c-52f9-92c2-c412cd16a065",
+      "event_type": "pdlc.change.reviewed",
+      "occurred_at": "2026-10-01T11:00:00Z",
+      "session_id": "acme/payments",
+      "agent_id": "webhook:github",
+      "trace_id": "fixture-2",
+      "payload_ref": "fixture:github_pull_request_review_submitted",
+      "payload": {
+        "repo": "acme/payments",
+        "number": 7,
+        "review_id": "9001",
+        "verdict": "approved"
+      }
+    }
+  },
+  {
+    "id": "github_pull_request_merged",
+    "source": "tests/fixtures/webhooks/github_pull_request_merged.json",
+    "provider": "github",
+    "source_payload": {
+      "action": "closed",
+      "number": 7,
+      "pull_request": {
+        "number": 7,
+        "title": "Fix refund retry",
+        "body": "Fixes PAY-341\n\nRetries refunds once.",
+        "head": {
+          "sha": "abc123"
+        },
+        "merged": true,
+        "merge_commit_sha": "def456",
+        "merged_at": "2026-10-01T12:00:00Z",
+        "closed_at": "2026-10-01T12:00:00Z"
+      },
+      "repository": {
+        "full_name": "acme/payments",
+        "name": "payments"
+      }
+    },
+    "source_event": "pull_request",
+    "request": {
+      "event_id": "92faf443-ca0d-5e59-973c-68287075b498",
+      "event_type": "pdlc.change.merged",
+      "occurred_at": "2026-10-01T12:00:00Z",
+      "session_id": "acme/payments",
+      "agent_id": "webhook:github",
+      "trace_id": "fixture-3",
+      "payload_ref": "fixture:github_pull_request_merged",
+      "payload": {
+        "repo": "acme/payments",
+        "number": 7,
+        "title": "Fix refund retry",
+        "body": "Fixes PAY-341\n\nRetries refunds once.",
+        "merge_sha": "def456",
+        "files": []
+      }
+    }
+  },
+  {
+    "id": "jira_issue_created",
+    "source": "tests/fixtures/webhooks/jira_issue_created.json",
+    "provider": "jira",
+    "source_payload": {
+      "timestamp": 1759395600000,
+      "webhookEvent": "jira:issue_created",
+      "issue": {
+        "id": "10001",
+        "key": "PAY-341",
+        "fields": {
+          "summary": "Refund retries",
+          "issuetype": {
+            "name": "Story"
+          },
+          "status": {
+            "name": "To Do"
+          },
+          "project": {
+            "key": "PAY"
+          },
+          "parent": {
+            "key": "PAY-300"
+          },
+          "resolution": null
+        }
+      },
+      "user": {
+        "displayName": "Ann"
+      }
+    },
+    "source_event": null,
+    "request": {
+      "event_id": "93d28a5d-8c33-5170-b809-549c7f48e6ce",
+      "event_type": "pdlc.ticket.created",
+      "occurred_at": "2025-10-02T09:00:00+00:00",
+      "session_id": "jira:PAY",
+      "agent_id": "webhook:jira",
+      "trace_id": "fixture-4",
+      "payload_ref": "fixture:jira_issue_created",
+      "payload": {
+        "tracker": "jira",
+        "key": "PAY-341",
+        "title": "Refund retries",
+        "work_type": "story",
+        "status": "To Do",
+        "parent_key": "PAY-300",
+        "resolution": null
+      }
+    }
+  },
+  {
+    "id": "github_release_published",
+    "source": "tests/fixtures/webhooks/github_release_published.json",
+    "provider": "github",
+    "source_payload": {
+      "action": "published",
+      "release": {
+        "tag_name": "v1.4.0",
+        "published_at": "2026-10-02T08:00:00Z",
+        "body": "## Fixed\n- Fix refund retry (#7)\n- Tidy logs #8"
+      },
+      "repository": {
+        "full_name": "acme/payments",
+        "name": "payments"
+      }
+    },
+    "source_event": "release",
+    "request": {
+      "event_id": "07f3e964-a0b5-57f5-b121-acf77e86dbf7",
+      "event_type": "pdlc.release.published",
+      "occurred_at": "2026-10-02T08:00:00Z",
+      "session_id": "acme/payments",
+      "agent_id": "webhook:github",
+      "trace_id": "fixture-5",
+      "payload_ref": "fixture:github_release_published",
+      "payload": {
+        "repo": "acme/payments",
+        "version": "v1.4.0",
+        "has_breaking": false,
+        "entries": [
+          {
+            "pr_number": 7,
+            "section": "other"
+          },
+          {
+            "pr_number": 8,
+            "section": "other"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": "github_deployment_status_success",
+    "source": "tests/fixtures/webhooks/github_deployment_status_success.json",
+    "provider": "github",
+    "source_payload": {
+      "action": "created",
+      "deployment_status": {
+        "state": "success",
+        "environment": "production",
+        "created_at": "2026-10-02T09:00:00Z"
+      },
+      "deployment": {
+        "environment": "production",
+        "sha": "def456",
+        "ref": "main"
+      },
+      "repository": {
+        "full_name": "acme/payments",
+        "name": "payments"
+      }
+    },
+    "source_event": "deployment_status",
+    "request": {
+      "event_id": "32de3092-1b39-56a2-9ce6-53d33e420b9f",
+      "event_type": "pdlc.service.deployed",
+      "occurred_at": "2026-10-02T09:00:00Z",
+      "session_id": "acme/payments",
+      "agent_id": "webhook:github",
+      "trace_id": "fixture-6",
+      "payload_ref": "fixture:github_deployment_status_success",
+      "payload": {
+        "service": "acme/payments",
+        "environment": "production",
+        "artifact_id": "def456",
+        "repo": "acme/payments",
+        "change_numbers": []
+      }
+    }
+  },
+  {
+    "id": "jira_issue_updated_done",
+    "source": "tests/fixtures/webhooks/jira_issue_updated_done.json",
+    "provider": "jira",
+    "source_payload": {
+      "timestamp": 1759482000000,
+      "webhookEvent": "jira:issue_updated",
+      "issue": {
+        "id": "10001",
+        "key": "PAY-341",
+        "fields": {
+          "summary": "Refund retries",
+          "issuetype": {
+            "name": "Story"
+          },
+          "status": {
+            "name": "Done"
+          },
+          "project": {
+            "key": "PAY"
+          },
+          "resolution": {
+            "name": "Fixed"
+          }
+        }
+      },
+      "changelog": {
+        "items": [
+          {
+            "field": "status",
+            "fromString": "In Progress",
+            "toString": "Done"
+          }
+        ]
+      }
+    },
+    "source_event": null,
+    "request": {
+      "event_id": "c83b1d4b-e32f-5b6a-90fc-e5431288e717",
+      "event_type": "pdlc.ticket.closed",
+      "occurred_at": "2025-10-03T09:00:00+00:00",
+      "session_id": "jira:PAY",
+      "agent_id": "webhook:jira",
+      "trace_id": "fixture-7",
+      "payload_ref": "fixture:jira_issue_updated_done",
+      "payload": {
+        "tracker": "jira",
+        "key": "PAY-341",
+        "title": "Refund retries",
+        "work_type": "story",
+        "status": "Done",
+        "parent_key": null,
+        "resolution": "Fixed"
+      }
+    }
+  }
+]

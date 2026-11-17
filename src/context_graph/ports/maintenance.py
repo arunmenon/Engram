@@ -42,6 +42,14 @@ class GraphMaintenance(Protocol):
         """Write a summary node and SUMMARIZES edges to the covered events."""
         ...
 
+    async def count_edges_by_type_and_age(self, min_score: float, max_age_hours: int) -> int:
+        """Count edges matching delete_edges_by_type_and_age without mutation.
+
+        This is an estimate from the current graph; concurrent writes may change
+        the subsequent live deletion count.
+        """
+        ...
+
     async def delete_edges_by_type_and_age(
         self,
         min_score: float,

@@ -1,0 +1,336 @@
+{
+  "runtime_source_unchanged_during_run": true,
+  "checks": [
+    {
+      "name": "timezone_refusal_all_ingress_routes_and_aware_UTC_storage",
+      "scenarios": [
+        "ING-01",
+        "ING-02",
+        "ING-05"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "refusals": [
+          {
+            "field": "occurred_at",
+            "single_status": 422,
+            "single": {
+              "detail": [
+                {
+                  "type": "timezone_required",
+                  "loc": [
+                    "occurred_at"
+                  ],
+                  "msg": "Timestamp requires an explicit timezone",
+                  "input": "2026-10-06T12:00:00"
+                }
+              ]
+            },
+            "batch_status": 422,
+            "batch": {
+              "accepted": 0,
+              "rejected": 1,
+              "results": [],
+              "errors": [
+                {
+                  "index": 0,
+                  "event_id": "ed200633-400e-48c4-badd-89c3c71ae0ab",
+                  "errors": [
+                    {
+                      "field": "occurred_at",
+                      "message": "Timestamp requires an explicit timezone"
+                    }
+                  ]
+                }
+              ]
+            },
+            "import_status": 200,
+            "import": [
+              {
+                "index": 0,
+                "event_id": "ed200633-400e-48c4-badd-89c3c71ae0ab",
+                "errors": [
+                  {
+                    "field": "occurred_at",
+                    "message": "Timestamp requires an explicit timezone"
+                  }
+                ],
+                "status": "rejected"
+              },
+              {
+                "summary": {
+                  "received": 1,
+                  "order": "occurred_at",
+                  "created": 0,
+                  "duplicate": 0,
+                  "rejected": 1,
+                  "failed": 0
+                }
+              }
+            ]
+          },
+          {
+            "field": "ended_at",
+            "single_status": 422,
+            "single": {
+              "detail": [
+                {
+                  "type": "timezone_required",
+                  "loc": [
+                    "ended_at"
+                  ],
+                  "msg": "Timestamp requires an explicit timezone",
+                  "input": "2026-10-06T12:00:00"
+                }
+              ]
+            },
+            "batch_status": 422,
+            "batch": {
+              "accepted": 0,
+              "rejected": 1,
+              "results": [],
+              "errors": [
+                {
+                  "index": 0,
+                  "event_id": "a9d9ceee-9d3c-43b8-b67e-cb8991a85f3a",
+                  "errors": [
+                    {
+                      "field": "ended_at",
+                      "message": "Timestamp requires an explicit timezone"
+                    }
+                  ]
+                }
+              ]
+            },
+            "import_status": 200,
+            "import": [
+              {
+                "index": 0,
+                "event_id": "a9d9ceee-9d3c-43b8-b67e-cb8991a85f3a",
+                "errors": [
+                  {
+                    "field": "ended_at",
+                    "message": "Timestamp requires an explicit timezone"
+                  }
+                ],
+                "status": "rejected"
+              },
+              {
+                "summary": {
+                  "received": 1,
+                  "order": "occurred_at",
+                  "created": 0,
+                  "duplicate": 0,
+                  "rejected": 1,
+                  "failed": 0
+                }
+              }
+            ]
+          }
+        ],
+        "aware_status": 201,
+        "normalized_stored_timestamp": "2026-10-06T17:13:58.606451Z",
+        "invalid_rows_appended": 0
+      },
+      "seconds": 0.61
+    },
+    {
+      "name": "gzip_complete_member_required_before_append",
+      "scenarios": [
+        "ING-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "invalid_gzip": [
+          {
+            "status": 400,
+            "response": {
+              "detail": [
+                {
+                  "message": "body is an incomplete gzip stream"
+                }
+              ]
+            }
+          },
+          {
+            "status": 400,
+            "response": {
+              "detail": [
+                {
+                  "message": "body is an incomplete gzip stream"
+                }
+              ]
+            }
+          },
+          {
+            "status": 400,
+            "response": {
+              "detail": [
+                {
+                  "message": "body is an incomplete gzip stream"
+                }
+              ]
+            }
+          },
+          {
+            "status": 400,
+            "response": {
+              "detail": [
+                {
+                  "message": "body contains data after the gzip stream"
+                }
+              ]
+            }
+          }
+        ],
+        "valid_status": 201,
+        "ledger_delta": 1
+      },
+      "seconds": 0.53
+    },
+    {
+      "name": "transient_single_batch_first_chunk_and_uncertain_commit_safe_retries",
+      "scenarios": [
+        "ING-04",
+        "OPS-03"
+      ],
+      "verdict": "passed",
+      "observation": [
+        {
+          "route": "/v1/events",
+          "uncertain_commit": false,
+          "failure_status": 503,
+          "failure": {
+            "detail": "Storage temporarily unavailable",
+            "ingestion_retry": "Preserve original event IDs; prior writes may have committed"
+          },
+          "retry_after": "1",
+          "documents_before_retry": 0,
+          "retry_status": 201,
+          "retry": {
+            "event_id": "e748d98e-61f7-4145-9d2a-d9bac9c0ffc4",
+            "global_position": "2026-10-06T17:15:59.743023000Z/000000/e748d98e-61f7-4145-9d2a-d9bac9c0ffc4",
+            "status": "created"
+          },
+          "final_documents": 1,
+          "scope": "synthetic neutral exception; uncertain case performs actual Spanner commit before exception"
+        },
+        {
+          "route": "/v1/events",
+          "uncertain_commit": true,
+          "failure_status": 503,
+          "failure": {
+            "detail": "Storage temporarily unavailable",
+            "ingestion_retry": "Preserve original event IDs; prior writes may have committed"
+          },
+          "retry_after": "1",
+          "documents_before_retry": 1,
+          "retry_status": 201,
+          "retry": {
+            "event_id": "b2f49437-c24e-4871-a5ca-8ca381790205",
+            "global_position": "2026-10-06T17:16:00.082175000Z/000000/b2f49437-c24e-4871-a5ca-8ca381790205",
+            "status": "duplicate"
+          },
+          "final_documents": 1,
+          "scope": "synthetic neutral exception; uncertain case performs actual Spanner commit before exception"
+        },
+        {
+          "route": "/v1/events/batch",
+          "uncertain_commit": false,
+          "failure_status": 503,
+          "failure": {
+            "detail": "Storage temporarily unavailable",
+            "ingestion_retry": "Preserve original event IDs; prior writes may have committed"
+          },
+          "retry_after": "1",
+          "documents_before_retry": 0,
+          "retry_status": 201,
+          "retry": {
+            "accepted": 2,
+            "rejected": 0,
+            "results": [
+              {
+                "event_id": "c7b2bd86-16e0-444f-80a9-0545c812a456",
+                "global_position": "2026-10-06T17:16:00.788271000Z/000000/c7b2bd86-16e0-444f-80a9-0545c812a456",
+                "status": "created"
+              },
+              {
+                "event_id": "b10128db-ac25-4820-a737-f344557f7ae1",
+                "global_position": "2026-10-06T17:16:00.788271000Z/000001/b10128db-ac25-4820-a737-f344557f7ae1",
+                "status": "created"
+              }
+            ],
+            "errors": []
+          },
+          "final_documents": 2,
+          "scope": "synthetic neutral exception; uncertain case performs actual Spanner commit before exception"
+        },
+        {
+          "route": "/v1/events/batch",
+          "uncertain_commit": true,
+          "failure_status": 503,
+          "failure": {
+            "detail": "Storage temporarily unavailable",
+            "ingestion_retry": "Preserve original event IDs; prior writes may have committed"
+          },
+          "retry_after": "1",
+          "documents_before_retry": 2,
+          "retry_status": 201,
+          "retry": {
+            "accepted": 2,
+            "rejected": 0,
+            "results": [
+              {
+                "event_id": "4c175721-2a24-4c29-84ac-fab6b2ecdb8e",
+                "global_position": "2026-10-06T17:16:01.123151000Z/000000/4c175721-2a24-4c29-84ac-fab6b2ecdb8e",
+                "status": "duplicate"
+              },
+              {
+                "event_id": "e6f958b2-a93d-4618-986b-d32e3cb40650",
+                "global_position": "2026-10-06T17:16:01.123151000Z/000001/e6f958b2-a93d-4618-986b-d32e3cb40650",
+                "status": "duplicate"
+              }
+            ],
+            "errors": []
+          },
+          "final_documents": 2,
+          "scope": "synthetic neutral exception; uncertain case performs actual Spanner commit before exception"
+        }
+      ],
+      "seconds": 2.11
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "table": "Events",
+      "rows": 1
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

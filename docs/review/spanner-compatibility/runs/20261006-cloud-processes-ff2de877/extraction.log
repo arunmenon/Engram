@@ -1,0 +1,19 @@
+2026-10-06 15:44:25 [info     ] worker_starting                consumer=extraction neo4j_uri=bolt://localhost:7687 redis_host=localhost storage={'event_log': 'spanner', 'subscription': 'spanner', 'graph': 'spanner', 'keyword_index': 'spanner', 'vector_index': 'spanner', 'archive': 'fs'}
+2026-10-06 15:44:27 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 15:44:27 [info     ] worker_running                 consumer=extraction
+2026-10-06 15:44:27 [info     ] consumer_started               consumer=extraction-1 group=session-extraction stream=Events
+2026-10-06 15:44:27 [info     ] pending_drain_completed        group=session-extraction
+2026-10-06 15:44:28 [info     ] extraction_triggered           agent_id=compat-process entry_id=2026-10-06T10:14:19.698863000Z/000000/9a5327c1-66f2-445b-bb54-54ef7cd0a2ef session_id=compat-process
+2026-10-06 15:44:29 [info     ] extraction_wrote_user_profile  persona_name='Process User' persona_role=None session_id=compat-process user_entity_id=user:compat-process
+2026-10-06 15:44:33 [info     ] loading_embedding_model        device=cpu model=all-MiniLM-L6-v2
+
+Loading weights:   0%|          | 0/103 [00:00<?, ?it/s]
+Loading weights: 100%|██████████| 103/103 [00:00<00:00, 15321.25it/s]
+2026-10-06 15:44:43 [info     ] extraction_results_written     session_id=compat-process user_entity_id=user:compat-process
+2026-10-06 15:44:43 [info     ] extraction_completed           entities=1 interests=0 preferences=0 session_id=compat-process skills=1
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).
+2026-10-06 15:45:33 [info     ] shutdown_signal_received       consumer=extraction
+2026-10-06 15:45:33 [info     ] consumer_stopped               consumer=extraction-1 group=session-extraction
+2026-10-06 15:45:33 [info     ] worker_shutting_down           consumer=extraction
+2026-10-06 15:45:33 [info     ] worker_stopped                 consumer=extraction
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

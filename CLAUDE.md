@@ -307,3 +307,17 @@ Future (Phase 3+): `sentence-transformers, instructor, litellm`
 | domain-architect | `domain/extraction.py`, `domain/entity_resolution.py`, `domain/models.py` (extend) |
 | data-engineer | `worker/extraction.py`, `adapters/llm/client.py`, `adapters/neo4j/user_queries.py` |
 | api-engineer | `api/routes/users.py`, extend `api/routes/query.py` |
+
+
+## Operator UI and AI-native interaction reviews
+
+For substantive workbench/operator UI work, including explain panels, request review,
+onboarding usability and narrow/430px layouts, read
+`.claude/skills/ai-native-ui-review/SKILL.md` and its relevant references. The declarative
+routing index is `.claude/skills/skill-rules.json`; match task meaning, not keywords alone.
+This instruction supplies routing; no automatic skill hook is assumed or installed.
+
+The project-local copy is available without Codex's home directory. When updating the
+installed Codex skill or this mirror, synchronize both intentionally and verify content
+matches; do not overwrite an independently changed copy silently. All existing task,
+review and authorization boundaries still apply.

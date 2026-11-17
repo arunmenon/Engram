@@ -1,0 +1,1472 @@
+{
+  "before_rows": {
+    "Events": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphNodes": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphEdges": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerGroups": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerCursors": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeliveries": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeadLetters": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "before_ddl": [
+    "CREATE TABLE ConsumerCursors (\n  group_name STRING(MAX) NOT NULL,\n  shard INT64 NOT NULL,\n  commit_ts TIMESTAMP NOT NULL,\n  batch_index INT64 NOT NULL,\n  event_id STRING(64) NOT NULL,\n) PRIMARY KEY(group_name, shard)",
+    "CREATE TABLE ConsumerDeadLetters (\n  group_name STRING(MAX) NOT NULL,\n  event_id STRING(64) NOT NULL,\n  dead_lettered_at TIMESTAMP NOT NULL,\n  fields JSON NOT NULL,\n) PRIMARY KEY(group_name, event_id)",
+    "CREATE TABLE ConsumerDeliveries (\n  group_name STRING(MAX) NOT NULL,\n  event_id STRING(64) NOT NULL,\n  consumer STRING(MAX) NOT NULL,\n  delivery_count INT64 NOT NULL,\n  last_delivered_at TIMESTAMP NOT NULL,\n  commit_ts TIMESTAMP NOT NULL,\n  batch_index INT64 NOT NULL,\n) PRIMARY KEY(group_name, event_id)",
+    "CREATE INDEX ConsumerDeliveriesByConsumer ON ConsumerDeliveries(group_name, consumer, commit_ts, batch_index)",
+    "CREATE TABLE ConsumerGroups (\n  group_name STRING(MAX) NOT NULL,\n  created_at TIMESTAMP NOT NULL,\n) PRIMARY KEY(group_name)",
+    "CREATE TABLE Events (\n  event_id STRING(64) NOT NULL,\n  shard INT64 NOT NULL,\n  commit_ts TIMESTAMP NOT NULL OPTIONS (\n    allow_commit_timestamp = true\n  ),\n  batch_index INT64 NOT NULL,\n  session_id STRING(MAX) NOT NULL,\n  occurred_at_ms INT64 NOT NULL,\n  session_tag STRING(MAX),\n  agent_tag STRING(MAX),\n  trace_tag STRING(MAX),\n  event_type_tag STRING(MAX),\n  tool_name_tag STRING(MAX),\n  document JSON,\n  legacy_position STRING(MAX),\n  in_log BOOL NOT NULL,\n  in_session_index BOOL NOT NULL,\n  dedup_active BOOL NOT NULL,\n  summary STRING(MAX),\n  keywords STRING(MAX),\n  search_text STRING(MAX),\n  summary_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(summary)) HIDDEN,\n  keywords_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(keywords)) HIDDEN,\n  search_text_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(search_text)) HIDDEN,\n  text_tokens TOKENLIST AS (TOKENLIST_CONCAT([summary_tokens, keywords_tokens, search_text_tokens])) HIDDEN,\n  acceptance JSON,\n) PRIMARY KEY(event_id)",
+    "CREATE INDEX EventsBySession ON Events(session_id, commit_ts, batch_index)",
+    "CREATE INDEX EventsBySessionTag ON Events(session_tag, occurred_at_ms)",
+    "CREATE INDEX EventsByShardPosition ON Events(shard, commit_ts, batch_index)",
+    "CREATE SEARCH INDEX EventsText ON Events(text_tokens) STORING (session_tag)",
+    "CREATE TABLE GraphEdges (\n  src_label STRING(64) NOT NULL,\n  src_id STRING(MAX) NOT NULL,\n  edge_type STRING(64) NOT NULL,\n  dst_label STRING(64) NOT NULL,\n  dst_id STRING(MAX) NOT NULL,\n  props JSON NOT NULL,\n) PRIMARY KEY(src_label, src_id, edge_type, dst_label, dst_id)",
+    "CREATE INDEX GraphEdgesByTarget ON GraphEdges(dst_label, dst_id, edge_type) STORING (props)",
+    "CREATE INDEX GraphEdgesByType ON GraphEdges(edge_type) STORING (props)",
+    "CREATE TABLE GraphNodes (\n  label STRING(64) NOT NULL,\n  node_id STRING(MAX) NOT NULL,\n  props JSON NOT NULL,\n  session_id STRING(MAX) AS (JSON_VALUE(props, '$.session_id')) STORED,\n  embedding ARRAY<FLOAT64>(vector_length=>384),\n  entity_embedding_member BOOL AS (IF(label = 'Entity', TRUE, NULL)) HIDDEN,\n) PRIMARY KEY(label, node_id)",
+    "CREATE INDEX GraphNodesBySession ON GraphNodes(label, session_id) STORING (props)",
+    "CREATE VECTOR INDEX GraphEntitiesByEmbeddingV1 ON GraphNodes(embedding) STORING (entity_embedding_member) WHERE embedding IS NOT NULL AND entity_embedding_member IS NOT NULL OPTIONS (\n  distance_type = 'COSINE'\n)",
+    "CREATE VECTOR INDEX GraphNodesByEmbedding ON GraphNodes(embedding) WHERE embedding IS NOT NULL OPTIONS (\n  distance_type = 'COSINE'\n)",
+    "CREATE TABLE TenantControl (\n  control_id STRING(16) NOT NULL,\n  tenant_id STRING(128) NOT NULL,\n  database_resource STRING(MAX) NOT NULL,\n  binding_id STRING(128) NOT NULL,\n  epoch INT64 NOT NULL,\n  bundle_digest STRING(80) NOT NULL,\n  serving_state STRING(16) NOT NULL,\n) PRIMARY KEY(control_id)",
+    "CREATE PROPERTY GRAPH EngramGraph\n  NODE TABLES(\n    GraphNodes\n      KEY(label, node_id)\n      LABEL GraphNodes PROPERTIES(\n        embedding,\n        label,\n        node_id,\n        props,\n        session_id)\n      DYNAMIC LABEL (label)\n      DYNAMIC PROPERTIES (props)\n  )\n  EDGE TABLES(\n    GraphEdges\n      KEY(src_label, src_id, edge_type, dst_label, dst_id)\n      SOURCE KEY(src_id, src_label) REFERENCES GraphNodes(node_id, label)\n      DESTINATION KEY(dst_id, dst_label) REFERENCES GraphNodes(node_id, label)\n      LABEL GraphEdges PROPERTIES(\n        dst_id,\n        dst_label,\n        edge_type,\n        props,\n        src_id,\n        src_label)\n      DYNAMIC LABEL (edge_type)\n      DYNAMIC PROPERTIES (props)\n  )"
+  ],
+  "control_table_present_before": true,
+  "control_owner_before": [
+    [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      6,
+      "sha256:7c4c2c9cb07539c5841b80b5cb5adfcb9b14d23f350258eb29f1c00325134b6d",
+      "active"
+    ]
+  ],
+  "source_trust_intent": {
+    "prior_evidence": "docs/review/spanner-compatibility/runs/20261007-cloud-writer-admission-01/schema-evidence.json",
+    "prior_sha256": "0592597ea29fc57a8ccccb9132b78cdd9832d4027c3251ce3423f7a6ae93f27b",
+    "expected_old": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      6,
+      "sha256:7c4c2c9cb07539c5841b80b5cb5adfcb9b14d23f350258eb29f1c00325134b6d",
+      "active"
+    ],
+    "frozen_old": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      6,
+      "sha256:7c4c2c9cb07539c5841b80b5cb5adfcb9b14d23f350258eb29f1c00325134b6d",
+      "frozen"
+    ],
+    "experiment": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      7,
+      "sha256:a2252ed22d7a2cef5cff107f4374cdda5407153807684929d3a5391d5d2141b1",
+      "active"
+    ],
+    "frozen_experiment": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      7,
+      "sha256:a2252ed22d7a2cef5cff107f4374cdda5407153807684929d3a5391d5d2141b1",
+      "frozen"
+    ],
+    "restore": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      8,
+      "sha256:f57ffb649f7ab0197d21f45b9397203887f8cb103e32efd784f4e52ce4c3f7b1",
+      "active"
+    ],
+    "preactivation_recovery": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      7,
+      "sha256:f57ffb649f7ab0197d21f45b9397203887f8cb103e32efd784f4e52ce4c3f7b1",
+      "active"
+    ],
+    "experimental_config": {
+      "app_name": "context-graph",
+      "debug": false,
+      "log_level": "INFO",
+      "uvicorn_workers": 4,
+      "cors_origins": [
+        "http://localhost:5173"
+      ],
+      "decay": {
+        "s_base": 168.0,
+        "s_boost": 24.0,
+        "entity_s_base": 336.0,
+        "entity_s_boost": 24.0,
+        "weight_recency": 1.0,
+        "weight_importance": 1.0,
+        "weight_relevance": 1.0,
+        "weight_user_affinity": 0.5,
+        "similarity_threshold": 0.85,
+        "reflection_threshold": 150,
+        "reconsolidation_interval_hours": 6.0
+      },
+      "retention": {
+        "hot_hours": 24,
+        "warm_hours": 168,
+        "cold_hours": 720,
+        "warm_min_similarity_score": 0.7,
+        "cold_min_importance": 5,
+        "cold_min_access_count": 3,
+        "orphan_cleanup_batch_size": 500,
+        "log_hot_window_days": 7,
+        "log_retention_ceiling_days": 90,
+        "log_session_index_max_age_hours": 168
+      },
+      "query": {
+        "default_max_depth": 3,
+        "max_max_depth": 10,
+        "default_max_nodes": 100,
+        "max_max_nodes": 500,
+        "default_timeout_ms": 5000,
+        "max_timeout_ms": 30000,
+        "intent_confidence_threshold": 0.3,
+        "default_neighbor_limit": 50
+      },
+      "preference": {
+        "stability_communication": 720.0,
+        "stability_environment": 720.0,
+        "stability_tool": 336.0,
+        "stability_workflow": 336.0,
+        "stability_domain": 168.0,
+        "stability_style": 168.0,
+        "stability_behavioral_pattern": 336.0,
+        "min_confidence_explicit": 0.7,
+        "min_confidence_implicit_intentional": 0.4,
+        "min_confidence_implicit_unintentional": 0.3,
+        "min_confidence_inferred": 0.15,
+        "max_preferences_per_user": 500
+      },
+      "embedding": {
+        "model_name": "all-MiniLM-L6-v2",
+        "dimensions": 384,
+        "device": "cpu",
+        "same_as_threshold": 0.9,
+        "related_to_threshold": 0.75,
+        "knn_k": 10,
+        "batch_size": 64
+      },
+      "archive": {
+        "backend": "fs",
+        "enabled": false,
+        "fs_base_path": "/tmp/engram-archives",
+        "gcs_bucket": "",
+        "gcs_prefix": "engram/archives",
+        "gcs_endpoint": "",
+        "batch_size": 1000
+      },
+      "consumer": {
+        "claim_idle_ms": 300000,
+        "claim_batch_size": 100,
+        "max_retries": 5,
+        "transient_backoff_ms": 200,
+        "transient_backoff_max_ms": 10000,
+        "projection_batch_size": 1,
+        "projection_batch_timeout_ms": 100,
+        "dlq_stream_suffix": ":dlq",
+        "source": "events:__global__",
+        "group_projection": "graph-projection",
+        "group_extraction": "session-extraction",
+        "group_enrichment": "enrichment",
+        "group_consolidation": "consolidation",
+        "group_pack_extraction": "pack-extraction",
+        "block_timeout_ms": 5000
+      },
+      "intent": {
+        "use_llm": false,
+        "fallback_on_error": true,
+        "timeout_seconds": 5
+      },
+      "hyde": {
+        "enabled": false,
+        "temperature": 0.7,
+        "max_tokens": 256,
+        "hot_path_timeout_seconds": 2.0
+      },
+      "ppr": {
+        "enabled": false,
+        "damping": 0.85,
+        "iterations": 5,
+        "max_subgraph_size": 500,
+        "blend_weight": 0.3
+      },
+      "rate_limit": {
+        "enabled": true,
+        "standard_rpm": 120,
+        "admin_rpm": 30,
+        "max_clients": 10000
+      },
+      "ingest": {
+        "max_body_bytes": 10000000,
+        "batch_max_events": 1000,
+        "import_max_body_bytes": 200000000,
+        "import_max_events": 500000,
+        "import_batch_size": 500,
+        "body_read_timeout_s": 60.0,
+        "events_per_minute": 60000
+      },
+      "simulation": {
+        "default_model_id": "gpt-4o-mini",
+        "default_temperature": 0.7,
+        "max_turns": 50,
+        "max_tokens_per_turn": 512,
+        "allowed_models": [
+          "gpt-4o-mini",
+          "gpt-4o",
+          "gpt-4.1-mini",
+          "gpt-4.1-nano"
+        ]
+      },
+      "storage": {
+        "event_log": "spanner",
+        "subscription": "spanner",
+        "graph": "spanner",
+        "keyword_index": "spanner",
+        "vector_index": "spanner",
+        "archive": "fs"
+      },
+      "spanner": {
+        "project": "portiq-mvp",
+        "instance": "engram-experiment",
+        "database": "engram-compat-target",
+        "emulator_host": null,
+        "create_if_missing": false,
+        "allow_create_on_instance": false,
+        "check_schema": true,
+        "commit_max_mutations": 40000,
+        "commit_max_bytes": 52428800,
+        "retention_batch_rows": 1000,
+        "shards": 16,
+        "poll_interval_ms": 50,
+        "embedding_dimensions": 384
+      },
+      "migration": {
+        "batch_size": 500,
+        "poll_interval_ms": 1000,
+        "sample_sessions": 50
+      },
+      "keyword": {
+        "text_max_chars": 8000,
+        "max_query_terms": 16
+      },
+      "ontology": {
+        "packs": [
+          "pdlc"
+        ],
+        "builtin_packs": [],
+        "pack_dirs": [],
+        "trusted_sources": [
+          "forged-agent",
+          "webhook:github"
+        ],
+        "trusted_source_ids": [
+          "verified-producer"
+        ],
+        "lookup_limit": 1000,
+        "retrieval_seed_limit": 10,
+        "retrieval_neighbor_limit": 200,
+        "retrieval_seed_min_ratio": 0.5,
+        "retrieval_max_terms": 16,
+        "retrieval_max_graph_calls": 400,
+        "retrieval_scan_limit": 5000,
+        "retrieval_word_scan_limit": 500,
+        "eval_state_ttl_s": 30.0,
+        "serve_unevaluated": false,
+        "retrieval_max_query_length": 2000,
+        "retrieval_max_seed_ids": 50,
+        "extraction_max_nodes": 20,
+        "extraction_max_links": 40,
+        "extraction_max_text_chars": 20000,
+        "extraction_known_limit": 30,
+        "extraction_search_terms": 12,
+        "extraction_max_value_chars": 4000,
+        "extraction_label_chars": 160,
+        "allow_breaking": false,
+        "allow_version_problems": false,
+        "replay_batch_size": 500
+      }
+    },
+    "restoration_config": {
+      "app_name": "context-graph",
+      "debug": false,
+      "log_level": "INFO",
+      "uvicorn_workers": 4,
+      "cors_origins": [
+        "http://localhost:5173"
+      ],
+      "decay": {
+        "s_base": 168.0,
+        "s_boost": 24.0,
+        "entity_s_base": 336.0,
+        "entity_s_boost": 24.0,
+        "weight_recency": 1.0,
+        "weight_importance": 1.0,
+        "weight_relevance": 1.0,
+        "weight_user_affinity": 0.5,
+        "similarity_threshold": 0.85,
+        "reflection_threshold": 150,
+        "reconsolidation_interval_hours": 6.0
+      },
+      "retention": {
+        "hot_hours": 24,
+        "warm_hours": 168,
+        "cold_hours": 720,
+        "warm_min_similarity_score": 0.7,
+        "cold_min_importance": 5,
+        "cold_min_access_count": 3,
+        "orphan_cleanup_batch_size": 500,
+        "log_hot_window_days": 7,
+        "log_retention_ceiling_days": 90,
+        "log_session_index_max_age_hours": 168
+      },
+      "query": {
+        "default_max_depth": 3,
+        "max_max_depth": 10,
+        "default_max_nodes": 100,
+        "max_max_nodes": 500,
+        "default_timeout_ms": 5000,
+        "max_timeout_ms": 30000,
+        "intent_confidence_threshold": 0.3,
+        "default_neighbor_limit": 50
+      },
+      "preference": {
+        "stability_communication": 720.0,
+        "stability_environment": 720.0,
+        "stability_tool": 336.0,
+        "stability_workflow": 336.0,
+        "stability_domain": 168.0,
+        "stability_style": 168.0,
+        "stability_behavioral_pattern": 336.0,
+        "min_confidence_explicit": 0.7,
+        "min_confidence_implicit_intentional": 0.4,
+        "min_confidence_implicit_unintentional": 0.3,
+        "min_confidence_inferred": 0.15,
+        "max_preferences_per_user": 500
+      },
+      "embedding": {
+        "model_name": "all-MiniLM-L6-v2",
+        "dimensions": 384,
+        "device": "cpu",
+        "same_as_threshold": 0.9,
+        "related_to_threshold": 0.75,
+        "knn_k": 10,
+        "batch_size": 64
+      },
+      "archive": {
+        "backend": "fs",
+        "enabled": false,
+        "fs_base_path": "/tmp/engram-archives",
+        "gcs_bucket": "",
+        "gcs_prefix": "engram/archives",
+        "gcs_endpoint": "",
+        "batch_size": 1000
+      },
+      "consumer": {
+        "claim_idle_ms": 300000,
+        "claim_batch_size": 100,
+        "max_retries": 5,
+        "transient_backoff_ms": 200,
+        "transient_backoff_max_ms": 10000,
+        "projection_batch_size": 50,
+        "projection_batch_timeout_ms": 100,
+        "dlq_stream_suffix": ":dlq",
+        "source": "events:__global__",
+        "group_projection": "graph-projection",
+        "group_extraction": "session-extraction",
+        "group_enrichment": "enrichment",
+        "group_consolidation": "consolidation",
+        "group_pack_extraction": "pack-extraction",
+        "block_timeout_ms": 5000
+      },
+      "intent": {
+        "use_llm": false,
+        "fallback_on_error": true,
+        "timeout_seconds": 5
+      },
+      "hyde": {
+        "enabled": false,
+        "temperature": 0.7,
+        "max_tokens": 256,
+        "hot_path_timeout_seconds": 2.0
+      },
+      "ppr": {
+        "enabled": false,
+        "damping": 0.85,
+        "iterations": 5,
+        "max_subgraph_size": 500,
+        "blend_weight": 0.3
+      },
+      "rate_limit": {
+        "enabled": true,
+        "standard_rpm": 120,
+        "admin_rpm": 30,
+        "max_clients": 10000
+      },
+      "ingest": {
+        "max_body_bytes": 10000000,
+        "batch_max_events": 1000,
+        "import_max_body_bytes": 200000000,
+        "import_max_events": 500000,
+        "import_batch_size": 500,
+        "body_read_timeout_s": 60.0,
+        "events_per_minute": 60000
+      },
+      "simulation": {
+        "default_model_id": "gpt-4o-mini",
+        "default_temperature": 0.7,
+        "max_turns": 50,
+        "max_tokens_per_turn": 512,
+        "allowed_models": [
+          "gpt-4o-mini",
+          "gpt-4o",
+          "gpt-4.1-mini",
+          "gpt-4.1-nano"
+        ]
+      },
+      "storage": {
+        "event_log": "spanner",
+        "subscription": "spanner",
+        "graph": "spanner",
+        "keyword_index": "spanner",
+        "vector_index": "spanner",
+        "archive": "fs"
+      },
+      "spanner": {
+        "project": "portiq-mvp",
+        "instance": "engram-experiment",
+        "database": "engram-compat-target",
+        "emulator_host": null,
+        "create_if_missing": false,
+        "allow_create_on_instance": false,
+        "check_schema": true,
+        "commit_max_mutations": 40000,
+        "commit_max_bytes": 52428800,
+        "retention_batch_rows": 1000,
+        "shards": 16,
+        "poll_interval_ms": 50,
+        "embedding_dimensions": 384
+      },
+      "migration": {
+        "batch_size": 500,
+        "poll_interval_ms": 1000,
+        "sample_sessions": 50
+      },
+      "keyword": {
+        "text_max_chars": 8000,
+        "max_query_terms": 16
+      },
+      "ontology": {
+        "packs": [],
+        "builtin_packs": [],
+        "pack_dirs": [],
+        "trusted_sources": [
+          "webhook:github",
+          "webhook:jira"
+        ],
+        "trusted_source_ids": [],
+        "lookup_limit": 1000,
+        "retrieval_seed_limit": 10,
+        "retrieval_neighbor_limit": 200,
+        "retrieval_seed_min_ratio": 0.5,
+        "retrieval_max_terms": 16,
+        "retrieval_max_graph_calls": 400,
+        "retrieval_scan_limit": 5000,
+        "retrieval_word_scan_limit": 500,
+        "eval_state_ttl_s": 30.0,
+        "serve_unevaluated": false,
+        "retrieval_max_query_length": 2000,
+        "retrieval_max_seed_ids": 50,
+        "extraction_max_nodes": 20,
+        "extraction_max_links": 40,
+        "extraction_max_text_chars": 20000,
+        "extraction_known_limit": 30,
+        "extraction_search_terms": 12,
+        "extraction_max_value_chars": 4000,
+        "extraction_label_chars": 160,
+        "allow_breaking": false,
+        "allow_version_problems": false,
+        "replay_batch_size": 500
+      }
+    },
+    "allowed_cleanup_keys": {
+      "Events": [
+        [
+          "d3344bcc-40b8-5621-98fd-476db327a6a4"
+        ],
+        [
+          "060e8ce4-04bc-5905-95c6-311ffd4681f5"
+        ],
+        [
+          "2f06db2c-0223-5c47-9538-78fcd0c4b755"
+        ],
+        [
+          "afd02d20-7ee9-51ca-a80a-39ae0f07fbf3"
+        ]
+      ],
+      "GraphNodes": [
+        [
+          "Event",
+          "d3344bcc-40b8-5621-98fd-476db327a6a4"
+        ],
+        [
+          "Event",
+          "060e8ce4-04bc-5905-95c6-311ffd4681f5"
+        ],
+        [
+          "Event",
+          "2f06db2c-0223-5c47-9538-78fcd0c4b755"
+        ],
+        [
+          "Event",
+          "afd02d20-7ee9-51ca-a80a-39ae0f07fbf3"
+        ],
+        [
+          "Change",
+          "Change:fixture/20261007-cloud-authenticated-source-trust-01|1"
+        ],
+        [
+          "Change",
+          "Change:fixture/20261007-cloud-authenticated-source-trust-01|2"
+        ],
+        [
+          "Decision",
+          "Decision:7b2ce9e7bbf90ad42ca0b1cd8a9e4691ee79f7c261c24cfa69374b08e31bd28b"
+        ],
+        [
+          "Decision",
+          "Decision:39656e41b3bd2449b84e95ea36828c24e45f16c6fd671b1c17599515d68894da"
+        ]
+      ],
+      "GraphEdges": [
+        [
+          "Change",
+          "Change:fixture/20261007-cloud-authenticated-source-trust-01|1",
+          "DERIVED_FROM",
+          "Event",
+          "d3344bcc-40b8-5621-98fd-476db327a6a4"
+        ],
+        [
+          "Change",
+          "Change:fixture/20261007-cloud-authenticated-source-trust-01|2",
+          "DERIVED_FROM",
+          "Event",
+          "060e8ce4-04bc-5905-95c6-311ffd4681f5"
+        ],
+        [
+          "Decision",
+          "Decision:7b2ce9e7bbf90ad42ca0b1cd8a9e4691ee79f7c261c24cfa69374b08e31bd28b",
+          "DERIVED_FROM",
+          "Event",
+          "2f06db2c-0223-5c47-9538-78fcd0c4b755"
+        ],
+        [
+          "Decision",
+          "Decision:39656e41b3bd2449b84e95ea36828c24e45f16c6fd671b1c17599515d68894da",
+          "DERIVED_FROM",
+          "Event",
+          "afd02d20-7ee9-51ca-a80a-39ae0f07fbf3"
+        ]
+      ],
+      "ConsumerGroups": [
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5"
+        ]
+      ],
+      "ConsumerCursors": [
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          0
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          1
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          2
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          3
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          4
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          5
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          6
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          7
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          8
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          9
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          10
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          11
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          12
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          13
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          14
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          15
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          0
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          1
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          2
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          3
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          4
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          5
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          6
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          7
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          8
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          9
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          10
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          11
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          12
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          13
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          14
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          15
+        ]
+      ],
+      "ConsumerDeliveries": [
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          "d3344bcc-40b8-5621-98fd-476db327a6a4"
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          "060e8ce4-04bc-5905-95c6-311ffd4681f5"
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          "2f06db2c-0223-5c47-9538-78fcd0c4b755"
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          "afd02d20-7ee9-51ca-a80a-39ae0f07fbf3"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          "d3344bcc-40b8-5621-98fd-476db327a6a4"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          "060e8ce4-04bc-5905-95c6-311ffd4681f5"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          "2f06db2c-0223-5c47-9538-78fcd0c4b755"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          "afd02d20-7ee9-51ca-a80a-39ae0f07fbf3"
+        ]
+      ],
+      "ConsumerDeadLetters": [
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          "d3344bcc-40b8-5621-98fd-476db327a6a4"
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          "060e8ce4-04bc-5905-95c6-311ffd4681f5"
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          "2f06db2c-0223-5c47-9538-78fcd0c4b755"
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          "afd02d20-7ee9-51ca-a80a-39ae0f07fbf3"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          "d3344bcc-40b8-5621-98fd-476db327a6a4"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          "060e8ce4-04bc-5905-95c6-311ffd4681f5"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          "2f06db2c-0223-5c47-9538-78fcd0c4b755"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          "afd02d20-7ee9-51ca-a80a-39ae0f07fbf3"
+        ]
+      ]
+    },
+    "model": "deterministic two-answer stub, no external LLM",
+    "fixture_kind": "normalized synthetic events, not native/public webhook adapters",
+    "expected_domain_trust": {
+      "Change:fixture/20261007-cloud-authenticated-source-trust-01|1": "trusted",
+      "Change:fixture/20261007-cloud-authenticated-source-trust-01|2": "untrusted",
+      "Decision:7b2ce9e7bbf90ad42ca0b1cd8a9e4691ee79f7c261c24cfa69374b08e31bd28b": "trusted",
+      "Decision:39656e41b3bd2449b84e95ea36828c24e45f16c6fd671b1c17599515d68894da": "untrusted"
+    },
+    "production_activation": false
+  },
+  "operator_intents": [
+    {
+      "operation": "freeze_predecessor",
+      "expected": [
+        "compat-control",
+        "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+        "compat-control-binding",
+        6,
+        "sha256:7c4c2c9cb07539c5841b80b5cb5adfcb9b14d23f350258eb29f1c00325134b6d",
+        "active"
+      ],
+      "intended": [
+        "compat-control",
+        "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+        "compat-control-binding",
+        6,
+        "sha256:7c4c2c9cb07539c5841b80b5cb5adfcb9b14d23f350258eb29f1c00325134b6d",
+        "frozen"
+      ],
+      "state": "verified",
+      "observed": [
+        [
+          "compat-control",
+          "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+          "compat-control-binding",
+          6,
+          "sha256:7c4c2c9cb07539c5841b80b5cb5adfcb9b14d23f350258eb29f1c00325134b6d",
+          "frozen"
+        ]
+      ]
+    },
+    {
+      "operation": "activate_experiment",
+      "expected": [
+        "compat-control",
+        "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+        "compat-control-binding",
+        6,
+        "sha256:7c4c2c9cb07539c5841b80b5cb5adfcb9b14d23f350258eb29f1c00325134b6d",
+        "frozen"
+      ],
+      "intended": [
+        "compat-control",
+        "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+        "compat-control-binding",
+        7,
+        "sha256:a2252ed22d7a2cef5cff107f4374cdda5407153807684929d3a5391d5d2141b1",
+        "active"
+      ],
+      "state": "verified",
+      "observed": [
+        [
+          "compat-control",
+          "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+          "compat-control-binding",
+          7,
+          "sha256:a2252ed22d7a2cef5cff107f4374cdda5407153807684929d3a5391d5d2141b1",
+          "active"
+        ]
+      ]
+    },
+    {
+      "operation": "freeze_experiment",
+      "expected": [
+        "compat-control",
+        "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+        "compat-control-binding",
+        7,
+        "sha256:a2252ed22d7a2cef5cff107f4374cdda5407153807684929d3a5391d5d2141b1",
+        "active"
+      ],
+      "intended": [
+        "compat-control",
+        "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+        "compat-control-binding",
+        7,
+        "sha256:a2252ed22d7a2cef5cff107f4374cdda5407153807684929d3a5391d5d2141b1",
+        "frozen"
+      ],
+      "state": "verified",
+      "observed": [
+        [
+          "compat-control",
+          "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+          "compat-control-binding",
+          7,
+          "sha256:a2252ed22d7a2cef5cff107f4374cdda5407153807684929d3a5391d5d2141b1",
+          "frozen"
+        ]
+      ]
+    },
+    {
+      "operation": "restore_latest_core",
+      "expected": [
+        "compat-control",
+        "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+        "compat-control-binding",
+        7,
+        "sha256:a2252ed22d7a2cef5cff107f4374cdda5407153807684929d3a5391d5d2141b1",
+        "frozen"
+      ],
+      "intended": [
+        "compat-control",
+        "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+        "compat-control-binding",
+        8,
+        "sha256:f57ffb649f7ab0197d21f45b9397203887f8cb103e32efd784f4e52ce4c3f7b1",
+        "active"
+      ],
+      "state": "verified",
+      "observed": [
+        [
+          "compat-control",
+          "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+          "compat-control-binding",
+          8,
+          "sha256:f57ffb649f7ab0197d21f45b9397203887f8cb103e32efd784f4e52ce4c3f7b1",
+          "active"
+        ]
+      ]
+    }
+  ],
+  "accepted_provenance": [
+    {
+      "tenant_id": "compat-control",
+      "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "binding_id": "compat-control-binding",
+      "accepted_epoch": 7,
+      "bundle_digest": "sha256:a2252ed22d7a2cef5cff107f4374cdda5407153807684929d3a5391d5d2141b1",
+      "engine_revision": "tenant-control-conformance-v1",
+      "source_id": "verified-producer",
+      "envelope_version": 1,
+      "request_digest": "sha256:json-v1:bfa770d81efbe91b64480abf154acc66abac6d6158f66c9705aaf839d8da3b26"
+    },
+    {
+      "tenant_id": "compat-control",
+      "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "binding_id": "compat-control-binding",
+      "accepted_epoch": 7,
+      "bundle_digest": "sha256:a2252ed22d7a2cef5cff107f4374cdda5407153807684929d3a5391d5d2141b1",
+      "engine_revision": "tenant-control-conformance-v1",
+      "source_id": "untrusted-producer",
+      "envelope_version": 1,
+      "request_digest": "sha256:json-v1:9ee00c52aa00a375bf78800f9bf4a18cdbe6851fae831a5ba7a5356d42616967"
+    },
+    {
+      "tenant_id": "compat-control",
+      "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "binding_id": "compat-control-binding",
+      "accepted_epoch": 7,
+      "bundle_digest": "sha256:a2252ed22d7a2cef5cff107f4374cdda5407153807684929d3a5391d5d2141b1",
+      "engine_revision": "tenant-control-conformance-v1",
+      "source_id": "verified-producer",
+      "envelope_version": 1,
+      "request_digest": "sha256:json-v1:98f9baf0f8b968efe10f6e298dfeb5698c8e97986bb29b5c2db8cde74f8309fe"
+    },
+    {
+      "tenant_id": "compat-control",
+      "database_resource": "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "binding_id": "compat-control-binding",
+      "accepted_epoch": 7,
+      "bundle_digest": "sha256:a2252ed22d7a2cef5cff107f4374cdda5407153807684929d3a5391d5d2141b1",
+      "engine_revision": "tenant-control-conformance-v1",
+      "source_id": "untrusted-producer",
+      "envelope_version": 1,
+      "request_digest": "sha256:json-v1:d6c4caf0c2e2644c6409b0273e5c1c2b42649b484044df1e30d1d5929a7ecceb"
+    }
+  ],
+  "domain_nodes": [
+    {
+      "body": "",
+      "files": [],
+      "node_id": "Change:fixture/20261007-cloud-authenticated-source-trust-01|1",
+      "node_type": "Change",
+      "number": 1,
+      "ontology_version": "sha256:4b77ce0dad3a98bc",
+      "repo": "fixture/20261007-cloud-authenticated-source-trust-01",
+      "source_trust": "trusted",
+      "status": "open",
+      "status_changed_at": "2026-10-07T16:40:15.885684+00:00",
+      "title": "Source-trust fixture",
+      "updated_at": "2026-10-07T16:40:15.885684+00:00"
+    },
+    {
+      "body": "",
+      "files": [],
+      "node_id": "Change:fixture/20261007-cloud-authenticated-source-trust-01|2",
+      "node_type": "Change",
+      "number": 2,
+      "ontology_version": "sha256:4b77ce0dad3a98bc",
+      "repo": "fixture/20261007-cloud-authenticated-source-trust-01",
+      "source_trust": "untrusted",
+      "status": "open",
+      "status_changed_at": "2026-10-07T16:40:16.105178+00:00",
+      "title": "Source-trust fixture",
+      "updated_at": "2026-10-07T16:40:16.105178+00:00"
+    },
+    {
+      "confidence": 0.8,
+      "content_hash": "7b2ce9e7bbf90ad42ca0b1cd8a9e4691ee79f7c261c24cfa69374b08e31bd28b",
+      "method": "extracted",
+      "node_id": "Decision:7b2ce9e7bbf90ad42ca0b1cd8a9e4691ee79f7c261c24cfa69374b08e31bd28b",
+      "node_type": "Decision",
+      "ontology_version": "sha256:4b77ce0dad3a98bc",
+      "rationale": "fixture",
+      "source_trust": "trusted",
+      "statement": "Use verified producer evidence 20261007-cloud-authenticated-source-trust-01 0",
+      "status": "proposed",
+      "status_changed_at": "2026-10-07T16:40:16.296458+00:00",
+      "updated_at": "2026-10-07T16:40:16.296458+00:00"
+    },
+    {
+      "confidence": 0.8,
+      "content_hash": "39656e41b3bd2449b84e95ea36828c24e45f16c6fd671b1c17599515d68894da",
+      "method": "extracted",
+      "node_id": "Decision:39656e41b3bd2449b84e95ea36828c24e45f16c6fd671b1c17599515d68894da",
+      "node_type": "Decision",
+      "ontology_version": "sha256:4b77ce0dad3a98bc",
+      "rationale": "fixture",
+      "source_trust": "untrusted",
+      "statement": "Use verified producer evidence 20261007-cloud-authenticated-source-trust-01 1",
+      "status": "proposed",
+      "status_changed_at": "2026-10-07T16:40:16.462547+00:00",
+      "updated_at": "2026-10-07T16:40:16.462547+00:00"
+    }
+  ],
+  "evidence_edges": [
+    [
+      "Change",
+      "Change:fixture/20261007-cloud-authenticated-source-trust-01|1",
+      "DERIVED_FROM",
+      "Event",
+      "d3344bcc-40b8-5621-98fd-476db327a6a4"
+    ],
+    [
+      "Change",
+      "Change:fixture/20261007-cloud-authenticated-source-trust-01|2",
+      "DERIVED_FROM",
+      "Event",
+      "060e8ce4-04bc-5905-95c6-311ffd4681f5"
+    ],
+    [
+      "Decision",
+      "Decision:39656e41b3bd2449b84e95ea36828c24e45f16c6fd671b1c17599515d68894da",
+      "DERIVED_FROM",
+      "Event",
+      "afd02d20-7ee9-51ca-a80a-39ae0f07fbf3"
+    ],
+    [
+      "Decision",
+      "Decision:7b2ce9e7bbf90ad42ca0b1cd8a9e4691ee79f7c261c24cfa69374b08e31bd28b",
+      "DERIVED_FROM",
+      "Event",
+      "2f06db2c-0223-5c47-9538-78fcd0c4b755"
+    ]
+  ],
+  "cleanup_intent": {
+    "expected_owner": [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      7,
+      "sha256:a2252ed22d7a2cef5cff107f4374cdda5407153807684929d3a5391d5d2141b1",
+      "frozen"
+    ],
+    "exact_keys": {
+      "Events": [
+        [
+          "d3344bcc-40b8-5621-98fd-476db327a6a4"
+        ],
+        [
+          "060e8ce4-04bc-5905-95c6-311ffd4681f5"
+        ],
+        [
+          "2f06db2c-0223-5c47-9538-78fcd0c4b755"
+        ],
+        [
+          "afd02d20-7ee9-51ca-a80a-39ae0f07fbf3"
+        ]
+      ],
+      "GraphNodes": [
+        [
+          "Event",
+          "d3344bcc-40b8-5621-98fd-476db327a6a4"
+        ],
+        [
+          "Event",
+          "060e8ce4-04bc-5905-95c6-311ffd4681f5"
+        ],
+        [
+          "Event",
+          "2f06db2c-0223-5c47-9538-78fcd0c4b755"
+        ],
+        [
+          "Event",
+          "afd02d20-7ee9-51ca-a80a-39ae0f07fbf3"
+        ],
+        [
+          "Change",
+          "Change:fixture/20261007-cloud-authenticated-source-trust-01|1"
+        ],
+        [
+          "Change",
+          "Change:fixture/20261007-cloud-authenticated-source-trust-01|2"
+        ],
+        [
+          "Decision",
+          "Decision:7b2ce9e7bbf90ad42ca0b1cd8a9e4691ee79f7c261c24cfa69374b08e31bd28b"
+        ],
+        [
+          "Decision",
+          "Decision:39656e41b3bd2449b84e95ea36828c24e45f16c6fd671b1c17599515d68894da"
+        ]
+      ],
+      "GraphEdges": [
+        [
+          "Change",
+          "Change:fixture/20261007-cloud-authenticated-source-trust-01|1",
+          "DERIVED_FROM",
+          "Event",
+          "d3344bcc-40b8-5621-98fd-476db327a6a4"
+        ],
+        [
+          "Change",
+          "Change:fixture/20261007-cloud-authenticated-source-trust-01|2",
+          "DERIVED_FROM",
+          "Event",
+          "060e8ce4-04bc-5905-95c6-311ffd4681f5"
+        ],
+        [
+          "Decision",
+          "Decision:7b2ce9e7bbf90ad42ca0b1cd8a9e4691ee79f7c261c24cfa69374b08e31bd28b",
+          "DERIVED_FROM",
+          "Event",
+          "2f06db2c-0223-5c47-9538-78fcd0c4b755"
+        ],
+        [
+          "Decision",
+          "Decision:39656e41b3bd2449b84e95ea36828c24e45f16c6fd671b1c17599515d68894da",
+          "DERIVED_FROM",
+          "Event",
+          "afd02d20-7ee9-51ca-a80a-39ae0f07fbf3"
+        ]
+      ],
+      "ConsumerGroups": [
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5"
+        ]
+      ],
+      "ConsumerCursors": [
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          0
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          1
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          2
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          3
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          4
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          5
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          6
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          7
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          8
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          9
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          10
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          11
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          12
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          13
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          14
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          15
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          0
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          1
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          2
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          3
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          4
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          5
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          6
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          7
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          8
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          9
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          10
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          11
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          12
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          13
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          14
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          15
+        ]
+      ],
+      "ConsumerDeliveries": [
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          "d3344bcc-40b8-5621-98fd-476db327a6a4"
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          "060e8ce4-04bc-5905-95c6-311ffd4681f5"
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          "2f06db2c-0223-5c47-9538-78fcd0c4b755"
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          "afd02d20-7ee9-51ca-a80a-39ae0f07fbf3"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          "d3344bcc-40b8-5621-98fd-476db327a6a4"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          "060e8ce4-04bc-5905-95c6-311ffd4681f5"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          "2f06db2c-0223-5c47-9538-78fcd0c4b755"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          "afd02d20-7ee9-51ca-a80a-39ae0f07fbf3"
+        ]
+      ],
+      "ConsumerDeadLetters": [
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          "d3344bcc-40b8-5621-98fd-476db327a6a4"
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          "060e8ce4-04bc-5905-95c6-311ffd4681f5"
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          "2f06db2c-0223-5c47-9538-78fcd0c4b755"
+        ],
+        [
+          "source-trust-projection-969c78e65f4b59c4985ba1a577f94bb5",
+          "afd02d20-7ee9-51ca-a80a-39ae0f07fbf3"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          "d3344bcc-40b8-5621-98fd-476db327a6a4"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          "060e8ce4-04bc-5905-95c6-311ffd4681f5"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          "2f06db2c-0223-5c47-9538-78fcd0c4b755"
+        ],
+        [
+          "source-trust-extraction-969c78e65f4b59c4985ba1a577f94bb5",
+          "afd02d20-7ee9-51ca-a80a-39ae0f07fbf3"
+        ]
+      ]
+    },
+    "state": "submitting"
+  },
+  "cleanup_removed": {
+    "Events": 4,
+    "GraphNodes": 8,
+    "GraphEdges": 4,
+    "ConsumerGroups": 2,
+    "ConsumerCursors": 32,
+    "ConsumerDeliveries": 0,
+    "ConsumerDeadLetters": 0
+  },
+  "control_after": [
+    [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      8,
+      "sha256:f57ffb649f7ab0197d21f45b9397203887f8cb103e32efd784f4e52ce4c3f7b1",
+      "active"
+    ]
+  ],
+  "rows_after_cleanup": {
+    "Events": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphNodes": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphEdges": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerGroups": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerCursors": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeliveries": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeadLetters": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "after_ddl": [
+    "CREATE TABLE ConsumerCursors (\n  group_name STRING(MAX) NOT NULL,\n  shard INT64 NOT NULL,\n  commit_ts TIMESTAMP NOT NULL,\n  batch_index INT64 NOT NULL,\n  event_id STRING(64) NOT NULL,\n) PRIMARY KEY(group_name, shard)",
+    "CREATE TABLE ConsumerDeadLetters (\n  group_name STRING(MAX) NOT NULL,\n  event_id STRING(64) NOT NULL,\n  dead_lettered_at TIMESTAMP NOT NULL,\n  fields JSON NOT NULL,\n) PRIMARY KEY(group_name, event_id)",
+    "CREATE TABLE ConsumerDeliveries (\n  group_name STRING(MAX) NOT NULL,\n  event_id STRING(64) NOT NULL,\n  consumer STRING(MAX) NOT NULL,\n  delivery_count INT64 NOT NULL,\n  last_delivered_at TIMESTAMP NOT NULL,\n  commit_ts TIMESTAMP NOT NULL,\n  batch_index INT64 NOT NULL,\n) PRIMARY KEY(group_name, event_id)",
+    "CREATE INDEX ConsumerDeliveriesByConsumer ON ConsumerDeliveries(group_name, consumer, commit_ts, batch_index)",
+    "CREATE TABLE ConsumerGroups (\n  group_name STRING(MAX) NOT NULL,\n  created_at TIMESTAMP NOT NULL,\n) PRIMARY KEY(group_name)",
+    "CREATE TABLE Events (\n  event_id STRING(64) NOT NULL,\n  shard INT64 NOT NULL,\n  commit_ts TIMESTAMP NOT NULL OPTIONS (\n    allow_commit_timestamp = true\n  ),\n  batch_index INT64 NOT NULL,\n  session_id STRING(MAX) NOT NULL,\n  occurred_at_ms INT64 NOT NULL,\n  session_tag STRING(MAX),\n  agent_tag STRING(MAX),\n  trace_tag STRING(MAX),\n  event_type_tag STRING(MAX),\n  tool_name_tag STRING(MAX),\n  document JSON,\n  legacy_position STRING(MAX),\n  in_log BOOL NOT NULL,\n  in_session_index BOOL NOT NULL,\n  dedup_active BOOL NOT NULL,\n  summary STRING(MAX),\n  keywords STRING(MAX),\n  search_text STRING(MAX),\n  summary_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(summary)) HIDDEN,\n  keywords_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(keywords)) HIDDEN,\n  search_text_tokens TOKENLIST AS (TOKENIZE_FULLTEXT(search_text)) HIDDEN,\n  text_tokens TOKENLIST AS (TOKENLIST_CONCAT([summary_tokens, keywords_tokens, search_text_tokens])) HIDDEN,\n  acceptance JSON,\n) PRIMARY KEY(event_id)",
+    "CREATE INDEX EventsBySession ON Events(session_id, commit_ts, batch_index)",
+    "CREATE INDEX EventsBySessionTag ON Events(session_tag, occurred_at_ms)",
+    "CREATE INDEX EventsByShardPosition ON Events(shard, commit_ts, batch_index)",
+    "CREATE SEARCH INDEX EventsText ON Events(text_tokens) STORING (session_tag)",
+    "CREATE TABLE GraphEdges (\n  src_label STRING(64) NOT NULL,\n  src_id STRING(MAX) NOT NULL,\n  edge_type STRING(64) NOT NULL,\n  dst_label STRING(64) NOT NULL,\n  dst_id STRING(MAX) NOT NULL,\n  props JSON NOT NULL,\n) PRIMARY KEY(src_label, src_id, edge_type, dst_label, dst_id)",
+    "CREATE INDEX GraphEdgesByTarget ON GraphEdges(dst_label, dst_id, edge_type) STORING (props)",
+    "CREATE INDEX GraphEdgesByType ON GraphEdges(edge_type) STORING (props)",
+    "CREATE TABLE GraphNodes (\n  label STRING(64) NOT NULL,\n  node_id STRING(MAX) NOT NULL,\n  props JSON NOT NULL,\n  session_id STRING(MAX) AS (JSON_VALUE(props, '$.session_id')) STORED,\n  embedding ARRAY<FLOAT64>(vector_length=>384),\n  entity_embedding_member BOOL AS (IF(label = 'Entity', TRUE, NULL)) HIDDEN,\n) PRIMARY KEY(label, node_id)",
+    "CREATE INDEX GraphNodesBySession ON GraphNodes(label, session_id) STORING (props)",
+    "CREATE VECTOR INDEX GraphEntitiesByEmbeddingV1 ON GraphNodes(embedding) STORING (entity_embedding_member) WHERE embedding IS NOT NULL AND entity_embedding_member IS NOT NULL OPTIONS (\n  distance_type = 'COSINE'\n)",
+    "CREATE VECTOR INDEX GraphNodesByEmbedding ON GraphNodes(embedding) WHERE embedding IS NOT NULL OPTIONS (\n  distance_type = 'COSINE'\n)",
+    "CREATE TABLE TenantControl (\n  control_id STRING(16) NOT NULL,\n  tenant_id STRING(128) NOT NULL,\n  database_resource STRING(MAX) NOT NULL,\n  binding_id STRING(128) NOT NULL,\n  epoch INT64 NOT NULL,\n  bundle_digest STRING(80) NOT NULL,\n  serving_state STRING(16) NOT NULL,\n) PRIMARY KEY(control_id)",
+    "CREATE PROPERTY GRAPH EngramGraph\n  NODE TABLES(\n    GraphNodes\n      KEY(label, node_id)\n      LABEL GraphNodes PROPERTIES(\n        embedding,\n        label,\n        node_id,\n        props,\n        session_id)\n      DYNAMIC LABEL (label)\n      DYNAMIC PROPERTIES (props)\n  )\n  EDGE TABLES(\n    GraphEdges\n      KEY(src_label, src_id, edge_type, dst_label, dst_id)\n      SOURCE KEY(src_id, src_label) REFERENCES GraphNodes(node_id, label)\n      DESTINATION KEY(dst_id, dst_label) REFERENCES GraphNodes(node_id, label)\n      LABEL GraphEdges PROPERTIES(\n        dst_id,\n        dst_label,\n        edge_type,\n        props,\n        src_id,\n        src_label)\n      DYNAMIC LABEL (edge_type)\n      DYNAMIC PROPERTIES (props)\n  )"
+  ],
+  "after_rows": {
+    "Events": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphNodes": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "GraphEdges": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerGroups": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerCursors": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeliveries": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeadLetters": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  }
+}

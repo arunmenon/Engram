@@ -1,0 +1,255 @@
+{
+  "runtime_source_unchanged_during_run": true,
+  "checks": [
+    {
+      "name": "warm_API_dry_and_live_counts_follow_actual_edge_scores",
+      "scenarios": [
+        "LIFE-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "dry_status": 200,
+        "dry": {
+          "pruned_edges": 2,
+          "pruned_nodes": 0,
+          "dry_run": true,
+          "details": [
+            {
+              "action": "delete_similar_edges",
+              "edge_count": 2
+            }
+          ],
+          "truncated": false
+        },
+        "live_status": 200,
+        "live": {
+          "pruned_edges": 2,
+          "pruned_nodes": 0,
+          "dry_run": false,
+          "details": [
+            {
+              "action": "delete_similar_edges",
+              "edge_count": 2
+            }
+          ],
+          "truncated": false
+        },
+        "before_edges": [
+          [
+            "17525f25-313d-4ade-94d9-2a1be0833c49",
+            "FOLLOWS",
+            "e7fc5ca3-77f9-417d-aeed-2c6fe7de0abb"
+          ],
+          [
+            "da027540-c027-4039-a72c-600de2b6053a",
+            "FOLLOWS",
+            "f77021c5-75a7-4e32-957e-e6b3cae0710a"
+          ],
+          [
+            "e2c31187-2ad9-40a3-9cc6-da98fc161de1",
+            "FOLLOWS",
+            "17525f25-313d-4ade-94d9-2a1be0833c49"
+          ],
+          [
+            "e2c31187-2ad9-40a3-9cc6-da98fc161de1",
+            "SIMILAR_TO",
+            "17525f25-313d-4ade-94d9-2a1be0833c49"
+          ],
+          [
+            "e2c31187-2ad9-40a3-9cc6-da98fc161de1",
+            "SIMILAR_TO",
+            "9b82db7a-8d4a-49d8-acc6-3017b99764c0"
+          ],
+          [
+            "e2c31187-2ad9-40a3-9cc6-da98fc161de1",
+            "SIMILAR_TO",
+            "e7fc5ca3-77f9-417d-aeed-2c6fe7de0abb"
+          ],
+          [
+            "e7fc5ca3-77f9-417d-aeed-2c6fe7de0abb",
+            "FOLLOWS",
+            "9b82db7a-8d4a-49d8-acc6-3017b99764c0"
+          ],
+          [
+            "f77021c5-75a7-4e32-957e-e6b3cae0710a",
+            "FOLLOWS",
+            "e2c31187-2ad9-40a3-9cc6-da98fc161de1"
+          ]
+        ],
+        "after_edges": [
+          [
+            "17525f25-313d-4ade-94d9-2a1be0833c49",
+            "FOLLOWS",
+            "e7fc5ca3-77f9-417d-aeed-2c6fe7de0abb"
+          ],
+          [
+            "da027540-c027-4039-a72c-600de2b6053a",
+            "FOLLOWS",
+            "f77021c5-75a7-4e32-957e-e6b3cae0710a"
+          ],
+          [
+            "e2c31187-2ad9-40a3-9cc6-da98fc161de1",
+            "FOLLOWS",
+            "17525f25-313d-4ade-94d9-2a1be0833c49"
+          ],
+          [
+            "e2c31187-2ad9-40a3-9cc6-da98fc161de1",
+            "SIMILAR_TO",
+            "17525f25-313d-4ade-94d9-2a1be0833c49"
+          ],
+          [
+            "e7fc5ca3-77f9-417d-aeed-2c6fe7de0abb",
+            "FOLLOWS",
+            "9b82db7a-8d4a-49d8-acc6-3017b99764c0"
+          ],
+          [
+            "f77021c5-75a7-4e32-957e-e6b3cae0710a",
+            "FOLLOWS",
+            "e2c31187-2ad9-40a3-9cc6-da98fc161de1"
+          ]
+        ],
+        "dry_preserves_graph": true,
+        "expected_low_similarity_edges": 2,
+        "scope": "actual edge similarity properties, no invented Event-level similarity property"
+      },
+      "seconds": 0.79
+    },
+    {
+      "name": "native_worker_nonzero_archive_graph_deletion_and_low_similarity_edges",
+      "scenarios": [
+        "CONS-02",
+        "LIFE-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "archive_deletion_calls": [
+          {
+            "ids": [
+              "da027540-c027-4039-a72c-600de2b6053a"
+            ],
+            "count": 1
+          }
+        ],
+        "remaining_event_ids": [
+          "9b82db7a-8d4a-49d8-acc6-3017b99764c0",
+          "e7fc5ca3-77f9-417d-aeed-2c6fe7de0abb",
+          "17525f25-313d-4ade-94d9-2a1be0833c49",
+          "e2c31187-2ad9-40a3-9cc6-da98fc161de1",
+          "f77021c5-75a7-4e32-957e-e6b3cae0710a"
+        ],
+        "similarity_edges": [
+          [
+            "e2c31187-2ad9-40a3-9cc6-da98fc161de1",
+            "SIMILAR_TO",
+            "17525f25-313d-4ade-94d9-2a1be0833c49"
+          ]
+        ]
+      },
+      "seconds": 0.0
+    },
+    {
+      "name": "actual_worker_nonzero_archive_graph_deletion_then_API_cold_dry_live",
+      "scenarios": [
+        "LIFE-03",
+        "CONS-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "archive_deletion_calls": [
+          {
+            "ids": [
+              "da027540-c027-4039-a72c-600de2b6053a"
+            ],
+            "count": 1
+          }
+        ],
+        "after_worker_nodes": [
+          "9b82db7a-8d4a-49d8-acc6-3017b99764c0",
+          "e7fc5ca3-77f9-417d-aeed-2c6fe7de0abb",
+          "17525f25-313d-4ade-94d9-2a1be0833c49",
+          "e2c31187-2ad9-40a3-9cc6-da98fc161de1",
+          "f77021c5-75a7-4e32-957e-e6b3cae0710a"
+        ],
+        "similarity_edges_after_worker": [
+          [
+            "e2c31187-2ad9-40a3-9cc6-da98fc161de1",
+            "SIMILAR_TO",
+            "17525f25-313d-4ade-94d9-2a1be0833c49"
+          ]
+        ],
+        "cold_dry_status": 200,
+        "cold_live_status": 200,
+        "cold_dry": {
+          "pruned_edges": 0,
+          "pruned_nodes": 1,
+          "dry_run": true,
+          "details": [
+            {
+              "action": "delete_cold_events",
+              "event_ids": [
+                "f77021c5-75a7-4e32-957e-e6b3cae0710a"
+              ]
+            }
+          ],
+          "truncated": false
+        },
+        "cold_live": {
+          "pruned_edges": 0,
+          "pruned_nodes": 1,
+          "dry_run": false,
+          "details": [
+            {
+              "action": "delete_cold_events",
+              "event_ids": [
+                "f77021c5-75a7-4e32-957e-e6b3cae0710a"
+              ]
+            }
+          ],
+          "truncated": false
+        },
+        "dry_preserves_nodes": true,
+        "final_event_ids": [
+          "9b82db7a-8d4a-49d8-acc6-3017b99764c0",
+          "e7fc5ca3-77f9-417d-aeed-2c6fe7de0abb",
+          "17525f25-313d-4ade-94d9-2a1be0833c49",
+          "e2c31187-2ad9-40a3-9cc6-da98fc161de1"
+        ],
+        "ledger_documents_retained": true
+      },
+      "seconds": 1.33
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "table": "Events",
+      "rows": 8
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

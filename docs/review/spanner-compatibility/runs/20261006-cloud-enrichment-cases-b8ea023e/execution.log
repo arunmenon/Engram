@@ -1,0 +1,266 @@
+2026-10-06 19:41:27 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 19:41:27 [info     ] llm_client_initialized
+2026-10-06 19:41:27 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 19:41:27 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 19:41:27 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:41:27 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 19:41:27 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 19:41:27 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:41:27 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 19:41:27 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 19:41:27 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 19:41:27 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 19:41:27 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 19:41:27 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 19:41:27 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 19:41:27 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 19:41:28 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 19:41:33 [info     ] event_ingested                 event_id=fa475ce6-7b7e-4504-80a7-184582032be1 event_type=observation.input global_position=2026-10-06T14:11:33.880223000Z/000000/fa475ce6-7b7e-4504-80a7-184582032be1 request_id=d1ac5381-d33d-47f8-9f2b-ab5532125f22 status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 19:41:34 [info     ] consumer_started               consumer=embedding-projection group=graph-projection stream=Events
+2026-10-06 19:41:34 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:41:34 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T14:11:33.880223000Z/000000/fa475ce6-7b7e-4504-80a7-184582032be1 event_id=fa475ce6-7b7e-4504-80a7-184582032be1 session_id=enrichment-disabled
+2026-10-06 19:41:35 [info     ] consumer_stopped               consumer=embedding-projection group=graph-projection
+2026-10-06 19:41:35 [info     ] consumer_started               consumer=embedding-cases group=enrichment stream=Events
+2026-10-06 19:41:35 [info     ] pending_drain_completed        group=enrichment
+2026-10-06 19:41:36 [debug    ] event_enriched                 event_id=fa475ce6-7b7e-4504-80a7-184582032be1 importance_score=7 keywords=['observation', 'input', 'disabled']
+2026-10-06 19:41:36 [info     ] consumer_stopped               consumer=embedding-cases group=enrichment
+{"name": "enrichment_disabled", "scenarios": ["ENR-02"], "verdict": "passed", "observation": {"mode": "disabled", "node": {"access_count": 0, "agent_id": "compat-resume", "event_id": "fa475ce6-7b7e-4504-80a7-184582032be1", "event_type": "observation.input", "global_position": "2026-10-06T14:11:33.880223000Z/000000/fa475ce6-7b7e-4504-80a7-184582032be1", "importance_score": 7, "keywords": ["observation", "input", "disabled"], "occurred_at": "2026-10-06T14:11:33.684131+00:00", "session_id": "enrichment-disabled", "tool_name": "disabled", "trace_id": "enrichment-disabled"}, "pending": {}, "provider": "synthetic fixture", "real_cloud_keywords_write": true}, "seconds": 8.56}
+2026-10-06 19:41:43 [info     ] event_ingested                 event_id=1317baab-e528-4239-9ab0-e630b1647c98 event_type=observation.input global_position=2026-10-06T14:11:43.789999000Z/000000/1317baab-e528-4239-9ab0-e630b1647c98 request_id=91d8af5b-efc0-4816-bb43-6acc95ad1dd8 status=created
+2026-10-06 19:41:44 [info     ] consumer_started               consumer=embedding-projection group=graph-projection stream=Events
+2026-10-06 19:41:44 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:41:44 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T14:11:43.789999000Z/000000/1317baab-e528-4239-9ab0-e630b1647c98 event_id=1317baab-e528-4239-9ab0-e630b1647c98 session_id=enrichment-provider_failure
+2026-10-06 19:41:45 [info     ] consumer_stopped               consumer=embedding-projection group=graph-projection
+2026-10-06 19:41:45 [info     ] consumer_started               consumer=embedding-cases group=enrichment stream=Events
+2026-10-06 19:41:45 [info     ] pending_drain_completed        group=enrichment
+2026-10-06 19:41:46 [debug    ] event_enriched                 event_id=1317baab-e528-4239-9ab0-e630b1647c98 importance_score=7 keywords=['observation', 'input', 'provider_failure']
+2026-10-06 19:41:46 [warning  ] event_embedding_failed         event_id=1317baab-e528-4239-9ab0-e630b1647c98
+2026-10-06 19:41:46 [info     ] consumer_stopped               consumer=embedding-cases group=enrichment
+{"name": "enrichment_provider_failure", "scenarios": ["ENR-02"], "verdict": "passed", "observation": {"mode": "provider_failure", "node": {"access_count": 0, "agent_id": "compat-resume", "event_id": "1317baab-e528-4239-9ab0-e630b1647c98", "event_type": "observation.input", "global_position": "2026-10-06T14:11:43.789999000Z/000000/1317baab-e528-4239-9ab0-e630b1647c98", "importance_score": 7, "keywords": ["observation", "input", "provider_failure"], "occurred_at": "2026-10-06T14:11:43.650801+00:00", "session_id": "enrichment-provider_failure", "tool_name": "provider_failure", "trace_id": "enrichment-provider_failure"}, "pending": {}, "provider": "synthetic fixture", "real_cloud_keywords_write": true}, "seconds": 10.47}
+2026-10-06 19:41:53 [info     ] event_ingested                 event_id=9237d018-759e-4e38-8fd4-afd06aca0d81 event_type=observation.input global_position=2026-10-06T14:11:53.770335000Z/000000/9237d018-759e-4e38-8fd4-afd06aca0d81 request_id=a184787c-e654-4410-adeb-59f6264dd49c status=created
+2026-10-06 19:41:54 [info     ] consumer_started               consumer=embedding-projection group=graph-projection stream=Events
+2026-10-06 19:41:54 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:41:54 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T14:11:53.770335000Z/000000/9237d018-759e-4e38-8fd4-afd06aca0d81 event_id=9237d018-759e-4e38-8fd4-afd06aca0d81 session_id=enrichment-short_vector
+2026-10-06 19:41:54 [info     ] consumer_stopped               consumer=embedding-projection group=graph-projection
+2026-10-06 19:41:55 [info     ] consumer_started               consumer=embedding-cases group=enrichment stream=Events
+2026-10-06 19:41:55 [info     ] pending_drain_completed        group=enrichment
+2026-10-06 19:41:55 [debug    ] event_enriched                 event_id=9237d018-759e-4e38-8fd4-afd06aca0d81 importance_score=7 keywords=['observation', 'input', 'short_vector']
+2026-10-06 19:41:56 [debug    ] event_embedding_stored         event_id=9237d018-759e-4e38-8fd4-afd06aca0d81
+2026-10-06 19:41:56 [info     ] consumer_stopped               consumer=embedding-cases group=enrichment
+{"name": "enrichment_short_vector", "scenarios": ["ENR-02"], "verdict": "passed", "observation": {"mode": "short_vector", "node": {"access_count": 0, "agent_id": "compat-resume", "embedding": [1.0, 0.0, 0.0], "event_id": "9237d018-759e-4e38-8fd4-afd06aca0d81", "event_type": "observation.input", "global_position": "2026-10-06T14:11:53.770335000Z/000000/9237d018-759e-4e38-8fd4-afd06aca0d81", "importance_score": 7, "keywords": ["observation", "input", "short_vector"], "occurred_at": "2026-10-06T14:11:53.649798+00:00", "session_id": "enrichment-short_vector", "tool_name": "short_vector", "trace_id": "enrichment-short_vector"}, "pending": {}, "provider": "synthetic fixture", "real_cloud_keywords_write": true, "query_relevance": 0.5}, "seconds": 9.25}
+2026-10-06 19:42:01 [info     ] event_ingested                 event_id=657c0f2b-c5dc-49d5-811f-44499ab2a8ff event_type=observation.input global_position=2026-10-06T14:12:01.709359000Z/000000/657c0f2b-c5dc-49d5-811f-44499ab2a8ff request_id=4bd8a7d9-1af9-41a7-b88d-82970503fbc2 status=created
+2026-10-06 19:42:01 [info     ] consumer_started               consumer=embedding-projection group=graph-projection stream=Events
+2026-10-06 19:42:02 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:42:02 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T14:12:01.709359000Z/000000/657c0f2b-c5dc-49d5-811f-44499ab2a8ff event_id=657c0f2b-c5dc-49d5-811f-44499ab2a8ff session_id=enrichment-zero_vector
+2026-10-06 19:42:03 [info     ] consumer_stopped               consumer=embedding-projection group=graph-projection
+2026-10-06 19:42:03 [info     ] consumer_started               consumer=embedding-cases group=enrichment stream=Events
+2026-10-06 19:42:03 [info     ] pending_drain_completed        group=enrichment
+2026-10-06 19:42:04 [debug    ] event_enriched                 event_id=657c0f2b-c5dc-49d5-811f-44499ab2a8ff importance_score=7 keywords=['observation', 'input', 'zero_vector']
+2026-10-06 19:42:04 [debug    ] event_embedding_stored         event_id=657c0f2b-c5dc-49d5-811f-44499ab2a8ff
+2026-10-06 19:42:04 [info     ] consumer_stopped               consumer=embedding-cases group=enrichment
+{"name": "enrichment_zero_vector", "scenarios": ["ENR-02"], "verdict": "passed", "observation": {"mode": "zero_vector", "node": {"access_count": 0, "agent_id": "compat-resume", "embedding": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0], "event_id": "657c0f2b-c5dc-49d5-811f-44499ab2a8ff", "event_type": "observation.input", "global_position": "2026-10-06T14:12:01.709359000Z/000000/657c0f2b-c5dc-49d5-811f-44499ab2a8ff", "importance_score": 7, "keywords": ["observation", "input", "zero_vector"], "occurred_at": "2026-10-06T14:12:01.590040+00:00", "session_id": "enrichment-zero_vector", "tool_name": "zero_vector", "trace_id": "enrichment-zero_vector"}, "pending": {}, "provider": "synthetic fixture", "real_cloud_keywords_write": true, "query_relevance": 0.5}, "seconds": 8.6}
+2026-10-06 19:42:10 [info     ] event_ingested                 event_id=e5737f44-42eb-4f5d-a1a0-4b60cf132f6e event_type=observation.input global_position=2026-10-06T14:12:10.756335000Z/000000/e5737f44-42eb-4f5d-a1a0-4b60cf132f6e request_id=ba253124-859e-4101-9ffd-34185d5afea1 status=created
+2026-10-06 19:42:11 [info     ] consumer_started               consumer=embedding-projection group=graph-projection stream=Events
+2026-10-06 19:42:11 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:42:11 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T14:12:10.756335000Z/000000/e5737f44-42eb-4f5d-a1a0-4b60cf132f6e event_id=e5737f44-42eb-4f5d-a1a0-4b60cf132f6e session_id=enrichment-storage_failure
+2026-10-06 19:42:12 [info     ] consumer_stopped               consumer=embedding-projection group=graph-projection
+2026-10-06 19:42:12 [info     ] consumer_started               consumer=embedding-cases group=enrichment stream=Events
+2026-10-06 19:42:12 [info     ] pending_drain_completed        group=enrichment
+2026-10-06 19:42:13 [debug    ] event_enriched                 event_id=e5737f44-42eb-4f5d-a1a0-4b60cf132f6e importance_score=7 keywords=['observation', 'input', 'storage_failure']
+2026-10-06 19:42:13 [error    ] message_processing_failed      consumer=embedding-cases entry_id=2026-10-06T14:12:10.756335000Z/000000/e5737f44-42eb-4f5d-a1a0-4b60cf132f6e group=enrichment
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /Users/arunmenon/projects/Engram/src/context_graph/worker/consumer.py:272 in │
+│ run                                                                          │
+│                                                                              │
+│   269 │   │   │   for delivery in deliveries:                                │
+│   270 │   │   │   │   entry_id = delivery.position                           │
+│   271 │   │   │   │   try:                                                   │
+│ ❱ 272 │   │   │   │   │   await self.process_message(entry_id, delivery.fiel │
+│   273 │   │   │   │   │   if not self.deferred_ack:                          │
+│   274 │   │   │   │   │   │   await self._ack(entry_id)                      │
+│   275 │   │   │   │   │   CONSUMER_MESSAGES_PROCESSED.labels(consumer=self._ │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │     deliveries = [                                                       │ │
+│ │                  │   Delivery(                                           │ │
+│ │                  │   │                                                   │ │
+│ │                  position='2026-10-06T14:12:10.756335000Z/000000/e5737f… │ │
+│ │                  │   │   fields={                                        │ │
+│ │                  │   │   │   'event_id':                                 │ │
+│ │                  'e5737f44-42eb-4f5d-a1a0-4b60cf132f6e'                  │ │
+│ │                  │   │   }                                               │ │
+│ │                  │   )                                                   │ │
+│ │                  ]                                                       │ │
+│ │       delivery = Delivery(                                               │ │
+│ │                  │                                                       │ │
+│ │                  position='2026-10-06T14:12:10.756335000Z/000000/e5737f… │ │
+│ │                  │   fields={                                            │ │
+│ │                  │   │   'event_id':                                     │ │
+│ │                  'e5737f44-42eb-4f5d-a1a0-4b60cf132f6e'                  │ │
+│ │                  │   }                                                   │ │
+│ │                  )                                                       │ │
+│ │       entry_id = '2026-10-06T14:12:10.756335000Z/000000/e5737f44-42eb-4… │ │
+│ │ loop_iteration = 1                                                       │ │
+│ │           self = <context_graph.worker.enrichment.EnrichmentConsumer     │ │
+│ │                  object at 0x139bd9cd0>                                  │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram/src/context_graph/worker/enrichment.py:94   │
+│ in process_message                                                           │
+│                                                                              │
+│    91 │   │   )                                                              │
+│    92 │   │                                                                  │
+│    93 │   │   # Compute and store event embedding on Neo4j node              │
+│ ❱  94 │   │   await self._compute_and_store_event_embedding(event_id, event_ │
+│    95 │                                                                      │
+│    96 │   async def _compute_and_store_event_embedding(                      │
+│    97 │   │   self,                                                          │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │             data = {'event_id': 'e5737f44-42eb-4f5d-a1a0-4b60cf132f6e'}  │ │
+│ │              doc = {                                                     │ │
+│ │                    │   'agent_id': 'compat-resume',                      │ │
+│ │                    │   'ended_at': None,                                 │ │
+│ │                    │   'event_id':                                       │ │
+│ │                    'e5737f44-42eb-4f5d-a1a0-4b60cf132f6e',               │ │
+│ │                    │   'event_type': 'observation.input',                │ │
+│ │                    │   'global_position':                                │ │
+│ │                    '2026-10-06T14:12:10.756335000Z/000000/e5737f44-42eb… │ │
+│ │                    │   'importance_hint': 7,                             │ │
+│ │                    │   'occurred_at': '2026-10-06T14:12:10.631773Z',     │ │
+│ │                    │   'parent_event_id': None,                          │ │
+│ │                    │   'payload': {                                      │ │
+│ │                    │   │   'content': 'Spanner recovery evidence'        │ │
+│ │                    │   },                                                │ │
+│ │                    │   'payload_ref': 'compat:resume',                   │ │
+│ │                    │   ... +6                                            │ │
+│ │                    }                                                     │ │
+│ │        documents = [                                                     │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'agent_id': 'compat-resume',                  │ │
+│ │                    │   │   'ended_at': None,                             │ │
+│ │                    │   │   'event_id':                                   │ │
+│ │                    'e5737f44-42eb-4f5d-a1a0-4b60cf132f6e',               │ │
+│ │                    │   │   'event_type': 'observation.input',            │ │
+│ │                    │   │   'global_position':                            │ │
+│ │                    '2026-10-06T14:12:10.756335000Z/000000/e5737f44-42eb… │ │
+│ │                    │   │   'importance_hint': 7,                         │ │
+│ │                    │   │   'occurred_at': '2026-10-06T14:12:10.631773Z', │ │
+│ │                    │   │   'parent_event_id': None,                      │ │
+│ │                    │   │   'payload': {                                  │ │
+│ │                    │   │   │   'content': 'Spanner recovery evidence'    │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   'payload_ref': 'compat:resume',               │ │
+│ │                    │   │   ... +6                                        │ │
+│ │                    │   }                                                 │ │
+│ │                    ]                                                     │ │
+│ │         entry_id = '2026-10-06T14:12:10.756335000Z/000000/e5737f44-42eb… │ │
+│ │         event_id = 'e5737f44-42eb-4f5d-a1a0-4b60cf132f6e'                │ │
+│ │       event_type = 'observation.input'                                   │ │
+│ │  importance_hint = 7                                                     │ │
+│ │ importance_score = 7                                                     │ │
+│ │         keywords = ['observation', 'input', 'storage_failure']           │ │
+│ │             self = <context_graph.worker.enrichment.EnrichmentConsumer   │ │
+│ │                    object at 0x139bd9cd0>                                │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram/src/context_graph/worker/enrichment.py:120  │
+│ in _compute_and_store_event_embedding                                        │
+│                                                                              │
+│   117 │   │   │   log.warning("event_embedding_failed", event_id=event_id)   │
+│   118 │   │   │   return                                                     │
+│   119 │   │                                                                  │
+│ ❱ 120 │   │   await self._graph_store.store_event_embedding(event_id, embedd │
+│   121 │   │   log.debug("event_embedding_stored", event_id=event_id)         │
+│   122                                                                        │
+│   123                                                                        │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │        doc = {                                                           │ │
+│ │              │   'agent_id': 'compat-resume',                            │ │
+│ │              │   'ended_at': None,                                       │ │
+│ │              │   'event_id': 'e5737f44-42eb-4f5d-a1a0-4b60cf132f6e',     │ │
+│ │              │   'event_type': 'observation.input',                      │ │
+│ │              │   'global_position':                                      │ │
+│ │              '2026-10-06T14:12:10.756335000Z/000000/e5737f44-42eb-4f5d-… │ │
+│ │              │   'importance_hint': 7,                                   │ │
+│ │              │   'occurred_at': '2026-10-06T14:12:10.631773Z',           │ │
+│ │              │   'parent_event_id': None,                                │ │
+│ │              │   'payload': {'content': 'Spanner recovery evidence'},    │ │
+│ │              │   'payload_ref': 'compat:resume',                         │ │
+│ │              │   ... +6                                                  │ │
+│ │              }                                                           │ │
+│ │  embedding = [                                                           │ │
+│ │              │   1.0,                                                    │ │
+│ │              │   0.0,                                                    │ │
+│ │              │   0.0,                                                    │ │
+│ │              │   0.0,                                                    │ │
+│ │              │   0.0,                                                    │ │
+│ │              │   0.0,                                                    │ │
+│ │              │   0.0,                                                    │ │
+│ │              │   0.0,                                                    │ │
+│ │              │   0.0,                                                    │ │
+│ │              │   0.0,                                                    │ │
+│ │              │   ... +374                                                │ │
+│ │              ]                                                           │ │
+│ │   event_id = 'e5737f44-42eb-4f5d-a1a0-4b60cf132f6e'                      │ │
+│ │ event_type = 'observation.input'                                         │ │
+│ │   keywords = ['observation', 'input', 'storage_failure']                 │ │
+│ │       self = <context_graph.worker.enrichment.EnrichmentConsumer object  │ │
+│ │              at 0x139bd9cd0>                                             │ │
+│ │       text = 'observation.input storage_failure observation input'       │ │
+│ │  tool_name = 'storage_failure'                                           │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_pack_cases.py │
+│ :647 in fault                                                                │
+│                                                                              │
+│   644 │   │   │   │                                                          │
+│       worker=EnrichmentConsumer(stores.subscription(settings.consumer.group_ │
+│       if mode=='disabled' else Model())                                      │
+│   645 │   │   │   │   if mode=='storage_failure':                            │
+│   646 │   │   │   │   │   original=stores.graph.store_event_embedding        │
+│ ❱ 647 │   │   │   │   │   async def fault(*a,**kw):raise UnavailableError('s │
+│       storage write failure')                                                │
+│   648 │   │   │   │   │   stores.graph.store_event_embedding=fault           │
+│   649 │   │   │   │   │   await worker.ensure_group();task=asyncio.create_ta │
+│   650 │   │   │   │   │   try:                                               │
+│                                                                              │
+│ ╭─────────────────────────────── locals ────────────────────────────────╮    │
+│ │  a = (                                                                │    │
+│ │      │   'e5737f44-42eb-4f5d-a1a0-4b60cf132f6e',                      │    │
+│ │      │   [                                                            │    │
+│ │      │   │   1.0,                                                     │    │
+│ │      │   │   0.0,                                                     │    │
+│ │      │   │   0.0,                                                     │    │
+│ │      │   │   0.0,                                                     │    │
+│ │      │   │   0.0,                                                     │    │
+│ │      │   │   0.0,                                                     │    │
+│ │      │   │   0.0,                                                     │    │
+│ │      │   │   0.0,                                                     │    │
+│ │      │   │   0.0,                                                     │    │
+│ │      │   │   0.0,                                                     │    │
+│ │      │   │   ... +374                                                 │    │
+│ │      │   ]                                                            │    │
+│ │      )                                                                │    │
+│ │ kw = {}                                                               │    │
+│ ╰───────────────────────────────────────────────────────────────────────╯    │
+╰──────────────────────────────────────────────────────────────────────────────╯
+UnavailableError: synthetic embedding storage write failure
+
+2026-10-06 19:42:17 [info     ] consumer_stopped               consumer=embedding-cases group=enrichment
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 187, in check
+    observation = await asyncio.wait_for(function(), timeout=timeout_seconds)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_pack_cases.py", line 668, in scenario
+    assert not pending_after,'removed storage failure is not retried during normal worker execution (#14)'
+           ^^^^^^^^^^^^^^^^^
+AssertionError: removed storage failure is not retried during normal worker execution (#14)
+
+{"name": "enrichment_storage_failure", "scenarios": ["ENR-02", "SUB-02"], "verdict": "failed", "error_type": "AssertionError", "error": "removed storage failure is not retried during normal worker execution (#14)", "seconds": 12.47}
+2026-10-06 19:42:17 [info     ] app_stopped

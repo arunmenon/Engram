@@ -606,6 +606,13 @@ class Neo4jGraphStore(Neo4jPackGraph):
             event_ids=event_ids,
         )
 
+    async def count_edges_by_type_and_age(self, min_score: float, max_age_hours: int) -> int:
+        from context_graph.adapters.neo4j import maintenance
+
+        return await maintenance.count_edges_by_type_and_age(
+            self._driver, self._database, min_score, max_age_hours
+        )
+
     async def delete_edges_by_type_and_age(
         self,
         min_score: float,

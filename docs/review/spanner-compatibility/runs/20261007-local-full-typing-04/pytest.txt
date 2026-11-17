@@ -1,0 +1,10 @@
+........................................................................ [ 37%]
+........................................................................ [ 75%]
+...............................................                          [100%]
+=============================== warnings summary ===============================
+tests/unit/test_tenant_responses.py::test_real_bound_fastapi_middleware_chunks_are_materialized_then_authorized
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await f(request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+191 passed, 1 warning in 6.46s

@@ -1,0 +1,396 @@
+{
+  "format_version": 1,
+  "id": "pdlc-rare-word",
+  "title": "Distinctive words outweigh common terms",
+  "story": "Distinctive words outweigh common terms. Run the saved questions against this isolated example graph. Expected answers are preserved from the existing tests. This verifies retrieval, not ingestion or extraction.",
+  "source_refs": [
+    "tests/unit/test_pdlc_retrieval_eval.py::TestSeedPrecision.test_a_rare_word_outweighs_common_ones"
+  ],
+  "pack_digest": "aa882fa31a865c3a6b2ffa1abc8d7ef7d609d244a50a2aa83100e99ea341d4cb",
+  "starting_state": {
+    "kind": "graph_fixture",
+    "nodes": [
+      {
+        "id": "4163a1cf-6bff-57cf-ba7e-13d64807aa43",
+        "type": "Event",
+        "properties": {
+          "event_id": "4163a1cf-6bff-57cf-ba7e-13d64807aa43",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-09-02T09:00:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "999-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Change:acme/lib|1",
+        "type": "Change",
+        "properties": {
+          "node_id": "Change:acme/lib|1",
+          "status": "merged",
+          "status_changed_at": "2026-09-02T09:00:00+00:00",
+          "repo": "acme/lib",
+          "number": 1,
+          "merge_sha": "s1",
+          "title": "feat: add support for service 1",
+          "node_type": "Change",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-02T09:00:00+00:00"
+        }
+      },
+      {
+        "id": "6ff1074e-c364-5535-8600-f9c193330e43",
+        "type": "Event",
+        "properties": {
+          "event_id": "6ff1074e-c364-5535-8600-f9c193330e43",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-09-02T09:00:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "999-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Change:acme/lib|2",
+        "type": "Change",
+        "properties": {
+          "node_id": "Change:acme/lib|2",
+          "status": "merged",
+          "status_changed_at": "2026-09-02T09:00:00+00:00",
+          "repo": "acme/lib",
+          "number": 2,
+          "merge_sha": "s2",
+          "title": "feat: add support for service 2",
+          "node_type": "Change",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-02T09:00:00+00:00"
+        }
+      },
+      {
+        "id": "0bd034db-8486-5b95-8951-bec441709b1b",
+        "type": "Event",
+        "properties": {
+          "event_id": "0bd034db-8486-5b95-8951-bec441709b1b",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-09-02T09:00:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "999-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Change:acme/lib|3",
+        "type": "Change",
+        "properties": {
+          "node_id": "Change:acme/lib|3",
+          "status": "merged",
+          "status_changed_at": "2026-09-02T09:00:00+00:00",
+          "repo": "acme/lib",
+          "number": 3,
+          "merge_sha": "s3",
+          "title": "feat: add support for service 3",
+          "node_type": "Change",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-02T09:00:00+00:00"
+        }
+      },
+      {
+        "id": "1914549a-a7f9-522d-ba0b-131ab08d8e2d",
+        "type": "Event",
+        "properties": {
+          "event_id": "1914549a-a7f9-522d-ba0b-131ab08d8e2d",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-09-02T09:00:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "999-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Change:acme/lib|4",
+        "type": "Change",
+        "properties": {
+          "node_id": "Change:acme/lib|4",
+          "status": "merged",
+          "status_changed_at": "2026-09-02T09:00:00+00:00",
+          "repo": "acme/lib",
+          "number": 4,
+          "merge_sha": "s4",
+          "title": "feat: add support for service 4",
+          "node_type": "Change",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-02T09:00:00+00:00"
+        }
+      },
+      {
+        "id": "cccebdaa-a2da-5f22-9299-1d227a934cc3",
+        "type": "Event",
+        "properties": {
+          "event_id": "cccebdaa-a2da-5f22-9299-1d227a934cc3",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-09-02T09:00:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "999-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Change:acme/lib|5",
+        "type": "Change",
+        "properties": {
+          "node_id": "Change:acme/lib|5",
+          "status": "merged",
+          "status_changed_at": "2026-09-02T09:00:00+00:00",
+          "repo": "acme/lib",
+          "number": 5,
+          "merge_sha": "s5",
+          "title": "feat: add support for service 5",
+          "node_type": "Change",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-02T09:00:00+00:00"
+        }
+      },
+      {
+        "id": "a7b96813-dbbc-59f8-b77a-f03ef8b435c7",
+        "type": "Event",
+        "properties": {
+          "event_id": "a7b96813-dbbc-59f8-b77a-f03ef8b435c7",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-09-02T09:00:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "999-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Change:acme/lib|6",
+        "type": "Change",
+        "properties": {
+          "node_id": "Change:acme/lib|6",
+          "status": "merged",
+          "status_changed_at": "2026-09-02T09:00:00+00:00",
+          "repo": "acme/lib",
+          "number": 6,
+          "merge_sha": "s6",
+          "title": "feat: add support for service 6",
+          "node_type": "Change",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-02T09:00:00+00:00"
+        }
+      },
+      {
+        "id": "a19ead48-7e2a-50dc-bd55-679cf0ad38bf",
+        "type": "Event",
+        "properties": {
+          "event_id": "a19ead48-7e2a-50dc-bd55-679cf0ad38bf",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-09-02T09:00:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "999-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Change:acme/lib|7",
+        "type": "Change",
+        "properties": {
+          "node_id": "Change:acme/lib|7",
+          "status": "merged",
+          "status_changed_at": "2026-09-02T09:00:00+00:00",
+          "repo": "acme/lib",
+          "number": 7,
+          "merge_sha": "s7",
+          "title": "feat: add support for service 7",
+          "node_type": "Change",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-02T09:00:00+00:00"
+        }
+      },
+      {
+        "id": "015557fe-30cf-5e89-a940-4806f080a97b",
+        "type": "Event",
+        "properties": {
+          "event_id": "015557fe-30cf-5e89-a940-4806f080a97b",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-09-02T09:00:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "999-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Change:acme/lib|8",
+        "type": "Change",
+        "properties": {
+          "node_id": "Change:acme/lib|8",
+          "status": "merged",
+          "status_changed_at": "2026-09-02T09:00:00+00:00",
+          "repo": "acme/lib",
+          "number": 8,
+          "merge_sha": "s8",
+          "title": "feat: add support for service 8",
+          "node_type": "Change",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-02T09:00:00+00:00"
+        }
+      },
+      {
+        "id": "ea6c741f-2fd3-5997-bf16-af6f18b1afea",
+        "type": "Event",
+        "properties": {
+          "event_id": "ea6c741f-2fd3-5997-bf16-af6f18b1afea",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-09-02T09:00:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "999-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Change:acme/lib|9",
+        "type": "Change",
+        "properties": {
+          "node_id": "Change:acme/lib|9",
+          "status": "merged",
+          "status_changed_at": "2026-09-02T09:00:00+00:00",
+          "repo": "acme/lib",
+          "number": 9,
+          "merge_sha": "s9",
+          "title": "feat: add object restoration",
+          "node_type": "Change",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-02T09:00:00+00:00"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "Change:acme/lib|1",
+        "target": "4163a1cf-6bff-57cf-ba7e-13d64807aa43",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Change:acme/lib|2",
+        "target": "6ff1074e-c364-5535-8600-f9c193330e43",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Change:acme/lib|3",
+        "target": "0bd034db-8486-5b95-8951-bec441709b1b",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Change:acme/lib|4",
+        "target": "1914549a-a7f9-522d-ba0b-131ab08d8e2d",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Change:acme/lib|5",
+        "target": "cccebdaa-a2da-5f22-9299-1d227a934cc3",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Change:acme/lib|6",
+        "target": "a7b96813-dbbc-59f8-b77a-f03ef8b435c7",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Change:acme/lib|7",
+        "target": "a19ead48-7e2a-50dc-bd55-679cf0ad38bf",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Change:acme/lib|8",
+        "target": "015557fe-30cf-5e89-a940-4806f080a97b",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Change:acme/lib|9",
+        "target": "ea6c741f-2fd3-5997-bf16-af6f18b1afea",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      }
+    ],
+    "retrieval_limits": {
+      "default_max_depth": 3,
+      "seed_limit": 10,
+      "neighbor_limit": 200
+    }
+  },
+  "events": [],
+  "checks": [
+    {
+      "id": "query-1",
+      "description": "Which change added support for object restoration?",
+      "source": "tests/unit/test_pdlc_retrieval_eval.py::TestSeedPrecision.test_a_rare_word_outweighs_common_ones",
+      "kind": "retrieval",
+      "after_step": null,
+      "expected": {
+        "text": "Which change added support for object restoration?",
+        "seed": "",
+        "intent": null,
+        "required": [],
+        "forbidden": [],
+        "query_options": {
+          "max_nodes": 100,
+          "max_depth": null,
+          "include_untrusted": false
+        },
+        "metadata": {
+          "seed_nodes": [
+            "Change:acme/lib|9"
+          ]
+        }
+      }
+    }
+  ],
+  "trusted_producers": [
+    "webhook:github",
+    "webhook:jira"
+  ],
+  "expectations_reviewed": true
+}

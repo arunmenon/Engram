@@ -24,9 +24,10 @@ Source: ADR-0005, ADR-0019, spanner-design-brief.md D2/D3/G3/G4
 from __future__ import annotations
 
 import asyncio
+import json
 import time
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from context_graph.adapters.errors import translate_errors
 from context_graph.adapters.spanner.errors import translate_spanner_error
@@ -39,10 +40,20 @@ from context_graph.adapters.spanner.log import (
     json_value,
 )
 from context_graph.adapters.spanner.schema import CURSOR_FLOOR_TIMESTAMP
+from context_graph.adapters.spanner.tenant_control import tenant_snapshot
+from context_graph.domain.event_acceptance import (
+    EventAcceptance,
+    EventInterpretation,
+    EventInterpretationError,
+    validate_accepted_document,
+)
+from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.subscription import Delivery
 
 if TYPE_CHECKING:
     from collections.abc import Callable
+
+    from context_graph.adapters.spanner.tenant_control import TenantFence
 
 # Events after the group's cursor in their shard, oldest first
 _UNDELIVERED = (
@@ -69,8 +80,30 @@ class SpannerSubscription:
         shards: int = 16,
         claim_idle_ms: int = 300_000,
         poll_interval_ms: int = 50,
+        tenant_fence: TenantFence | None = None,
+        tenant_read_operation: str = "read",
+        tenant_engine_revision: str | None = None,
     ) -> None:
         self._database = database
+        self._tenant_fence = tenant_fence
+        self._interpretation = None
+        if tenant_read_operation not in ("read", "processing"):
+            raise ValueError("Unknown tenant read operation")
+        self._tenant_read_operation: Literal["read", "processing"] = (
+            "processing" if tenant_read_operation == "processing" else "read"
+        )
+        if tenant_fence is not None:
+            tenant_fence.check_database(database)
+            if not tenant_engine_revision:
+                raise ValueError("Bound subscription requires a pinned engine revision")
+            self._interpretation = EventInterpretation(
+                tenant_fence.tenant_id,
+                tenant_fence.database_resource,
+                tenant_fence.binding_id,
+                tenant_fence.epoch,
+                tenant_fence.bundle_digest,
+                tenant_engine_revision,
+            )
         self._group_name = group_name
         self._consumer_name = consumer_name
         self._shards = shards
@@ -100,6 +133,10 @@ class SpannerSubscription:
         return params, types
 
     async def _transact(self, fn: Callable[[Any], Any]) -> Any:
+        if self._tenant_fence is not None:
+            return await asyncio.to_thread(
+                self._tenant_fence.run, self._database, fn, operation="processing"
+            )
         return await asyncio.to_thread(self._database.run_in_transaction, fn)
 
     # -- group lifecycle --------------------------------------------------
@@ -230,7 +267,9 @@ class SpannerSubscription:
         params, types = self._params(limit=(limit, param_types.INT64))
 
         def query() -> list[list[Any]]:
-            with self._database.snapshot() as snapshot:
+            with tenant_snapshot(
+                self._database, self._tenant_fence, operation=self._tenant_read_operation
+            ) as snapshot:
                 return [
                     list(row)
                     for row in snapshot.execute_sql(
@@ -247,6 +286,97 @@ class SpannerSubscription:
 
     # -- acknowledgement, recovery, dead letters ---------------------------
 
+    def _terminal_pending(self, transaction: Any, position: str) -> Any:
+        """Validate present pending content in the same transaction as disposition."""
+        from google.cloud.spanner_v1 import KeySet
+
+        assert self._interpretation is not None
+        event_id = event_id_of(position)
+        pending = list(
+            transaction.read(
+                "ConsumerDeliveries",
+                ["consumer", "commit_ts", "batch_index", "delivery_count"],
+                KeySet(keys=[[self._group_name, event_id]]),
+            )
+        )
+        if not pending:
+            return None
+        consumer, timestamp, batch, count = pending[0]
+        if (
+            consumer != self._consumer_name
+            or format_position(timestamp, batch, event_id) != position
+        ):
+            raise RuntimeFencedError("Delivery position or consumer is no longer authorized")
+        rows = list(
+            transaction.read(
+                "Events",
+                ["document", "acceptance", "commit_ts", "batch_index"],
+                KeySet(keys=[[event_id]]),
+            )
+        )
+        if not rows:
+            raise RuntimeFencedError("Pending event content is unavailable")
+        document, receipt, timestamp, batch = rows[0]
+        if format_position(timestamp, batch, event_id) != position:
+            raise RuntimeFencedError("Pending event position differs from its ledger entry")
+        try:
+            event, accepted = validate_accepted_document(
+                self._interpretation, event_id, json_value(document), json_value(receipt)
+            )
+        except (EventInterpretationError, TypeError, ValueError) as exc:
+            raise RuntimeFencedError("Pending event interpretation is not authorized") from exc
+        return event, accepted, count
+
+    def _repeat_dead_letter(self, transaction: Any, event_id: str, position: str) -> None:
+        """Absent pending can only repeat a matching committed disposition."""
+        from google.cloud.spanner_v1 import KeySet
+
+        assert self._interpretation is not None
+        rows = list(
+            transaction.read(
+                "ConsumerDeadLetters", ["fields"], KeySet(keys=[[self._group_name, event_id]])
+            )
+        )
+        if not rows:
+            raise RuntimeFencedError("No authorized pending or completed disposition")
+        try:
+            fields = json_value(rows[0][0])
+            accepted = EventAcceptance.model_validate(json.loads(fields["acceptance"]))
+            accepted.require_interpretation(self._interpretation)
+            identity = (
+                fields["original_entry_id"],
+                fields["event_id"],
+                fields["group"],
+                fields["consumer"],
+                fields["original_stream"],
+                fields["binding_id"],
+                fields["tenant_id"],
+                fields["database_resource"],
+                fields["bundle_digest"],
+                fields["engine_revision"],
+            )
+            expected = (
+                position,
+                event_id,
+                self._group_name,
+                self._consumer_name,
+                self.source_name,
+                self._interpretation.binding_id,
+                self._interpretation.tenant_id,
+                self._interpretation.database_resource,
+                self._interpretation.bundle_digest,
+                self._interpretation.engine_revision,
+            )
+            if (
+                identity != expected
+                or not 1 <= int(fields["disposition_epoch"]) <= self._interpretation.epoch
+            ):
+                raise ValueError("Disposition identity mismatch")
+        except (ValueError, TypeError, KeyError) as exc:
+            raise RuntimeFencedError(
+                "Completed disposition does not match current authority"
+            ) from exc
+
     async def ack(self, *positions: str) -> None:
         from google.cloud.spanner_v1 import KeySet
 
@@ -255,6 +385,16 @@ class SpannerSubscription:
         keys = KeySet(keys=[[self._group_name, event_id_of(p)] for p in positions])
 
         def work(transaction: Any) -> None:
+            if self._interpretation is not None:
+                unique: dict[str, str] = {}
+                for position in positions:
+                    event_id = event_id_of(position)
+                    if event_id in unique and unique[event_id] != position:
+                        raise RuntimeFencedError("Contradictory positions for one event")
+                    unique[event_id] = position
+                # Validate the entire batch before recording any deletion.
+                for position in unique.values():
+                    self._terminal_pending(transaction, position)
             transaction.delete("ConsumerDeliveries", keys)
 
         await self._transact(work)
@@ -297,10 +437,38 @@ class SpannerSubscription:
         }
 
         def work(transaction: Any) -> None:
+            actual_fields = fields
+            if self._interpretation is not None:
+                if delivery.fields.get("event_id", event_id) != event_id:
+                    raise RuntimeFencedError("Delivery fields conflict with its position")
+                pending = self._terminal_pending(transaction, delivery.position)
+                if pending is None:
+                    self._repeat_dead_letter(transaction, event_id, delivery.position)
+                    return
+                if type(delivery_count) is not int or delivery_count < 1:
+                    raise RuntimeFencedError("Invalid disposition delivery count")
+                event, accepted, stored_count = pending
+                authority = self._interpretation
+                actual_fields = {
+                    "original_stream": self.source_name,
+                    "original_entry_id": delivery.position,
+                    "group": self._group_name,
+                    "consumer": self._consumer_name,
+                    "event_id": event_id,
+                    "event_type": event.event_type,
+                    "delivery_count": str(max(delivery_count, stored_count)),
+                    "acceptance": accepted.model_dump_json(),
+                    "tenant_id": authority.tenant_id,
+                    "database_resource": authority.database_resource,
+                    "binding_id": authority.binding_id,
+                    "bundle_digest": authority.bundle_digest,
+                    "engine_revision": authority.engine_revision,
+                    "disposition_epoch": str(authority.epoch),
+                }
             transaction.insert_or_update(
                 "ConsumerDeadLetters",
                 ["group_name", "event_id", "dead_lettered_at", "fields"],
-                [[self._group_name, event_id, datetime.now(UTC), json_param(fields)]],
+                [[self._group_name, event_id, datetime.now(UTC), json_param(actual_fields)]],
             )
             transaction.delete("ConsumerDeliveries", KeySet(keys=[[self._group_name, event_id]]))
 
@@ -311,7 +479,9 @@ class SpannerSubscription:
         params, types = self._params()
 
         def query() -> list[list[Any]]:
-            with self._database.snapshot() as snapshot:
+            with tenant_snapshot(
+                self._database, self._tenant_fence, operation=self._tenant_read_operation
+            ) as snapshot:
                 return [
                     list(row)
                     for row in snapshot.execute_sql(
@@ -329,7 +499,9 @@ class SpannerSubscription:
         params, types = self._params()
 
         def query() -> list[list[Any]]:
-            with self._database.snapshot() as snapshot:
+            with tenant_snapshot(
+                self._database, self._tenant_fence, operation=self._tenant_read_operation
+            ) as snapshot:
                 return [
                     list(row)
                     for row in snapshot.execute_sql(
@@ -339,6 +511,8 @@ class SpannerSubscription:
 
         try:
             rows = await asyncio.to_thread(query)
+        except RuntimeFencedError:
+            raise
         except Exception:  # noqa: BLE001
             return None  # Non-critical metric, as in the Redis adapter
         return int(rows[0][0])

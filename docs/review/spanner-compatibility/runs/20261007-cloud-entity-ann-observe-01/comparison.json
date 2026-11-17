@@ -1,0 +1,15 @@
+{
+  "requested_name": "projects/portiq-mvp/instances/engram-experiment/databases/engram/operations/engram_ann_68b0c66ce3b944bdafbef6dbdd517a25",
+  "returned_name": "projects/portiq-mvp/instances/engram-experiment/databases/engram/operations/engram_ann_68b0c66ce3b944bdafbef6dbdd517a25",
+  "done": true,
+  "metadata_database": "projects/portiq-mvp/instances/engram-experiment/databases/engram",
+  "metadata_statements": [
+    "ALTER TABLE GraphNodes ADD COLUMN entity_embedding_member BOOL AS (IF(label = 'Entity', TRUE, NULL)) HIDDEN",
+    "CREATE VECTOR INDEX GraphEntitiesByEmbeddingV1 ON GraphNodes(embedding) STORING (entity_embedding_member) WHERE embedding IS NOT NULL AND entity_embedding_member IS NOT NULL OPTIONS (\n  distance_type = 'COSINE'\n)"
+  ],
+  "expected_statements": [
+    "ALTER TABLE GraphNodes ADD COLUMN entity_embedding_member BOOL AS (IF(label = 'Entity', TRUE, NULL)) HIDDEN",
+    "CREATE VECTOR INDEX GraphEntitiesByEmbeddingV1 ON GraphNodes (embedding) STORING (entity_embedding_member) WHERE embedding IS NOT NULL AND entity_embedding_member IS NOT NULL OPTIONS (distance_type = 'COSINE')"
+  ],
+  "error_code": 0
+}

@@ -1,0 +1,25 @@
+{
+  "kind": "cloud_entity_ann_inspect",
+  "cloud_calls": true,
+  "issues": [
+    44,
+    41,
+    23,
+    42
+  ],
+  "target": {
+    "GOOGLE_CLOUD_PROJECT": "portiq-mvp",
+    "SPANNER_DATABASE_ID": "engram",
+    "SPANNER_INSTANCE_ID": "engram-experiment"
+  },
+  "dimensions": 384,
+  "source_sha256": {
+    "scripts/engram_spanner_entity_ann.py": "5158bb9b8b958c9cac794fec58bcb4821186015818fa95c2e1244f6452f5afc9",
+    "src/context_graph/adapters/spanner/entity_index.py": "847cd83586fa5a08076f34e720f07733782e4c6c55109527f5491f957d858ad3",
+    "src/context_graph/adapters/spanner/schema.py": "2379029e6b25637bef68612bc1e1c30b14ea6db7f440cc8d24a2fddee7cd984d",
+    "src/context_graph/adapters/spanner/graph.py": "24a850d5a38ee0c45ccccdae4f3fcd957418c417338cc8efde40a217a76f331a",
+    "src/context_graph/adapters/spanner/commits.py": "c09da09c1eb2dbc0616efefe2392d82a542a27eb53065a7ff09af04ee4ef11ca"
+  },
+  "scope": "Physical schema/upgrade only; no full ANN or baseline scenario closure",
+  "run_id": "20261007-cloud-entity-ann-inspect-01"
+}

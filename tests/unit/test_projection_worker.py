@@ -162,7 +162,7 @@ class TestMicroBatching:
             consumer,
             "_fetch_batch",
             new_callable=AsyncMock,
-            return_value={"entry-0": (mock_event, {})},
+            return_value={"entry-0": (mock_event, {}, None)},
         )
         project_patch = patch("context_graph.worker.projection.project_event")
         previous_patch = patch.object(

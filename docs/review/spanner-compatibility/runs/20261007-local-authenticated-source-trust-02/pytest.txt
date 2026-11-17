@@ -1,0 +1,423 @@
+...........................F.............FFF............................ [ 33%]
+...........................................F...F........................ [ 67%]
+......................................................................   [100%]
+=================================== FAILURES ===================================
+_____ test_replay_preserves_typed_source_and_refuses_document_receipt_copy _____
+
+    @pytest.mark.asyncio
+    async def test_replay_preserves_typed_source_and_refuses_document_receipt_copy():
+        from context_graph.ports.event_log import LogEntry
+    
+        bound = binding(packs=["pdlc"])
+        item = event().model_copy(update={"event_type": "pdlc.change.created"})
+        payload = {"repo": "example/payments", "number": 7, "title": "Change"}
+        doc = {**item.model_dump(mode="json"), "payload": payload}
+        receipt = stamp_acceptance(context(bound), item, payload)
+        provenance = VerifiedSourceProvenance(str(item.event_id), receipt)
+        reader = AsyncMock()
+        reader.read_after.side_effect = [
+            [LogEntry("position", str(item.event_id), doc, provenance)],
+            [],
+        ]
+        with patch("context_graph.ontology.versioning.apply_plan", new_callable=AsyncMock) as apply:
+>           report = await replay_event_types(
+                reader, AsyncMock(), projector(bound), {item.event_type}, batch_size=10, lookup_limit=10
+            )
+
+tests/unit/test_authenticated_source_trust.py:235: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+event_log = <AsyncMock id='4675033312'>, graph = <AsyncMock id='4674887104'>
+projector = <context_graph.domain.pack_projection.PackProjector object at 0x112fa45f0>
+event_types = {'pdlc.change.created'}, batch_size = 10, lookup_limit = 10
+
+    async def replay_event_types(
+        event_log: EventLog,
+        graph: PackGraph,
+        projector: PackProjector,
+        event_types: set[str],
+        *,
+        batch_size: int,
+        lookup_limit: int,
+    ) -> ReplayReport:
+        """Project the ledger's events of these types again, in log order.
+    
+        One event's failure is logged and reported; the replay goes on, as the
+        projection worker dead-letters a failing event and goes on.
+        """
+        if projector.requires_provenance is True:
+            from context_graph.ports.event_log import AcceptedRecordReader
+    
+            if not isinstance(event_log, AcceptedRecordReader):
+>               raise RuntimeFencedError("Bound replay requires an accepted-record reader")
+E               context_graph.ports.errors.RuntimeFencedError: Bound replay requires an accepted-record reader
+
+src/context_graph/ontology/versioning.py:179: RuntimeFencedError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 21:54:15 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-07 21:54:15 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-07 21:54:15 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-07 21:54:15 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-07 21:54:15 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-07 21:54:15 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-07 21:54:15 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-07 21:54:15 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-07 21:54:15 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-07 21:54:15 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-07 21:54:15 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-07 21:54:15 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-07 21:54:15 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-07 21:54:15 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+____ TestPackFailureIsolation.test_one_failing_event_is_dead_lettered_alone ____
+
+self = <tests.unit.test_projection_worker.TestPackFailureIsolation object at 0x112b5d820>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x116bdd1f0>
+
+    @pytest.mark.asyncio
+    async def test_one_failing_event_is_dead_lettered_alone(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from context_graph.domain.pack_projection import ProjectionPlan
+    
+        class Projector:
+            def handles(self, event_type: str) -> bool:
+                return True
+    
+            def plan(self, event: Event, document: dict[str, object]) -> ProjectionPlan:
+                if event.session_id == "sess-bad":
+                    msg = "pack rule failed"
+                    raise RuntimeError(msg)
+                return ProjectionPlan()
+    
+        monkeypatch.setenv("CG_CONSUMER_BLOCK_TIMEOUT_MS", "20")
+        settings = Settings()
+        event_log = MemoryEventLog()
+        subscription = MemorySubscription(
+            event_log.stream, settings.consumer.group_projection, "projection-1"
+        )
+>       consumer = ProjectionConsumer(
+            subscription=subscription,
+            event_log=event_log,
+            graph_store=MemoryGraphStore(),
+            settings=settings,
+            pack_projector=Projector(),  # type: ignore[arg-type]
+        )
+
+tests/unit/test_projection_worker.py:410: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.worker.projection.ProjectionConsumer object at 0x116bdc530>
+subscription = <context_graph.adapters.memory.subscription.MemorySubscription object at 0x116bdc9e0>
+event_log = <context_graph.adapters.memory.log.MemoryEventLog object at 0x116bdc740>
+graph_store = <context_graph.adapters.memory.graph.MemoryGraphStore object at 0x116bdc620>
+settings = Settings(app_name='context-graph', debug=False, log_level='INFO', uvicorn_workers=4, cors_origins=['http://localhost:5...=False, replay_batch_size=500), webhooks=WebhookSettings(github_secret=None, jira_secret=None, max_body_bytes=1000000))
+pack_projector = <tests.unit.test_projection_worker.TestPackFailureIsolation.test_one_failing_event_is_dead_lettered_alone.<locals>.Projector object at 0x116bdc6b0>
+pack_lookup_limit = 1000
+
+    def __init__(
+        self,
+        subscription: Subscription,
+        event_log: EventLog,
+        graph_store: GraphStore,
+        settings: Settings,
+        pack_projector: PackProjector | None = None,
+        pack_lookup_limit: int = DEFAULT_LOOKUP_LIMIT,
+    ) -> None:
+        super().__init__(
+            subscription,
+            batch_size=settings.consumer.projection_batch_size,
+            block_timeout_ms=settings.consumer.block_timeout_ms,
+            max_retries=settings.consumer.max_retries,
+            transient_backoff_ms=settings.consumer.transient_backoff_ms,
+            transient_backoff_max_ms=settings.consumer.transient_backoff_max_ms,
+        )
+        # Events per flush, and the longest a partial flush waits
+        # (CG_CONSUMER_PROJECTION_BATCH_SIZE / _BATCH_TIMEOUT_MS)
+        self._BATCH_SIZE = settings.consumer.projection_batch_size
+        self._BATCH_TIMEOUT_MS = settings.consumer.projection_batch_timeout_ms
+        self._event_log = event_log
+        self._graph_store = graph_store
+        self._pack_projector = pack_projector
+        if (
+            pack_projector is not None
+>           and pack_projector.requires_provenance is True
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and not isinstance(event_log, AcceptedRecordReader)
+        ):
+E       AttributeError: 'Projector' object has no attribute 'requires_provenance'
+
+src/context_graph/worker/projection.py:85: AttributeError
+_ TestTransientStorageFailures.test_an_outage_is_waited_out_not_dead_lettered __
+
+self = <tests.unit.test_projection_worker.TestTransientStorageFailures object at 0x112b5d310>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x116bde750>
+
+    @pytest.mark.asyncio
+    async def test_an_outage_is_waited_out_not_dead_lettered(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        graph = MemoryGraphStore()
+>       consumer, event_log, subscription, attempts = self._consumer(monkeypatch, graph, 3)
+                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_projection_worker.py:483: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_projection_worker.py:469: in _consumer
+    consumer = ProjectionConsumer(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.worker.projection.ProjectionConsumer object at 0x116bdfd70>
+subscription = <context_graph.adapters.memory.subscription.MemorySubscription object at 0x116bdcb30>
+event_log = <context_graph.adapters.memory.log.MemoryEventLog object at 0x116bdcdd0>
+graph_store = <tests.unit.test_projection_worker.TestTransientStorageFailures._consumer.<locals>.FlakyGraph object at 0x116bdd3d0>
+settings = Settings(app_name='context-graph', debug=False, log_level='INFO', uvicorn_workers=4, cors_origins=['http://localhost:5...=False, replay_batch_size=500), webhooks=WebhookSettings(github_secret=None, jira_secret=None, max_body_bytes=1000000))
+pack_projector = <tests.unit.test_projection_worker.TestTransientStorageFailures._consumer.<locals>.Projector object at 0x116bdc7d0>
+pack_lookup_limit = 1000
+
+    def __init__(
+        self,
+        subscription: Subscription,
+        event_log: EventLog,
+        graph_store: GraphStore,
+        settings: Settings,
+        pack_projector: PackProjector | None = None,
+        pack_lookup_limit: int = DEFAULT_LOOKUP_LIMIT,
+    ) -> None:
+        super().__init__(
+            subscription,
+            batch_size=settings.consumer.projection_batch_size,
+            block_timeout_ms=settings.consumer.block_timeout_ms,
+            max_retries=settings.consumer.max_retries,
+            transient_backoff_ms=settings.consumer.transient_backoff_ms,
+            transient_backoff_max_ms=settings.consumer.transient_backoff_max_ms,
+        )
+        # Events per flush, and the longest a partial flush waits
+        # (CG_CONSUMER_PROJECTION_BATCH_SIZE / _BATCH_TIMEOUT_MS)
+        self._BATCH_SIZE = settings.consumer.projection_batch_size
+        self._BATCH_TIMEOUT_MS = settings.consumer.projection_batch_timeout_ms
+        self._event_log = event_log
+        self._graph_store = graph_store
+        self._pack_projector = pack_projector
+        if (
+            pack_projector is not None
+>           and pack_projector.requires_provenance is True
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and not isinstance(event_log, AcceptedRecordReader)
+        ):
+E       AttributeError: 'Projector' object has no attribute 'requires_provenance'
+
+src/context_graph/worker/projection.py:85: AttributeError
+_ TestTransientStorageFailures.test_stopping_mid_outage_leaves_the_batch_pending _
+
+self = <tests.unit.test_projection_worker.TestTransientStorageFailures object at 0x112b5cda0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x116bdcf20>
+
+    @pytest.mark.asyncio
+    async def test_stopping_mid_outage_leaves_the_batch_pending(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        from context_graph.ports.errors import UnavailableError
+    
+        graph = MemoryGraphStore()
+>       consumer, event_log, subscription, _attempts = self._consumer(monkeypatch, graph, 99)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_projection_worker.py:503: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_projection_worker.py:469: in _consumer
+    consumer = ProjectionConsumer(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.worker.projection.ProjectionConsumer object at 0x116bdcb90>
+subscription = <context_graph.adapters.memory.subscription.MemorySubscription object at 0x116bdf560>
+event_log = <context_graph.adapters.memory.log.MemoryEventLog object at 0x116bdce60>
+graph_store = <tests.unit.test_projection_worker.TestTransientStorageFailures._consumer.<locals>.FlakyGraph object at 0x116bdf080>
+settings = Settings(app_name='context-graph', debug=False, log_level='INFO', uvicorn_workers=4, cors_origins=['http://localhost:5...=False, replay_batch_size=500), webhooks=WebhookSettings(github_secret=None, jira_secret=None, max_body_bytes=1000000))
+pack_projector = <tests.unit.test_projection_worker.TestTransientStorageFailures._consumer.<locals>.Projector object at 0x116bdca70>
+pack_lookup_limit = 1000
+
+    def __init__(
+        self,
+        subscription: Subscription,
+        event_log: EventLog,
+        graph_store: GraphStore,
+        settings: Settings,
+        pack_projector: PackProjector | None = None,
+        pack_lookup_limit: int = DEFAULT_LOOKUP_LIMIT,
+    ) -> None:
+        super().__init__(
+            subscription,
+            batch_size=settings.consumer.projection_batch_size,
+            block_timeout_ms=settings.consumer.block_timeout_ms,
+            max_retries=settings.consumer.max_retries,
+            transient_backoff_ms=settings.consumer.transient_backoff_ms,
+            transient_backoff_max_ms=settings.consumer.transient_backoff_max_ms,
+        )
+        # Events per flush, and the longest a partial flush waits
+        # (CG_CONSUMER_PROJECTION_BATCH_SIZE / _BATCH_TIMEOUT_MS)
+        self._BATCH_SIZE = settings.consumer.projection_batch_size
+        self._BATCH_TIMEOUT_MS = settings.consumer.projection_batch_timeout_ms
+        self._event_log = event_log
+        self._graph_store = graph_store
+        self._pack_projector = pack_projector
+        if (
+            pack_projector is not None
+>           and pack_projector.requires_provenance is True
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and not isinstance(event_log, AcceptedRecordReader)
+        ):
+E       AttributeError: 'Projector' object has no attribute 'requires_provenance'
+
+src/context_graph/worker/projection.py:85: AttributeError
+__________ test_every_worker_forwards_same_pinned_binding[projection] __________
+
+kind = 'projection'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1129a1d30>
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "kind", ["projection", "extraction", "enrichment", "consolidation", "pack_extraction"]
+    )
+    async def test_every_worker_forwards_same_pinned_binding(kind, monkeypatch):
+        entry = importlib.import_module("context_graph.worker.__main__")
+        providers(monkeypatch)
+        monkeypatch.setattr(entry, "_open_embedding_service", lambda *args: None)
+        binding = bind()
+        captured = []
+    
+        async def recording_open(settings, **kwargs):
+            captured.append((settings, kwargs))
+            return await reference_open(memory_settings(), bundle=kwargs["bundle"])
+    
+        monkeypatch.setattr(entry, "open_stores", recording_open)
+        monkeypatch.setenv("CG_SPANNER_DATABASE", "ambient-database")
+>       consumer, stores = await entry._build_consumer(kind, binding.settings(), tenant_binding=binding)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_runtime_tenant_binding.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/worker/__main__.py:121: in _build_consumer
+    return ProjectionConsumer(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.worker.projection.ProjectionConsumer object at 0x1410ec590>
+subscription = <context_graph.adapters.memory.subscription.MemorySubscription object at 0x1410ec0e0>
+event_log = <context_graph.adapters.memory.log.MemoryEventLog object at 0x1410ecc50>
+graph_store = <context_graph.adapters.memory.graph.MemoryGraphStore object at 0x1410eda30>
+settings = Settings(app_name='context-graph', debug=False, log_level='INFO', uvicorn_workers=4, cors_origins=['http://localhost:5...=False, replay_batch_size=500), webhooks=WebhookSettings(github_secret=None, jira_secret=None, max_body_bytes=1000000))
+pack_projector = <context_graph.domain.pack_projection.PackProjector object at 0x1410edc70>
+pack_lookup_limit = 1000
+
+    def __init__(
+        self,
+        subscription: Subscription,
+        event_log: EventLog,
+        graph_store: GraphStore,
+        settings: Settings,
+        pack_projector: PackProjector | None = None,
+        pack_lookup_limit: int = DEFAULT_LOOKUP_LIMIT,
+    ) -> None:
+        super().__init__(
+            subscription,
+            batch_size=settings.consumer.projection_batch_size,
+            block_timeout_ms=settings.consumer.block_timeout_ms,
+            max_retries=settings.consumer.max_retries,
+            transient_backoff_ms=settings.consumer.transient_backoff_ms,
+            transient_backoff_max_ms=settings.consumer.transient_backoff_max_ms,
+        )
+        # Events per flush, and the longest a partial flush waits
+        # (CG_CONSUMER_PROJECTION_BATCH_SIZE / _BATCH_TIMEOUT_MS)
+        self._BATCH_SIZE = settings.consumer.projection_batch_size
+        self._BATCH_TIMEOUT_MS = settings.consumer.projection_batch_timeout_ms
+        self._event_log = event_log
+        self._graph_store = graph_store
+        self._pack_projector = pack_projector
+        if (
+            pack_projector is not None
+            and pack_projector.requires_provenance is True
+            and not isinstance(event_log, AcceptedRecordReader)
+        ):
+>           raise RuntimeFencedError("Bound projection requires an accepted-record reader")
+E           context_graph.ports.errors.RuntimeFencedError: Bound projection requires an accepted-record reader
+
+src/context_graph/worker/projection.py:88: RuntimeFencedError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 21:54:19 [info     ] ontology_loaded                edge_types=10 event_types=11 intents=['general', 'how_does', 'related', 'what', 'when', 'who_is', 'why'] node_types=3 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}] version=sha256:7aa9c7d4db1d5a24
+2026-10-07 21:54:19 [info     ] ontology_change                eval_required=[] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+_______ test_every_worker_forwards_same_pinned_binding[pack_extraction] ________
+
+kind = 'pack_extraction'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x14107bb30>
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "kind", ["projection", "extraction", "enrichment", "consolidation", "pack_extraction"]
+    )
+    async def test_every_worker_forwards_same_pinned_binding(kind, monkeypatch):
+        entry = importlib.import_module("context_graph.worker.__main__")
+        providers(monkeypatch)
+        monkeypatch.setattr(entry, "_open_embedding_service", lambda *args: None)
+        binding = bind()
+        captured = []
+    
+        async def recording_open(settings, **kwargs):
+            captured.append((settings, kwargs))
+            return await reference_open(memory_settings(), bundle=kwargs["bundle"])
+    
+        monkeypatch.setattr(entry, "open_stores", recording_open)
+        monkeypatch.setenv("CG_SPANNER_DATABASE", "ambient-database")
+>       consumer, stores = await entry._build_consumer(kind, binding.settings(), tenant_binding=binding)
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_runtime_tenant_binding.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/worker/__main__.py:158: in _build_consumer
+    return PackExtractionConsumer(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.worker.pack_extraction.PackExtractionConsumer object at 0x1410b95e0>
+subscription = <context_graph.adapters.memory.subscription.MemorySubscription object at 0x1410bab70>
+event_log = <context_graph.adapters.memory.log.MemoryEventLog object at 0x1410b9a00>
+graph = <context_graph.adapters.memory.graph.MemoryGraphStore object at 0x1410b9580>
+profiles = []
+projector = <context_graph.domain.pack_projection.PackProjector object at 0x1410bb320>
+model = <MagicMock name='mock()' id='5386249296'>
+settings = Settings(app_name='context-graph', debug=False, log_level='INFO', uvicorn_workers=4, cors_origins=['http://localhost:5...=False, replay_batch_size=500), webhooks=WebhookSettings(github_secret=None, jira_secret=None, max_body_bytes=1000000))
+
+    def __init__(
+        self,
+        subscription: Subscription,
+        event_log: EventLog,
+        graph: PackGraph,
+        profiles: list[ExtractionProfile],
+        projector: PackProjector,
+        model: TextGenerator,
+        settings: Settings,
+    ) -> None:
+        super().__init__(
+            subscription,
+            block_timeout_ms=settings.consumer.block_timeout_ms,
+            max_retries=settings.consumer.max_retries,
+        )
+        self._event_log = event_log
+        self._graph = graph
+        self._profiles = profiles
+        self._projector = projector
+        self._model = model
+        if projector.requires_provenance is True and not isinstance(
+            event_log, AcceptedRecordReader
+        ):
+>           raise RuntimeFencedError("Bound extraction requires an accepted-record reader")
+E           context_graph.ports.errors.RuntimeFencedError: Bound extraction requires an accepted-record reader
+
+src/context_graph/worker/pack_extraction.py:105: RuntimeFencedError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 21:54:20 [info     ] pack_extraction_profiles       packs=[] sources=[]
+=========================== short test summary info ============================
+FAILED tests/unit/test_authenticated_source_trust.py::test_replay_preserves_typed_source_and_refuses_document_receipt_copy
+FAILED tests/unit/test_projection_worker.py::TestPackFailureIsolation::test_one_failing_event_is_dead_lettered_alone
+FAILED tests/unit/test_projection_worker.py::TestTransientStorageFailures::test_an_outage_is_waited_out_not_dead_lettered
+FAILED tests/unit/test_projection_worker.py::TestTransientStorageFailures::test_stopping_mid_outage_leaves_the_batch_pending
+FAILED tests/unit/test_runtime_tenant_binding.py::test_every_worker_forwards_same_pinned_binding[projection]
+FAILED tests/unit/test_runtime_tenant_binding.py::test_every_worker_forwards_same_pinned_binding[pack_extraction]
+6 failed, 208 passed in 8.71s

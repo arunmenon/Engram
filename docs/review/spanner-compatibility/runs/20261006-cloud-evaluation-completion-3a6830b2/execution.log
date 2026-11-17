@@ -1,0 +1,91 @@
+2026-10-06 21:59:10 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 21:59:10 [info     ] llm_client_initialized
+2026-10-06 21:59:10 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 21:59:10 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 21:59:10 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 21:59:10 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 21:59:10 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 21:59:10 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 21:59:10 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 21:59:10 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 21:59:10 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 21:59:10 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 21:59:10 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 21:59:10 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 21:59:10 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 21:59:10 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 21:59:12 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 21:59:17 [warning  ] eval_pending_read_failed
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /Users/arunmenon/projects/Engram/src/context_graph/ontology/versioning.py:28 │
+│ 2 in packs                                                                   │
+│                                                                              │
+│   279 │   │   if self._packs is not None and now - self._read_at < self._ttl │
+│   280 │   │   │   return self._packs                                         │
+│   281 │   │   try:                                                           │
+│ ❱ 282 │   │   │   state = await read_state(self._graph)                      │
+│   283 │   │   except Exception:                                              │
+│   284 │   │   │   if self._packs is None:                                    │
+│   285 │   │   │   │   raise                                                  │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │  now = 3523202.971675958                                                 │ │
+│ │ self = <context_graph.ontology.versioning.EvalPending object at          │ │
+│ │        0x12527d4c0>                                                      │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram/src/context_graph/ontology/versioning.py:93 │
+│ in read_state                                                                │
+│                                                                              │
+│    90                                                                        │
+│    91                                                                        │
+│    92 async def read_state(graph: PackGraph) -> RecordedOntology | None:     │
+│ ❱  93 │   found = await graph.get_nodes([STATE_REF])                         │
+│    94 │   props = found.get(STATE_REF)                                       │
+│    95 │   if not props:                                                      │
+│    96 │   │   return None                                                    │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │ graph = <context_graph.adapters.spanner.graph.SpannerGraphStore object   │ │
+│ │         at 0x12524d550>                                                  │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_completion.py │
+│ :268 in fault                                                                │
+│                                                                              │
+│   265 │   │   │   async def fault(refs,*a,**kw):                             │
+│   266 │   │   │   │   nonlocal fault_calls                                   │
+│   267 │   │   │   │   if STATE_REF in refs:                                  │
+│ ❱ 268 │   │   │   │   │   fault_calls+=1;raise RuntimeError('synthetic ontol │
+│       failure')                                                              │
+│   269 │   │   │   │   return await original(refs,*a,**kw)                    │
+│   270 │   │   │   stores.graph.get_nodes=fault                               │
+│   271 │   │   │   initial_error=None                                         │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │           a = ()                                                         │ │
+│ │ fault_calls = 1                                                          │ │
+│ │          kw = {}                                                         │ │
+│ │    original = <bound method GraphOperations.get_nodes of                 │ │
+│ │               <context_graph.adapters.spanner.graph.SpannerGraphStore    │ │
+│ │               object at 0x12524d550>>                                    │ │
+│ │        refs = [                                                          │ │
+│ │               │   NodeRef(                                               │ │
+│ │               │   │   label='OntologyState',                             │ │
+│ │               │   │   key='OntologyState:active',                        │ │
+│ │               │   │   key_property='node_id'                             │ │
+│ │               │   )                                                      │ │
+│ │               ]                                                          │ │
+│ │   STATE_REF = NodeRef(                                                   │ │
+│ │               │   label='OntologyState',                                 │ │
+│ │               │   key='OntologyState:active',                            │ │
+│ │               │   key_property='node_id'                                 │ │
+│ │               )                                                          │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+╰──────────────────────────────────────────────────────────────────────────────╯
+RuntimeError: synthetic ontology state read failure
+
+{"name": "evaluation_pending_explicit409_auto_metadata_TTL_read_error_and_recovery", "scenarios": ["ART-05", "ONT-01"], "verdict": "passed", "observation": {"intent": "trace", "pending": ["pdlc"], "explicit_pending_status": 409, "auto_status": 200, "auto_pending_metadata": ["pdlc"], "stale_within_TTL": ["pdlc"], "clear_after_TTL": [], "explicit_clear_status": 200, "read_error_retains_last": [], "first_read_error": "RuntimeError", "synthetic_fault_calls": 2, "recovered_pending": ["pdlc"], "scope": "fixture state transitions, real Spanner reads/writes; successful actual evaluation separately recorded"}, "seconds": 4.74}
+2026-10-06 21:59:17 [info     ] app_stopped

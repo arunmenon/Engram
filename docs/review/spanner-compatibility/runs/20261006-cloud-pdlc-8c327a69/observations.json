@@ -1,0 +1,392 @@
+{
+  "checks": [
+    {
+      "name": "PDLC_signed_webhook_full_fixture_evaluation",
+      "scenarios": [
+        "APP-02",
+        "ART-01",
+        "ONT-01",
+        "PEXT-01",
+        "PEXT-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "signed_deliveries": 8,
+        "evaluation": [
+          {
+            "pack": "pdlc",
+            "passed": true,
+            "mean_f1": 1.0,
+            "min_f1": 0.95,
+            "problem": null,
+            "questions": [
+              {
+                "id": "deployed-where",
+                "f1": 1.0,
+                "found": [
+                  "Deployment:production|def456|2026-10-02T09:00:00+00:00"
+                ],
+                "expected": [
+                  "Deployment:production|def456|2026-10-02T09:00:00+00:00"
+                ]
+              },
+              {
+                "id": "implemented-by",
+                "f1": 1.0,
+                "found": [
+                  "Change:acme/payments|7"
+                ],
+                "expected": [
+                  "Change:acme/payments|7"
+                ]
+              },
+              {
+                "id": "pr-implements",
+                "f1": 1.0,
+                "found": [
+                  "WorkItem:jira|PAY-341"
+                ],
+                "expected": [
+                  "WorkItem:jira|PAY-341"
+                ]
+              },
+              {
+                "id": "release-contents",
+                "f1": 1.0,
+                "found": [
+                  "Change:acme/payments|7",
+                  "Change:acme/payments|8"
+                ],
+                "expected": [
+                  "Change:acme/payments|7",
+                  "Change:acme/payments|8"
+                ]
+              },
+              {
+                "id": "runs-against-pr",
+                "f1": 1.0,
+                "found": [
+                  "TestRun:555"
+                ],
+                "expected": [
+                  "TestRun:555"
+                ]
+              },
+              {
+                "id": "untested-tickets",
+                "f1": 1.0,
+                "found": [
+                  "WorkItem:jira|PAY-300",
+                  "WorkItem:jira|PAY-341"
+                ],
+                "expected": [
+                  "WorkItem:jira|PAY-300",
+                  "WorkItem:jira|PAY-341"
+                ]
+              },
+              {
+                "id": "untested-under-epic",
+                "f1": 1.0,
+                "found": [
+                  "WorkItem:jira|PAY-341"
+                ],
+                "expected": [
+                  "WorkItem:jira|PAY-341"
+                ]
+              },
+              {
+                "id": "unreviewed-prs",
+                "f1": 1.0,
+                "found": [
+                  "Change:acme/payments|8"
+                ],
+                "expected": [
+                  "Change:acme/payments|8"
+                ]
+              },
+              {
+                "id": "changes-without-ticket",
+                "f1": 1.0,
+                "found": [
+                  "Change:acme/payments|8"
+                ],
+                "expected": [
+                  "Change:acme/payments|8"
+                ]
+              },
+              {
+                "id": "merged-untested",
+                "f1": 1.0,
+                "found": [
+                  "Change:acme/payments|7"
+                ],
+                "expected": [
+                  "Change:acme/payments|7"
+                ]
+              },
+              {
+                "id": "before-editing-pr",
+                "f1": 1.0,
+                "found": [
+                  "TestRun:555"
+                ],
+                "expected": [
+                  "TestRun:555"
+                ]
+              }
+            ]
+          }
+        ],
+        "artifact_questions_and_pack_extraction": "passed"
+      },
+      "seconds": 59.85
+    },
+    {
+      "name": "PDLC_real_target_rebuild_evaluation",
+      "scenarios": [
+        "ONT-03",
+        "APP-02",
+        "ART-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "target": "engram-compat-target",
+        "exit_code": 0,
+        "evaluation": [
+          {
+            "pack": "pdlc",
+            "passed": true,
+            "mean_f1": 1.0,
+            "min_f1": 0.95,
+            "problem": null,
+            "questions": [
+              {
+                "id": "deployed-where",
+                "f1": 1.0,
+                "found": [
+                  "Deployment:production|def456|2026-10-02T09:00:00+00:00"
+                ],
+                "expected": [
+                  "Deployment:production|def456|2026-10-02T09:00:00+00:00"
+                ]
+              },
+              {
+                "id": "implemented-by",
+                "f1": 1.0,
+                "found": [
+                  "Change:acme/payments|7"
+                ],
+                "expected": [
+                  "Change:acme/payments|7"
+                ]
+              },
+              {
+                "id": "pr-implements",
+                "f1": 1.0,
+                "found": [
+                  "WorkItem:jira|PAY-341"
+                ],
+                "expected": [
+                  "WorkItem:jira|PAY-341"
+                ]
+              },
+              {
+                "id": "release-contents",
+                "f1": 1.0,
+                "found": [
+                  "Change:acme/payments|7",
+                  "Change:acme/payments|8"
+                ],
+                "expected": [
+                  "Change:acme/payments|7",
+                  "Change:acme/payments|8"
+                ]
+              },
+              {
+                "id": "runs-against-pr",
+                "f1": 1.0,
+                "found": [
+                  "TestRun:555"
+                ],
+                "expected": [
+                  "TestRun:555"
+                ]
+              },
+              {
+                "id": "untested-tickets",
+                "f1": 1.0,
+                "found": [
+                  "WorkItem:jira|PAY-300",
+                  "WorkItem:jira|PAY-341"
+                ],
+                "expected": [
+                  "WorkItem:jira|PAY-300",
+                  "WorkItem:jira|PAY-341"
+                ]
+              },
+              {
+                "id": "untested-under-epic",
+                "f1": 1.0,
+                "found": [
+                  "WorkItem:jira|PAY-341"
+                ],
+                "expected": [
+                  "WorkItem:jira|PAY-341"
+                ]
+              },
+              {
+                "id": "unreviewed-prs",
+                "f1": 1.0,
+                "found": [
+                  "Change:acme/payments|8"
+                ],
+                "expected": [
+                  "Change:acme/payments|8"
+                ]
+              },
+              {
+                "id": "changes-without-ticket",
+                "f1": 1.0,
+                "found": [
+                  "Change:acme/payments|8"
+                ],
+                "expected": [
+                  "Change:acme/payments|8"
+                ]
+              },
+              {
+                "id": "merged-untested",
+                "f1": 1.0,
+                "found": [
+                  "Change:acme/payments|7"
+                ],
+                "expected": [
+                  "Change:acme/payments|7"
+                ]
+              },
+              {
+                "id": "before-editing-pr",
+                "f1": 1.0,
+                "found": [
+                  "TestRun:555"
+                ],
+                "expected": [
+                  "TestRun:555"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "seconds": 66.47
+    },
+    {
+      "name": "PDLC_OpenDAL_signed_ingestion_projection_evaluation",
+      "scenarios": [
+        "APP-02",
+        "ART-01",
+        "HOOK-01"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "{\"detail\":\"Rate limit exceeded\",\"retry_after\":0.3}",
+      "seconds": 36.69
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "table": "Events",
+      "rows": 11
+    },
+    {
+      "database": "engram-compat-target",
+      "table": "GraphEdges",
+      "rows": 28
+    },
+    {
+      "database": "engram-compat-target",
+      "table": "GraphNodes",
+      "rows": 21
+    },
+    {
+      "database": "engram-compat-target",
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "database": "engram-compat-target",
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "database": "engram-compat-target",
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "database": "engram-compat-target",
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "database": "engram-compat-target",
+      "table": "Events",
+      "rows": 0
+    },
+    {
+      "table": "GraphEdges",
+      "rows": 27
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 21
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 9
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

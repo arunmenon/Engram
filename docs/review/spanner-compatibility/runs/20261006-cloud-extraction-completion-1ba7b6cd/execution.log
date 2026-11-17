@@ -1,0 +1,217 @@
+2026-10-06 22:01:37 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 22:01:37 [info     ] llm_client_initialized
+2026-10-06 22:01:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 22:01:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 22:01:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 22:01:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 22:01:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 22:01:37 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 22:01:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 22:01:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 22:01:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 22:01:37 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 22:01:37 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 22:01:37 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 22:01:37 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 22:01:37 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 22:01:38 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 22:01:39 [info     ] consumer_started               consumer=extract-boundaries group=session-extraction stream=Events
+2026-10-06 22:01:39 [info     ] event_ingested                 event_id=49525774-aa5f-42ea-9678-288a7869c4c8 event_type=observation.input global_position=2026-10-06T16:31:39.389439000Z/000000/49525774-aa5f-42ea-9678-288a7869c4c8 request_id=276ce08d-ae83-406e-b051-5bcff54bf893 status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 22:01:39 [info     ] event_ingested                 event_id=15e54f8d-bcfc-4a51-89fb-3d634bc1df5d event_type=system.session_end global_position=2026-10-06T16:31:39.560495000Z/000000/15e54f8d-bcfc-4a51-89fb-3d634bc1df5d request_id=c0f3602c-94a7-4b44-b867-442f83e64bde status=created
+2026-10-06 22:01:39 [info     ] pending_drain_completed        group=session-extraction
+2026-10-06 22:01:40 [info     ] extraction_triggered           agent_id=compat-resume entry_id=2026-10-06T16:31:39.560495000Z/000000/15e54f8d-bcfc-4a51-89fb-3d634bc1df5d session_id=extract-invalid-json
+2026-10-06 22:01:40 [debug    ] session_events_collected       event_count=2 session_id=extract-invalid-json
+2026-10-06 22:01:40 [warning  ] extraction_json_parse_failed   attempt=0 session_id=extract-invalid-json
+2026-10-06 22:01:40 [info     ] extraction_results_written     session_id=extract-invalid-json user_entity_id=user:compat-resume
+2026-10-06 22:01:40 [info     ] extraction_completed           entities=0 interests=0 preferences=0 session_id=extract-invalid-json skills=0
+{"name": "extraction_invalid-json_no_invalid_writes_and_ACK", "scenarios": ["EXT-01"], "verdict": "passed", "observation": {"mode": "invalid-json", "provider_calls": 1, "counts": {"nodes": {}, "edges": []}, "pending": {}, "scope": "actual LLMExtractionClient validation/fallback, scripted provider only; rejected output ACKs by existing contract"}, "seconds": 2.49}
+2026-10-06 22:01:41 [info     ] event_ingested                 event_id=279eef61-eec2-4aa3-89e7-8fe1efc3115c event_type=observation.input global_position=2026-10-06T16:31:41.771295000Z/000000/279eef61-eec2-4aa3-89e7-8fe1efc3115c request_id=6c3ed4e3-37b2-4ce7-a405-251b2950935c status=created
+2026-10-06 22:01:42 [info     ] event_ingested                 event_id=d0198a87-edca-44e9-85cb-b6e394b100b6 event_type=system.session_end global_position=2026-10-06T16:31:42.046927000Z/000000/d0198a87-edca-44e9-85cb-b6e394b100b6 request_id=ede5f01e-dd8d-4490-89d7-721ceb496d54 status=created
+2026-10-06 22:01:42 [info     ] extraction_triggered           agent_id=compat-resume entry_id=2026-10-06T16:31:42.046927000Z/000000/d0198a87-edca-44e9-85cb-b6e394b100b6 session_id=extract-invalid-items
+2026-10-06 22:01:42 [debug    ] session_events_collected       event_count=2 session_id=extract-invalid-items
+2026-10-06 22:01:42 [debug    ] entity_validation_failed       data="{'name': None, 'entity_type': {}, 'confidence': 'bad'}" session_id=extract-invalid-items
+2026-10-06 22:01:42 [debug    ] preference_validation_failed   data="{'category': None}" session_id=extract-invalid-items
+2026-10-06 22:01:42 [info     ] extraction_llm_success         entities=0 interests=0 model_id=gpt-5.2-2025-12-11 preferences=0 session_id=extract-invalid-items skills=0
+2026-10-06 22:01:42 [info     ] extraction_results_written     session_id=extract-invalid-items user_entity_id=user:compat-resume
+2026-10-06 22:01:42 [info     ] extraction_completed           entities=0 interests=0 preferences=0 session_id=extract-invalid-items skills=0
+{"name": "extraction_invalid-items_no_invalid_writes_and_ACK", "scenarios": ["EXT-01"], "verdict": "passed", "observation": {"mode": "invalid-items", "provider_calls": 1, "counts": {"nodes": {}, "edges": []}, "pending": {}, "scope": "actual LLMExtractionClient validation/fallback, scripted provider only; rejected output ACKs by existing contract"}, "seconds": 2.03}
+2026-10-06 22:01:43 [info     ] event_ingested                 event_id=5832e77b-9353-406d-b80d-a0ad41ab7c77 event_type=observation.input global_position=2026-10-06T16:31:43.807951000Z/000000/5832e77b-9353-406d-b80d-a0ad41ab7c77 request_id=9c6fe605-c2ed-4753-b80a-249dd9e34773 status=created
+2026-10-06 22:01:44 [info     ] event_ingested                 event_id=391b982f-9b9d-49db-8fbc-238980b0b96e event_type=system.session_end global_position=2026-10-06T16:31:44.108255000Z/000000/391b982f-9b9d-49db-8fbc-238980b0b96e request_id=b7c76a4f-b31c-493d-98f3-87fdc875959a status=created
+2026-10-06 22:01:44 [info     ] extraction_triggered           agent_id=compat-resume entry_id=2026-10-06T16:31:44.108255000Z/000000/391b982f-9b9d-49db-8fbc-238980b0b96e session_id=extract-outage
+2026-10-06 22:01:44 [debug    ] session_events_collected       event_count=2 session_id=extract-outage
+2026-10-06 22:01:44 [error    ] extraction_llm_error           attempt=0 model_id=gpt-5.2-2025-12-11 session_id=extract-outage
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /Users/arunmenon/projects/Engram/src/context_graph/adapters/llm/client.py:58 │
+│ 1 in extract_from_session                                                    │
+│                                                                              │
+│   578 │   │                                                                  │
+│   579 │   │   for attempt in range(self._max_retries + 1):                   │
+│   580 │   │   │   try:                                                       │
+│ ❱ 581 │   │   │   │   raw_text = await self._call_llm(prompt)                │
+│   582 │   │   │   │   parsed = orjson.loads(raw_text)                        │
+│   583 │   │   │   │                                                          │
+│   584 │   │   │   │   # Parse persona — may be a dict or None                │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │          agent_id = 'compat-resume'                                      │ │
+│ │           attempt = 0                                                    │ │
+│ │ conversation_text = '[Turn 0] [2026-10-06T16:31:43.640699+00:00]         │ │
+│ │                     observation.input agent=compat-resum'+218            │ │
+│ │    event_payloads = [                                                    │ │
+│ │                     │   {                                                │ │
+│ │                     │   │   'agent_id': 'compat-resume',                 │ │
+│ │                     │   │   'ended_at': None,                            │ │
+│ │                     │   │   'event_id':                                  │ │
+│ │                     '5832e77b-9353-406d-b80d-a0ad41ab7c77',              │ │
+│ │                     │   │   'event_type': 'observation.input',           │ │
+│ │                     │   │   'global_position':                           │ │
+│ │                     '2026-10-06T16:31:43.807951000Z/000000/5832e77b-935… │ │
+│ │                     │   │   'importance_hint': None,                     │ │
+│ │                     │   │   'occurred_at':                               │ │
+│ │                     '2026-10-06T16:31:43.640699Z',                       │ │
+│ │                     │   │   'parent_event_id': None,                     │ │
+│ │                     │   │   'payload': {                                 │ │
+│ │                     │   │   │   'content': 'Spanner recovery evidence'   │ │
+│ │                     │   │   },                                           │ │
+│ │                     │   │   'payload_ref': 'compat:resume',              │ │
+│ │                     │   │   ... +6                                       │ │
+│ │                     │   },                                               │ │
+│ │                     │   {                                                │ │
+│ │                     │   │   'agent_id': 'compat-resume',                 │ │
+│ │                     │   │   'ended_at': None,                            │ │
+│ │                     │   │   'event_id':                                  │ │
+│ │                     '391b982f-9b9d-49db-8fbc-238980b0b96e',              │ │
+│ │                     │   │   'event_type': 'system.session_end',          │ │
+│ │                     │   │   'global_position':                           │ │
+│ │                     '2026-10-06T16:31:44.108255000Z/000000/391b982f-9b9… │ │
+│ │                     │   │   'importance_hint': None,                     │ │
+│ │                     │   │   'occurred_at':                               │ │
+│ │                     '2026-10-06T16:31:43.873378Z',                       │ │
+│ │                     │   │   'parent_event_id': None,                     │ │
+│ │                     │   │   'payload': {                                 │ │
+│ │                     │   │   │   'content': 'Spanner recovery evidence'   │ │
+│ │                     │   │   },                                           │ │
+│ │                     │   │   'payload_ref': 'compat:resume',              │ │
+│ │                     │   │   ... +6                                       │ │
+│ │                     │   }                                                │ │
+│ │                     ]                                                    │ │
+│ │            events = [                                                    │ │
+│ │                     │   Event(                                           │ │
+│ │                     │   │                                                │ │
+│ │                     event_id=UUID('5832e77b-9353-406d-b80d-a0ad41ab7c77… │ │
+│ │                     │   │   event_type='observation.input',              │ │
+│ │                     │   │   occurred_at=datetime.datetime(2026, 10, 6,   │ │
+│ │                     16, 31, 43, 640699, tzinfo=TzInfo(0)),               │ │
+│ │                     │   │   session_id='extract-outage',                 │ │
+│ │                     │   │   agent_id='compat-resume',                    │ │
+│ │                     │   │   trace_id='extract-outage',                   │ │
+│ │                     │   │   payload_ref='compat:resume',                 │ │
+│ │                     │   │                                                │ │
+│ │                     global_position='2026-10-06T16:31:43.807951000Z/000… │ │
+│ │                     │   │   tool_name=None,                              │ │
+│ │                     │   │   parent_event_id=None,                        │ │
+│ │                     │   │   ended_at=None,                               │ │
+│ │                     │   │   status=None,                                 │ │
+│ │                     │   │   schema_version=1,                            │ │
+│ │                     │   │   importance_hint=None                         │ │
+│ │                     │   ),                                               │ │
+│ │                     │   Event(                                           │ │
+│ │                     │   │                                                │ │
+│ │                     event_id=UUID('391b982f-9b9d-49db-8fbc-238980b0b96e… │ │
+│ │                     │   │   event_type='system.session_end',             │ │
+│ │                     │   │   occurred_at=datetime.datetime(2026, 10, 6,   │ │
+│ │                     16, 31, 43, 873378, tzinfo=TzInfo(0)),               │ │
+│ │                     │   │   session_id='extract-outage',                 │ │
+│ │                     │   │   agent_id='compat-resume',                    │ │
+│ │                     │   │   trace_id='extract-outage',                   │ │
+│ │                     │   │   payload_ref='compat:resume',                 │ │
+│ │                     │   │                                                │ │
+│ │                     global_position='2026-10-06T16:31:44.108255000Z/000… │ │
+│ │                     │   │   tool_name=None,                              │ │
+│ │                     │   │   parent_event_id=None,                        │ │
+│ │                     │   │   ended_at=None,                               │ │
+│ │                     │   │   status=None,                                 │ │
+│ │                     │   │   schema_version=1,                            │ │
+│ │                     │   │   importance_hint=None                         │ │
+│ │                     │   )                                                │ │
+│ │                     ]                                                    │ │
+│ │            prompt = 'You are a knowledge extraction system specializing  │ │
+│ │                     in extracting structured\nuser'+5609                 │ │
+│ │              self = <context_graph.adapters.llm.client.LLMExtractionCli… │ │
+│ │                     object at 0x130274200>                               │ │
+│ │        session_id = 'extract-outage'                                     │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_completion.py │
+│ :301 in model                                                                │
+│                                                                              │
+│   298 │   │   output={'mode':'invalid-json'};calls=[]                        │
+│   299 │   │   async def model(prompt):                                       │
+│   300 │   │   │   calls.append({'mode':output['mode'],'prompt_chars':len(pro │
+│ ❱ 301 │   │   │   if output['mode']=='outage':raise RuntimeError('synthetic  │
+│       provider outage')                                                      │
+│   302 │   │   │   if output['mode']=='invalid-json':return 'not-json'        │
+│   303 │   │   │   if output['mode']=='invalid-items':return                  │
+│       json.dumps({'entities':[{'name':None,'entity_type':{},'confidence':'ba │
+│   304 │   │   │   if output['mode']=='valid-entity':return                   │
+│       json.dumps({'entities':[{'name':output['entity_name'],'entity_type':'t │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │  calls = [                                                               │ │
+│ │          │   {'mode': 'invalid-json', 'prompt_chars': 5689},             │ │
+│ │          │   {'mode': 'invalid-items', 'prompt_chars': 5689},            │ │
+│ │          │   {'mode': 'outage', 'prompt_chars': 5689}                    │ │
+│ │          ]                                                               │ │
+│ │ output = {'mode': 'outage'}                                              │ │
+│ │ prompt = 'You are a knowledge extraction system specializing in          │ │
+│ │          extracting structured\nuser'+5609                               │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+╰──────────────────────────────────────────────────────────────────────────────╯
+RuntimeError: synthetic extraction provider outage
+
+2026-10-06 22:01:45 [info     ] extraction_results_written     session_id=extract-outage user_entity_id=user:compat-resume
+2026-10-06 22:01:45 [info     ] extraction_completed           entities=0 interests=0 preferences=0 session_id=extract-outage skills=0
+{"name": "extraction_outage_no_invalid_writes_and_ACK", "scenarios": ["EXT-01"], "verdict": "passed", "observation": {"mode": "outage", "provider_calls": 1, "counts": {"nodes": {}, "edges": []}, "pending": {}, "scope": "actual LLMExtractionClient validation/fallback, scripted provider only; rejected output ACKs by existing contract"}, "seconds": 2.55}
+2026-10-06 22:01:46 [info     ] event_ingested                 event_id=09d0cdc0-84bf-4bf2-af09-ff9c129136f9 event_type=observation.input global_position=2026-10-06T16:31:46.370351000Z/000000/09d0cdc0-84bf-4bf2-af09-ff9c129136f9 request_id=ce7ae5a6-f880-4ad2-b483-7c0e8653b53b status=created
+2026-10-06 22:01:47 [info     ] event_ingested                 event_id=2c6be8ec-6fba-41f8-9c06-f30debfc8429 event_type=observation.input global_position=2026-10-06T16:31:47.283263000Z/000000/2c6be8ec-6fba-41f8-9c06-f30debfc8429 request_id=ffb40022-d221-48ae-a9c8-ed94deabde51 status=created
+2026-10-06 22:01:47 [info     ] mid_session_extraction_triggered session_id=extract-mid turn_count=2
+2026-10-06 22:01:47 [debug    ] session_events_collected       event_count=2 session_id=extract-mid
+2026-10-06 22:01:47 [info     ] extraction_llm_success         entities=0 interests=0 model_id=gpt-5.2-2025-12-11 preferences=0 session_id=extract-mid skills=0
+2026-10-06 22:01:47 [info     ] extraction_results_written     session_id=extract-mid user_entity_id=user:compat-resume
+{"name": "extraction_mid_session_interval_collects_real_ledger_docs", "scenarios": ["EXT-01"], "verdict": "passed", "observation": {"provider_calls": 1, "turn_count": 2, "ledger_documents": 8, "pending": {}}, "seconds": 2.5}
+2026-10-06 22:01:48 [info     ] consumer_stopped               consumer=extract-boundaries group=session-extraction
+2026-10-06 22:01:49 [info     ] consumer_started               consumer=entity-resolution-proj group=graph-projection stream=Events
+2026-10-06 22:01:49 [info     ] event_ingested                 event_id=f1ddbf75-a13e-445a-b2cd-99fa8c4f0d3d event_type=observation.input global_position=2026-10-06T16:31:49.153903000Z/000000/f1ddbf75-a13e-445a-b2cd-99fa8c4f0d3d request_id=fb32677e-060d-4395-906a-6e8a37681dd4 status=created
+2026-10-06 22:01:49 [info     ] event_ingested                 event_id=db3c9af3-00d9-49a5-a7c7-54a0eed8372c event_type=system.session_end global_position=2026-10-06T16:31:49.360223000Z/000000/db3c9af3-00d9-49a5-a7c7-54a0eed8372c request_id=9373341b-1a6c-4f27-8c9e-16f4342a4390 status=created
+2026-10-06 22:01:49 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 22:01:50 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T16:31:39.389439000Z/000000/49525774-aa5f-42ea-9678-288a7869c4c8 event_id=49525774-aa5f-42ea-9678-288a7869c4c8 session_id=extract-invalid-json
+2026-10-06 22:01:50 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T16:31:39.560495000Z/000000/15e54f8d-bcfc-4a51-89fb-3d634bc1df5d event_id=15e54f8d-bcfc-4a51-89fb-3d634bc1df5d session_id=extract-invalid-json
+2026-10-06 22:01:51 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T16:31:41.771295000Z/000000/279eef61-eec2-4aa3-89e7-8fe1efc3115c event_id=279eef61-eec2-4aa3-89e7-8fe1efc3115c session_id=extract-invalid-items
+2026-10-06 22:01:52 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T16:31:42.046927000Z/000000/d0198a87-edca-44e9-85cb-b6e394b100b6 event_id=d0198a87-edca-44e9-85cb-b6e394b100b6 session_id=extract-invalid-items
+2026-10-06 22:01:53 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T16:31:43.807951000Z/000000/5832e77b-9353-406d-b80d-a0ad41ab7c77 event_id=5832e77b-9353-406d-b80d-a0ad41ab7c77 session_id=extract-outage
+2026-10-06 22:01:53 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T16:31:44.108255000Z/000000/391b982f-9b9d-49db-8fbc-238980b0b96e event_id=391b982f-9b9d-49db-8fbc-238980b0b96e session_id=extract-outage
+2026-10-06 22:01:54 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T16:31:46.370351000Z/000000/09d0cdc0-84bf-4bf2-af09-ff9c129136f9 event_id=09d0cdc0-84bf-4bf2-af09-ff9c129136f9 session_id=extract-mid
+2026-10-06 22:01:54 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T16:31:47.283263000Z/000000/2c6be8ec-6fba-41f8-9c06-f30debfc8429 event_id=2c6be8ec-6fba-41f8-9c06-f30debfc8429 session_id=extract-mid
+2026-10-06 22:01:55 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T16:31:49.153903000Z/000000/f1ddbf75-a13e-445a-b2cd-99fa8c4f0d3d event_id=f1ddbf75-a13e-445a-b2cd-99fa8c4f0d3d session_id=resolution-github
+2026-10-06 22:01:56 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T16:31:49.360223000Z/000000/db3c9af3-00d9-49a5-a7c7-54a0eed8372c event_id=db3c9af3-00d9-49a5-a7c7-54a0eed8372c session_id=resolution-github
+2026-10-06 22:01:57 [info     ] extraction_triggered           agent_id=compat-resume entry_id=direct-stored-end session_id=resolution-github
+2026-10-06 22:01:57 [debug    ] session_events_collected       event_count=2 session_id=resolution-github
+2026-10-06 22:01:57 [info     ] extraction_llm_success         entities=1 interests=0 model_id=gpt-5.2-2025-12-11 preferences=0 session_id=resolution-github skills=0
+2026-10-06 22:01:57 [debug    ] entity_created                 entity_id=entity:github name=github
+2026-10-06 22:01:58 [info     ] extraction_results_written     session_id=resolution-github user_entity_id=user:compat-resume
+2026-10-06 22:01:58 [info     ] extraction_completed           entities=1 interests=0 preferences=0 session_id=resolution-github skills=0
+2026-10-06 22:01:58 [info     ] event_ingested                 event_id=7be5bcd6-c489-4635-808a-1a15e29440f6 event_type=observation.input global_position=2026-10-06T16:31:58.475503000Z/000000/7be5bcd6-c489-4635-808a-1a15e29440f6 request_id=c062281c-ad8b-4335-b803-bc7639aed153 status=created
+2026-10-06 22:01:58 [info     ] event_ingested                 event_id=9b783188-37bc-42f0-8734-1fe3402e8b6f event_type=system.session_end global_position=2026-10-06T16:31:58.893359000Z/000000/9b783188-37bc-42f0-8734-1fe3402e8b6f request_id=8b5470bc-fecf-4534-b068-0651d15657b8 status=created
+2026-10-06 22:01:59 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T16:31:58.475503000Z/000000/7be5bcd6-c489-4635-808a-1a15e29440f6 event_id=7be5bcd6-c489-4635-808a-1a15e29440f6 session_id=resolution-gh
+2026-10-06 22:02:00 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T16:31:58.893359000Z/000000/9b783188-37bc-42f0-8734-1fe3402e8b6f event_id=9b783188-37bc-42f0-8734-1fe3402e8b6f session_id=resolution-gh
+2026-10-06 22:02:01 [info     ] extraction_triggered           agent_id=compat-resume entry_id=direct-stored-end session_id=resolution-gh
+2026-10-06 22:02:01 [debug    ] session_events_collected       event_count=2 session_id=resolution-gh
+2026-10-06 22:02:01 [info     ] extraction_llm_success         entities=1 interests=0 model_id=gpt-5.2-2025-12-11 preferences=0 session_id=resolution-gh skills=0
+2026-10-06 22:02:01 [debug    ] entity_resolved_merge          canonical=github name=gh
+2026-10-06 22:02:02 [info     ] extraction_results_written     session_id=resolution-gh user_entity_id=user:compat-resume
+2026-10-06 22:02:02 [info     ] extraction_completed           entities=1 interests=0 preferences=0 session_id=resolution-gh skills=0
+2026-10-06 22:02:04 [info     ] consumer_stopped               consumer=entity-resolution-proj group=graph-projection
+{"name": "validated_entity_alias_resolution_references_and_repeated_cluster_writes", "scenarios": ["EXT-01", "CONS-02"], "verdict": "passed", "observation": {"resolved_entities_before_cluster": [{"entity_id": "entity:github", "name": "github", "entity_type": "tool"}], "source_reference_edges": [["7be5bcd6-c489-4635-808a-1a15e29440f6", "REFERENCES", "entity:github"], ["9b783188-37bc-42f0-8734-1fe3402e8b6f", "REFERENCES", "entity:github"], ["db3c9af3-00d9-49a5-a7c7-54a0eed8372c", "REFERENCES", "entity:github"], ["f1ddbf75-a13e-445a-b2cd-99fa8c4f0d3d", "REFERENCES", "entity:github"]], "cluster_members": ["entity:github", "entity:github-alias-0", "entity:github-alias-1", "entity:github-alias-2"], "cluster_edges": [["entity:github-alias-0", "SAME_AS", "entity:github"], ["entity:github-alias-1", "SAME_AS", "entity:github"], ["entity:github-alias-2", "SAME_AS", "entity:github"]], "scope": "actual extraction exact/alias MERGE plus native cluster public operation; repeated cluster writes idempotent; semantic model resolution not claimed"}, "seconds": 15.48}
+2026-10-06 22:02:04 [info     ] app_stopped

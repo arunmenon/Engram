@@ -1,0 +1,42 @@
+{
+  "event_id": "4b3a143d-6e56-44d9-9cc6-0857a483ab2a",
+  "nodes": {
+    "Decision:a5a8babb0becc105b3e39876403e551c31808b2b70b58b66a5550a33bfa561a4": {
+      "confidence": 0.8,
+      "content_hash": "a5a8babb0becc105b3e39876403e551c31808b2b70b58b66a5550a33bfa561a4",
+      "method": "extracted",
+      "node_id": "Decision:a5a8babb0becc105b3e39876403e551c31808b2b70b58b66a5550a33bfa561a4",
+      "node_type": "Decision",
+      "ontology_version": "sha256:3a7c761cd2848649",
+      "source_trust": "untrusted",
+      "statement": "bounded-policy-marker decision one",
+      "status": "proposed",
+      "status_changed_at": "2026-10-06T14:04:39.609419+00:00",
+      "updated_at": "2026-10-06T14:04:39.609419+00:00"
+    }
+  },
+  "graph": {
+    "nodes": {
+      "Decision": 1,
+      "Event": 2
+    },
+    "edges": [
+      [
+        "Decision:a5a8babb0becc105b3e39876403e551c31808b2b70b58b66a5550a33bfa561a4",
+        "DERIVED_FROM",
+        "4b3a143d-6e56-44d9-9cc6-0857a483ab2a"
+      ],
+      [
+        "4b3a143d-6e56-44d9-9cc6-0857a483ab2a",
+        "FOLLOWS",
+        "cf241f26-3c3d-4077-9a11-230132e6a823"
+      ]
+    ]
+  },
+  "bounds": {
+    "nodes": 1,
+    "links": 1
+  },
+  "expected_trust": "untrusted",
+  "expected_confidence": 0.8
+}

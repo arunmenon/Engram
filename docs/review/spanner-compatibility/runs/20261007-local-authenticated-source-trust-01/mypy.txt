@@ -1,0 +1,7 @@
+src/context_graph/adapters/spanner/log.py:806: error: Returning Any from function declared to return "list[AcceptedRecord]"  [no-any-return]
+src/context_graph/worker/pack_extraction.py:121: error: Incompatible types in assignment (expression has type "dict[str, Any] | None", variable has type "dict[str, Any]")  [assignment]
+src/context_graph/worker/projection.py:298: error: Incompatible types in assignment (expression has type "dict[str, Any] | None", variable has type "dict[str, Any]")  [assignment]
+src/context_graph/worker/projection.py:339: error: Argument 1 to "_retry_transient" of "BaseConsumer" has incompatible type "partial[Coroutine[Any, Any, list[dict[str, Any] | None]]]"; expected "Callable[[], Awaitable[list[dict[str, Any]]]]"  [arg-type]
+src/context_graph/worker/projection.py:339: note: "partial[Coroutine[Any, Any, list[dict[str, Any] | None]]].__call__" has type "def __call__(self, *args: Any, **kwargs: Any) -> Coroutine[Any, Any, list[dict[str, Any] | None]]"
+pyproject.toml: note: unused section(s): module = ['context_graph.adapters.gcs.*', 'litellm', 'litellm.*', 'neo4j.*', 'redis.*', 'sentence_transformers', 'sentence_transformers.*']
+Found 4 errors in 3 files (checked 7 source files)

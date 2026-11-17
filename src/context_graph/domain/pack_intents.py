@@ -31,6 +31,10 @@ FALLBACK_CONFIDENCE = 0.5
 GENERAL_STRATEGY = "general"
 
 
+class UnsupportedIntentError(ValueError):
+    """The selected pack composition does not provide the requested intent."""
+
+
 class RegistryIntents:
     """The intents of a registry (or a subset), with their keywords and weights."""
 

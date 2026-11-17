@@ -1,0 +1,48 @@
+{
+  "checks": [
+    {
+      "name": "phase_setup",
+      "scenarios": [
+        "BOOT-02",
+        "BOOT-03"
+      ],
+      "verdict": "blocked",
+      "error_type": "TypeError",
+      "error": "PackProjector.__init__() missing 1 required positional argument: 'trusted_sources'",
+      "seconds": 0
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 14
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 11
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 9
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

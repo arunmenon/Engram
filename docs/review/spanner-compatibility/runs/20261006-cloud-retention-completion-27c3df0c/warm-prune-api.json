@@ -1,0 +1,105 @@
+{
+  "dry_status": 200,
+  "dry": {
+    "pruned_edges": 2,
+    "pruned_nodes": 0,
+    "dry_run": true,
+    "details": [
+      {
+        "action": "delete_similar_edges",
+        "edge_count": 2
+      }
+    ],
+    "truncated": false
+  },
+  "live_status": 200,
+  "live": {
+    "pruned_edges": 2,
+    "pruned_nodes": 0,
+    "dry_run": false,
+    "details": [
+      {
+        "action": "delete_similar_edges",
+        "edge_count": 2
+      }
+    ],
+    "truncated": false
+  },
+  "before_edges": [
+    [
+      "17525f25-313d-4ade-94d9-2a1be0833c49",
+      "FOLLOWS",
+      "e7fc5ca3-77f9-417d-aeed-2c6fe7de0abb"
+    ],
+    [
+      "da027540-c027-4039-a72c-600de2b6053a",
+      "FOLLOWS",
+      "f77021c5-75a7-4e32-957e-e6b3cae0710a"
+    ],
+    [
+      "e2c31187-2ad9-40a3-9cc6-da98fc161de1",
+      "FOLLOWS",
+      "17525f25-313d-4ade-94d9-2a1be0833c49"
+    ],
+    [
+      "e2c31187-2ad9-40a3-9cc6-da98fc161de1",
+      "SIMILAR_TO",
+      "17525f25-313d-4ade-94d9-2a1be0833c49"
+    ],
+    [
+      "e2c31187-2ad9-40a3-9cc6-da98fc161de1",
+      "SIMILAR_TO",
+      "9b82db7a-8d4a-49d8-acc6-3017b99764c0"
+    ],
+    [
+      "e2c31187-2ad9-40a3-9cc6-da98fc161de1",
+      "SIMILAR_TO",
+      "e7fc5ca3-77f9-417d-aeed-2c6fe7de0abb"
+    ],
+    [
+      "e7fc5ca3-77f9-417d-aeed-2c6fe7de0abb",
+      "FOLLOWS",
+      "9b82db7a-8d4a-49d8-acc6-3017b99764c0"
+    ],
+    [
+      "f77021c5-75a7-4e32-957e-e6b3cae0710a",
+      "FOLLOWS",
+      "e2c31187-2ad9-40a3-9cc6-da98fc161de1"
+    ]
+  ],
+  "after_edges": [
+    [
+      "17525f25-313d-4ade-94d9-2a1be0833c49",
+      "FOLLOWS",
+      "e7fc5ca3-77f9-417d-aeed-2c6fe7de0abb"
+    ],
+    [
+      "da027540-c027-4039-a72c-600de2b6053a",
+      "FOLLOWS",
+      "f77021c5-75a7-4e32-957e-e6b3cae0710a"
+    ],
+    [
+      "e2c31187-2ad9-40a3-9cc6-da98fc161de1",
+      "FOLLOWS",
+      "17525f25-313d-4ade-94d9-2a1be0833c49"
+    ],
+    [
+      "e2c31187-2ad9-40a3-9cc6-da98fc161de1",
+      "SIMILAR_TO",
+      "17525f25-313d-4ade-94d9-2a1be0833c49"
+    ],
+    [
+      "e7fc5ca3-77f9-417d-aeed-2c6fe7de0abb",
+      "FOLLOWS",
+      "9b82db7a-8d4a-49d8-acc6-3017b99764c0"
+    ],
+    [
+      "f77021c5-75a7-4e32-957e-e6b3cae0710a",
+      "FOLLOWS",
+      "e2c31187-2ad9-40a3-9cc6-da98fc161de1"
+    ]
+  ],
+  "dry_preserves_graph": true,
+  "expected_low_similarity_edges": 2,
+  "scope": "actual edge similarity properties, no invented Event-level similarity property"
+}

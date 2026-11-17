@@ -1,0 +1,270 @@
+{
+  "content": {
+    "name": "Payments operations",
+    "environment": "development",
+    "roots": [],
+    "existing_packs": [],
+    "scope": "Track incidents from detection to resolution. Exclude on-call schedules.",
+    "data_policy": "provider_allowed",
+    "redaction_confirmed": true,
+    "sources": [
+      {
+        "id": "runbook",
+        "name": "Incident runbook",
+        "kind": "specification",
+        "text": "An Incident belongs to an account. Incident IDs are unique within an account. Incidents start open and may resolve."
+      },
+      {
+        "id": "schema",
+        "name": "Incident schema",
+        "kind": "schema",
+        "text": "{\"version\": 1, \"additional_fields\": \"preserve\", \"properties\": {\"account\": {\"type\": \"string\", \"required\": true}, \"id\": {\"type\": \"string\", \"required\": true}, \"title\": {\"type\": \"string\"}}}"
+      },
+      {
+        "id": "samples",
+        "name": "Redacted events",
+        "kind": "samples",
+        "text": "[{\"event_type\": \"incident.opened\", \"payload\": {\"account\": \"payments\", \"id\": \"INC-1042\", \"title\": \"Payments outage\"}, \"producer_id\": \"pagerduty\"}, {\"event_type\": \"incident.resolved\", \"payload\": {\"account\": \"payments\", \"id\": \"INC-1042\"}, \"producer_id\": \"pagerduty\"}, {\"event_type\": \"incident.opened\", \"payload\": {\"id\": \"INC-bad\"}, \"expect_admitted\": false}]"
+      }
+    ],
+    "decisions": {
+      "identity": "Use account plus incident ID. IDs can repeat across accounts.",
+      "lifecycle": "Open can resolve. Reopen is excluded; absent title retains its previous value."
+    },
+    "questions": [
+      {
+        "id": "status",
+        "query": "What happened to incident INC-1042?",
+        "expected": [
+          "Incident:payments|INC-1042"
+        ],
+        "intent": "incident_status",
+        "seed_node_ids": [
+          "Incident:payments|INC-1042"
+        ],
+        "node_type": "Incident",
+        "reviewed": true
+      }
+    ],
+    "expected_nodes": [
+      "Incident:payments|INC-1042"
+    ],
+    "forbidden_nodes": [
+      "Incident:payments|INC-bad"
+    ],
+    "graph_reviewed": true,
+    "min_f1": 0.8,
+    "producer_ids": [
+      "pagerduty"
+    ],
+    "trusted_ids": [
+      "pagerduty"
+    ],
+    "trust_reviewed": true,
+    "instruction": ""
+  },
+  "proposal": {
+    "summary": "TEST FIXTURE AUTHOR: a compact incident model grounded in the supplied runbook. No external model call.",
+    "facts": [
+      {
+        "id": "incident",
+        "concept": "Incident",
+        "explanation": "An incident belongs to one account; use a composite key.",
+        "basis": "source",
+        "citations": [
+          {
+            "source_id": "runbook",
+            "quote": "An Incident belongs to an account."
+          }
+        ]
+      }
+    ],
+    "decisions": [],
+    "pack": {
+      "pack": {
+        "name": "incident_ops",
+        "version": "1.0.0",
+        "requires": [
+          "core>=1.1"
+        ]
+      },
+      "types": {
+        "nodes": {
+          "Incident": {
+            "key": [
+              "account",
+              "id"
+            ],
+            "interfaces": [
+              "Sourced",
+              "Lifecycled"
+            ],
+            "properties": {
+              "account": "string",
+              "id": "string",
+              "title": "string"
+            },
+            "text_fields": [
+              "title"
+            ],
+            "lifecycle": {
+              "initial": "open",
+              "states": [
+                "open",
+                "resolved"
+              ]
+            }
+          },
+          "Service": {
+            "key": [
+              "name"
+            ],
+            "properties": {
+              "name": "string"
+            },
+            "text_fields": [
+              "name"
+            ]
+          }
+        },
+        "edges": {
+          "AFFECTS": {
+            "from": [
+              "Incident"
+            ],
+            "to": [
+              "Service"
+            ]
+          }
+        }
+      },
+      "events": {
+        "incident.opened": {
+          "payload_contract": {
+            "version": 1,
+            "additional_fields": "preserve",
+            "properties": {
+              "account": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "required": true
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          },
+          "handling": "processed"
+        },
+        "incident.resolved": {
+          "payload_contract": {
+            "version": 1,
+            "additional_fields": "preserve",
+            "properties": {
+              "account": {
+                "type": "string",
+                "required": true
+              },
+              "id": {
+                "type": "string",
+                "required": true
+              },
+              "title": {
+                "type": "string"
+              }
+            }
+          },
+          "handling": "processed"
+        }
+      },
+      "projection": [
+        {
+          "event": "incident.opened",
+          "upsert": [
+            {
+              "type": "Incident",
+              "key": {
+                "account": "$.account",
+                "id": "$.id"
+              },
+              "set": {
+                "title": "$.title"
+              }
+            },
+            {
+              "type": "Service",
+              "key": {
+                "name": "$.account"
+              }
+            }
+          ],
+          "edges": [
+            {
+              "type": "AFFECTS",
+              "from": {
+                "type": "Incident",
+                "key": {
+                  "account": "$.account",
+                  "id": "$.id"
+                }
+              },
+              "to": {
+                "type": "Service",
+                "key": {
+                  "name": "$.account"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "event": "incident.resolved",
+          "upsert": [
+            {
+              "type": "Incident",
+              "key": {
+                "account": "$.account",
+                "id": "$.id"
+              },
+              "set": {
+                "title": "$.title"
+              }
+            }
+          ],
+          "transition": {
+            "type": "Incident",
+            "to": "resolved",
+            "only_from": [
+              "open"
+            ]
+          }
+        }
+      ],
+      "retrieval": {
+        "seed_types": [
+          "Incident"
+        ],
+        "intents": {
+          "incident_status": {
+            "description": "Incident status",
+            "examples": [
+              "What happened to the incident?"
+            ],
+            "keywords": [
+              "incident"
+            ],
+            "weights": {
+              "AFFECTS": 1
+            }
+          }
+        }
+      }
+    },
+    "limitations": [
+      "Test fixture author; this proposal is a deterministic test double, not model output."
+    ]
+  }
+}

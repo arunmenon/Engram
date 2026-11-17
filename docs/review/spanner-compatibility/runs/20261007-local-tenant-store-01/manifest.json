@@ -1,0 +1,16 @@
+{
+  "kind": "local_tenant_store_binding",
+  "issues": [
+    34,
+    43
+  ],
+  "scope": "Explicit binding pins store bundle/settings, verifies protected schema and owner before adapters, shares mutation fence, cleans failed startup; production tenant factory still disabled",
+  "source_sha256": {
+    "src/context_graph/adapters/registry.py": "610089608e37a4bab7d437a815814b9dde6105ec25ce5705d5f0b35a06d1386e",
+    "src/context_graph/adapters/spanner/tenant_control.py": "801d7977adbb08195620cad1a810a938e2b5253aa698c92a6a30fe41017c7cd4",
+    "tests/unit/test_tenant_store_binding.py": "eab25bef6c46392439cb29f61cd8360c11074687ba32d26b8cc04216cc282842"
+  },
+  "cloud_calls": false,
+  "command": "pytest -q tests/unit/test_tenant_store_binding.py tests/unit/test_storage_registry.py tests/unit/test_spanner_tenant_control.py tests/unit/test_worker_fences.py tests/unit/test_explicit_runtime_settings.py tests/unit/test_tenant_dispatch.py",
+  "run_id": "20261007-local-tenant-store-01"
+}

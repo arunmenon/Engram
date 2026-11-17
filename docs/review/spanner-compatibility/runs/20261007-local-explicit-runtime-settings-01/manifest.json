@@ -1,0 +1,17 @@
+{
+  "kind": "local_explicit_runtime_settings",
+  "issues": [
+    34,
+    43,
+    42
+  ],
+  "scope": "factory snapshots and recording/reference ports only; not tenant authorization or real-Spanner isolation",
+  "source_sha256": {
+    "src/context_graph/api/app.py": "134698e47c2f062b31544ccc8ed48677531dea9be7c1c2ff7f849d17cf0abb90",
+    "src/context_graph/worker/__main__.py": "75970f5154a4a65cab1456a751ff43140be29c4c07ad5d675ef5eeac3b7c2530",
+    "tests/unit/test_explicit_runtime_settings.py": "700007b211fbacf6b39628e138606ffd3df2570c0cd6551fde732d642a007a5c"
+  },
+  "command": "pytest -q tests/unit/test_explicit_runtime_settings.py tests/unit/test_api_auth.py tests/unit/test_api_users.py tests/unit/test_pack_composition.py",
+  "backend": "local reference/mocks, no Redis/Neo4j runners or cloud calls",
+  "run_id": "20261007-local-explicit-runtime-settings-01"
+}

@@ -1,0 +1,88 @@
+........................................................................ [ 36%]
+.........F.............................................................. [ 72%]
+........................................................                 [100%]
+=================================== FAILURES ===================================
+__ test_store_mutations_refuse_stale_epoch_before_application_access[append] ___
+
+action = 'append'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "action",
+        [
+            "append",
+            "graph_clear",
+            "graph_upsert",
+            "ensure_group",
+            "read_new",
+            "ack",
+            "dead_letter",
+            "claim",
+            "document_update",
+            "retention",
+            "dml",
+        ],
+    )
+    async def test_store_mutations_refuse_stale_epoch_before_application_access(action):
+        from datetime import UTC, datetime
+    
+        from context_graph.adapters.spanner.graph import SpannerGraphStore
+        from context_graph.adapters.spanner.log import SpannerEventLog, format_position
+        from context_graph.adapters.spanner.subscription import SpannerSubscription
+        from context_graph.ports.subscription import Delivery
+    
+        row = owner()
+        row[3] = 2
+        database = Database(Transaction(row))
+        graph = SpannerGraphStore(database, tenant_fence=FENCE)
+        ledger = SpannerEventLog(database, tenant_fence=FENCE)
+        subscription = SpannerSubscription(
+            database, "g", "c", tenant_fence=FENCE, tenant_engine_revision="test"
+        )
+        position = format_position(datetime.now(UTC), 0, "event-1")
+        actions = {
+            "append": lambda: ledger.append_entry("event-1", "session-1"),
+            "graph_clear": graph._clear,
+            "graph_upsert": lambda: graph._upsert_nodes([(("Event", "event-1"), {})]),
+            "ensure_group": subscription.ensure_group,
+            "read_new": lambda: subscription.read_new(1, 0),
+            "ack": lambda: subscription.ack(position),
+            "dead_letter": lambda: subscription.dead_letter(Delivery(position, {}), 1),
+            "claim": subscription.claim_orphaned,
+            "document_update": lambda: ledger.set_document_fields("event-1", summary="changed"),
+            "retention": ledger._purge,
+            "dml": lambda: ledger._execute_updates([("DELETE FROM Events", {}, {})]),
+        }
+        with pytest.raises(TenantFenceError):
+>           await actions[action]()
+
+tests/unit/test_spanner_tenant_control.py:241: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/adapters/errors.py:30: in wrapper
+    return await method(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.adapters.spanner.log.SpannerEventLog object at 0x1147a0230>
+event_id = 'event-1', session_id = 'session-1'
+
+    async def append_entry(self, event_id: str, session_id: str) -> str:
+        """Append a bare log entry with no document (test support for subscriptions)."""
+        if self._tenant_fence is not None:
+>           raise RuntimeFencedError("Bound ledger refuses bare unstamped entries")
+E           context_graph.ports.errors.RuntimeFencedError: Bound ledger refuses bare unstamped entries
+
+src/context_graph/adapters/spanner/log.py:649: RuntimeFencedError
+=============================== warnings summary ===============================
+tests/unit/test_spanner_event_acceptance.py::test_authenticated_http_path_stamps_receipt_and_reports_conflict
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/unit/test_spanner_event_acceptance.py::test_authenticated_http_path_stamps_receipt_and_reports_conflict
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_spanner_tenant_control.py::test_store_mutations_refuse_stale_epoch_before_application_access[append]
+1 failed, 199 passed, 2 warnings in 3.56s

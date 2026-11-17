@@ -1,0 +1,88 @@
+{
+  "fault": "synthetic second importance adjustment",
+  "first_status": 500,
+  "retry_status": 201,
+  "ledger_audit_delta": 2,
+  "before": [
+    {
+      "access_count": 1,
+      "agent_id": "compat-resume",
+      "event_id": "5e8cedc3-fdb5-4429-8c19-823c5a917672",
+      "event_type": "observation.input",
+      "global_position": "2026-10-06T13:42:28.114655000Z/000000/5e8cedc3-fdb5-4429-8c19-823c5a917672",
+      "keywords": [],
+      "last_accessed_at": "2026-10-06T13:42:35.214437+00:00",
+      "occurred_at": "2026-10-06T13:42:27.888378+00:00",
+      "session_id": "tied-context",
+      "trace_id": "tied-context"
+    },
+    {
+      "access_count": 1,
+      "agent_id": "compat-resume",
+      "event_id": "1c55f3dd-47a0-4b32-9c79-8cb05e6c1f2b",
+      "event_type": "observation.input",
+      "global_position": "2026-10-06T13:42:28.114655000Z/000001/1c55f3dd-47a0-4b32-9c79-8cb05e6c1f2b",
+      "keywords": [],
+      "last_accessed_at": "2026-10-06T13:42:34.688537+00:00",
+      "occurred_at": "2026-10-06T13:42:27.888378+00:00",
+      "session_id": "tied-context",
+      "trace_id": "tied-context"
+    }
+  ],
+  "after_failure": [
+    {
+      "access_count": 1,
+      "agent_id": "compat-resume",
+      "event_id": "5e8cedc3-fdb5-4429-8c19-823c5a917672",
+      "event_type": "observation.input",
+      "global_position": "2026-10-06T13:42:28.114655000Z/000000/5e8cedc3-fdb5-4429-8c19-823c5a917672",
+      "importance_score": 6,
+      "keywords": [],
+      "last_accessed_at": "2026-10-06T13:42:35.214437+00:00",
+      "occurred_at": "2026-10-06T13:42:27.888378+00:00",
+      "session_id": "tied-context",
+      "trace_id": "tied-context"
+    },
+    {
+      "access_count": 1,
+      "agent_id": "compat-resume",
+      "event_id": "1c55f3dd-47a0-4b32-9c79-8cb05e6c1f2b",
+      "event_type": "observation.input",
+      "global_position": "2026-10-06T13:42:28.114655000Z/000001/1c55f3dd-47a0-4b32-9c79-8cb05e6c1f2b",
+      "keywords": [],
+      "last_accessed_at": "2026-10-06T13:42:34.688537+00:00",
+      "occurred_at": "2026-10-06T13:42:27.888378+00:00",
+      "session_id": "tied-context",
+      "trace_id": "tied-context"
+    }
+  ],
+  "after_retry": [
+    {
+      "access_count": 1,
+      "agent_id": "compat-resume",
+      "event_id": "5e8cedc3-fdb5-4429-8c19-823c5a917672",
+      "event_type": "observation.input",
+      "global_position": "2026-10-06T13:42:28.114655000Z/000000/5e8cedc3-fdb5-4429-8c19-823c5a917672",
+      "importance_score": 7,
+      "keywords": [],
+      "last_accessed_at": "2026-10-06T13:42:35.214437+00:00",
+      "occurred_at": "2026-10-06T13:42:27.888378+00:00",
+      "session_id": "tied-context",
+      "trace_id": "tied-context"
+    },
+    {
+      "access_count": 1,
+      "agent_id": "compat-resume",
+      "event_id": "1c55f3dd-47a0-4b32-9c79-8cb05e6c1f2b",
+      "event_type": "observation.input",
+      "global_position": "2026-10-06T13:42:28.114655000Z/000001/1c55f3dd-47a0-4b32-9c79-8cb05e6c1f2b",
+      "importance_score": 6,
+      "keywords": [],
+      "last_accessed_at": "2026-10-06T13:42:34.688537+00:00",
+      "occurred_at": "2026-10-06T13:42:27.888378+00:00",
+      "session_id": "tied-context",
+      "trace_id": "tied-context"
+    }
+  ],
+  "semantics": "partial graph update survives500; retry is a new audit and repeats updates"
+}

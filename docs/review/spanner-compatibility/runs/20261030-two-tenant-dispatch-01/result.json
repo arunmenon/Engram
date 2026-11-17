@@ -1,0 +1,44 @@
+{
+  "scope": "Public factory, real child lifespan/stores/routes, in-process HTTP transport, real Spanner. Optional model/embedding constructors disabled; no worker loops or live activation.",
+  "status": "passed",
+  "checks": [
+    "B_empty_database_ownership_bootstrapped",
+    "public_factory_two_real_child_lifespans_started",
+    "A_artifact_visible_only_with_A_credential",
+    "missing_invalid_and_cross_tenant_credentials_refused",
+    "colliding_event_id_appended_to_B_without_changing_A",
+    "cross_tenant_write_hint_refused",
+    "unsupported_cursor_import_webhook_paths_refused"
+  ],
+  "bindings": [
+    {
+      "tenant": "compat-control",
+      "database": "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "digest": "sha256:1261c6566b0d624bb9f5763c6e01d0f249b8e61b8280ddce1bd5b559cc166f72",
+      "epoch": 43
+    },
+    {
+      "tenant": "tenant-b-20261030",
+      "database": "projects/portiq-mvp/instances/engram-experiment/databases/engram-tenant-b-20261030",
+      "digest": "sha256:105329f9dcc3aa3190881af672b1b99817cad046cea93df7ed1bb25de536cf3b",
+      "epoch": 1
+    }
+  ],
+  "owned_B_event_id": "32afeeb1-8c6e-5d86-b7b1-7bf715b02c61",
+  "retrieval_statuses": [
+    200,
+    200
+  ],
+  "append_status": 201,
+  "A_rows_unchanged": true,
+  "A_owner_unchanged": true,
+  "B_counts_after_cleanup": {
+    "Events": 0,
+    "GraphNodes": 0,
+    "GraphEdges": 0,
+    "ConsumerGroups": 0,
+    "ConsumerCursors": 0,
+    "ConsumerDeliveries": 0,
+    "ConsumerDeadLetters": 0
+  }
+}

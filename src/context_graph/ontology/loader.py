@@ -8,8 +8,8 @@ Pack files are parsed strictly:
 
 Packs are found by name as ``<name>.pack.yaml`` in the configured
 directories, then in the built-in directory. Packs a pack ``requires``
-are loaded with it, and the base packs (``core``, ``memory``, ``user``)
-are always loaded.
+are loaded with it. ``core`` is always loaded; callers can explicitly select
+optional built-ins. The legacy default includes ``memory`` and ``user``.
 """
 
 from __future__ import annotations
@@ -28,8 +28,9 @@ log = structlog.get_logger(__name__)
 
 BUILTIN_PACK_DIR = Path(__file__).parent / "packs"
 
-# Today's schema, which the code writes; always active
+# Built-in files cannot be replaced by search directories. Only core is mandatory.
 BASE_PACKS = ("core", "memory", "user")
+DEFAULT_BUILTIN_PACKS = ("memory", "user")
 
 _REQUIRED_NAME = re.compile(r"^([a-z][a-z0-9_]*)")
 
@@ -174,8 +175,8 @@ def find_eval_set(name: str, search_dirs: list[Path]) -> Path | None:
 def find_pack(name: str, search_dirs: list[Path]) -> Path:
     """The file of a pack: the search directories first, then the built-in packs.
 
-    The base packs (``core``, ``memory``, ``user``) describe the schema the
-    code itself writes, so they are always the built-in files: a search
+    The base packs (``core``, ``memory``, ``user``) describe built-in schema
+    and processing, so they always use the built-in files: a search
     directory holding one is refused rather than silently used.
     """
     if name in BASE_PACKS:
@@ -196,11 +197,25 @@ def find_pack(name: str, search_dirs: list[Path]) -> Path:
     raise OntologyError([f"pack {name!r} not found in {searched}"])
 
 
-def load_registry(names: list[str], search_dirs: list[Path] | None = None) -> OntologyRegistry:
-    """Load the base packs, the named packs and the packs they require, then compose them."""
+def load_registry(
+    names: list[str],
+    search_dirs: list[Path] | None = None,
+    *,
+    builtin_packs: list[str] | None = None,
+) -> OntologyRegistry:
+    """Compose core, selected built-ins/domains, and their declared dependencies.
+
+    ``None`` preserves the legacy built-ins; an explicit empty list selects
+    only mandatory core plus named packs/dependencies. This is schema selection,
+    not an execution or tenant-isolation boundary on its own.
+    """
     dirs = list(search_dirs or [])
+    selected = list(DEFAULT_BUILTIN_PACKS) if builtin_packs is None else builtin_packs
+    unknown = sorted(set(selected) - set(BASE_PACKS))
+    if unknown:
+        raise OntologyError([f"unknown built-in pack {name!r}" for name in unknown])
     packs: dict[str, Pack] = {}
-    pending = [*BASE_PACKS, *names]
+    pending = ["core", *selected, *names]
     while pending:
         name = pending.pop(0)
         if name in packs:

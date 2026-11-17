@@ -1,0 +1,249 @@
+{
+  "updated_at": "2026-10-07T16:05:56.064370+00:00",
+  "status": "product_direction_confirmed_partial_implementation_and_scoped_cloud_verification",
+  "decision": "One Spanner database per tenant; shared Spanner instance permitted; separate Engram deployment not required by this decision.",
+  "tenant_identity": "Authenticated and server-resolved; bind ingress, handshake, database, active pack bundle and durable worker routing.",
+  "required_failure": "Reject unknown/unauthorized tenant or incompatible database; never silently fall back to a shared/default tenant database.",
+  "issues": [
+    43,
+    35,
+    42,
+    39,
+    41
+  ],
+  "acceptance": "At least two isolated disposable tenant databases with colliding IDs, pack choices, workers, retrieval, replay and cleanup isolation; explicit tracked Spanner runs.",
+  "goal_status": "Active combined goal #34 and #41; tenant runtime implementation and real two-database acceptance remain pending",
+  "implementation_status": "Pinned API/store/all-five-worker bundles and private authenticated dispatcher implemented; public tenant factory remains disabled pending complete durable fencing and scoped operations.",
+  "architecture_review": "2026-10-07-astra-tenant-routing-design-review.md",
+  "architecture_direction": "Authenticated ASGI dispatcher owns explicit-settings per-tenant child lifespans, trusted principals and catalog. Dedicated durable ownership/epoch fences required before production tenant-mode startup.",
+  "factory_run": "runs/20261007-local-explicit-runtime-settings-01",
+  "activation_policy": "Initial implementation supports explicit drain/quiesce/restart; no hot reinterpretation or live database relocation.",
+  "adoption_policy": "Normal startup refuses missing/mismatched durable ownership. Existing populated databases require explicit authenticated operator adoption; never first-caller ownership.",
+  "credential_policy": "Server-managed unambiguous API/admin/source credential bindings; caller fields cannot select authorized tenant/database.",
+  "factory_implementation_review": "2026-10-07-astra-explicit-runtime-settings-review.md",
+  "factory_cloud_run": "runs/20261007-cloud-explicit-factory-startup-01",
+  "catalog_status": "Immutable catalog/binding/principal substrate:49 local tests passed and Astra low approved; dispatch substrate167 local tests passed and reviewed. No production tenant traffic enabled.",
+  "catalog_run": "runs/20261007-local-tenant-catalog-04",
+  "catalog_review": "2026-10-07-astra-tenant-catalog-review.md",
+  "remaining": [
+    "Protected database ownership and transaction epoch fences for all mutation/read boundaries before production tenant startup",
+    "Pinned worker/admin tenant targets and explicit activation/drain/recovery",
+    "Scoped cursors/admin/webhooks/archives and no cross-tenant fallback",
+    "Two-database adversarial real-Spanner acceptance and full feature/compatibility scope"
+  ],
+  "dispatcher_status": "Private authenticated dispatcher and pinned API/store/all5worker bundle handoffs implemented. Public tenant factory refuses unfenced startup. Shared-principal role guards, drain and partial-startup/constructor cleanup tested. Astra low approved after extraction pinning correction.",
+  "dispatcher_run": "runs/20261007-local-tenant-dispatch-02",
+  "dispatcher_result": "167 passed,22warnings; recording/reference ports only, no durable tenant isolation claim",
+  "dispatcher_review": "2026-10-07-astra-tenant-dispatch-review.md",
+  "single_configuration_cloud_run": "runs/20261006-cloud-processes-03fd8ecd",
+  "single_configuration_cloud_result": "2026-10-07: API+all5workers journey and actual extracted-vector ANN/full-text smoke passed; all owned processes stopped (workers0,API-15). Single configuration, explicit-token/scripted-provider; not two-tenant or ADC signoff.",
+  "control_status": "Protected TenantControl and ledger/graph/subscription mutation fences implemented and Astra low reviewed. Real target adapter checks20/20 passed; owner retained active epoch2. Graph partitioned clear refuses tenant mode. Server-owned event envelopes, read guards, bounded rebuild and production activation remain pending.",
+  "control_runs": [
+    "runs/20261007-local-tenant-control-01",
+    "runs/20261007-local-tenant-control-02",
+    "runs/20261007-local-tenant-control-03"
+  ],
+  "control_review": "2026-10-07-astra-tenant-control-review.md",
+  "control_followups": [
+    "Explicit operator adoption of reserved target ownership and real Spanner mutation/race proof",
+    "Pinned API/worker tenant-binding handoff and server-owned event envelopes/duplicate conflicts",
+    "Read epoch/response guards and bounded fenced rebuild instead of partitioned clear",
+    "Activation/drain/recovery and two-database real-Spanner adversarial acceptance"
+  ],
+  "worker_fence_status": "Neutral RuntimeFencedError propagates without ack/DLQ through main/pending/idle loops, pack projection fallback, extraction session read and consolidation. Background consolidation failure cancels/joins companion loop.144 local tests passed; Astra low approved.",
+  "worker_fence_run": "runs/20261007-local-worker-fence-01",
+  "worker_fence_review": "2026-10-07-astra-worker-fence-review.md",
+  "store_binding_status": "Optional tenant_binding verifies exact pinned settings/bundle before opening, protected control schema/owner/epoch before constructing adapters, shares mutation fence across durable stores and closes failed handshake resources. Initial99passed; Astra found caller-mutation race during opening; private binding snapshot correction and barrier regression100passed1warning. Astra low recheck approved; P2 resolved.",
+  "store_binding_runs": [
+    "runs/20261007-local-tenant-store-01",
+    "runs/20261007-local-tenant-store-02"
+  ],
+  "store_binding_review": "2026-10-07-astra-tenant-store-review.md",
+  "control_schema_status": "Protected TenantControl installed additively on reserved target only; compatible physical handshake and preservation verified. Test owner compat-control retained active epoch2 after real adapter fence/recovery checks; no populated-database adoption. Public tenant service disabled.",
+  "control_schema_runs": [
+    "runs/20261007-cloud-tenant-control-inspect-01",
+    "runs/20261007-cloud-tenant-control-prepare-01",
+    "runs/20261007-cloud-tenant-control-prepare-02",
+    "runs/20261007-local-control-canonical-01",
+    "runs/20261007-cloud-tenant-control-prepare-03"
+  ],
+  "control_schema_review": "2026-10-07-astra-control-schema-harness-review.md",
+  "control_schema_operation": "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target/operations/engram_control_fc2f04084b0b4829a2a4c475c6dde46c",
+  "control_schema_recovery": "Submitted once in prepare01; prepare01/02 retained harness metadata-format failures. Server adds trailing CREATE TABLE column comma. Narrow normalization66localtests and Astra low approved. prepare03 exactoperationGET resumed and validated done/noerror; no second submission. Metrics exporter403 recorded separately, not storage failure.",
+  "control_fence_cloud_run": "runs/20261007-cloud-tenant-control-verify-01",
+  "control_fence_cloud_result": "20/20 real-Spanner checks passed: actual ledger+graph+subscription active success, drain admission refusal/processing allowance, frozen/stale/wrongowner zeroeffect refusals, controlled delayed oldgraphwrite after epochadvance, renewedepoch pendingack recovery, exactfixturecleanup and all7applicationtablehash preservation. Testowner compat-control retained activeepoch2. No API/workerprocess, concurrenttransactioncontention or two-tenant signoff.",
+  "control_fence_harness_recovery": "Astra found missing durable fixture/owner recovery receipts before effects; fixed and approved. case-attempt.json now fsyncs exact owner/digest/epoch and fixturekeys before bootstrap, transitionintent/currentrow and cleanupintent/completion. No populatedDB adoption.",
+  "target_ann_prerequisite": "Completed reviewed additive EntityANN upgrade on reserved target in runs/20261007-cloud-target-ann-upgrade-01:2/2 checks passed, one submission, compatible physical handshake, idempotent secondapply and unchanged graphdata. Both source and reserved target now have compatible EntityANN schemas; sourcewasnotmodifiedbythisrun.",
+  "runtime_binding_status": "Private API lifespan and all five worker factories forward immutable binding settings/bundle/database/epoch.72 local tests passed,1 warning; Astra low approved. Real target startup17/17 checks passed; no public tenant activation, requests, worker loops or two-tenant signoff.",
+  "runtime_binding_run": "runs/20261007-local-runtime-binding-01",
+  "runtime_binding_review": "2026-10-07-astra-runtime-binding-review.md",
+  "runtime_binding_cloud_run": "runs/20261007-cloud-tenant-runtime-startup-01",
+  "runtime_binding_cloud_result": "17/17passed: actual private API lifespan and all5worker factories exact database/fence, pinned projection metadata, store cleanup, schema and all7applicationtable hash preservation, source unchanged. Explicit SDK token, scriptedLLM and disabled embedding constructor; startup-only. Owner retained activeepoch2. Optional monitoring exporter403 remains separate.",
+  "runtime_binding_harness_review": "2026-10-07-astra-tenant-runtime-harness-review.md",
+  "snapshot_read_status": "All seven Spanner snapshot paths verify control in the same strong multi-use snapshot. API reads require active ownership; bound workers may reopen and read during drain. Stale/frozen errors propagate through retrieval, health, evaluation refresh and admin/import/replay fallbacks. Reviewed locally and on Spanner. The later response-guard slice adds private HTTP pre/final checks; tenant cursors, bounded import and public activation remain unfinished.",
+  "snapshot_read_runs": [
+    "runs/20261007-local-tenant-read-snapshots-01",
+    "runs/20261007-local-tenant-read-snapshots-02",
+    "runs/20261007-local-tenant-read-snapshots-03",
+    "runs/20261007-cloud-tenant-read-fences-01"
+  ],
+  "snapshot_read_review": "2026-10-07-astra-tenant-snapshot-read-review.md",
+  "snapshot_read_design_review": "2026-10-07-astra-read-fencing-design-review.md",
+  "snapshot_read_cloud_result": "55/55 checks passed: active externalreads; draining externalrefusals with processingreads allowed; frozen/staleepoch readrefusals acrossall7helpers; existingmutation/recoverychecks; exactcleanup/all7applicationtablehash preservation/schema/sourceunchanged. Actualpositivefixturevalues persisted. Testowner retainedactiveepoch3. No crosschannelactivationrace,finalresponse,two-tenantorfullcompatibilityclaim.",
+  "response_guard_status": "The private bound child requires a trusted matching principal and fresh active checks before execution and before releasing a bounded response. A bytearray holds middleware chunks until authorization completes. Inner control errors return sanitized 503 responses. Unsigned cursors and streaming import are temporarily refused before effects. Public tenant activation remains disabled.",
+  "response_guard_runs": [
+    "runs/20261007-local-tenant-response-01",
+    "runs/20261007-local-tenant-response-02",
+    "runs/20261007-local-tenant-response-03",
+    "runs/20261007-cloud-tenant-response-01"
+  ],
+  "response_guard_reviews": [
+    "2026-10-07-astra-tenant-response-review.md",
+    "2026-10-07-astra-tenant-response-harness-review.md"
+  ],
+  "response_guard_local_result": "106 passed, 2 dependency warnings in final run03. Astra identified unbounded per-empty-chunk bookkeeping; a bytearray and regression fixed it. A separate harness manifest expression was corrected and tested before cloud execution.",
+  "response_guard_cloud_result": "11/11 real Spanner checks passed: actual private bound API cached and empty responses; cursor/import refusals before effects; freeze after handler discards private answer before any success start; frozen precheck skips handler; new epoch API recovers. All child lifespans closed and schema, seven application-table hashes and source fingerprints preserved. Test owner retained active epoch4. Scripted providers; no model inference, completed cursor/import or full compatibility claim.",
+  "response_linearization": "The fresh final active check is the authorization point; network sends may overlap a later activation. Production activation must prohibit same-epoch freeze/reactivation ABA. The test operator advances epoch on reactivation; the production activation protocol remains unfinished.",
+  "current_reserved_target_owner": "compat-control / compat-control-binding, active epoch5 after acceptance-adapter-01. Two owned event fixtures removed; all seven application tables match pre-run empty fingerprints. Protectedowner retained.",
+  "next_envelope_design_review": "2026-10-07-astra-event-envelope-design-review.md",
+  "next_envelope_scope": "Compile and enforce activepack eventownership/payloadcontracts at authenticated writer/storage boundary across allnormalizedingress; bind sourcetrust to accepted authenticatedsource_id; adapterrevision/splitidentity, signedwebhook admission, boundimport, compatibilitygrantedreplay and graphderivedprovenance remain required.",
+  "acceptance_storage_status": "Immutable acceptance/context, authenticated request-local write view, fenced atomic stamp and source/digest duplicate conflicts implemented locally. Nullable Events.acceptance JSON explicitly added to reserved target only; source database not upgraded. Exact contract worker reads, archive/replay and signed webhook normalization remain pending; public service disabled.",
+  "acceptance_storage_local_runs": [
+    "runs/20261007-local-acceptance-contract-03",
+    "runs/20261007-local-spanner-acceptance-04",
+    "runs/20261007-local-acceptance-harness-02"
+  ],
+  "acceptance_storage_reviews": [
+    "2026-10-07-astra-event-acceptance-foundation-review.md",
+    "2026-10-07-astra-spanner-event-acceptance-review.md",
+    "2026-10-07-astra-acceptance-cloud-harness-review.md"
+  ],
+  "acceptance_storage_cloud_runs": [
+    "runs/20261007-cloud-acceptance-prepare-01",
+    "runs/20261007-cloud-acceptance-adapter-01"
+  ],
+  "acceptance_storage_cloud_result": "4/4 additive schema checks and19/19 realadapter checks passed: atomicstamp, same/differentchunkduplicate/conflict,4concurrentwritersonecreation, rotation/differentproducer, float/signedzero JSON fingerprint, enrichmentimmutability, bare/importrefusal, actualexpire/housekeep identitypreservation, frozen/stale/currentepochretry, exactcleanup. No workerloops/APIlifespan in adapterrun and no baselinepromotions.",
+  "acceptance_retention_policy": "Acceptance and original position persist for every retained Events row even when document/dedup flag expires. Physicalpurge ends boundedretryidentity; no permanenttombstonepromise. Workercontentretention protection stillpending.",
+  "authoritative_interpretation_status": "Implemented locally, Astra low scoped review resolved;280focusedtests passed; realSpanner30/30 boundedworkerchecks passed. Notpublished/notfullsignoff.",
+  "authoritative_interpretation_cloud_runs": [
+    "20261007-cloud-worker-interpretation-01"
+  ],
+  "authoritative_interpretation_reviews": [
+    "2026-10-07-astra-event-interpretation-review.md",
+    "2026-10-07-astra-interpretation-cloud-harness-review.md"
+  ],
+  "terminal_disposition_next_slice": {
+    "design_review": "2026-10-07-astra-terminal-disposition-design-review.md",
+    "implementation_review": "2026-10-07-astra-terminal-disposition-implementation-review.md",
+    "status": "Implemented locally;251tests/scopedmypy4files/Ruff passed; Astra low approved;54/54realSpanner scopedchecks passed;notpublished/fullsignoff",
+    "cloud_run": "20261007-cloud-terminal-disposition-01",
+    "limitations": [
+      "No same-consumer-name claimgeneration guarantee",
+      "Prior graphwrites are not atomicwithACK",
+      "No forcedsimultaneous transactionrace incloud",
+      "Retention maystill expireunprocessedcontent; refuseddisposition protects pending butdoesnotrestorecontent"
+    ]
+  },
+  "publication_typing_gate": {
+    "run": "20261007-local-full-typing-05",
+    "status": "passed",
+    "errors": 0,
+    "files_checked": 155,
+    "affected_unit_run": "20261007-local-full-typing-04",
+    "affected_unit_result": "191passed1frameworkwarning; APIimport/OpenAPI smoke passed; no Redis/Neo4jservices",
+    "review": "2026-10-07-astra-typing-cleanup-review.md",
+    "review_status": "Scoped Astra low approved; no service calls by reviewer",
+    "later_changes": "Projection expansion source scopedmypy/Ruffclean in run05; fulltyping evidence retains its original source fingerprint."
+  },
+  "next_pack_admission_review": "2026-10-07-astra-pack-admission-design-review.md",
+  "next_pack_admission_constraints": [
+    "Compile policyfromactivebundle andenforceatboundappendboundary",
+    "Newrowcontractdecision alongside duplicate detection; compatiblehistoricalretry isnotnewadmission",
+    "Preserve normalizedpayload exactly; no coercion/defaultinjection",
+    "Explicit ledger_only/supportedprocessing/unsupportedhandling",
+    "Trust acceptedauthenticatedsource_id, nevercalleragent_id",
+    "CRM declarations/import/webhooks/all23journeys remainrequired"
+  ],
+  "pack_admission_policy_component": {
+    "status": "purepolicyimplemented/reviewed, writerwiringpending",
+    "review": "2026-10-07-astra-pack-admission-policy-review.md",
+    "run": "20261007-local-pack-admission-policy-02",
+    "result": "203passed/scopedmypy3files/Ruffclean",
+    "inventory": "runs/20261007-local-pack-admission-policy-02/admission-inventory.json",
+    "pdlc_processing_eligible": 17,
+    "pdlc_missing_mapping": 6,
+    "crm_missing_contracts": 6,
+    "source_trust_enforced": false
+  },
+  "writer_admission_status": "Implemented locally: bound writers derive policy from verified TenantBinding/fence/engine association; new events validated inside fenced transaction after duplicate/conflict detection. API returns sanitized original-index422 diagnostics, preserves mixed-batch siblings. Imports/webhooks/source-trust remain pending.",
+  "writer_admission_local_run": "runs/20261007-local-writer-admission-05",
+  "writer_admission_review": "2026-10-07-astra-writer-admission-review.md",
+  "writer_admission_cloud_run": "runs/20261007-cloud-writer-admission-01",
+  "writer_admission_cloud_result": "23/23 checks passed; unknowncore/inactivePDLC rejection no writes, direct/proxy enforcement, existing acceptance/duplicate/epoch regression. Exact2ownedEventsremoved; schema/all7appTablespreserved; owneractiveepoch6. Core-only cloud, not activePDLCorfullbaseline.",
+  "source_trust_next_design": "2026-10-07-astra-authenticated-source-trust-design-review.md",
+  "source_trust_next_scope": "Implemented typed provenance and pinned authenticated source policy for bound projection/extraction/replay. Remaining: complete native producers, retrieval explanation/evidence and whole-pack/lifecycle acceptance.",
+  "source_trust_implementation_status": "Locally implemented and scoped reviewed. Real Spanner normalized synthetic PDLC projection/extraction trust verified with stubbed model; native webhook/API producer integration, retrieval and full compatibility not established. Worktree uncommitted/unpublished.",
+  "source_trust_local_run": "runs/20261007-local-authenticated-source-trust-05",
+  "source_trust_local_result": "295passed2frameworkwarnings; scopedmypy7files and selectedRuff clean",
+  "source_trust_implementation_review": "2026-10-07-astra-authenticated-source-trust-implementation-review.md",
+  "source_trust_cloud_next": "Bounded experiment completed; target restored to latest core at epoch8. Any future activation must explicitly pin this recorded predecessor and require empty tables; no adoption/history grant.",
+  "source_trust_cloud_run": "runs/20261007-cloud-authenticated-source-trust-01",
+  "source_trust_cloud_result": "12/12 scoped checks passed; authenticated source identities preserve trusted/untrusted output on two Changes and two extracted Decisions despite spoofing; four exact DERIVED_FROM links. Exact fixtures removed; all7applicationtables empty and schema preserved. Not baseline scenario promotion.",
+  "source_trust_cloud_harness_review": "2026-10-07-astra-source-trust-cloud-harness-review.md",
+  "publication_unit_gate": {
+    "run": "20261007-local-full-unit-02",
+    "status": "passed",
+    "passed": 2426,
+    "skipped": 15,
+    "warnings": 165,
+    "prior_failures_retained": "runs/20261007-local-full-unit-01 and runs/20261007-local-unit-regression-02",
+    "review": "2026-10-07-astra-metrics-prefix-regression-review.md",
+    "scope": "Unit recording ports/mocks; no service runners or cloud acceptance",
+    "later_changes": "Projection expansion slice has162scopedpassingtests after recorded fullunitrun02; fullunit evidence retains its original source fingerprint."
+  },
+  "projection_expansion": {
+    "issue": 36,
+    "status": "Bounded expansion slice implemented, reviewed and verified on real Spanner; full #36 remains open",
+    "run": "runs/20261007-local-projection-expansion-05",
+    "result": "162passed; selectedmypy/Ruffclean",
+    "design_review": "2026-10-07-astra-projection-expansion-design-review.md",
+    "implementation_review": "2026-10-07-astra-projection-expansion-implementation-review.md",
+    "behavior": "Strict equal key-list lengths; candidate expansion checks; aggregate10000plannedoperations acrosssubscriber rules; linear index zip; no failed domain plan leak in memoryworker test",
+    "limits": "No actuallookupedge/flush/expressionmemorycap; no null/clear/order/ownership resolution",
+    "harness_preflight": {
+      "run": "runs/20261007-local-expansion-harness-02",
+      "result": "39passed; selectedRuffclean",
+      "review": "2026-10-07-astra-expansion-cloud-harness-review.md",
+      "cases": "Unequal keys,101x100product,cross-pack2100items;valid owner/subscriber andgapcorrelated stubs;exactkeys/properties/evidence/disposition/commonEvents",
+      "cloud_run": "runs/20261007-cloud-projection-expansion-01",
+      "cloud_status": "Terminal12/12checks; Astra low post-run evidence approved"
+    },
+    "cloud_run": "runs/20261007-cloud-projection-expansion-01",
+    "cloud_result": "12/12checks; 3refuseddomainplans,2validplans;7domainnodes,5commonEvents,4edges,3DLQ;exactproperties/keys/cleanup",
+    "cloud_limits": "No retrieval/native-source/process-loop/lookup-expansion/atomic-event/order/null-clear/ownership sign-off",
+    "target_owner_after": [
+      [
+        "compat-control",
+        "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+        "compat-control-binding",
+        10,
+        "sha256:d137c3bfce7254569c2783a2719c9cd0161ecec325f54c36b12a8f943f223eaa",
+        "active"
+      ]
+    ],
+    "cloud_review": "2026-10-07-astra-expansion-cloud-harness-review.md"
+  },
+  "projection_property_updates": {
+    "issue": 36,
+    "status": "Medium design and low storage primitive review approved; local primitive verified; strict pack integration/cloud pending",
+    "diagnostic_run": "runs/20261007-local-update-semantics-probe-01",
+    "verified_local": "Omitted/null preserve via public PackGraph filter; invalid int silently preserves; A/B/A overwrites newer values",
+    "proposal": "Opt-in structured property updates, distinct presence states, explicit removal tuple; directpath/literal firstslice candidate; strict create_only removals refuse until atomic support",
+    "cloud": "Not executed for these semantics",
+    "design_review": "2026-10-07-astra-property-update-design-review.md",
+    "primitive_run": "runs/20261008-local-pack-removals-02",
+    "primitive_result": "123passed10integration-skipped; Ruffclean; unchanged runtime selectedmypy4clean inrun01",
+    "remaining": "Strict pack syntax/presence evaluator/coercion/static capability and own-pack protection; realSpanner; ordering/authority/effect attribution",
+    "primitive_review": "2026-10-08-astra-pack-removal-primitive-review.md"
+  }
+}

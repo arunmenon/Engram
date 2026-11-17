@@ -1,0 +1,168 @@
+{
+  "nodes": {
+    "45e2a075-fd8b-4598-831c-4f28f20d53dc": {
+      "node_id": "45e2a075-fd8b-4598-831c-4f28f20d53dc",
+      "node_type": "Event",
+      "attributes": {
+        "access_count": 1,
+        "event_type": "observation.input",
+        "keywords": [],
+        "last_accessed_at": "2026-10-06T13:40:57.022013+00:00",
+        "occurred_at": "2026-10-06T13:40:48.702124+00:00"
+      },
+      "provenance": {
+        "event_id": "45e2a075-fd8b-4598-831c-4f28f20d53dc",
+        "global_position": "2026-10-06T13:40:48.994623000Z/000006/45e2a075-fd8b-4598-831c-4f28f20d53dc",
+        "source": "spanner",
+        "occurred_at": "2026-10-06T13:40:48.702124Z",
+        "session_id": "tied-context",
+        "agent_id": "compat-resume",
+        "trace_id": "tied-context"
+      },
+      "scores": {
+        "decay_score": 0.58133,
+        "relevance_score": 0.5,
+        "importance_score": 5,
+        "ppr_score": 0.0
+      },
+      "retrieval_reason": "direct",
+      "proactive_signal": null
+    },
+    "08d58a9e-61ac-4bb6-b2a6-37a14546d4cc": {
+      "node_id": "08d58a9e-61ac-4bb6-b2a6-37a14546d4cc",
+      "node_type": "Event",
+      "attributes": {
+        "access_count": 1,
+        "event_type": "observation.input",
+        "keywords": [],
+        "last_accessed_at": "2026-10-06T13:40:56.422406+00:00",
+        "occurred_at": "2026-10-06T13:40:48.702124+00:00"
+      },
+      "provenance": {
+        "event_id": "08d58a9e-61ac-4bb6-b2a6-37a14546d4cc",
+        "global_position": "2026-10-06T13:40:48.994623000Z/000005/08d58a9e-61ac-4bb6-b2a6-37a14546d4cc",
+        "source": "spanner",
+        "occurred_at": "2026-10-06T13:40:48.702124Z",
+        "session_id": "tied-context",
+        "agent_id": "compat-resume",
+        "trace_id": "tied-context"
+      },
+      "scores": {
+        "decay_score": 0.581329,
+        "relevance_score": 0.5,
+        "importance_score": 5,
+        "ppr_score": 0.0
+      },
+      "retrieval_reason": "direct",
+      "proactive_signal": null
+    },
+    "28169951-3574-4197-b698-e6e3a9e38ad4": {
+      "node_id": "28169951-3574-4197-b698-e6e3a9e38ad4",
+      "node_type": "Event",
+      "attributes": {
+        "access_count": 1,
+        "event_type": "observation.input",
+        "keywords": [],
+        "last_accessed_at": "2026-10-06T13:40:56.422406+00:00",
+        "occurred_at": "2026-10-06T13:40:48.702124+00:00"
+      },
+      "provenance": {
+        "event_id": "28169951-3574-4197-b698-e6e3a9e38ad4",
+        "global_position": "2026-10-06T13:40:48.994623000Z/000004/28169951-3574-4197-b698-e6e3a9e38ad4",
+        "source": "spanner",
+        "occurred_at": "2026-10-06T13:40:48.702124Z",
+        "session_id": "tied-context",
+        "agent_id": "compat-resume",
+        "trace_id": "tied-context"
+      },
+      "scores": {
+        "decay_score": 0.581329,
+        "relevance_score": 0.5,
+        "importance_score": 5,
+        "ppr_score": 0.0
+      },
+      "retrieval_reason": "direct",
+      "proactive_signal": null
+    },
+    "61f8fbde-3b25-4527-92d3-670139ce1701": {
+      "node_id": "61f8fbde-3b25-4527-92d3-670139ce1701",
+      "node_type": "Event",
+      "attributes": {
+        "access_count": 1,
+        "event_type": "observation.input",
+        "keywords": [],
+        "last_accessed_at": "2026-10-06T13:40:57.702216+00:00",
+        "occurred_at": "2026-10-06T13:40:48.702124+00:00"
+      },
+      "provenance": {
+        "event_id": "61f8fbde-3b25-4527-92d3-670139ce1701",
+        "global_position": "2026-10-06T13:40:48.994623000Z/000003/61f8fbde-3b25-4527-92d3-670139ce1701",
+        "source": "spanner",
+        "occurred_at": "2026-10-06T13:40:48.702124Z",
+        "session_id": "tied-context",
+        "agent_id": "compat-resume",
+        "trace_id": "tied-context"
+      },
+      "scores": {
+        "decay_score": 0.58133,
+        "relevance_score": 0.5,
+        "importance_score": 5,
+        "ppr_score": 0.0
+      },
+      "retrieval_reason": "direct",
+      "proactive_signal": null
+    }
+  },
+  "edges": [
+    {
+      "source": "45e2a075-fd8b-4598-831c-4f28f20d53dc",
+      "target": "08d58a9e-61ac-4bb6-b2a6-37a14546d4cc",
+      "edge_type": "CAUSED_BY",
+      "properties": {
+        "mechanism": "direct"
+      }
+    },
+    {
+      "source": "08d58a9e-61ac-4bb6-b2a6-37a14546d4cc",
+      "target": "28169951-3574-4197-b698-e6e3a9e38ad4",
+      "edge_type": "CAUSED_BY",
+      "properties": {
+        "mechanism": "direct"
+      }
+    },
+    {
+      "source": "28169951-3574-4197-b698-e6e3a9e38ad4",
+      "target": "61f8fbde-3b25-4527-92d3-670139ce1701",
+      "edge_type": "CAUSED_BY",
+      "properties": {
+        "mechanism": "direct"
+      }
+    }
+  ],
+  "pagination": {
+    "cursor": "Mw==",
+    "has_more": true
+  },
+  "meta": {
+    "query_ms": 817,
+    "nodes_returned": 4,
+    "truncated": true,
+    "inferred_intents": {},
+    "intent_override": null,
+    "seed_nodes": [],
+    "seed_strategy": null,
+    "proactive_nodes_count": 0,
+    "scoring_weights": {
+      "recency": 1.0,
+      "importance": 1.0,
+      "relevance": 1.0
+    },
+    "retrieval_channels": {},
+    "capacity": {
+      "max_nodes": 3,
+      "used_nodes": 4,
+      "max_depth": 10
+    },
+    "eval_pending": []
+  }
+}

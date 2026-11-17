@@ -1,0 +1,340 @@
+2026-10-06 19:05:57 [info     ] worker_starting                consumer=projection neo4j_uri=bolt://localhost:7687 redis_host=localhost storage={'event_log': 'spanner', 'subscription': 'spanner', 'graph': 'spanner', 'keyword_index': 'spanner', 'vector_index': 'spanner', 'archive': 'fs'}
+2026-10-06 19:05:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:58 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:58 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:58 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 19:05:58 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 19:05:58 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 19:05:58 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 19:05:58 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 19:05:59 [info     ] ontology_loaded                edge_types=45 event_types=38 intents=['completeness', 'general', 'how_does', 'impact', 'personalize', 'preflight', 'related', 'status', 'trace', 'what', 'when', 'who_is', 'why'] node_types=28 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.0.0', 'owner': 'engram'}, {'name': 'user', 'version': '1.0.0', 'owner': 'engram'}, {'name': 'pdlc', 'version': '1.7.0', 'owner': 'TBD'}] version=sha256:3a7c761cd2848649
+2026-10-06 19:05:59 [info     ] ontology_change                eval_required=['pdlc'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-06 19:05:59 [info     ] worker_running                 consumer=projection
+2026-10-06 19:05:59 [info     ] consumer_started               consumer=fault-permanent_once group=graph-projection stream=Events
+2026-10-06 19:05:59 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:06:00 [error    ] message_processing_failed      consumer=fault-permanent_once entry_id=2026-10-06T13:35:56.513263000Z/000000/132fa122-07b0-4c89-99b7-102e02ea43a4 group=graph-projection
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /Users/arunmenon/projects/Engram/src/context_graph/worker/consumer.py:272 in │
+│ run                                                                          │
+│                                                                              │
+│   269 │   │   │   for delivery in deliveries:                                │
+│   270 │   │   │   │   entry_id = delivery.position                           │
+│   271 │   │   │   │   try:                                                   │
+│ ❱ 272 │   │   │   │   │   await self.process_message(entry_id, delivery.fiel │
+│   273 │   │   │   │   │   if not self.deferred_ack:                          │
+│   274 │   │   │   │   │   │   await self._ack(entry_id)                      │
+│   275 │   │   │   │   │   CONSUMER_MESSAGES_PROCESSED.labels(consumer=self._ │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │     deliveries = [                                                       │ │
+│ │                  │   Delivery(                                           │ │
+│ │                  │   │                                                   │ │
+│ │                  position='2026-10-06T13:35:56.513263000Z/000000/132fa1… │ │
+│ │                  │   │   fields={                                        │ │
+│ │                  │   │   │   'event_id':                                 │ │
+│ │                  '132fa122-07b0-4c89-99b7-102e02ea43a4'                  │ │
+│ │                  │   │   }                                               │ │
+│ │                  │   )                                                   │ │
+│ │                  ]                                                       │ │
+│ │       delivery = Delivery(                                               │ │
+│ │                  │                                                       │ │
+│ │                  position='2026-10-06T13:35:56.513263000Z/000000/132fa1… │ │
+│ │                  │   fields={                                            │ │
+│ │                  │   │   'event_id':                                     │ │
+│ │                  '132fa122-07b0-4c89-99b7-102e02ea43a4'                  │ │
+│ │                  │   }                                                   │ │
+│ │                  )                                                       │ │
+│ │       entry_id = '2026-10-06T13:35:56.513263000Z/000000/132fa122-07b0-4… │ │
+│ │ loop_iteration = 1                                                       │ │
+│ │           self = <context_graph.worker.projection.ProjectionConsumer     │ │
+│ │                  object at 0x10e6e8500>                                  │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram/src/context_graph/worker/projection.py:96   │
+│ in process_message                                                           │
+│                                                                              │
+│    93 │   │   self._buffer.append((entry_id, data))                          │
+│    94 │   │                                                                  │
+│    95 │   │   if len(self._buffer) >= self._BATCH_SIZE or self._batch_timeou │
+│ ❱  96 │   │   │   await self._flush_buffer()                                 │
+│    97 │                                                                      │
+│    98 │   def _batch_timeout_elapsed(self) -> bool:                          │
+│    99 │   │   elapsed_ms = (time.monotonic() - self._last_flush_time) * 1000 │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │     data = {'event_id': '132fa122-07b0-4c89-99b7-102e02ea43a4'}          │ │
+│ │ entry_id = '2026-10-06T13:35:56.513263000Z/000000/132fa122-07b0-4c89-99… │ │
+│ │     self = <context_graph.worker.projection.ProjectionConsumer object at │ │
+│ │            0x10e6e8500>                                                  │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram/src/context_graph/worker/projection.py:163  │
+│ in _flush_buffer                                                             │
+│                                                                              │
+│   160 │   │   # Batch write to the graph (writes are idempotent, so a retry  │
+│   161 │   │   if all_nodes:                                                  │
+│   162 │   │   │   if hasattr(self._graph_store, "merge_event_nodes_batch"):  │
+│ ❱ 163 │   │   │   │   await self._retry_transient(                           │
+│   164 │   │   │   │   │   lambda: self._graph_store.merge_event_nodes_batch( │
+│   165 │   │   │   │   │   "merge_event_nodes",                               │
+│   166 │   │   │   │   )                                                      │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │   all_edges = []                                                         │ │
+│ │   all_nodes = [                                                          │ │
+│ │               │   EventNode(                                             │ │
+│ │               │   │   event_id='132fa122-07b0-4c89-99b7-102e02ea43a4',   │ │
+│ │               │   │   event_type='observation.input',                    │ │
+│ │               │   │   occurred_at=datetime.datetime(2026, 10, 6, 13, 35, │ │
+│ │               56, 374910, tzinfo=TzInfo(0)),                             │ │
+│ │               │   │   session_id='resume-permanent_once',                │ │
+│ │               │   │   agent_id='compat-resume',                          │ │
+│ │               │   │   trace_id='resume-permanent_once',                  │ │
+│ │               │   │   tool_name=None,                                    │ │
+│ │               │   │                                                      │ │
+│ │               global_position='2026-10-06T13:35:56.513263000Z/000000/13… │ │
+│ │               │   │   keywords=[],                                       │ │
+│ │               │   │   summary=None,                                      │ │
+│ │               │   │   embedding=[],                                      │ │
+│ │               │   │   importance_score=None,                             │ │
+│ │               │   │   access_count=0,                                    │ │
+│ │               │   │   last_accessed_at=None                              │ │
+│ │               │   )                                                      │ │
+│ │               ]                                                          │ │
+│ │       batch = [                                                          │ │
+│ │               │   (                                                      │ │
+│ │               │   │                                                      │ │
+│ │               '2026-10-06T13:35:56.513263000Z/000000/132fa122-07b0-4c89… │ │
+│ │               │   │   {                                                  │ │
+│ │               │   │   │   'event_id':                                    │ │
+│ │               '132fa122-07b0-4c89-99b7-102e02ea43a4'                     │ │
+│ │               │   │   }                                                  │ │
+│ │               │   )                                                      │ │
+│ │               ]                                                          │ │
+│ │        data = {'event_id': '132fa122-07b0-4c89-99b7-102e02ea43a4'}       │ │
+│ │    document = {                                                          │ │
+│ │               │   'agent_id': 'compat-resume',                           │ │
+│ │               │   'ended_at': None,                                      │ │
+│ │               │   'event_id': '132fa122-07b0-4c89-99b7-102e02ea43a4',    │ │
+│ │               │   'event_type': 'observation.input',                     │ │
+│ │               │   'global_position':                                     │ │
+│ │               '2026-10-06T13:35:56.513263000Z/000000/132fa122-07b0-4c89… │ │
+│ │               │   'importance_hint': None,                               │ │
+│ │               │   'occurred_at': '2026-10-06T13:35:56.374910Z',          │ │
+│ │               │   'parent_event_id': None,                               │ │
+│ │               │   'payload': {'content': 'Spanner recovery evidence'},   │ │
+│ │               │   'payload_ref': 'compat:resume',                        │ │
+│ │               │   ... +6                                                 │ │
+│ │               }                                                          │ │
+│ │    entry_id = '2026-10-06T13:35:56.513263000Z/000000/132fa122-07b0-4c89… │ │
+│ │       event = Event(                                                     │ │
+│ │               │   event_id=UUID('132fa122-07b0-4c89-99b7-102e02ea43a4'), │ │
+│ │               │   event_type='observation.input',                        │ │
+│ │               │   occurred_at=datetime.datetime(2026, 10, 6, 13, 35, 56, │ │
+│ │               374910, tzinfo=TzInfo(0)),                                 │ │
+│ │               │   session_id='resume-permanent_once',                    │ │
+│ │               │   agent_id='compat-resume',                              │ │
+│ │               │   trace_id='resume-permanent_once',                      │ │
+│ │               │   payload_ref='compat:resume',                           │ │
+│ │               │                                                          │ │
+│ │               global_position='2026-10-06T13:35:56.513263000Z/000000/13… │ │
+│ │               │   tool_name=None,                                        │ │
+│ │               │   parent_event_id=None,                                  │ │
+│ │               │   ended_at=None,                                         │ │
+│ │               │   status=None,                                           │ │
+│ │               │   schema_version=1,                                      │ │
+│ │               │   importance_hint=None                                   │ │
+│ │               )                                                          │ │
+│ │     fetched = {                                                          │ │
+│ │               │                                                          │ │
+│ │               '2026-10-06T13:35:56.513263000Z/000000/132fa122-07b0-4c89… │ │
+│ │               (                                                          │ │
+│ │               │   │   Event(                                             │ │
+│ │               │   │   │                                                  │ │
+│ │               event_id=UUID('132fa122-07b0-4c89-99b7-102e02ea43a4'),     │ │
+│ │               │   │   │   event_type='observation.input',                │ │
+│ │               │   │   │   occurred_at=datetime.datetime(2026, 10, 6, 13, │ │
+│ │               35, 56, 374910, tzinfo=TzInfo(0)),                         │ │
+│ │               │   │   │   session_id='resume-permanent_once',            │ │
+│ │               │   │   │   agent_id='compat-resume',                      │ │
+│ │               │   │   │   trace_id='resume-permanent_once',              │ │
+│ │               │   │   │   payload_ref='compat:resume',                   │ │
+│ │               │   │   │                                                  │ │
+│ │               global_position='2026-10-06T13:35:56.513263000Z/000000/13… │ │
+│ │               │   │   │   tool_name=None,                                │ │
+│ │               │   │   │   parent_event_id=None,                          │ │
+│ │               │   │   │   ended_at=None,                                 │ │
+│ │               │   │   │   status=None,                                   │ │
+│ │               │   │   │   schema_version=1,                              │ │
+│ │               │   │   │   importance_hint=None                           │ │
+│ │               │   │   ),                                                 │ │
+│ │               │   │   {                                                  │ │
+│ │               │   │   │   'agent_id': 'compat-resume',                   │ │
+│ │               │   │   │   'ended_at': None,                              │ │
+│ │               │   │   │   'event_id':                                    │ │
+│ │               '132fa122-07b0-4c89-99b7-102e02ea43a4',                    │ │
+│ │               │   │   │   'event_type': 'observation.input',             │ │
+│ │               │   │   │   'global_position':                             │ │
+│ │               '2026-10-06T13:35:56.513263000Z/000000/132fa122-07b0-4c89… │ │
+│ │               │   │   │   'importance_hint': None,                       │ │
+│ │               │   │   │   'occurred_at': '2026-10-06T13:35:56.374910Z',  │ │
+│ │               │   │   │   'parent_event_id': None,                       │ │
+│ │               │   │   │   'payload': {                                   │ │
+│ │               │   │   │   │   'content': 'Spanner recovery evidence'     │ │
+│ │               │   │   │   },                                             │ │
+│ │               │   │   │   'payload_ref': 'compat:resume',                │ │
+│ │               │   │   │   ... +6                                         │ │
+│ │               │   │   }                                                  │ │
+│ │               │   )                                                      │ │
+│ │               }                                                          │ │
+│ │      loaded = (                                                          │ │
+│ │               │   Event(                                                 │ │
+│ │               │   │                                                      │ │
+│ │               event_id=UUID('132fa122-07b0-4c89-99b7-102e02ea43a4'),     │ │
+│ │               │   │   event_type='observation.input',                    │ │
+│ │               │   │   occurred_at=datetime.datetime(2026, 10, 6, 13, 35, │ │
+│ │               56, 374910, tzinfo=TzInfo(0)),                             │ │
+│ │               │   │   session_id='resume-permanent_once',                │ │
+│ │               │   │   agent_id='compat-resume',                          │ │
+│ │               │   │   trace_id='resume-permanent_once',                  │ │
+│ │               │   │   payload_ref='compat:resume',                       │ │
+│ │               │   │                                                      │ │
+│ │               global_position='2026-10-06T13:35:56.513263000Z/000000/13… │ │
+│ │               │   │   tool_name=None,                                    │ │
+│ │               │   │   parent_event_id=None,                              │ │
+│ │               │   │   ended_at=None,                                     │ │
+│ │               │   │   status=None,                                       │ │
+│ │               │   │   schema_version=1,                                  │ │
+│ │               │   │   importance_hint=None                               │ │
+│ │               │   ),                                                     │ │
+│ │               │   {                                                      │ │
+│ │               │   │   'agent_id': 'compat-resume',                       │ │
+│ │               │   │   'ended_at': None,                                  │ │
+│ │               │   │   'event_id':                                        │ │
+│ │               '132fa122-07b0-4c89-99b7-102e02ea43a4',                    │ │
+│ │               │   │   'event_type': 'observation.input',                 │ │
+│ │               │   │   'global_position':                                 │ │
+│ │               '2026-10-06T13:35:56.513263000Z/000000/132fa122-07b0-4c89… │ │
+│ │               │   │   'importance_hint': None,                           │ │
+│ │               │   │   'occurred_at': '2026-10-06T13:35:56.374910Z',      │ │
+│ │               │   │   'parent_event_id': None,                           │ │
+│ │               │   │   'payload': {                                       │ │
+│ │               │   │   │   'content': 'Spanner recovery evidence'         │ │
+│ │               │   │   },                                                 │ │
+│ │               │   │   'payload_ref': 'compat:resume',                    │ │
+│ │               │   │   ... +6                                             │ │
+│ │               │   }                                                      │ │
+│ │               )                                                          │ │
+│ │ pack_events = []                                                         │ │
+│ │  prev_event = None                                                       │ │
+│ │      result = ProjectionResult(                                          │ │
+│ │               │   node=EventNode(                                        │ │
+│ │               │   │   event_id='132fa122-07b0-4c89-99b7-102e02ea43a4',   │ │
+│ │               │   │   event_type='observation.input',                    │ │
+│ │               │   │   occurred_at=datetime.datetime(2026, 10, 6, 13, 35, │ │
+│ │               56, 374910, tzinfo=TzInfo(0)),                             │ │
+│ │               │   │   session_id='resume-permanent_once',                │ │
+│ │               │   │   agent_id='compat-resume',                          │ │
+│ │               │   │   trace_id='resume-permanent_once',                  │ │
+│ │               │   │   tool_name=None,                                    │ │
+│ │               │   │                                                      │ │
+│ │               global_position='2026-10-06T13:35:56.513263000Z/000000/13… │ │
+│ │               │   │   keywords=[],                                       │ │
+│ │               │   │   summary=None,                                      │ │
+│ │               │   │   embedding=[],                                      │ │
+│ │               │   │   importance_score=None,                             │ │
+│ │               │   │   access_count=0,                                    │ │
+│ │               │   │   last_accessed_at=None                              │ │
+│ │               │   ),                                                     │ │
+│ │               │   edges=[]                                               │ │
+│ │               )                                                          │ │
+│ │        self = <context_graph.worker.projection.ProjectionConsumer object │ │
+│ │               at 0x10e6e8500>                                            │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram/src/context_graph/worker/consumer.py:99 in  │
+│ _retry_transient                                                             │
+│                                                                              │
+│    96 │   │   delay_ms = self._transient_backoff_ms                          │
+│    97 │   │   while True:                                                    │
+│    98 │   │   │   try:                                                       │
+│ ❱  99 │   │   │   │   return await operation()                               │
+│   100 │   │   │   except TRANSIENT_ERRORS as exc:                            │
+│   101 │   │   │   │   if self._stopped:                                      │
+│   102 │   │   │   │   │   raise                                              │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │ delay_ms = 200                                                           │ │
+│ │     self = <context_graph.worker.projection.ProjectionConsumer object at │ │
+│ │            0x10e6e8500>                                                  │ │
+│ │     what = 'merge_event_nodes'                                           │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram/scripts/engram_spanner_process_bootstrap.py │
+│ :110 in controlled_graph                                                     │
+│                                                                              │
+│   107 │   │   │                                                              │
+│   108 │   │   │   async def controlled_graph(self, nodes):                   │
+│   109 │   │   │   │   if fault != "before_ack":                              │
+│ ❱ 110 │   │   │   │   │   await inject()                                     │
+│   111 │   │   │   │   return await graph_write(self, nodes)                  │
+│   112 │   │   │                                                              │
+│   113 │   │   │   async def controlled_ack(self, *positions):                │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │ fault = 'permanent_once'                                                 │ │
+│ │ nodes = [                                                                │ │
+│ │         │   EventNode(                                                   │ │
+│ │         │   │   event_id='132fa122-07b0-4c89-99b7-102e02ea43a4',         │ │
+│ │         │   │   event_type='observation.input',                          │ │
+│ │         │   │   occurred_at=datetime.datetime(2026, 10, 6, 13, 35, 56,   │ │
+│ │         374910, tzinfo=TzInfo(0)),                                       │ │
+│ │         │   │   session_id='resume-permanent_once',                      │ │
+│ │         │   │   agent_id='compat-resume',                                │ │
+│ │         │   │   trace_id='resume-permanent_once',                        │ │
+│ │         │   │   tool_name=None,                                          │ │
+│ │         │   │                                                            │ │
+│ │         global_position='2026-10-06T13:35:56.513263000Z/000000/132fa122… │ │
+│ │         │   │   keywords=[],                                             │ │
+│ │         │   │   summary=None,                                            │ │
+│ │         │   │   embedding=[],                                            │ │
+│ │         │   │   importance_score=None,                                   │ │
+│ │         │   │   access_count=0,                                          │ │
+│ │         │   │   last_accessed_at=None                                    │ │
+│ │         │   )                                                            │ │
+│ │         ]                                                                │ │
+│ │  self = <context_graph.adapters.spanner.graph.SpannerGraphStore object   │ │
+│ │         at 0x10e827200>                                                  │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram/scripts/engram_spanner_process_bootstrap.py │
+│ :106 in inject                                                               │
+│                                                                              │
+│   103 │   │   │   │   │   from context_graph.ports.errors import Unavailable │
+│   104 │   │   │   │   │   raise UnavailableError("controlled test-only trans │
+│       failure")                                                              │
+│   105 │   │   │   │   if fault == "permanent_once":                          │
+│ ❱ 106 │   │   │   │   │   raise ValueError("controlled test-only permanent w │
+│   107 │   │   │                                                              │
+│   108 │   │   │   async def controlled_graph(self, nodes):                   │
+│   109 │   │   │   │   if fault != "before_ack":                              │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │  fault = 'permanent_once'                                                │ │
+│ │  fired = True                                                            │ │
+│ │ marker = '/Users/arunmenon/projects/Engram/docs/review/spanner-compatib… │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+╰──────────────────────────────────────────────────────────────────────────────╯
+ValueError: controlled test-only permanent write failure
+
+2026-10-06 19:06:04 [info     ] shutdown_signal_received       consumer=projection
+2026-10-06 19:06:04 [info     ] consumer_stopped               consumer=fault-permanent_once group=graph-projection
+2026-10-06 19:06:04 [info     ] worker_shutting_down           consumer=projection
+2026-10-06 19:06:04 [info     ] worker_stopped                 consumer=projection
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

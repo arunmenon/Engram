@@ -22,12 +22,32 @@ from context_graph.metrics import (
     HTTP_REQUESTS_TOTAL,
     RATE_LIMIT_EXCEEDED,
 )
+from context_graph.ports.errors import TRANSIENT_ERRORS
 from context_graph.settings import Settings
 
 if TYPE_CHECKING:
     from fastapi import FastAPI, Request, Response
 
 logger = structlog.get_logger(__name__)
+
+
+async def _storage_unavailable_handler(request: Request, exc: Exception) -> ORJSONResponse:
+    """A failed dependency may have committed; retries must preserve event IDs."""
+    logger.warning(
+        "storage_temporarily_unavailable", path=request.url.path, error_type=type(exc).__name__
+    )
+    content = {"detail": "Storage temporarily unavailable"}
+    if request.method == "POST" and request.url.path in (
+        "/v1/events",
+        "/v1/events/batch",
+        "/v1/events/import",
+    ):
+        content["ingestion_retry"] = "Preserve original event IDs; prior writes may have committed"
+    return ORJSONResponse(
+        status_code=503,
+        content=content,
+        headers={"Retry-After": "1"},
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -107,7 +127,12 @@ class RequestTimingMiddleware(BaseHTTPMiddleware):
         # Record Prometheus metrics — use route template to avoid high-cardinality
         method = request.method
         route = request.scope.get("route")
-        path = route.path if route else request.url.path
+        # Newer FastAPI includes routers without copying their route objects.
+        # Its selected context carries the full template, including prefixes.
+        effective_route = request.scope.get("fastapi", {}).get("effective_route_context")
+        path = getattr(effective_route, "path_format", None) or (
+            route.path if route else request.url.path
+        )
         status = str(response.status_code)
         HTTP_REQUESTS_TOTAL.labels(method=method, endpoint=path, status=status).inc()
         HTTP_REQUEST_DURATION.labels(method=method, endpoint=path).observe(elapsed_seconds)
@@ -179,6 +204,8 @@ def register_middleware(app: FastAPI, settings: Settings | None = None) -> None:
     if settings is None:
         settings = Settings()
     app.add_exception_handler(ValidationError, _validation_error_handler)  # type: ignore[arg-type]
+    for error_type in TRANSIENT_ERRORS:
+        app.add_exception_handler(error_type, _storage_unavailable_handler)
     app.add_exception_handler(Exception, _generic_error_handler)
     app.add_middleware(RequestIDMiddleware)
     app.add_middleware(RequestTimingMiddleware)

@@ -1,0 +1,289 @@
+{
+  "checks": [
+    {
+      "name": "process_recovery_before_graph",
+      "scenarios": [
+        "SUB-02",
+        "SUB-03",
+        "OPS-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "fault": "before_graph",
+        "synthetic_boundary": true,
+        "counts": {
+          "nodes": {
+            "Event": 1,
+            "OntologyState": 1
+          },
+          "edges": []
+        },
+        "lineage": {
+          "nodes": {},
+          "edges": [],
+          "pagination": {
+            "cursor": null,
+            "has_more": false
+          },
+          "meta": {
+            "query_ms": 482,
+            "nodes_returned": 0,
+            "truncated": false,
+            "inferred_intents": {},
+            "intent_override": null,
+            "seed_nodes": [],
+            "seed_strategy": null,
+            "proactive_nodes_count": 0,
+            "scoring_weights": {
+              "recency": 1.0,
+              "importance": 1.0,
+              "relevance": 1.0
+            },
+            "retrieval_channels": {},
+            "capacity": {
+              "max_nodes": 100,
+              "used_nodes": 0,
+              "max_depth": 3
+            },
+            "eval_pending": []
+          }
+        },
+        "dead_letters": []
+      },
+      "seconds": 6.07
+    },
+    {
+      "name": "process_recovery_before_ack",
+      "scenarios": [
+        "SUB-02",
+        "SUB-03",
+        "OPS-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "fault": "before_ack",
+        "synthetic_boundary": true,
+        "counts": {
+          "nodes": {
+            "Event": 1,
+            "OntologyState": 1
+          },
+          "edges": []
+        },
+        "lineage": {
+          "nodes": {},
+          "edges": [],
+          "pagination": {
+            "cursor": null,
+            "has_more": false
+          },
+          "meta": {
+            "query_ms": 117,
+            "nodes_returned": 0,
+            "truncated": false,
+            "inferred_intents": {},
+            "intent_override": null,
+            "seed_nodes": [],
+            "seed_strategy": null,
+            "proactive_nodes_count": 0,
+            "scoring_weights": {
+              "recency": 1.0,
+              "importance": 1.0,
+              "relevance": 1.0
+            },
+            "retrieval_channels": {},
+            "capacity": {
+              "max_nodes": 100,
+              "used_nodes": 0,
+              "max_depth": 3
+            },
+            "eval_pending": []
+          }
+        },
+        "dead_letters": []
+      },
+      "seconds": 4.74
+    },
+    {
+      "name": "process_recovery_transient_once",
+      "scenarios": [
+        "SUB-02",
+        "SUB-03",
+        "OPS-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "fault": "transient_once",
+        "synthetic_boundary": true,
+        "counts": {
+          "nodes": {
+            "Event": 1,
+            "OntologyState": 1
+          },
+          "edges": []
+        },
+        "lineage": {
+          "nodes": {},
+          "edges": [],
+          "pagination": {
+            "cursor": null,
+            "has_more": false
+          },
+          "meta": {
+            "query_ms": 291,
+            "nodes_returned": 0,
+            "truncated": false,
+            "inferred_intents": {},
+            "intent_override": null,
+            "seed_nodes": [],
+            "seed_strategy": null,
+            "proactive_nodes_count": 0,
+            "scoring_weights": {
+              "recency": 1.0,
+              "importance": 1.0,
+              "relevance": 1.0
+            },
+            "retrieval_channels": {},
+            "capacity": {
+              "max_nodes": 100,
+              "used_nodes": 0,
+              "max_depth": 3
+            },
+            "eval_pending": []
+          }
+        },
+        "dead_letters": []
+      },
+      "seconds": 0.99
+    },
+    {
+      "name": "process_recovery_permanent_once",
+      "scenarios": [
+        "SUB-02",
+        "SUB-03",
+        "OPS-03"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "removed one-shot non-transient failure remains pending until restart",
+      "seconds": 4.49
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 53
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 39
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 19
+    },
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 2
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 1
+    },
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 2
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 1
+    },
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 2
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 1
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

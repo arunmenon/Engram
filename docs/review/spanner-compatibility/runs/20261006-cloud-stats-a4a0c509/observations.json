@@ -1,0 +1,18 @@
+{
+  "checks": [
+    {
+      "name": "admin_stats_count_pack_types",
+      "scenarios": [
+        "OPS-01"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "admin stats omit or miscount ontology labelWorkItem",
+      "seconds": 1.22
+    }
+  ],
+  "resets": [],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

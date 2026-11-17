@@ -1,0 +1,168 @@
+{
+  "format_version": 1,
+  "id": "pdlc-number-precision",
+  "title": "Words do not widen an explicit change reference",
+  "story": "Words do not widen an explicit change reference. Run the saved questions against this isolated example graph. Expected answers are preserved from the existing tests. This verifies retrieval, not ingestion or extraction.",
+  "source_refs": [
+    "tests/unit/test_pdlc_retrieval_eval.py::TestSeedPrecision.test_a_number_reference_is_not_widened_by_words"
+  ],
+  "pack_digest": "aa882fa31a865c3a6b2ffa1abc8d7ef7d609d244a50a2aa83100e99ea341d4cb",
+  "starting_state": {
+    "kind": "graph_fixture",
+    "nodes": [
+      {
+        "id": "eeee0937-6633-5ab8-860d-6227b9c0457f",
+        "type": "Event",
+        "properties": {
+          "event_id": "eeee0937-6633-5ab8-860d-6227b9c0457f",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-09-02T09:00:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "999-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Change:acme/lib|1",
+        "type": "Change",
+        "properties": {
+          "node_id": "Change:acme/lib|1",
+          "status": "merged",
+          "status_changed_at": "2026-09-02T09:00:00+00:00",
+          "repo": "acme/lib",
+          "number": 1,
+          "merge_sha": "s1",
+          "title": "feat: add retries",
+          "node_type": "Change",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-02T09:00:00+00:00"
+        }
+      },
+      {
+        "id": "e5481f8e-3531-5303-aa93-06774dec7e88",
+        "type": "Event",
+        "properties": {
+          "event_id": "e5481f8e-3531-5303-aa93-06774dec7e88",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-09-02T09:00:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "999-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Change:acme/lib|2",
+        "type": "Change",
+        "properties": {
+          "node_id": "Change:acme/lib|2",
+          "status": "merged",
+          "status_changed_at": "2026-09-02T09:00:00+00:00",
+          "repo": "acme/lib",
+          "number": 2,
+          "merge_sha": "s2",
+          "title": "Revert retries",
+          "node_type": "Change",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-02T09:00:00+00:00"
+        }
+      },
+      {
+        "id": "cdef4103-977c-5fb5-89e1-2dbbb54a56df",
+        "type": "Event",
+        "properties": {
+          "event_id": "cdef4103-977c-5fb5-89e1-2dbbb54a56df",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-09-02T09:00:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "999-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Change:acme/lib|3",
+        "type": "Change",
+        "properties": {
+          "node_id": "Change:acme/lib|3",
+          "status": "merged",
+          "status_changed_at": "2026-09-02T09:00:00+00:00",
+          "repo": "acme/lib",
+          "number": 3,
+          "merge_sha": "s3",
+          "title": "add docs",
+          "node_type": "Change",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-02T09:00:00+00:00"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "Change:acme/lib|1",
+        "target": "eeee0937-6633-5ab8-860d-6227b9c0457f",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Change:acme/lib|2",
+        "target": "e5481f8e-3531-5303-aa93-06774dec7e88",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Change:acme/lib|3",
+        "target": "cdef4103-977c-5fb5-89e1-2dbbb54a56df",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      }
+    ],
+    "retrieval_limits": {
+      "default_max_depth": 3,
+      "seed_limit": 10,
+      "neighbor_limit": 200
+    }
+  },
+  "events": [],
+  "checks": [
+    {
+      "id": "query-1",
+      "description": "Which change reverted #1?",
+      "source": "tests/unit/test_pdlc_retrieval_eval.py::TestSeedPrecision.test_a_number_reference_is_not_widened_by_words",
+      "kind": "retrieval",
+      "after_step": null,
+      "expected": {
+        "text": "Which change reverted #1?",
+        "seed": "",
+        "intent": null,
+        "required": [],
+        "forbidden": [],
+        "query_options": {
+          "max_nodes": 100,
+          "max_depth": null,
+          "include_untrusted": false
+        },
+        "metadata": {
+          "seed_nodes": [
+            "Change:acme/lib|1"
+          ]
+        }
+      }
+    }
+  ],
+  "trusted_producers": [
+    "webhook:github",
+    "webhook:jira"
+  ],
+  "expectations_reviewed": true
+}

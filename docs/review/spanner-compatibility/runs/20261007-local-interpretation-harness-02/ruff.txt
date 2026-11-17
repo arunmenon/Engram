@@ -1,0 +1,12 @@
+E501 Line too long (102 > 100)
+  --> scripts/engram_spanner_interpretation_cases.py:48:101
+   |
+46 | async def verify_interpretation(database, values, run_id, evidence, checks, fingerprint, persist):
+47 |     try:
+48 |         await await_settled(_verify(database, values, run_id, evidence, checks, fingerprint, persist))
+   |                                                                                                     ^^
+49 |     except asyncio.CancelledError:
+50 |         checks.append(
+   |
+
+Found 1 error.

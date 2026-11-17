@@ -19,7 +19,7 @@ import structlog
 from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import ORJSONResponse
 
-from context_graph.api.dependencies import get_user_store
+from context_graph.api.dependencies import get_user_privacy_store, get_user_store
 from context_graph.ports.user_store import UserStore  # noqa: TCH001 — runtime: Depends
 
 logger = structlog.get_logger(__name__)
@@ -27,6 +27,7 @@ logger = structlog.get_logger(__name__)
 router = APIRouter(prefix="/users", tags=["users"])
 
 UserStoreDep = Annotated[UserStore, Depends(get_user_store)]
+UserPrivacyStoreDep = Annotated[UserStore, Depends(get_user_privacy_store)]
 
 
 @router.get("/{user_id}/profile")
@@ -87,7 +88,7 @@ async def get_user_interests(
 @router.get("/{user_id}/data-export")
 async def export_user_data(
     user_id: str,
-    user_store: UserStoreDep,
+    user_store: UserPrivacyStoreDep,
 ) -> ORJSONResponse:
     """GDPR data export -- return all stored data for a user."""
     data = await user_store.export_user_data(user_id)
@@ -98,7 +99,7 @@ async def export_user_data(
 @router.delete("/{user_id}")
 async def delete_user(
     user_id: str,
-    user_store: UserStoreDep,
+    user_store: UserPrivacyStoreDep,
 ) -> ORJSONResponse:
     """GDPR cascade erasure -- delete all data associated with a user."""
     deleted_count = await user_store.delete_user_data(user_id)

@@ -1,0 +1,350 @@
+FFFFFF.......F.......................................................... [ 75%]
+........................                                                 [100%]
+=================================== FAILURES ===================================
+______ test_actual_pack_missing_preserves_and_null_clears_with_other_sets ______
+
+    @pytest.mark.asyncio
+    async def test_actual_pack_missing_preserves_and_null_clears_with_other_sets():
+        graph = MemoryGraphStore()
+        identity = {"facility": "west", "sample_id": "S-7"}
+        ref = NodeRef("Sample", "Sample:west|S-7")
+        await apply_plan(
+>           graph, plan({**identity, "description": "old", "reading": 1, "names": ["one", "two"]}), 100
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        )
+
+tests/unit/test_strict_pack_properties.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_strict_pack_properties.py:44: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_strict_pack_properties.py:35: in registry
+    return OntologyRegistry(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.domain.ontology.OntologyRegistry object at 0x10503eab0>
+packs = [Pack(pack=PackHeader(name='core', version='1.1.0', requires=[], owner='engram', description='Agent and tool events, e...ts={}, fallback_intent=None), lifecycle=LifecycleSection(decay={}, terminal_states_reduce_importance=[]), mappings={})]
+
+    def __init__(self, packs: list[Pack]) -> None:
+        names = [pack.name for pack in packs]
+        duplicates = sorted({name for name in names if names.count(name) > 1})
+        if duplicates:
+            raise OntologyError([f"pack {name!r} is loaded more than once" for name in duplicates])
+        # Canonical order: a pack after the packs it requires, ties by name; so
+        # rule order and merges never depend on the order packs were listed
+        self._packs: dict[str, Pack] = {pack.name: pack for pack in _canonical_order(packs)}
+        self.node_types: dict[str, NodeType] = {}
+        self.edge_types: dict[str, EdgeType] = {}
+        self.event_types: dict[str, EventTypeDecl] = {}
+        self.intents: dict[str, Intent] = {}
+        self.interfaces: dict[str, tuple[str, InterfaceDef]] = {}
+        self.projection_rules: dict[str, list[tuple[str, ProjectionRule]]] = {}
+        self.fallback_intent: str | None = None
+        self._closed_namespaces: frozenset[str] | None = None
+        problems: list[str] = []
+        self._compose(problems)
+        # Validate even after composition problems, so every problem is reported at once
+        self._validate(problems)
+        if problems:
+>           raise OntologyError(problems)
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - property_lab: event type 'property_lab.sample.updated' must be dot-namespaced lowercase
+E             - property_lab: event type 'property_lab.samples.updated' must be dot-namespaced lowercase
+E             - property_lab: event type 'property_lab.samples.linked' must be dot-namespaced lowercase
+
+src/context_graph/domain/ontology.py:688: OntologyError
+_______ test_gap_zip_preserves_original_indexes_and_whole_list_broadcast _______
+
+    @pytest.mark.asyncio
+    async def test_gap_zip_preserves_original_indexes_and_whole_list_broadcast():
+>       result = plan(
+            {
+                "facility": "west",
+                "ids": ["A", "", "C"],
+                "rows": [{"description": "first"}, {}, {"description": "third"}],
+                "names": ["one", "two", "three"],
+            },
+            "property_lab.samples.updated",
+        )
+
+tests/unit/test_strict_pack_properties.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_strict_pack_properties.py:44: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_strict_pack_properties.py:35: in registry
+    return OntologyRegistry(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.domain.ontology.OntologyRegistry object at 0x10500da60>
+packs = [Pack(pack=PackHeader(name='core', version='1.1.0', requires=[], owner='engram', description='Agent and tool events, e...ts={}, fallback_intent=None), lifecycle=LifecycleSection(decay={}, terminal_states_reduce_importance=[]), mappings={})]
+
+    def __init__(self, packs: list[Pack]) -> None:
+        names = [pack.name for pack in packs]
+        duplicates = sorted({name for name in names if names.count(name) > 1})
+        if duplicates:
+            raise OntologyError([f"pack {name!r} is loaded more than once" for name in duplicates])
+        # Canonical order: a pack after the packs it requires, ties by name; so
+        # rule order and merges never depend on the order packs were listed
+        self._packs: dict[str, Pack] = {pack.name: pack for pack in _canonical_order(packs)}
+        self.node_types: dict[str, NodeType] = {}
+        self.edge_types: dict[str, EdgeType] = {}
+        self.event_types: dict[str, EventTypeDecl] = {}
+        self.intents: dict[str, Intent] = {}
+        self.interfaces: dict[str, tuple[str, InterfaceDef]] = {}
+        self.projection_rules: dict[str, list[tuple[str, ProjectionRule]]] = {}
+        self.fallback_intent: str | None = None
+        self._closed_namespaces: frozenset[str] | None = None
+        problems: list[str] = []
+        self._compose(problems)
+        # Validate even after composition problems, so every problem is reported at once
+        self._validate(problems)
+        if problems:
+>           raise OntologyError(problems)
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - property_lab: event type 'property_lab.sample.updated' must be dot-namespaced lowercase
+E             - property_lab: event type 'property_lab.samples.updated' must be dot-namespaced lowercase
+E             - property_lab: event type 'property_lab.samples.linked' must be dot-namespaced lowercase
+
+src/context_graph/domain/ontology.py:688: OntologyError
+__________ test_edge_explicit_clear_survives_planning_and_application __________
+
+    @pytest.mark.asyncio
+    async def test_edge_explicit_clear_survives_planning_and_application():
+        graph = MemoryGraphStore()
+        payload = {"facility": "west", "from_id": "A", "to_id": "B", "label": "old"}
+        kind = "property_lab.samples.linked"
+>       await apply_plan(graph, plan(payload, kind), 100)
+                                ^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_strict_pack_properties.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_strict_pack_properties.py:44: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_strict_pack_properties.py:35: in registry
+    return OntologyRegistry(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.domain.ontology.OntologyRegistry object at 0x1050aaa20>
+packs = [Pack(pack=PackHeader(name='core', version='1.1.0', requires=[], owner='engram', description='Agent and tool events, e...ts={}, fallback_intent=None), lifecycle=LifecycleSection(decay={}, terminal_states_reduce_importance=[]), mappings={})]
+
+    def __init__(self, packs: list[Pack]) -> None:
+        names = [pack.name for pack in packs]
+        duplicates = sorted({name for name in names if names.count(name) > 1})
+        if duplicates:
+            raise OntologyError([f"pack {name!r} is loaded more than once" for name in duplicates])
+        # Canonical order: a pack after the packs it requires, ties by name; so
+        # rule order and merges never depend on the order packs were listed
+        self._packs: dict[str, Pack] = {pack.name: pack for pack in _canonical_order(packs)}
+        self.node_types: dict[str, NodeType] = {}
+        self.edge_types: dict[str, EdgeType] = {}
+        self.event_types: dict[str, EventTypeDecl] = {}
+        self.intents: dict[str, Intent] = {}
+        self.interfaces: dict[str, tuple[str, InterfaceDef]] = {}
+        self.projection_rules: dict[str, list[tuple[str, ProjectionRule]]] = {}
+        self.fallback_intent: str | None = None
+        self._closed_namespaces: frozenset[str] | None = None
+        problems: list[str] = []
+        self._compose(problems)
+        # Validate even after composition problems, so every problem is reported at once
+        self._validate(problems)
+        if problems:
+>           raise OntologyError(problems)
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - property_lab: event type 'property_lab.sample.updated' must be dot-namespaced lowercase
+E             - property_lab: event type 'property_lab.samples.updated' must be dot-namespaced lowercase
+E             - property_lab: event type 'property_lab.samples.linked' must be dot-namespaced lowercase
+
+src/context_graph/domain/ontology.py:688: OntologyError
+_ test_runtime_invalid_values_refuse_instead_of_silent_coercion[payload0-invalid_value] _
+
+payload = {'reading': 'SECRET-invalid'}, reason = 'invalid_value'
+
+    @pytest.mark.parametrize(
+        "payload,reason",
+        [
+            ({"reading": "SECRET-invalid"}, "invalid_value"),
+            ({"names": ["one", None]}, "invalid_value"),
+            ({"description": {"accident": "object"}}, "invalid_value"),
+        ],
+    )
+    def test_runtime_invalid_values_refuse_instead_of_silent_coercion(payload, reason):
+        with pytest.raises(PropertyUpdateError) as error:
+>           plan({"facility": "west", "sample_id": "A", **payload})
+
+tests/unit/test_strict_pack_properties.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_strict_pack_properties.py:44: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_strict_pack_properties.py:35: in registry
+    return OntologyRegistry(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.domain.ontology.OntologyRegistry object at 0x105099070>
+packs = [Pack(pack=PackHeader(name='core', version='1.1.0', requires=[], owner='engram', description='Agent and tool events, e...ts={}, fallback_intent=None), lifecycle=LifecycleSection(decay={}, terminal_states_reduce_importance=[]), mappings={})]
+
+    def __init__(self, packs: list[Pack]) -> None:
+        names = [pack.name for pack in packs]
+        duplicates = sorted({name for name in names if names.count(name) > 1})
+        if duplicates:
+            raise OntologyError([f"pack {name!r} is loaded more than once" for name in duplicates])
+        # Canonical order: a pack after the packs it requires, ties by name; so
+        # rule order and merges never depend on the order packs were listed
+        self._packs: dict[str, Pack] = {pack.name: pack for pack in _canonical_order(packs)}
+        self.node_types: dict[str, NodeType] = {}
+        self.edge_types: dict[str, EdgeType] = {}
+        self.event_types: dict[str, EventTypeDecl] = {}
+        self.intents: dict[str, Intent] = {}
+        self.interfaces: dict[str, tuple[str, InterfaceDef]] = {}
+        self.projection_rules: dict[str, list[tuple[str, ProjectionRule]]] = {}
+        self.fallback_intent: str | None = None
+        self._closed_namespaces: frozenset[str] | None = None
+        problems: list[str] = []
+        self._compose(problems)
+        # Validate even after composition problems, so every problem is reported at once
+        self._validate(problems)
+        if problems:
+>           raise OntologyError(problems)
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - property_lab: event type 'property_lab.sample.updated' must be dot-namespaced lowercase
+E             - property_lab: event type 'property_lab.samples.updated' must be dot-namespaced lowercase
+E             - property_lab: event type 'property_lab.samples.linked' must be dot-namespaced lowercase
+
+src/context_graph/domain/ontology.py:688: OntologyError
+_ test_runtime_invalid_values_refuse_instead_of_silent_coercion[payload1-invalid_value] _
+
+payload = {'names': ['one', None]}, reason = 'invalid_value'
+
+    @pytest.mark.parametrize(
+        "payload,reason",
+        [
+            ({"reading": "SECRET-invalid"}, "invalid_value"),
+            ({"names": ["one", None]}, "invalid_value"),
+            ({"description": {"accident": "object"}}, "invalid_value"),
+        ],
+    )
+    def test_runtime_invalid_values_refuse_instead_of_silent_coercion(payload, reason):
+        with pytest.raises(PropertyUpdateError) as error:
+>           plan({"facility": "west", "sample_id": "A", **payload})
+
+tests/unit/test_strict_pack_properties.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_strict_pack_properties.py:44: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_strict_pack_properties.py:35: in registry
+    return OntologyRegistry(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.domain.ontology.OntologyRegistry object at 0x1053b18e0>
+packs = [Pack(pack=PackHeader(name='core', version='1.1.0', requires=[], owner='engram', description='Agent and tool events, e...ts={}, fallback_intent=None), lifecycle=LifecycleSection(decay={}, terminal_states_reduce_importance=[]), mappings={})]
+
+    def __init__(self, packs: list[Pack]) -> None:
+        names = [pack.name for pack in packs]
+        duplicates = sorted({name for name in names if names.count(name) > 1})
+        if duplicates:
+            raise OntologyError([f"pack {name!r} is loaded more than once" for name in duplicates])
+        # Canonical order: a pack after the packs it requires, ties by name; so
+        # rule order and merges never depend on the order packs were listed
+        self._packs: dict[str, Pack] = {pack.name: pack for pack in _canonical_order(packs)}
+        self.node_types: dict[str, NodeType] = {}
+        self.edge_types: dict[str, EdgeType] = {}
+        self.event_types: dict[str, EventTypeDecl] = {}
+        self.intents: dict[str, Intent] = {}
+        self.interfaces: dict[str, tuple[str, InterfaceDef]] = {}
+        self.projection_rules: dict[str, list[tuple[str, ProjectionRule]]] = {}
+        self.fallback_intent: str | None = None
+        self._closed_namespaces: frozenset[str] | None = None
+        problems: list[str] = []
+        self._compose(problems)
+        # Validate even after composition problems, so every problem is reported at once
+        self._validate(problems)
+        if problems:
+>           raise OntologyError(problems)
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - property_lab: event type 'property_lab.sample.updated' must be dot-namespaced lowercase
+E             - property_lab: event type 'property_lab.samples.updated' must be dot-namespaced lowercase
+E             - property_lab: event type 'property_lab.samples.linked' must be dot-namespaced lowercase
+
+src/context_graph/domain/ontology.py:688: OntologyError
+_ test_runtime_invalid_values_refuse_instead_of_silent_coercion[payload2-invalid_value] _
+
+payload = {'description': {'accident': 'object'}}, reason = 'invalid_value'
+
+    @pytest.mark.parametrize(
+        "payload,reason",
+        [
+            ({"reading": "SECRET-invalid"}, "invalid_value"),
+            ({"names": ["one", None]}, "invalid_value"),
+            ({"description": {"accident": "object"}}, "invalid_value"),
+        ],
+    )
+    def test_runtime_invalid_values_refuse_instead_of_silent_coercion(payload, reason):
+        with pytest.raises(PropertyUpdateError) as error:
+>           plan({"facility": "west", "sample_id": "A", **payload})
+
+tests/unit/test_strict_pack_properties.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_strict_pack_properties.py:44: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_strict_pack_properties.py:35: in registry
+    return OntologyRegistry(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.domain.ontology.OntologyRegistry object at 0x10531b980>
+packs = [Pack(pack=PackHeader(name='core', version='1.1.0', requires=[], owner='engram', description='Agent and tool events, e...ts={}, fallback_intent=None), lifecycle=LifecycleSection(decay={}, terminal_states_reduce_importance=[]), mappings={})]
+
+    def __init__(self, packs: list[Pack]) -> None:
+        names = [pack.name for pack in packs]
+        duplicates = sorted({name for name in names if names.count(name) > 1})
+        if duplicates:
+            raise OntologyError([f"pack {name!r} is loaded more than once" for name in duplicates])
+        # Canonical order: a pack after the packs it requires, ties by name; so
+        # rule order and merges never depend on the order packs were listed
+        self._packs: dict[str, Pack] = {pack.name: pack for pack in _canonical_order(packs)}
+        self.node_types: dict[str, NodeType] = {}
+        self.edge_types: dict[str, EdgeType] = {}
+        self.event_types: dict[str, EventTypeDecl] = {}
+        self.intents: dict[str, Intent] = {}
+        self.interfaces: dict[str, tuple[str, InterfaceDef]] = {}
+        self.projection_rules: dict[str, list[tuple[str, ProjectionRule]]] = {}
+        self.fallback_intent: str | None = None
+        self._closed_namespaces: frozenset[str] | None = None
+        problems: list[str] = []
+        self._compose(problems)
+        # Validate even after composition problems, so every problem is reported at once
+        self._validate(problems)
+        if problems:
+>           raise OntologyError(problems)
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - property_lab: event type 'property_lab.sample.updated' must be dot-namespaced lowercase
+E             - property_lab: event type 'property_lab.samples.updated' must be dot-namespaced lowercase
+E             - property_lab: event type 'property_lab.samples.linked' must be dot-namespaced lowercase
+
+src/context_graph/domain/ontology.py:688: OntologyError
+____________ test_missing_capability_or_unavailable_engine_refuses _____________
+
+    def test_missing_capability_or_unavailable_engine_refuses():
+        data = raw()
+        data["processing"]["requires"] = []
+        with pytest.raises(OntologyError, match="pack.properties.v1"):
+            registry(data)
+>       with pytest.raises(OntologyError, match="unsupported"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unsupported'
+E         Actual message: "Invalid ontology:\n  - property_lab: event type 'property_lab.sample.updated' must be dot-namespaced lowercase\n  - property_lab: event type 'property_lab.samples.updated' must be dot-namespaced lowercase\n  - property_lab: event type 'property_lab.samples.linked' must be dot-namespaced lowercase"
+
+tests/unit/test_strict_pack_properties.py:155: AssertionError
+=========================== short test summary info ============================
+FAILED tests/unit/test_strict_pack_properties.py::test_actual_pack_missing_preserves_and_null_clears_with_other_sets
+FAILED tests/unit/test_strict_pack_properties.py::test_gap_zip_preserves_original_indexes_and_whole_list_broadcast
+FAILED tests/unit/test_strict_pack_properties.py::test_edge_explicit_clear_survives_planning_and_application
+FAILED tests/unit/test_strict_pack_properties.py::test_runtime_invalid_values_refuse_instead_of_silent_coercion[payload0-invalid_value]
+FAILED tests/unit/test_strict_pack_properties.py::test_runtime_invalid_values_refuse_instead_of_silent_coercion[payload1-invalid_value]
+FAILED tests/unit/test_strict_pack_properties.py::test_runtime_invalid_values_refuse_instead_of_silent_coercion[payload2-invalid_value]
+FAILED tests/unit/test_strict_pack_properties.py::test_missing_capability_or_unavailable_engine_refuses
+7 failed, 89 passed in 1.77s

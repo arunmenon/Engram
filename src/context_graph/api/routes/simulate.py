@@ -61,8 +61,10 @@ class TurnResult(BaseModel):
     tokens_used: int
 
 
-@router.post("/turn")
-async def simulate_turn(body: SimulateTurnRequest, request: Request):
+@router.post("/turn", response_model=None)
+async def simulate_turn(
+    body: SimulateTurnRequest, request: Request
+) -> EventSourceResponse | TurnResult | JSONResponse:
     """Generate a single conversation turn via LLM.
 
     Streams SSE tokens when stream=True, returns JSON otherwise.
@@ -136,9 +138,9 @@ async def simulate_turn(body: SimulateTurnRequest, request: Request):
         )
 
 
-def _build_messages(body: SimulateTurnRequest) -> list[dict]:
+def _build_messages(body: SimulateTurnRequest) -> list[dict[str, str]]:
     """Build the LLM message array from persona + history."""
-    messages: list[dict] = [{"role": "system", "content": body.persona.system_prompt}]
+    messages: list[dict[str, str]] = [{"role": "system", "content": body.persona.system_prompt}]
 
     # Add session context as a system message on first turn
     if body.session_context and not body.conversation_history:
@@ -164,12 +166,12 @@ def _build_messages(body: SimulateTurnRequest) -> list[dict]:
 
 
 async def _stream_response(
-    messages: list[dict],
+    messages: list[dict[str, str]],
     model_id: str,
     temperature: float,
     max_tokens: int,
     turn_id: str,
-) -> AsyncGenerator[dict, None]:
+) -> AsyncGenerator[dict[str, str], None]:
     """Stream LLM response as SSE events."""
     full_content = ""
     token_index = 0

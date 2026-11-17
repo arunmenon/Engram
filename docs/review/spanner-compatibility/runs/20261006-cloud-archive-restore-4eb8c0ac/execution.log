@@ -1,0 +1,179 @@
+2026-10-06 19:42:33 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 19:42:33 [info     ] llm_client_initialized
+2026-10-06 19:42:33 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 19:42:33 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 19:42:33 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:42:33 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 19:42:33 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 19:42:33 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:42:33 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 19:42:33 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 19:42:33 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 19:42:33 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 19:42:33 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 19:42:33 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 19:42:33 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 19:42:33 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 19:42:35 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 19:42:35 [info     ] event_ingested                 event_id=9ef2b0a9-ef83-4c9c-91d9-6037fc756acb event_type=observation.input global_position=2026-10-06T14:12:35.890079000Z/000000/9ef2b0a9-ef83-4c9c-91d9-6037fc756acb request_id=cdc6c9b2-f543-4021-8155-c6e4b790b6b1 status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 19:42:36 [info     ] event_ingested                 event_id=266d5c84-dfbf-4a63-8355-4526caf8e0fa event_type=observation.input global_position=2026-10-06T14:12:36.133391000Z/000000/266d5c84-dfbf-4a63-8355-4526caf8e0fa request_id=128487cb-90cd-43b3-826c-bcb1526e440c status=created
+2026-10-06 19:42:36 [info     ] consumer_started               consumer=archive-projection group=graph-projection stream=Events
+2026-10-06 19:42:37 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:42:37 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T14:12:35.890079000Z/000000/9ef2b0a9-ef83-4c9c-91d9-6037fc756acb event_id=9ef2b0a9-ef83-4c9c-91d9-6037fc756acb session_id=archive-old
+2026-10-06 19:42:38 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T14:12:36.133391000Z/000000/266d5c84-dfbf-4a63-8355-4526caf8e0fa event_id=266d5c84-dfbf-4a63-8355-4526caf8e0fa session_id=archive-fresh
+2026-10-06 19:42:38 [info     ] consumer_stopped               consumer=archive-projection group=graph-projection
+2026-10-06 19:42:39 [error    ] archive_failed_skipping_delete event_count=1
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /Users/arunmenon/projects/Engram/src/context_graph/adapters/spanner/log.py:8 │
+│ 04 in expire                                                                 │
+│                                                                              │
+│   801 │   │   │   │   │   public["occurred_at_epoch_ms"] = occurred_ms       │
+│   802 │   │   │   │   │   documents.append(public)                           │
+│   803 │   │   │   │   try:                                                   │
+│ ❱ 804 │   │   │   │   │   await archive_store.archive_events(documents, part │
+│   805 │   │   │   │   except Exception:                                      │
+│   806 │   │   │   │   │   log.exception("archive_failed_skipping_delete",    │
+│       event_count=len(documents))                                            │
+│   807 │   │   │   │   │   break                                              │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │ archive_store = <context_graph.adapters.fs.archive.FilesystemArchiveSto… │ │
+│ │                 object at 0x15822a090>                                   │ │
+│ │      archived = 0                                                        │ │
+│ │         batch = 0                                                        │ │
+│ │     cutoff_ms = 1783519958979                                            │ │
+│ │       deleted = 0                                                        │ │
+│ │           doc = {'agent_id': 'compat-resume', 'ended_at': None,          │ │
+│ │                 'event_id': '9ef2b0a9-ef83-4c9c-91d9-6037fc756acb',      │ │
+│ │                 'event_type': 'observation.input', 'global_position':    │ │
+│ │                 None, 'importance_hint': 1, 'occurred_at':               │ │
+│ │                 '2026-06-28T14:12:35.652445Z', 'parent_event_id': None,  │ │
+│ │                 'payload': {'content': 'Restore archived payload',       │ │
+│ │                 'nested': {'weight': {'$float': '0.125'}}},              │ │
+│ │                 'payload_ref': 'compat:resume', 'schema_version': 1,     │ │
+│ │                 'search_text': 'Restore archived payload', 'session_id': │ │
+│ │                 'archive-old', 'status': None, 'tool_name': None,        │ │
+│ │                 'trace_id': 'archive-old'}                               │ │
+│ │     documents = [                                                        │ │
+│ │                 │   {                                                    │ │
+│ │                 │   │   'agent_id': 'compat-resume',                     │ │
+│ │                 │   │   'ended_at': None,                                │ │
+│ │                 │   │   'event_id':                                      │ │
+│ │                 '9ef2b0a9-ef83-4c9c-91d9-6037fc756acb',                  │ │
+│ │                 │   │   'event_type': 'observation.input',               │ │
+│ │                 │   │   'global_position':                               │ │
+│ │                 '2026-10-06T14:12:35.890079000Z/000000/9ef2b0a9-ef83-4c… │ │
+│ │                 │   │   'importance_hint': 1,                            │ │
+│ │                 │   │   'occurred_at': '2026-06-28T14:12:35.652445Z',    │ │
+│ │                 │   │   'parent_event_id': None,                         │ │
+│ │                 │   │   'payload': {                                     │ │
+│ │                 │   │   │   'content': 'Restore archived payload',       │ │
+│ │                 │   │   │   'nested': {'weight': 0.125}                  │ │
+│ │                 │   │   },                                               │ │
+│ │                 │   │   'payload_ref': 'compat:resume',                  │ │
+│ │                 │   │   ... +7                                           │ │
+│ │                 │   }                                                    │ │
+│ │                 ]                                                        │ │
+│ │           eid = '9ef2b0a9-ef83-4c9c-91d9-6037fc756acb'                   │ │
+│ │  max_age_days = 90                                                       │ │
+│ │   occurred_ms = 1782655955652                                            │ │
+│ │   param_types = <module 'google.cloud.spanner_v1.param_types' from       │ │
+│ │                 '/private/tmp/engram-ontology-review-venv/lib/python3.1… │ │
+│ │ partition_key = '2026/10/06'                                             │ │
+│ │        public = {                                                        │ │
+│ │                 │   'agent_id': 'compat-resume',                         │ │
+│ │                 │   'ended_at': None,                                    │ │
+│ │                 │   'event_id': '9ef2b0a9-ef83-4c9c-91d9-6037fc756acb',  │ │
+│ │                 │   'event_type': 'observation.input',                   │ │
+│ │                 │   'global_position':                                   │ │
+│ │                 '2026-10-06T14:12:35.890079000Z/000000/9ef2b0a9-ef83-4c… │ │
+│ │                 │   'importance_hint': 1,                                │ │
+│ │                 │   'occurred_at': '2026-06-28T14:12:35.652445Z',        │ │
+│ │                 │   'parent_event_id': None,                             │ │
+│ │                 │   'payload': {                                         │ │
+│ │                 │   │   'content': 'Restore archived payload',           │ │
+│ │                 │   │   'nested': {'weight': 0.125}                      │ │
+│ │                 │   },                                                   │ │
+│ │                 │   'payload_ref': 'compat:resume',                      │ │
+│ │                 │   ... +7                                               │ │
+│ │                 }                                                        │ │
+│ │          rows = [                                                        │ │
+│ │                 │   [                                                    │ │
+│ │                 │   │   {'agent_id': 'compat-resume', 'ended_at': None,  │ │
+│ │                 'event_id': '9ef2b0a9-ef83-4c9c-91d9-6037fc756acb',      │ │
+│ │                 'event_type': 'observation.input', 'global_position':    │ │
+│ │                 None, 'importance_hint': 1, 'occurred_at':               │ │
+│ │                 '2026-06-28T14:12:35.652445Z', 'parent_event_id': None,  │ │
+│ │                 'payload': {'content': 'Restore archived payload',       │ │
+│ │                 'nested': {'weight': {'$float': '0.125'}}},              │ │
+│ │                 'payload_ref': 'compat:resume', 'schema_version': 1,     │ │
+│ │                 'search_text': 'Restore archived payload', 'session_id': │ │
+│ │                 'archive-old', 'status': None, 'tool_name': None,        │ │
+│ │                 'trace_id': 'archive-old'},                              │ │
+│ │                 │   │   DatetimeWithNanoseconds(2026, 10, 6, 14, 12, 35, │ │
+│ │                 890079, tzinfo=datetime.timezone.utc),                   │ │
+│ │                 │   │   0,                                               │ │
+│ │                 │   │   '9ef2b0a9-ef83-4c9c-91d9-6037fc756acb',          │ │
+│ │                 │   │   1782655955652                                    │ │
+│ │                 │   ]                                                    │ │
+│ │                 ]                                                        │ │
+│ │          self = <context_graph.adapters.spanner.log.SpannerEventLog      │ │
+│ │                 object at 0x158564620>                                   │ │
+│ │            ts = DatetimeWithNanoseconds(2026, 10, 6, 14, 12, 35, 890079, │ │
+│ │                 tzinfo=datetime.timezone.utc)                            │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_pack_cases.py │
+│ :698 in fault                                                                │
+│                                                                              │
+│   695 │   │   await project()                                                │
+│   696 │   │   async def archive_failure():                                   │
+│   697 │   │   │   original=archive.archive_events                            │
+│ ❱ 698 │   │   │   async def fault(*a,**kw):raise OSError('synthetic archive  │
+│   699 │   │   │   archive.archive_events=fault                               │
+│   700 │   │   │   try:counts=await stores.event_log.expire(90,archive_store= │
+│   701 │   │   │   finally:archive.archive_events=original                    │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │  a = (                                                                   │ │
+│ │      │   [                                                               │ │
+│ │      │   │   {                                                           │ │
+│ │      │   │   │   'agent_id': 'compat-resume',                            │ │
+│ │      │   │   │   'ended_at': None,                                       │ │
+│ │      │   │   │   'event_id': '9ef2b0a9-ef83-4c9c-91d9-6037fc756acb',     │ │
+│ │      │   │   │   'event_type': 'observation.input',                      │ │
+│ │      │   │   │   'global_position':                                      │ │
+│ │      '2026-10-06T14:12:35.890079000Z/000000/9ef2b0a9-ef83-4c9c-91d9-603… │ │
+│ │      │   │   │   'importance_hint': 1,                                   │ │
+│ │      │   │   │   'occurred_at': '2026-06-28T14:12:35.652445Z',           │ │
+│ │      │   │   │   'parent_event_id': None,                                │ │
+│ │      │   │   │   'payload': {                                            │ │
+│ │      │   │   │   │   'content': 'Restore archived payload',              │ │
+│ │      │   │   │   │   'nested': {'weight': 0.125}                         │ │
+│ │      │   │   │   },                                                      │ │
+│ │      │   │   │   'payload_ref': 'compat:resume',                         │ │
+│ │      │   │   │   ... +7                                                  │ │
+│ │      │   │   }                                                           │ │
+│ │      │   ],                                                              │ │
+│ │      │   '2026/10/06'                                                    │ │
+│ │      )                                                                   │ │
+│ │ kw = {}                                                                  │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+╰──────────────────────────────────────────────────────────────────────────────╯
+OSError: synthetic archive write failure
+
+{"name": "archive_failure_preserves_Spanner_documents", "scenarios": ["LIFE-02"], "verdict": "passed", "observation": {"expired": [0, 0], "documents_preserved": true, "archives": [], "fault": "synthetic FS archive failure; real Spanner expiry path"}, "seconds": 0.35}
+2026-10-06 19:42:39 [info     ] archived_events                archive_id=2026/10/06/20261006141239-903d7845.jsonl.gz event_count=1 partition_key=2026/10/06
+2026-10-06 19:42:39 [info     ] restored_archive               archive_id=2026/10/06/20261006141239-903d7845.jsonl.gz event_count=1
+2026-10-06 19:42:41 [info     ] prune_complete                 dry_run=False pruned_edges=0 pruned_nodes=1 request_id=e5d03ed5-7ff1-4ed6-8997-e5a17abff38e tier=cold
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 19:42:42 [info     ] events_imported                created=1 duplicate=0 failed=0 order=occurred_at received=1 rejected=0 request_id=6e8255fd-2c41-4e60-9fe8-3f776d604ca8
+2026-10-06 19:42:42 [info     ] consumer_started               consumer=archive-projection group=graph-projection stream=Events
+2026-10-06 19:42:43 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:42:43 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T14:12:42.087375000Z/000000/9ef2b0a9-ef83-4c9c-91d9-6037fc756acb event_id=9ef2b0a9-ef83-4c9c-91d9-6037fc756acb session_id=archive-old
+2026-10-06 19:42:43 [info     ] consumer_stopped               consumer=archive-projection group=graph-projection
+{"name": "FS_archive_list_restore_admin_import_and_projection_recovery", "scenarios": ["LIFE-02", "LIFE-01", "ING-05"], "verdict": "passed", "observation": {"expiry": [1, 1], "archives": [{"archive_id": "2026/10/06/20261006141239-903d7845.jsonl.gz", "created_at": "2026-10-06T14:12:39.416709+00:00"}], "archive_documents": [{"agent_id": "compat-resume", "ended_at": null, "event_id": "9ef2b0a9-ef83-4c9c-91d9-6037fc756acb", "event_type": "observation.input", "global_position": "2026-10-06T14:12:35.890079000Z/000000/9ef2b0a9-ef83-4c9c-91d9-6037fc756acb", "importance_hint": 1, "occurred_at": "2026-06-28T14:12:35.652445Z", "parent_event_id": null, "payload": {"content": "Restore archived payload", "nested": {"weight": 0.125}}, "payload_ref": "compat:resume", "schema_version": 1, "search_text": "Restore archived payload", "session_id": "archive-old", "status": null, "tool_name": null, "trace_id": "archive-old", "occurred_at_epoch_ms": 1782655955652}], "expired_old_document": null, "fresh_kept": true, "trimmed": 0, "housekeeping": {"dedup_entries_removed": 1, "session_streams_deleted": 0}, "prune": {"pruned_edges": 0, "pruned_nodes": 1, "dry_run": false, "details": [{"action": "delete_cold_events", "event_ids": ["9ef2b0a9-ef83-4c9c-91d9-6037fc756acb"]}], "truncated": false}, "import_response": "{\"index\":0,\"event_id\":\"9ef2b0a9-ef83-4c9c-91d9-6037fc756acb\",\"status\":\"created\",\"global_position\":\"2026-10-06T14:12:42.087375000Z/000000/9ef2b0a9-ef83-4c9c-91d9-6037fc756acb\"}\n{\"summary\":{\"received\":1,\"order\":\"occurred_at\",\"created\":1,\"duplicate\":0,\"rejected\":0,\"failed\":0}}\n", "restored_payload": {"content": "Restore archived payload", "nested": {"weight": 0.125}}, "restored_graph_event": true, "scope": "FS archive recovery via supported ArchiveStore and admin import, then actual projection; no configured GCS target"}, "seconds": 4.8}
+2026-10-06 19:42:44 [info     ] app_stopped

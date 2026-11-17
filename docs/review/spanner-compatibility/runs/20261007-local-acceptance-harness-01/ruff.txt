@@ -1,0 +1,57 @@
+E501 Line too long (115 > 100)
+  --> scripts/engram_spanner_acceptance_cases.py:74:101
+   |
+72 |         "event_ids": list(map(str, ids)),
+73 |         "max_events": 2,
+74 |         "retention_scope": "Initially empty target, two owned events only; expire/housekeep may affect only these",
+   |                                                                                                     ^^^^^^^^^^^^^^^
+75 |         "producer": context.source_id,
+76 |         "current_epoch": binding.epoch,
+   |
+
+E501 Line too long (113 > 100)
+  --> scripts/engram_spanner_acceptance_cases.py:93:101
+   |
+91 |     async def cell(store, event_id):
+92 |         rows = await store._query(
+93 |             "SELECT acceptance, document, commit_ts, batch_index, dedup_active FROM Events WHERE event_id = @id",
+   |                                                                                                     ^^^^^^^^^^^^^
+94 |             {"id": str(event_id)},
+95 |             {"id": param_types.STRING},
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> scripts/engram_spanner_tenant_control.py:131:5
+    |
+129 |           f"/databases/{args.target_database}"
+130 |       )
+131 | /     from context_graph.adapters.spanner.tenant_control import TENANT_CONTROL_DDL
+132 | |
+133 | |     from context_graph.adapters.spanner.event_acceptance import ACCEPTANCE_COLUMN_DDL
+    | |_____________________________________________________________________________________^
+134 |
+135 |       statement = ACCEPTANCE_COLUMN_DDL if acceptance_upgrade else TENANT_CONTROL_DDL
+    |
+help: Organize imports
+    |
+130 |     )
+    -     from context_graph.adapters.spanner.tenant_control import TENANT_CONTROL_DDL
+    -
+131 |     from context_graph.adapters.spanner.event_acceptance import ACCEPTANCE_COLUMN_DDL
+132 +     from context_graph.adapters.spanner.tenant_control import TENANT_CONTROL_DDL
+133 |
+    |
+
+E501 Line too long (103 > 100)
+   --> scripts/engram_spanner_tenant_control.py:176:101
+    |
+174 |         "source_sha256": hashes,
+175 |         "scope": {
+176 |             "acceptance-prepare": "Explicit additive acceptance JSON column on empty reserved target; "
+    |                                                                                                     ^^^
+177 |             "preserve owner and existing schema/rows; no application writes",
+178 |             "acceptance": "Real adapter acceptance/duplicate/numeric/expiry/control recovery; "
+    |
+
+Found 4 errors.
+[*] 1 fixable with the `--fix` option.

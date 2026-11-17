@@ -1,0 +1,29 @@
+{
+  "phase": "implementation_validation",
+  "backend": "none",
+  "cloud_calls": 0,
+  "scope": "focused regressions for seven local fixes; no alternative storage service runner",
+  "started_at": "2026-10-06T17:22:56.085933+00:00",
+  "baseline_commit": "6a30dcfd376d21b2732ffc36b8ed8847abb2a9de",
+  "runtime_source_sha256": {
+    "pyproject.toml": "8b79b23183c629f44b0fc7d1ab4bf86a9671591cec251e032e19db35cb2498bc",
+    "src/context_graph/adapters/graph_ops.py": "078e4ecccf7902ed6ac3c64484b3fbf37f9386b4d306b1d4b51670cb9a35cca3",
+    "src/context_graph/adapters/neo4j/maintenance.py": "780c550190504e3a73e6047887a5e9e57c5b8928952eb655a77a6f40942e0944",
+    "src/context_graph/adapters/neo4j/store.py": "d2071e9e21bb1d36f149942bc1531cec35146b7fa95d0e4c007acbcbd6221b09",
+    "src/context_graph/adapters/registry.py": "a363da45bdf0b65919f9bb77e054b86afaa94b860de77fd7cc5de4d5632bb855",
+    "src/context_graph/adapters/spanner/log.py": "2ff28dbc613ae0474ee4868fabad180466493e831f51337776be0085b999f8d4",
+    "src/context_graph/adapters/spanner/schema.py": "d4b3f90f13f5cf5b98ad8356eb3c294b31153e08ad4b3e6ec4007d69be84dc3b",
+    "src/context_graph/api/ingest.py": "fa0d04f2df14feeca7954123753a9e55b25a666ff2a3db7f226715efb34c390f",
+    "src/context_graph/api/middleware.py": "2be8d0ea026fd8e1cbe99decab7b5d202000ec7bbbb4bbe0aef45a7ba5b11802",
+    "src/context_graph/api/routes/admin.py": "fb7c244b31cc56e3296459fbe239e41ca215343a4c9f58dfce16893e094f6a28",
+    "src/context_graph/domain/forgetting.py": "07900394815d05b780635f46c4f7440e67c408030adaa19f48b1f63c62f79787",
+    "src/context_graph/domain/models.py": "51b721e3d3bbd24b07ad45cfd664e51ef813c45fbcf168a4b2ce2223ee7eb289",
+    "src/context_graph/ports/maintenance.py": "549e79da8e18d7fb1a53806fd5b12a7d811cd9abb1cefbcac92266df4c37ce33",
+    "src/context_graph/adapters/spanner/lifecycle.py": "04f3a05194c3d89cc6de5f6bdc1e926b04235d3aa901195f257c8fce4dafeed8"
+  },
+  "limits": {
+    "paid_model_calls": 0,
+    "cloud_calls": 0
+  },
+  "run_id": "20261006-local-implementation-validation-01"
+}

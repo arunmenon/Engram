@@ -1,0 +1,6 @@
+{"event": "start", "run_id": "20261007-cloud-entity-ann-startup-01", "at": "2026-10-07T13:24:24.435767+00:00", "record": "docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-startup-01"}
+I1007 18:54:35.677667 51268852 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(13, generation: 1)
+I1007 18:54:35.677818 51268852 ev_poll_posix.cc:587] FD from fork parent still in poll list: fd(10, generation: 1)
+{"event": "finish", "run_id": "20261007-cloud-entity-ann-startup-01", "at": "2026-10-07T13:24:44.724320+00:00", "record": "docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-startup-01"}
+{"run_id": "20261007-cloud-entity-ann-startup-01", "checks": [{"name": "API process startup 1 healthy on Spanner", "passed": true, "scenarios": []}, {"name": "API process startup 2 healthy on Spanner", "passed": true, "scenarios": []}, {"name": "API startup preserves compatible physical schema", "passed": true, "scenarios": []}, {"name": "graph properties and embeddings unchanged", "passed": true, "scenarios": []}]}
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

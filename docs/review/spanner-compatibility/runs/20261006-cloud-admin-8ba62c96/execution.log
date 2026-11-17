@@ -1,0 +1,39 @@
+2026-10-06 16:40:20 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 16:40:20 [info     ] llm_client_initialized
+2026-10-06 16:40:20 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 16:40:20 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 16:40:20 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 16:40:20 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 16:40:20 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 16:40:20 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 16:40:20 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 16:40:20 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 16:40:20 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 16:40:20 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 16:40:20 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 16:40:20 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 16:40:20 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 16:40:20 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 16:40:21 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 16:40:22 [warning  ] auth_failed                    guard=api_key path=/v1/events request_id=8dd12ff0-0321-4528-a0aa-4613a47fcea9
+2026-10-06 16:40:22 [warning  ] auth_failed                    guard=admin_key path=/v1/admin/stats request_id=b34c20a1-5421-4816-acb0-6b4aeca8eb4a
+2026-10-06 16:40:22 [warning  ] auth_failed                    guard=admin_key path=/v1/users/user:missing/profile request_id=27ea16fe-6d14-4201-b76a-4e9a78d5dc34
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 16:40:23 [info     ] user_data_exported             request_id=e4e47233-0b75-4114-bb52-1a9a21d2b727 user_id=user:missing
+2026-10-06 16:40:23 [info     ] user_data_erased               deleted_count=0 request_id=cc6d296c-4c55-457b-9163-3af17cfe6737 user_id=user:missing
+2026-10-06 16:40:23 [warning  ] auth_failed                    guard=admin_key path=/v1/events/import request_id=c7f874ad-497a-4fd6-a432-7e8a1c36cbf0
+{"name": "auth_missing_user_and_metrics", "scenarios": ["OPS-01", "OPS-02", "USER-01", "USER-02"], "verdict": "passed", "observation": {"API_admin_import_user_separation": "asserted", "missing_user": "404 profile; empty lists/export; zero-delete", "metrics": "Prometheus HTTP200"}, "seconds": 1.31}
+2026-10-06 16:40:23 [info     ] batch_ingested                 accepted=3 rejected=0 request_id=cf44e8f6-5495-48d8-ba26-e0c36b416daf store_failures=0 total=3
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 16:40:23 [info     ] consumer_started               consumer=prune-projection group=graph-projection stream=Events
+2026-10-06 16:40:24 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 16:40:24 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T11:10:23.471743000Z/000000/3a39461e-45eb-4182-88da-35d5b7acd035 event_id=3a39461e-45eb-4182-88da-35d5b7acd035 session_id=compat-prune
+2026-10-06 16:40:25 [debug    ] event_projected                edge_count=2 entry_id=2026-10-06T11:10:23.471743000Z/000001/36133663-b329-4ac5-a919-a3961a36bdac event_id=36133663-b329-4ac5-a919-a3961a36bdac session_id=compat-prune
+2026-10-06 16:40:26 [debug    ] event_projected                edge_count=2 entry_id=2026-10-06T11:10:23.471743000Z/000002/e3cec831-cfef-49fb-a973-7767b0fd5ad2 event_id=e3cec831-cfef-49fb-a973-7767b0fd5ad2 session_id=compat-prune
+2026-10-06 16:40:27 [info     ] consumer_stopped               consumer=prune-projection group=graph-projection
+2026-10-06 16:40:28 [info     ] prune_complete                 dry_run=True pruned_edges=0 pruned_nodes=2 request_id=6636c02a-57f7-40a9-9c98-25fca3eb1d0d tier=cold
+2026-10-06 16:40:31 [info     ] prune_complete                 dry_run=False pruned_edges=0 pruned_nodes=2 request_id=14a87b3f-0bdd-4066-9656-3480743b4327 tier=cold
+{"name": "cold_archive_prune_dry_live_counts_edges_ledger", "scenarios": ["LIFE-03"], "verdict": "passed", "observation": {"dry": {"pruned_edges": 0, "pruned_nodes": 2, "dry_run": true, "details": [{"action": "delete_cold_events", "event_ids": ["36133663-b329-4ac5-a919-a3961a36bdac", "3a39461e-45eb-4182-88da-35d5b7acd035"]}], "truncated": false}, "live": {"pruned_edges": 0, "pruned_nodes": 2, "dry_run": false, "details": [{"action": "delete_cold_events", "event_ids": ["36133663-b329-4ac5-a919-a3961a36bdac", "3a39461e-45eb-4182-88da-35d5b7acd035"]}], "truncated": false}, "before": {"nodes": {"Event": 3, "Entity": 0, "Summary": 0, "UserProfile": 0, "Preference": 0, "Skill": 0, "Workflow": 0, "BehavioralPattern": 0}, "edges": {"FOLLOWS": 2, "CAUSED_BY": 2, "SIMILAR_TO": 0, "REFERENCES": 0, "SUMMARIZES": 0, "SAME_AS": 0, "RELATED_TO": 0}, "total_nodes": 3, "total_edges": 4}, "after": {"nodes": {"Event": 1, "Entity": 0, "Summary": 0, "UserProfile": 0, "Preference": 0, "Skill": 0, "Workflow": 0, "BehavioralPattern": 0}, "edges": {"FOLLOWS": 0, "CAUSED_BY": 0, "SIMILAR_TO": 0, "REFERENCES": 0, "SUMMARIZES": 0, "SAME_AS": 0, "RELATED_TO": 0}, "total_nodes": 1, "total_edges": 0}, "ledger_documents_preserved": 3}, "seconds": 9.77}
+2026-10-06 16:40:33 [info     ] app_stopped

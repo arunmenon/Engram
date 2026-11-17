@@ -162,6 +162,26 @@ SET r.created_at = $created_at
 # ---------------------------------------------------------------------------
 
 
+async def count_edges_by_type_and_age(
+    driver: AsyncDriver, database: str, min_score: float, max_age_hours: int
+) -> int:
+    """Preview the same real edge-score/age predicate used for live deletion."""
+    from datetime import UTC, datetime, timedelta
+
+    rows = await _run(
+        driver,
+        database,
+        "MATCH (a:Event)-[r:SIMILAR_TO]->(b:Event) "
+        "WHERE r.similarity_score < $min_score AND a.occurred_at < $cutoff_iso "
+        "RETURN count(r) AS edge_count",
+        {
+            "min_score": min_score,
+            "cutoff_iso": (datetime.now(UTC) - timedelta(hours=max_age_hours)).isoformat(),
+        },
+    )
+    return int(rows[0]["edge_count"]) if rows else 0
+
+
 async def delete_edges_by_type_and_age(
     driver: AsyncDriver,
     database: str,

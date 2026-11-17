@@ -1,0 +1,24 @@
+2026-10-06 15:46:26 [info     ] worker_starting                consumer=pack_extraction neo4j_uri=bolt://localhost:7687 redis_host=localhost storage={'event_log': 'spanner', 'subscription': 'spanner', 'graph': 'spanner', 'keyword_index': 'spanner', 'vector_index': 'spanner', 'archive': 'fs'}
+2026-10-06 15:46:26 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:26 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:26 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:26 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:26 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:26 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:26 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:26 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:26 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 15:46:26 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 15:46:26 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 15:46:26 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 15:46:26 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 15:46:26 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 15:46:26 [info     ] pack_extraction_profiles       packs=['pdlc'] sources=['observation.input', 'pdlc.design.section_changed', 'pdlc.spec.approved']
+2026-10-06 15:46:28 [info     ] worker_running                 consumer=pack_extraction
+2026-10-06 15:46:28 [info     ] consumer_started               consumer=pack-extraction-1 group=pack-extraction stream=Events
+2026-10-06 15:46:28 [info     ] pending_drain_completed        group=pack-extraction
+2026-10-06 15:46:44 [info     ] shutdown_signal_received       consumer=pack_extraction
+2026-10-06 15:46:44 [info     ] consumer_stopped               consumer=pack-extraction-1 group=pack-extraction
+2026-10-06 15:46:44 [info     ] worker_shutting_down           consumer=pack_extraction
+2026-10-06 15:46:44 [info     ] worker_stopped                 consumer=pack_extraction
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

@@ -1,0 +1,99 @@
+{
+  "checks": [
+    {
+      "name": "existing_control_schema_handshake",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "atomic_stamp_same_chunk_duplicate_and_conflict",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "real_json_numeric_roundtrip_matches_receipt_digest",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "concurrent_writers_create_once_preserve_original_position",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "different_chunk_identity_conflict_does_not_overwrite_receipt",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "credential_rotation_retries_other_producer_conflicts_without_mutation",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "bound_import_refused",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "bound_bare_append_refused",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "original_payload_enrichment_refused",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "allowed_enrichment_preserves_request_and_receipt",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "real_document_expiry_keeps_original_duplicate_identity",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "real_dedup_expiry_keeps_retained_row_identity_without_resurrection",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "frozen_owner_duplicate_cannot_bypass_current_control",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "stale_epoch_duplicate_cannot_bypass_current_control",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "new_epoch_retry_preserves_original_accepted_epoch_and_receipt",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "exact_owned_events_removed_owner_and_other_application_tables_preserved",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "existing_schema_preserved",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "all_application_rows_preserved",
+      "passed": true,
+      "scenarios": []
+    },
+    {
+      "name": "runtime_source_unchanged",
+      "passed": true,
+      "scenarios": []
+    }
+  ]
+}

@@ -19,13 +19,15 @@ import structlog
 from context_graph.domain.models import Event
 from context_graph.domain.projection import project_event
 from context_graph.metrics import CONSUMER_MESSAGE_ERRORS
-from context_graph.ports.errors import is_transient
+from context_graph.ports.errors import RuntimeFencedError, is_transient
+from context_graph.ports.event_log import AcceptedRecordReader
 from context_graph.settings import OntologySettings
 from context_graph.worker.consumer import BaseConsumer
 from context_graph.worker.pack_projection import apply_plan, apply_plans
 
 if TYPE_CHECKING:
     from context_graph.domain.pack_projection import PackProjector, ProjectionPlan
+    from context_graph.domain.source_trust import VerifiedSourceProvenance
     from context_graph.ports.event_log import EventLog
     from context_graph.ports.graph_store import GraphStore
     from context_graph.ports.subscription import Subscription
@@ -78,6 +80,17 @@ class ProjectionConsumer(BaseConsumer):
         self._event_log = event_log
         self._graph_store = graph_store
         self._pack_projector = pack_projector
+        if (
+            getattr(event_log, "requires_source_provenance", False) is True
+            and getattr(pack_projector, "requires_provenance", False) is not True
+        ):
+            raise RuntimeFencedError("Bound ledger requires authenticated projection policy")
+        if (
+            pack_projector is not None
+            and getattr(pack_projector, "requires_provenance", False) is True
+            and not isinstance(event_log, AcceptedRecordReader)
+        ):
+            raise RuntimeFencedError("Bound projection requires an accepted-record reader")
         self._pack_lookup_limit = pack_lookup_limit
         self._session_last_event: OrderedDict[str, Event] = OrderedDict()
         self._buffer: list[tuple[str, dict[str, str]]] = []
@@ -119,11 +132,13 @@ class ProjectionConsumer(BaseConsumer):
         pack_events: list[tuple[str, dict[str, str], Event, dict[str, Any]]] = []
 
         fetched = await self._fetch_batch(batch)
+        provenances: dict[str, VerifiedSourceProvenance | None] = {}
         for entry_id, data in batch:
             loaded = fetched.get(entry_id)
             if loaded is None:
                 continue
-            event, document = loaded
+            event, document, provenance = loaded
+            provenances[entry_id] = provenance
             if self._pack_projector is not None and self._pack_projector.handles(event.event_type):
                 pack_events.append((entry_id, data, event, document))
 
@@ -176,7 +191,7 @@ class ProjectionConsumer(BaseConsumer):
 
         # Ontology pack rules (ADR-0018), in log order, after the Event nodes exist.
         if self._pack_projector is not None and pack_events:
-            await self._apply_pack_rules(pack_events)
+            await self._apply_pack_rules(pack_events, provenances)
 
         # ACK all entries after successful write (deferred_ack = True)
         entry_ids = [eid for eid, _ in batch]
@@ -184,7 +199,9 @@ class ProjectionConsumer(BaseConsumer):
             await self._ack(*entry_ids)
 
     async def _apply_pack_rules(
-        self, pack_events: list[tuple[str, dict[str, str], Event, dict[str, Any]]]
+        self,
+        pack_events: list[tuple[str, dict[str, str], Event, dict[str, Any]]],
+        provenances: dict[str, VerifiedSourceProvenance | None] | None = None,
     ) -> None:
         """Plan each event's pack rules, then write the whole flush in four staged calls.
 
@@ -198,7 +215,20 @@ class ProjectionConsumer(BaseConsumer):
         planned: list[tuple[str, dict[str, str], Event, ProjectionPlan]] = []
         for entry_id, data, event, document in pack_events:
             try:
-                planned.append((entry_id, data, event, self._pack_projector.plan(event, document)))
+                planned.append(
+                    (
+                        entry_id,
+                        data,
+                        event,
+                        self._pack_projector.plan(
+                            event, document, provenance=(provenances or {}).get(entry_id)
+                        )
+                        if getattr(self._pack_projector, "requires_provenance", False) is True
+                        else self._pack_projector.plan(event, document),
+                    )
+                )
+            except RuntimeFencedError:
+                raise
             except Exception:
                 await self._pack_failed(entry_id, data, event)
         if not planned:
@@ -215,7 +245,7 @@ class ProjectionConsumer(BaseConsumer):
             )
             return
         except Exception as exc:
-            if is_transient(exc):
+            if isinstance(exc, RuntimeFencedError) or is_transient(exc):
                 raise  # stopping mid-outage: the batch stays pending
             log.warning("pack_batch_failed_retrying_per_event", events=len(planned), error=str(exc))
         for entry_id, data, event, plan in planned:
@@ -230,7 +260,7 @@ class ProjectionConsumer(BaseConsumer):
                     "apply_pack_plan",
                 )
             except Exception as exc:
-                if is_transient(exc):
+                if isinstance(exc, RuntimeFencedError) or is_transient(exc):
                     raise
                 await self._pack_failed(entry_id, data, event)
 
@@ -263,9 +293,22 @@ class ProjectionConsumer(BaseConsumer):
         )
         if previous_id is None:
             return None
-        (document,) = await self._retry_transient(
-            partial(self._event_log.get_documents, [previous_id]), "get_documents"
-        )
+        document: dict[str, Any] | None
+        if (
+            self._pack_projector is not None
+            and getattr(self._pack_projector, "requires_provenance", False) is True
+        ):
+            assert isinstance(self._event_log, AcceptedRecordReader)
+            (record,) = await self._retry_transient(
+                partial(self._event_log.get_accepted_records, [previous_id]), "get_accepted_records"
+            )
+            document = record.document
+            previous = Event.model_validate(document, strict=False)
+            self._pack_projector.source_trusted(previous, document, record.provenance)
+        else:
+            (document,) = await self._retry_transient(
+                partial(self._event_log.get_documents, [previous_id]), "get_documents"
+            )
         if document is None:
             return None
         previous = Event.model_validate(document, strict=False)
@@ -287,18 +330,31 @@ class ProjectionConsumer(BaseConsumer):
 
     async def _fetch_batch(
         self, batch: list[tuple[str, dict[str, str]]]
-    ) -> dict[str, tuple[Event, dict[str, Any]]]:
+    ) -> dict[str, tuple[Event, dict[str, Any], VerifiedSourceProvenance | None]]:
         """The events of a flush and their stored documents (payload included), in one read."""
         wanted = [(entry_id, data.get("event_id")) for entry_id, data in batch]
         for entry_id, event_id in wanted:
             if event_id is None:
                 log.warning("stream_entry_missing_event_id", entry_id=entry_id)
         ids = [event_id for _entry, event_id in wanted if event_id is not None]
-        documents = await self._retry_transient(
-            partial(self._event_log.get_documents, ids), "get_documents"
-        )
+        provenances: dict[str, VerifiedSourceProvenance] = {}
+        documents: list[dict[str, Any] | None]
+        if (
+            self._pack_projector is not None
+            and getattr(self._pack_projector, "requires_provenance", False) is True
+        ):
+            assert isinstance(self._event_log, AcceptedRecordReader)
+            records = await self._retry_transient(
+                partial(self._event_log.get_accepted_records, ids), "get_accepted_records"
+            )
+            documents = [record.document for record in records]
+            provenances = {key: record.provenance for key, record in zip(ids, records, strict=True)}
+        else:
+            documents = await self._retry_transient(
+                partial(self._event_log.get_documents, ids), "get_documents"
+            )
         by_id = dict(zip(ids, documents, strict=True))
-        fetched: dict[str, tuple[Event, dict[str, Any]]] = {}
+        fetched: dict[str, tuple[Event, dict[str, Any], VerifiedSourceProvenance | None]] = {}
         for entry_id, event_id in wanted:
             if event_id is None:
                 continue
@@ -309,5 +365,11 @@ class ProjectionConsumer(BaseConsumer):
             event = Event.model_validate(doc, strict=False)
             if event.global_position is None:
                 event = event.model_copy(update={"global_position": entry_id})
-            fetched[entry_id] = (event, doc)
+            provenance = provenances.get(event_id)
+            if (
+                self._pack_projector is not None
+                and getattr(self._pack_projector, "requires_provenance", False) is True
+            ):
+                self._pack_projector.source_trusted(event, doc, provenance)
+            fetched[entry_id] = (event, doc, provenance)
         return fetched

@@ -1,0 +1,3341 @@
+{
+  "checks": [
+    {
+      "name": "PDLC_OpenDAL_projection_continuation_drain",
+      "scenarios": [
+        "APP-02",
+        "PROJ-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "unread": 0,
+        "pending": 0,
+        "ledger": 292
+      },
+      "seconds": 1.34
+    },
+    {
+      "name": "PDLC_OpenDAL_recorded_evaluation_gate",
+      "scenarios": [
+        "APP-02",
+        "ART-01"
+      ],
+      "verdict": "passed",
+      "observation": [
+        {
+          "pack": "pdlc",
+          "passed": true,
+          "mean_f1": 0.9118,
+          "min_f1": 0.9,
+          "problem": null,
+          "questions": [
+            {
+              "id": "release-of-8216",
+              "f1": 1.0,
+              "found": [
+                "Release:apache/opendal|v0.59.1"
+              ],
+              "expected": [
+                "Release:apache/opendal|v0.59.1"
+              ]
+            },
+            {
+              "id": "release-of-8191",
+              "f1": 1.0,
+              "found": [
+                "Release:apache/opendal|v0.59.0"
+              ],
+              "expected": [
+                "Release:apache/opendal|v0.59.0"
+              ]
+            },
+            {
+              "id": "release-of-7949",
+              "f1": 1.0,
+              "found": [
+                "Release:apache/opendal|v0.58.2"
+              ],
+              "expected": [
+                "Release:apache/opendal|v0.58.2"
+              ]
+            },
+            {
+              "id": "release-of-8035",
+              "f1": 1.0,
+              "found": [
+                "Release:apache/opendal|v0.58.2"
+              ],
+              "expected": [
+                "Release:apache/opendal|v0.58.2"
+              ]
+            },
+            {
+              "id": "release-of-7386",
+              "f1": 1.0,
+              "found": [
+                "Release:apache/opendal|v0.58.1"
+              ],
+              "expected": [
+                "Release:apache/opendal|v0.58.1"
+              ]
+            },
+            {
+              "id": "release-of-7869",
+              "f1": 1.0,
+              "found": [
+                "Release:apache/opendal|v0.58.1"
+              ],
+              "expected": [
+                "Release:apache/opendal|v0.58.1"
+              ]
+            },
+            {
+              "id": "release-contents-v0.59.1",
+              "f1": 1.0,
+              "found": [
+                "Change:apache/opendal|8206",
+                "Change:apache/opendal|8213",
+                "Change:apache/opendal|8214",
+                "Change:apache/opendal|8215",
+                "Change:apache/opendal|8216",
+                "Change:apache/opendal|8223"
+              ],
+              "expected": [
+                "Change:apache/opendal|8206",
+                "Change:apache/opendal|8213",
+                "Change:apache/opendal|8214",
+                "Change:apache/opendal|8215",
+                "Change:apache/opendal|8216",
+                "Change:apache/opendal|8223"
+              ]
+            },
+            {
+              "id": "reverted-7983",
+              "f1": 1.0,
+              "found": [
+                "Change:apache/opendal|8034"
+              ],
+              "expected": [
+                "Change:apache/opendal|8034"
+              ]
+            },
+            {
+              "id": "reverted-7927",
+              "f1": 1.0,
+              "found": [
+                "Change:apache/opendal|7943"
+              ],
+              "expected": [
+                "Change:apache/opendal|7943"
+              ]
+            },
+            {
+              "id": "change-for-s3-express",
+              "f1": 1.0,
+              "found": [
+                "Change:apache/opendal|8135"
+              ],
+              "expected": [
+                "Change:apache/opendal|8135"
+              ]
+            },
+            {
+              "id": "change-for-s3-restoration",
+              "f1": 1.0,
+              "found": [
+                "Change:apache/opendal|8143"
+              ],
+              "expected": [
+                "Change:apache/opendal|8143"
+              ]
+            },
+            {
+              "id": "change-for-gcs-grpc",
+              "f1": 0.3333,
+              "found": [
+                "Change:apache/opendal|7927",
+                "Change:apache/opendal|7943",
+                "Change:apache/opendal|8153",
+                "Change:apache/opendal|8185",
+                "Change:apache/opendal|8186"
+              ],
+              "expected": [
+                "Change:apache/opendal|8153"
+              ]
+            },
+            {
+              "id": "change-for-aws-profiles",
+              "f1": 1.0,
+              "found": [
+                "Change:apache/opendal|7949"
+              ],
+              "expected": [
+                "Change:apache/opendal|7949"
+              ]
+            },
+            {
+              "id": "change-for-http-429",
+              "f1": 1.0,
+              "found": [
+                "Change:apache/opendal|8035"
+              ],
+              "expected": [
+                "Change:apache/opendal|8035"
+              ]
+            },
+            {
+              "id": "change-for-gcs-compose",
+              "f1": 0.6667,
+              "found": [
+                "Change:apache/opendal|8153",
+                "Change:apache/opendal|8191"
+              ],
+              "expected": [
+                "Change:apache/opendal|8191"
+              ]
+            },
+            {
+              "id": "release-for-gcs-grpc",
+              "f1": 0.5,
+              "found": [
+                "Release:apache/opendal|v0.58.1",
+                "Release:apache/opendal|v0.59.0",
+                "Release:apache/opendal|v0.59.1"
+              ],
+              "expected": [
+                "Release:apache/opendal|v0.59.0"
+              ]
+            },
+            {
+              "id": "release-for-s3-express",
+              "f1": 1.0,
+              "found": [
+                "Release:apache/opendal|v0.59.0"
+              ],
+              "expected": [
+                "Release:apache/opendal|v0.59.0"
+              ]
+            }
+          ]
+        }
+      ],
+      "seconds": 18.28
+    },
+    {
+      "name": "PDLC_OpenDAL_artifact_HTTP_competencies",
+      "scenarios": [
+        "APP-02",
+        "ART-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "mean_f1": 0.9117647058823529,
+        "min_f1": 0.9,
+        "questions": [
+          {
+            "id": "release-of-8216",
+            "f1": 1.0,
+            "found": [
+              "Release:apache/opendal|v0.59.1"
+            ],
+            "expected": [
+              "Release:apache/opendal|v0.59.1"
+            ],
+            "response": {
+              "nodes": {
+                "Change:apache/opendal|8216": {
+                  "node_id": "Change:apache/opendal|8216",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "`GoosefsBuilder::build()` overlaid `master_addr` on top of the config that\n`from_properties_auto()` had already resolved, so the URI authority of\n`goosefs://host:port/path` (or the `master_addr` option) always won and the\n`goosefs.master.rpc.addresses` / `goosefs.master.hostname` keys of a deployed\n`goosefs-site.properties` never reached the client. A client pointed at a site\nfile that lists the real HA masters still dialed the URI authority and failed\nwith a gRPC transport error.\n\n`build()` now resolves master addresses as `GOOSEFS_MASTER_ADDR` >\n`goosefs-site.properties` > `master_addr`. The site file outranks\n`master_addr` because it carries a deployment's whole HA master list, which a\nsingle URI authority cannot express, and `GOOSEFS_MASTER_ADDR` stays on top as\nthe per-process override. Because `from_properties_auto()` falls back to the\nSDK default `127.0.0.1:9200`, the builder now asks which source actually\ndeclared an address instead of reading the loaded value.\n\nUser-facing impact: a site file or `GOOSEFS_MASTER_ADDR` now supersedes the URI\nauthority and the `master_addr` option, and `build()` fails with\n`ConfigInvalid` when no source supplies an address instead of silently dialing\n`127.0.0.1:9200`.\n\nBump goosefs-sdk to 0.1.9 for RUSTSEC-2026-0002 (`lru` >= 0.16.3) and master\nconnection pooling. 0.1.9 does not yet honor `$GOOSEFS_CONF_DIR`;\n`$GOOSEFS_CONFIG_FILE` remains the way to point at a file outside the searched\ndirectories. Regenerated Java, .NET, and website docs for the new\n`master_addr` precedence.",
+                    "files": [],
+                    "merge_sha": "54b33a16284da7c781824474cc1555e5ee379a51",
+                    "node_id": "Change:apache/opendal|8216",
+                    "node_type": "Change",
+                    "number": 8216,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-09-04T07:43:28+00:00",
+                    "title": "fix(services/goosefs): resolve master addresses from goosefs-site.properties",
+                    "updated_at": "2026-09-04T07:43:28+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "999e6bf3-ae53-5696-aad9-b3790e8ee318",
+                    "global_position": "2026-10-06T11:27:41.682591000Z/000000/999e6bf3-ae53-5696-aad9-b3790e8ee318",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-04T15:43:28+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8216"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 2.0,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.59.1": {
+                  "node_id": "Release:apache/opendal|v0.59.1",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": false,
+                    "node_id": "Release:apache/opendal|v0.59.1",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-09-05T07:28:18+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-09-05T07:28:18+00:00",
+                    "version": "v0.59.1"
+                  },
+                  "provenance": {
+                    "event_id": "217c8b3d-9183-5407-9a7d-96805fb00140",
+                    "global_position": "2026-10-06T11:27:43.121375000Z/000000/217c8b3d-9183-5407-9a7d-96805fb00140",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-05T15:28:18+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.59.1"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 1.6,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Release:apache/opendal|v0.59.1",
+                  "target": "Change:apache/opendal|8216",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 622,
+                "nodes_returned": 2,
+                "truncated": false,
+                "inferred_intents": {
+                  "trace": 1.0
+                },
+                "intent_override": null,
+                "seed_nodes": [
+                  "Change:apache/opendal|8216"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 2,
+                  "max_depth": 5
+                },
+                "eval_pending": []
+              }
+            }
+          },
+          {
+            "id": "release-of-8191",
+            "f1": 1.0,
+            "found": [
+              "Release:apache/opendal|v0.59.0"
+            ],
+            "expected": [
+              "Release:apache/opendal|v0.59.0"
+            ],
+            "response": {
+              "nodes": {
+                "Change:apache/opendal|8191": {
+                  "node_id": "Change:apache/opendal|8191",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "",
+                    "files": [],
+                    "merge_sha": "56495b2e2035b3c8e90e674f0fc3187f5a5c2f73",
+                    "node_id": "Change:apache/opendal|8191",
+                    "node_type": "Change",
+                    "number": 8191,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-31T04:11:00+00:00",
+                    "title": "feat(services/gcs): support compose",
+                    "updated_at": "2026-08-31T04:11:00+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "57c2705b-7eff-5754-9f0a-da25f333234d",
+                    "global_position": "2026-10-06T11:27:35.125935000Z/000000/57c2705b-7eff-5754-9f0a-da25f333234d",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-31T12:11:00+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8191"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 2.0,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.59.0": {
+                  "node_id": "Release:apache/opendal|v0.59.0",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": true,
+                    "node_id": "Release:apache/opendal|v0.59.0",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-08-31T17:26:45+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-08-31T17:26:45+00:00",
+                    "version": "v0.59.0"
+                  },
+                  "provenance": {
+                    "event_id": "6a21de42-c2f1-5da4-b62a-db9a3ab60ea6",
+                    "global_position": "2026-10-06T11:27:39.080815000Z/000000/6a21de42-c2f1-5da4-b62a-db9a3ab60ea6",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-01T01:26:45+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.59.0"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 1.6,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Release:apache/opendal|v0.59.0",
+                  "target": "Change:apache/opendal|8191",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 674,
+                "nodes_returned": 2,
+                "truncated": false,
+                "inferred_intents": {
+                  "trace": 1.0
+                },
+                "intent_override": null,
+                "seed_nodes": [
+                  "Change:apache/opendal|8191"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 2,
+                  "max_depth": 5
+                },
+                "eval_pending": []
+              }
+            }
+          },
+          {
+            "id": "release-of-7949",
+            "f1": 1.0,
+            "found": [
+              "Release:apache/opendal|v0.58.2"
+            ],
+            "expected": [
+              "Release:apache/opendal|v0.58.2"
+            ],
+            "response": {
+              "nodes": {
+                "Change:apache/opendal|7949": {
+                  "node_id": "Change:apache/opendal|7949",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "* feat(services/s3): support explicit AWS profiles\n\n* chore: keep reqsign profile APIs pinned\n\n* chore(services/s3): use released reqsign profile APIs\n\n* refactor(services/s3): simplify profile delegation\n\n* refactor(services/s3): narrow profile selection changes\n\n* Update core/services/s3/src/config.rs\n\nCo-authored-by: Erick Guan <297343+erickguan@users.noreply.github.com>\n\n* chore(services/s3): bump reqsign to v0.20.5\n\nPick up the AssumeRole SignatureDoesNotMatch fix from the reqsign\n0.20.5 release and regenerate binding/docs config outputs after the\nprofile docs tweak.\n\n---------\n\nCo-authored-by: Erick Guan <297343+erickguan@users.noreply.github.com>",
+                    "files": [],
+                    "merge_sha": "18f245855959d9cb2192d07b14d101e98b541342",
+                    "node_id": "Change:apache/opendal|7949",
+                    "node_type": "Change",
+                    "number": 7949,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-07T14:02:33+00:00",
+                    "title": "feat(services/s3): support explicit AWS profiles",
+                    "updated_at": "2026-08-07T14:02:33+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "3fe88f72-eb5e-59e0-9ea1-573b61dfebea",
+                    "global_position": "2026-10-06T11:27:13.002543000Z/000000/3fe88f72-eb5e-59e0-9ea1-573b61dfebea",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-07T22:02:33+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-7949"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 2.0,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.58.2": {
+                  "node_id": "Release:apache/opendal|v0.58.2",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": true,
+                    "node_id": "Release:apache/opendal|v0.58.2",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-08-17T06:51:09+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-08-17T06:51:09+00:00",
+                    "version": "v0.58.2"
+                  },
+                  "provenance": {
+                    "event_id": "c75acfe8-03a9-5189-8e36-06426b6fb3f7",
+                    "global_position": "2026-10-06T11:27:18.780751000Z/000000/c75acfe8-03a9-5189-8e36-06426b6fb3f7",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-17T14:51:09+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.58.2"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 1.6,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Release:apache/opendal|v0.58.2",
+                  "target": "Change:apache/opendal|7949",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 961,
+                "nodes_returned": 2,
+                "truncated": false,
+                "inferred_intents": {
+                  "trace": 1.0
+                },
+                "intent_override": null,
+                "seed_nodes": [
+                  "Change:apache/opendal|7949"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 2,
+                  "max_depth": 5
+                },
+                "eval_pending": []
+              }
+            }
+          },
+          {
+            "id": "release-of-8035",
+            "f1": 1.0,
+            "found": [
+              "Release:apache/opendal|v0.58.2"
+            ],
+            "expected": [
+              "Release:apache/opendal|v0.58.2"
+            ],
+            "response": {
+              "nodes": {
+                "Change:apache/opendal|8035": {
+                  "node_id": "Change:apache/opendal|8035",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "",
+                    "files": [],
+                    "merge_sha": "f4c6cda832b7529ddcb64eff2a1a3b2638d71bae",
+                    "node_id": "Change:apache/opendal|8035",
+                    "node_type": "Change",
+                    "number": 8035,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-07T13:23:19+00:00",
+                    "title": "feat(services): retry HTTP 429 responses",
+                    "updated_at": "2026-08-07T13:23:19+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "c4f86605-dca4-5e8a-89b1-a0f1b22c86bf",
+                    "global_position": "2026-10-06T11:27:12.878591000Z/000000/c4f86605-dca4-5e8a-89b1-a0f1b22c86bf",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-07T21:23:19+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8035"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 2.0,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.58.2": {
+                  "node_id": "Release:apache/opendal|v0.58.2",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": true,
+                    "node_id": "Release:apache/opendal|v0.58.2",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-08-17T06:51:09+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-08-17T06:51:09+00:00",
+                    "version": "v0.58.2"
+                  },
+                  "provenance": {
+                    "event_id": "c75acfe8-03a9-5189-8e36-06426b6fb3f7",
+                    "global_position": "2026-10-06T11:27:18.780751000Z/000000/c75acfe8-03a9-5189-8e36-06426b6fb3f7",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-17T14:51:09+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.58.2"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 1.6,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Release:apache/opendal|v0.58.2",
+                  "target": "Change:apache/opendal|8035",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 631,
+                "nodes_returned": 2,
+                "truncated": false,
+                "inferred_intents": {
+                  "trace": 1.0
+                },
+                "intent_override": null,
+                "seed_nodes": [
+                  "Change:apache/opendal|8035"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 2,
+                  "max_depth": 5
+                },
+                "eval_pending": []
+              }
+            }
+          },
+          {
+            "id": "release-of-7386",
+            "f1": 1.0,
+            "found": [
+              "Release:apache/opendal|v0.58.1"
+            ],
+            "expected": [
+              "Release:apache/opendal|v0.58.1"
+            ],
+            "response": {
+              "nodes": {
+                "Change:apache/opendal|7386": {
+                  "node_id": "Change:apache/opendal|7386",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "* feat(core): enable presign delete\n\n* refactor(services/s3): keep sync delete request builder and async s3_delete_object sender\n\nAddress review feedback: make s3_delete_object_request a plain fn and\nrestore s3_delete_object mirroring the s3_head_object pattern.",
+                    "files": [],
+                    "merge_sha": "66407852d402bc95b5fb15350975e8275089052e",
+                    "node_id": "Change:apache/opendal|7386",
+                    "node_type": "Change",
+                    "number": 7386,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-07-07T11:57:57+00:00",
+                    "title": "feat(core): enable presign delete",
+                    "updated_at": "2026-07-07T11:57:57+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "c7bb3764-0401-585a-a92f-406ac57d479f",
+                    "global_position": "2026-10-06T11:27:00.381087000Z/000000/c7bb3764-0401-585a-a92f-406ac57d479f",
+                    "source": "spanner",
+                    "occurred_at": "2026-07-07T20:57:57+09:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-7386"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 2.0,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.58.1": {
+                  "node_id": "Release:apache/opendal|v0.58.1",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": false,
+                    "node_id": "Release:apache/opendal|v0.58.1",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-07-28T06:23:41+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-07-28T06:23:41+00:00",
+                    "version": "v0.58.1"
+                  },
+                  "provenance": {
+                    "event_id": "92fffbc5-d809-5979-bbb4-db03ca57963f",
+                    "global_position": "2026-10-06T11:27:08.758719000Z/000000/92fffbc5-d809-5979-bbb4-db03ca57963f",
+                    "source": "spanner",
+                    "occurred_at": "2026-07-28T14:23:41+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.58.1"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 1.6,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Release:apache/opendal|v0.58.1",
+                  "target": "Change:apache/opendal|7386",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 643,
+                "nodes_returned": 2,
+                "truncated": false,
+                "inferred_intents": {
+                  "trace": 1.0
+                },
+                "intent_override": null,
+                "seed_nodes": [
+                  "Change:apache/opendal|7386"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 2,
+                  "max_depth": 5
+                },
+                "eval_pending": []
+              }
+            }
+          },
+          {
+            "id": "release-of-7869",
+            "f1": 1.0,
+            "found": [
+              "Release:apache/opendal|v0.58.1"
+            ],
+            "expected": [
+              "Release:apache/opendal|v0.58.1"
+            ],
+            "response": {
+              "nodes": {
+                "Change:apache/opendal|7869": {
+                  "node_id": "Change:apache/opendal|7869",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "* feat(bindings/python): add from_uri constructor for Operator and AsyncOperator\n\nExpose Operator.from_uri / AsyncOperator.from_uri classmethods backed by\nthe core Operator::from_uri URI registry path, mirroring the Node.js\nbinding. Replace __getnewargs_ex__ with __reduce__ so URI-built operators\npickle via a dedicated reconstructor instead of the scheme-based __new__.\n\n* fix(bindings/python): address review feedback on from_uri\n\n- Extract kwargs via extract_kwargs helper that returns a PyErr instead\n  of panicking on non-str values; apply to from_uri and __new__ for both\n  operator classes.\n- Mirror the async_operator fixture layers and capability overrides in the\n  from_uri test fixture so capability gating and equality assertions match.\n\n* refactor(bindings/python): simplify from_uri pickling and docs per review\n\n- Drop the __from_uri field: reconstruct both scheme- and URI-built\n  operators through a single from_uri-based reconstructor, since the core\n  resolves bare schemes and full URIs through the same path.\n- Reframe from_uri docstrings: options belong in the URI query string\n  (urlencode example); **kwargs documented as override-only.\n\n* docs(bindings/python): debloat from_uri docstrings and reconstructor comments\n\n* docs(bindings/python): use fenced code block in from_uri examples\n\nReplace >>> doctest prompts with a python code block so copying from the\nrendered mkdocs docs does not include the prompt characters.\n\n* refactor(bindings/python): extract kwargs directly and add from_uri round-trip test\n\n- Bind **kwargs to Option<HashMap<String, String>> in the operator\n  constructors, dropping the extract_kwargs helper; PyO3 raises TypeError\n  natively on non-str values.\n- Add sync and async from_uri write/read round-trip tests.",
+                    "files": [],
+                    "merge_sha": "54b8392b6e2a26a74dc037e8878729aae4d2eb40",
+                    "node_id": "Change:apache/opendal|7869",
+                    "node_type": "Change",
+                    "number": 7869,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-07-07T08:18:45+00:00",
+                    "title": "feat(bindings/python): add from_uri constructor for Operator and AsyncOperator",
+                    "updated_at": "2026-07-07T08:18:45+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "f3cdc0bf-92fe-519c-9c76-2a96a0f2d0d6",
+                    "global_position": "2026-10-06T11:26:59.566047000Z/000000/f3cdc0bf-92fe-519c-9c76-2a96a0f2d0d6",
+                    "source": "spanner",
+                    "occurred_at": "2026-07-07T13:48:45+05:30",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-7869"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 2.0,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.58.1": {
+                  "node_id": "Release:apache/opendal|v0.58.1",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": false,
+                    "node_id": "Release:apache/opendal|v0.58.1",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-07-28T06:23:41+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-07-28T06:23:41+00:00",
+                    "version": "v0.58.1"
+                  },
+                  "provenance": {
+                    "event_id": "92fffbc5-d809-5979-bbb4-db03ca57963f",
+                    "global_position": "2026-10-06T11:27:08.758719000Z/000000/92fffbc5-d809-5979-bbb4-db03ca57963f",
+                    "source": "spanner",
+                    "occurred_at": "2026-07-28T14:23:41+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.58.1"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 1.6,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Release:apache/opendal|v0.58.1",
+                  "target": "Change:apache/opendal|7869",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 1036,
+                "nodes_returned": 2,
+                "truncated": false,
+                "inferred_intents": {
+                  "trace": 1.0
+                },
+                "intent_override": null,
+                "seed_nodes": [
+                  "Change:apache/opendal|7869"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 2,
+                  "max_depth": 5
+                },
+                "eval_pending": []
+              }
+            }
+          },
+          {
+            "id": "release-contents-v0.59.1",
+            "f1": 1.0,
+            "found": [
+              "Change:apache/opendal|8206",
+              "Change:apache/opendal|8213",
+              "Change:apache/opendal|8214",
+              "Change:apache/opendal|8215",
+              "Change:apache/opendal|8216",
+              "Change:apache/opendal|8223"
+            ],
+            "expected": [
+              "Change:apache/opendal|8206",
+              "Change:apache/opendal|8213",
+              "Change:apache/opendal|8214",
+              "Change:apache/opendal|8215",
+              "Change:apache/opendal|8216",
+              "Change:apache/opendal|8223"
+            ],
+            "response": {
+              "nodes": {
+                "Release:apache/opendal|v0.59.1": {
+                  "node_id": "Release:apache/opendal|v0.59.1",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": false,
+                    "node_id": "Release:apache/opendal|v0.59.1",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-09-05T07:28:18+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-09-05T07:28:18+00:00",
+                    "version": "v0.59.1"
+                  },
+                  "provenance": {
+                    "event_id": "217c8b3d-9183-5407-9a7d-96805fb00140",
+                    "global_position": "2026-10-06T11:27:43.121375000Z/000000/217c8b3d-9183-5407-9a7d-96805fb00140",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-05T15:28:18+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.59.1"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 2.0,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|8206": {
+                  "node_id": "Change:apache/opendal|8206",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "Propagate override_content_disposition, override_content_type, and override_cache_control into query parameters (response-content-disposition, response-content-type, response-cache-control) for GCS XML GET and HEAD presigned requests.\n\nCloses #8187.",
+                    "files": [],
+                    "merge_sha": "670d8f9637ff79fd0a3a2f00cdf751fb3b11f994",
+                    "node_id": "Change:apache/opendal|8206",
+                    "node_type": "Change",
+                    "number": 8206,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-09-01T04:45:12+00:00",
+                    "title": "feat(services/gcs): propagate response header overrides into presigned XML requests",
+                    "updated_at": "2026-09-01T04:45:12+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "2d39cff7-6e00-5d51-9831-a83394f6213b",
+                    "global_position": "2026-10-06T11:27:39.609359000Z/000000/2d39cff7-6e00-5d51-9831-a83394f6213b",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-01T12:45:12+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8206"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 1.6,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|8213": {
+                  "node_id": "Change:apache/opendal|8213",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "",
+                    "files": [],
+                    "merge_sha": "767c734788053d26f196797fcefc06defd0ec119",
+                    "node_id": "Change:apache/opendal|8213",
+                    "node_type": "Change",
+                    "number": 8213,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-09-03T07:22:33+00:00",
+                    "title": "docs: add conda-forge installation instructions",
+                    "updated_at": "2026-09-03T07:22:33+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "d3c397f2-da02-55ca-9dad-f4f9380709d6",
+                    "global_position": "2026-10-06T11:27:40.127695000Z/000000/d3c397f2-da02-55ca-9dad-f4f9380709d6",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-03T15:22:33+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8213"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 1.6,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|8214": {
+                  "node_id": "Change:apache/opendal|8214",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "",
+                    "files": [],
+                    "merge_sha": "72ef3f673dd4451f0969563b5a2def3f45cf80fb",
+                    "node_id": "Change:apache/opendal|8214",
+                    "node_type": "Change",
+                    "number": 8214,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-09-03T14:16:58+00:00",
+                    "title": "fix(ci/goosefs): switch the fixture image to GHCR v2.0.0",
+                    "updated_at": "2026-09-03T14:16:58+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "4e2717b5-4cf9-5608-95eb-018fd43e678a",
+                    "global_position": "2026-10-06T11:27:41.126463000Z/000000/4e2717b5-4cf9-5608-95eb-018fd43e678a",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-03T22:16:58+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8214"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 1.6,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|8215": {
+                  "node_id": "Change:apache/opendal|8215",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "",
+                    "files": [],
+                    "merge_sha": "2403cf8fff2ab52b9fb0f53b42e9157150e45250",
+                    "node_id": "Change:apache/opendal|8215",
+                    "node_type": "Change",
+                    "number": 8215,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-09-03T13:39:19+00:00",
+                    "title": "fix(ci): refresh apt index before installing packages",
+                    "updated_at": "2026-09-03T13:39:19+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "b502f899-177c-57b0-ac8b-29233c8569c6",
+                    "global_position": "2026-10-06T11:27:40.651743000Z/000000/b502f899-177c-57b0-ac8b-29233c8569c6",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-03T21:39:19+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8215"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 1.6,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|8216": {
+                  "node_id": "Change:apache/opendal|8216",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "`GoosefsBuilder::build()` overlaid `master_addr` on top of the config that\n`from_properties_auto()` had already resolved, so the URI authority of\n`goosefs://host:port/path` (or the `master_addr` option) always won and the\n`goosefs.master.rpc.addresses` / `goosefs.master.hostname` keys of a deployed\n`goosefs-site.properties` never reached the client. A client pointed at a site\nfile that lists the real HA masters still dialed the URI authority and failed\nwith a gRPC transport error.\n\n`build()` now resolves master addresses as `GOOSEFS_MASTER_ADDR` >\n`goosefs-site.properties` > `master_addr`. The site file outranks\n`master_addr` because it carries a deployment's whole HA master list, which a\nsingle URI authority cannot express, and `GOOSEFS_MASTER_ADDR` stays on top as\nthe per-process override. Because `from_properties_auto()` falls back to the\nSDK default `127.0.0.1:9200`, the builder now asks which source actually\ndeclared an address instead of reading the loaded value.\n\nUser-facing impact: a site file or `GOOSEFS_MASTER_ADDR` now supersedes the URI\nauthority and the `master_addr` option, and `build()` fails with\n`ConfigInvalid` when no source supplies an address instead of silently dialing\n`127.0.0.1:9200`.\n\nBump goosefs-sdk to 0.1.9 for RUSTSEC-2026-0002 (`lru` >= 0.16.3) and master\nconnection pooling. 0.1.9 does not yet honor `$GOOSEFS_CONF_DIR`;\n`$GOOSEFS_CONFIG_FILE` remains the way to point at a file outside the searched\ndirectories. Regenerated Java, .NET, and website docs for the new\n`master_addr` precedence.",
+                    "files": [],
+                    "merge_sha": "54b33a16284da7c781824474cc1555e5ee379a51",
+                    "node_id": "Change:apache/opendal|8216",
+                    "node_type": "Change",
+                    "number": 8216,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-09-04T07:43:28+00:00",
+                    "title": "fix(services/goosefs): resolve master addresses from goosefs-site.properties",
+                    "updated_at": "2026-09-04T07:43:28+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "999e6bf3-ae53-5696-aad9-b3790e8ee318",
+                    "global_position": "2026-10-06T11:27:41.682591000Z/000000/999e6bf3-ae53-5696-aad9-b3790e8ee318",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-04T15:43:28+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8216"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 1.6,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|8223": {
+                  "node_id": "Change:apache/opendal|8223",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "",
+                    "files": [],
+                    "merge_sha": "8fcab844af9ad4b8ad91e6de58ea7fbeb051eba2",
+                    "node_id": "Change:apache/opendal|8223",
+                    "node_type": "Change",
+                    "number": 8223,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-09-04T14:59:27+00:00",
+                    "title": "fix(core): include changelog in opendal-core package",
+                    "updated_at": "2026-09-04T14:59:27+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "bbfbbc9e-004f-5a71-8e16-95cb5cc7ac01",
+                    "global_position": "2026-10-06T11:27:42.058543000Z/000000/bbfbbc9e-004f-5a71-8e16-95cb5cc7ac01",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-04T22:59:27+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8223"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 1.6,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Release:apache/opendal|v0.59.1",
+                  "target": "Change:apache/opendal|8206",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.59.1",
+                  "target": "Change:apache/opendal|8213",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.59.1",
+                  "target": "Change:apache/opendal|8214",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.59.1",
+                  "target": "Change:apache/opendal|8215",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.59.1",
+                  "target": "Change:apache/opendal|8216",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.59.1",
+                  "target": "Change:apache/opendal|8223",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 1360,
+                "nodes_returned": 7,
+                "truncated": false,
+                "inferred_intents": {
+                  "trace": 1.0
+                },
+                "intent_override": null,
+                "seed_nodes": [
+                  "Release:apache/opendal|v0.59.1"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 7,
+                  "max_depth": 5
+                },
+                "eval_pending": []
+              }
+            }
+          },
+          {
+            "id": "reverted-7983",
+            "f1": 1.0,
+            "found": [
+              "Change:apache/opendal|8034"
+            ],
+            "expected": [
+              "Change:apache/opendal|8034"
+            ],
+            "response": {
+              "nodes": {
+                "Change:apache/opendal|7983": {
+                  "node_id": "Change:apache/opendal|7983",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "Co-authored-by: tison <wander4096@gmail.com>",
+                    "files": [],
+                    "merge_sha": "188f0c0744991f8fb2dc703ade6fd272832743c4",
+                    "node_id": "Change:apache/opendal|7983",
+                    "node_type": "Change",
+                    "number": 7983,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-05T01:05:00+00:00",
+                    "title": "fix(core): deserialize duration config values from strings",
+                    "updated_at": "2026-08-05T01:05:00+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "a540db3c-7862-593e-a030-2cc695294916",
+                    "global_position": "2026-10-06T11:27:12.291599000Z/000000/a540db3c-7862-593e-a030-2cc695294916",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-05T09:05:00+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-7983"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 2.0,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|8034": {
+                  "node_id": "Change:apache/opendal|8034",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "Revert \"fix(core): deserialize duration config values from strings (#7983)\"\n\nThis reverts commit 188f0c0744991f8fb2dc703ade6fd272832743c4.\nExclusion for 0.58.2 release.",
+                    "files": [],
+                    "merge_sha": "399cfbf3a4b8cc6ec0f4c3a8f74b322254c40581",
+                    "node_id": "Change:apache/opendal|8034",
+                    "node_type": "Change",
+                    "number": 8034,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-07T05:07:54+00:00",
+                    "title": "Revert \"fix(core): deserialize duration config values from strings\"",
+                    "updated_at": "2026-08-07T05:07:54+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "8414f485-99f2-5d60-b8c8-d7af9ac95d11",
+                    "global_position": "2026-10-06T11:27:12.685919000Z/000000/8414f485-99f2-5d60-b8c8-d7af9ac95d11",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-07T13:07:54+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8034"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.5714,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.58.2": {
+                  "node_id": "Release:apache/opendal|v0.58.2",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": true,
+                    "node_id": "Release:apache/opendal|v0.58.2",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-08-17T06:51:09+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-08-17T06:51:09+00:00",
+                    "version": "v0.58.2"
+                  },
+                  "provenance": {
+                    "event_id": "c75acfe8-03a9-5189-8e36-06426b6fb3f7",
+                    "global_position": "2026-10-06T11:27:18.780751000Z/000000/c75acfe8-03a9-5189-8e36-06426b6fb3f7",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-17T14:51:09+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.58.2"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.5714,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Change:apache/opendal|8034",
+                  "target": "Change:apache/opendal|7983",
+                  "edge_type": "REVERTS",
+                  "properties": {
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.58.2",
+                  "target": "Change:apache/opendal|7983",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 1198,
+                "nodes_returned": 3,
+                "truncated": false,
+                "inferred_intents": {},
+                "intent_override": null,
+                "seed_nodes": [
+                  "Change:apache/opendal|7983"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 3,
+                  "max_depth": 3
+                },
+                "eval_pending": []
+              }
+            }
+          },
+          {
+            "id": "reverted-7927",
+            "f1": 1.0,
+            "found": [
+              "Change:apache/opendal|7943"
+            ],
+            "expected": [
+              "Change:apache/opendal|7943"
+            ],
+            "response": {
+              "nodes": {
+                "Change:apache/opendal|7927": {
+                  "node_id": "Change:apache/opendal|7927",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "* fix(services/gcs): stop double-encoding object paths in writer\n\nThe writer pre-encoded the path with gcs_percent_encode_path before\ncalling gcs_insert_object_request / gcs_initiate_multipart_upload, which\npercent-encode again. A key like odfs/w/x.parquet was stored under the\nliteral name odfs%2Fw%2Fx.parquet and was unreadable, since the reader\nencodes only once. Forward the raw path so it is encoded exactly once,\nmatching the reader and the other multipart calls.\n\nAdd regression tests asserting the write request single-encodes the path.\n\n* fix(services/gcs): percent-encode path in multipart initiation\n\ngcs_initiate_multipart_upload interpolated the object path into the URL\nwithout percent-encoding, unlike gcs_upload_part / gcs_complete_multipart_upload\n/ gcs_abort_multipart_upload. Once the writer forwards the raw path, object\nnames with characters that must be escaped (spaces, '#', non-ASCII, ...) would\nproduce an invalid or wrong initiation URI. Extract the request builder and\nencode the path once, matching the other multipart calls.\n\nAdd a regression test asserting the initiation URI single-encodes the path.\n\n* refactor(services/gcs): drop encoding-fix helpers per review\n\nAddress review feedback: remove the GcsWriter::insert_object_request\nhelper (inline into write_once), the build_test_core test constructor and\nthe request-builder unit tests that relied on it, and inline the\nmultipart-initiation request builder back into gcs_initiate_multipart_upload.\n\nThe source fixes are unchanged: the writer forwards the raw path and\ngcs_initiate_multipart_upload percent-encodes the path once, matching the\nother multipart helpers.",
+                    "files": [],
+                    "merge_sha": "19e028238cdc11398099bd25a8ef7895a15d68a7",
+                    "node_id": "Change:apache/opendal|7927",
+                    "node_type": "Change",
+                    "number": 7927,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-07-23T04:11:16+00:00",
+                    "title": "fix(services/gcs): stop double-encoding object paths in writer",
+                    "updated_at": "2026-07-23T04:11:16+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "8ddf090c-2eb6-5243-8c30-b34ce88b7bdf",
+                    "global_position": "2026-10-06T11:27:05.010575000Z/000000/8ddf090c-2eb6-5243-8c30-b34ce88b7bdf",
+                    "source": "spanner",
+                    "occurred_at": "2026-07-23T12:11:16+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-7927"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 2.0,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|7943": {
+                  "node_id": "Change:apache/opendal|7943",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "Revert \"fix(services/gcs): stop double-encoding object paths in writer (#7927)\"\n\nThis reverts commit 19e028238cdc11398099bd25a8ef7895a15d68a7.",
+                    "files": [],
+                    "merge_sha": "eecfe563ac0302802da067f50e904f7e0121a01d",
+                    "node_id": "Change:apache/opendal|7943",
+                    "node_type": "Change",
+                    "number": 7943,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-07-24T04:33:16+00:00",
+                    "title": "Revert \"fix(services/gcs): stop double-encoding object paths in writer",
+                    "updated_at": "2026-07-24T04:33:16+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "35c63d99-3684-5752-9fe3-bfb5e87a2b54",
+                    "global_position": "2026-10-06T11:27:05.368655000Z/000000/35c63d99-3684-5752-9fe3-bfb5e87a2b54",
+                    "source": "spanner",
+                    "occurred_at": "2026-07-24T12:33:16+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-7943"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.5714,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.58.1": {
+                  "node_id": "Release:apache/opendal|v0.58.1",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": false,
+                    "node_id": "Release:apache/opendal|v0.58.1",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-07-28T06:23:41+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-07-28T06:23:41+00:00",
+                    "version": "v0.58.1"
+                  },
+                  "provenance": {
+                    "event_id": "92fffbc5-d809-5979-bbb4-db03ca57963f",
+                    "global_position": "2026-10-06T11:27:08.758719000Z/000000/92fffbc5-d809-5979-bbb4-db03ca57963f",
+                    "source": "spanner",
+                    "occurred_at": "2026-07-28T14:23:41+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.58.1"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.5714,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Change:apache/opendal|7943",
+                  "target": "Change:apache/opendal|7927",
+                  "edge_type": "REVERTS",
+                  "properties": {
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.58.1",
+                  "target": "Change:apache/opendal|7927",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 614,
+                "nodes_returned": 3,
+                "truncated": false,
+                "inferred_intents": {},
+                "intent_override": null,
+                "seed_nodes": [
+                  "Change:apache/opendal|7927"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 3,
+                  "max_depth": 3
+                },
+                "eval_pending": []
+              }
+            }
+          },
+          {
+            "id": "change-for-s3-express",
+            "f1": 1.0,
+            "found": [
+              "Change:apache/opendal|8135"
+            ],
+            "expected": [
+              "Change:apache/opendal|8135"
+            ],
+            "response": {
+              "nodes": {
+                "Change:apache/opendal|8135": {
+                  "node_id": "Change:apache/opendal|8135",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "* feat(services/s3): support S3 Express session auth\n\n* fix(services/s3): harden S3 Express session auth\n\n* test(services/s3): exercise concurrent session refresh\n\n* fix(services/s3): validate Express endpoints and credentials\n\n* refactor(services/s3): simplify Express signer state\n\n* refactor(services/s3): simplify Express signer selection\n\n* test(services/s3): cover S3 Express behavior\n\n* ci(services/s3): use services vault for Express tests\n\n* fix(bindings/ruby): update reqsign lockfile",
+                    "files": [],
+                    "merge_sha": "55530e90e6a70e2420ccbd8aa64e36a0320f0125",
+                    "node_id": "Change:apache/opendal|8135",
+                    "node_type": "Change",
+                    "number": 8135,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-25T07:20:12+00:00",
+                    "title": "feat(services/s3): support S3 Express session authentication",
+                    "updated_at": "2026-08-25T07:20:12+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "a15ce90c-75cb-5cd4-8995-3835aa349a25",
+                    "global_position": "2026-10-06T11:27:20.856767000Z/000000/a15ce90c-75cb-5cd4-8995-3835aa349a25",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-25T15:20:12+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8135"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.9269,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.59.0": {
+                  "node_id": "Release:apache/opendal|v0.59.0",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": true,
+                    "node_id": "Release:apache/opendal|v0.59.0",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-08-31T17:26:45+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-08-31T17:26:45+00:00",
+                    "version": "v0.59.0"
+                  },
+                  "provenance": {
+                    "event_id": "6a21de42-c2f1-5da4-b62a-db9a3ab60ea6",
+                    "global_position": "2026-10-06T11:27:39.080815000Z/000000/6a21de42-c2f1-5da4-b62a-db9a3ab60ea6",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-01T01:26:45+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.59.0"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.2648,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Release:apache/opendal|v0.59.0",
+                  "target": "Change:apache/opendal|8135",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 1512,
+                "nodes_returned": 2,
+                "truncated": false,
+                "inferred_intents": {},
+                "intent_override": null,
+                "seed_nodes": [
+                  "Change:apache/opendal|8135"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 2,
+                  "max_depth": 3
+                },
+                "eval_pending": []
+              }
+            }
+          },
+          {
+            "id": "change-for-s3-restoration",
+            "f1": 1.0,
+            "found": [
+              "Change:apache/opendal|8143"
+            ],
+            "expected": [
+              "Change:apache/opendal|8143"
+            ],
+            "response": {
+              "nodes": {
+                "Change:apache/opendal|8143": {
+                  "node_id": "Change:apache/opendal|8143",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "",
+                    "files": [],
+                    "merge_sha": "43002e13fb759ff69685a156b1c6d9c5e8a61ad9",
+                    "node_id": "Change:apache/opendal|8143",
+                    "node_type": "Change",
+                    "number": 8143,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-26T09:09:07+00:00",
+                    "title": "feat(services/s3): support object restoration",
+                    "updated_at": "2026-08-26T09:09:07+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "1e5f4313-07c8-5d11-bc12-34aa9807598a",
+                    "global_position": "2026-10-06T11:27:21.984703000Z/000000/1e5f4313-07c8-5d11-bc12-34aa9807598a",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-26T17:09:07+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8143"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.8876,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.59.0": {
+                  "node_id": "Release:apache/opendal|v0.59.0",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": true,
+                    "node_id": "Release:apache/opendal|v0.59.0",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-08-31T17:26:45+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-08-31T17:26:45+00:00",
+                    "version": "v0.59.0"
+                  },
+                  "provenance": {
+                    "event_id": "6a21de42-c2f1-5da4-b62a-db9a3ab60ea6",
+                    "global_position": "2026-10-06T11:27:39.080815000Z/000000/6a21de42-c2f1-5da4-b62a-db9a3ab60ea6",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-01T01:26:45+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.59.0"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.2536,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Release:apache/opendal|v0.59.0",
+                  "target": "Change:apache/opendal|8143",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 1274,
+                "nodes_returned": 2,
+                "truncated": false,
+                "inferred_intents": {},
+                "intent_override": null,
+                "seed_nodes": [
+                  "Change:apache/opendal|8143"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 2,
+                  "max_depth": 3
+                },
+                "eval_pending": []
+              }
+            }
+          },
+          {
+            "id": "change-for-gcs-grpc",
+            "f1": 0.33333333333333337,
+            "found": [
+              "Change:apache/opendal|7927",
+              "Change:apache/opendal|7943",
+              "Change:apache/opendal|8153",
+              "Change:apache/opendal|8185",
+              "Change:apache/opendal|8186"
+            ],
+            "expected": [
+              "Change:apache/opendal|8153"
+            ],
+            "response": {
+              "nodes": {
+                "Change:apache/opendal|8153": {
+                  "node_id": "Change:apache/opendal|8153",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "* feat(services/gcs-grpc): add GCS gRPC service\n\n* test(services/gcs-grpc): add behavior test\n\n* fix(services/gcs-grpc): preserve routing resource paths\n\n* fix(services/gcs-grpc): route resumable writes by upload ID\n\n* fix(services/gcs-grpc): bind resumable routing to bucket\n\n* chore(services/gcs-grpc): update generated service metadata",
+                    "files": [],
+                    "merge_sha": "6e921175e553c79a50eaed8e06f0a82f17c4e24a",
+                    "node_id": "Change:apache/opendal|8153",
+                    "node_type": "Change",
+                    "number": 8153,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-28T05:44:43+00:00",
+                    "title": "feat(services/gcs-grpc): add GCS gRPC service",
+                    "updated_at": "2026-08-28T05:44:43+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "59c39151-feb0-566f-aa87-976d0e64d283",
+                    "global_position": "2026-10-06T11:27:29.642655000Z/000000/59c39151-feb0-566f-aa87-976d0e64d283",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-28T13:44:43+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8153"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 1.0,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|8185": {
+                  "node_id": "Change:apache/opendal|8185",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "",
+                    "files": [],
+                    "merge_sha": "302805dbb47f680e373bf0c2c1cd7c3586f63f1c",
+                    "node_id": "Change:apache/opendal|8185",
+                    "node_type": "Change",
+                    "number": 8185,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-28T06:28:20+00:00",
+                    "title": "fix(bindings): enable gcs-grpc service",
+                    "updated_at": "2026-08-28T06:28:20+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "b1bcd7b8-6007-55d8-8fd7-5d88cbfac21d",
+                    "global_position": "2026-10-06T11:27:30.164159000Z/000000/b1bcd7b8-6007-55d8-8fd7-5d88cbfac21d",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-28T14:28:20+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8185"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.848,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|8186": {
+                  "node_id": "Change:apache/opendal|8186",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "",
+                    "files": [],
+                    "merge_sha": "ba9bba03f45bd334161872f9a9275182fed463b6",
+                    "node_id": "Change:apache/opendal|8186",
+                    "node_type": "Change",
+                    "number": 8186,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-28T07:22:54+00:00",
+                    "title": "fix: update generated gcs-grpc service docs",
+                    "updated_at": "2026-08-28T07:22:54+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "11d427af-33b5-5f75-8fe3-f7d93465b683",
+                    "global_position": "2026-10-06T11:27:31.572479000Z/000000/11d427af-33b5-5f75-8fe3-f7d93465b683",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-28T15:22:54+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8186"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.848,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|7927": {
+                  "node_id": "Change:apache/opendal|7927",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "* fix(services/gcs): stop double-encoding object paths in writer\n\nThe writer pre-encoded the path with gcs_percent_encode_path before\ncalling gcs_insert_object_request / gcs_initiate_multipart_upload, which\npercent-encode again. A key like odfs/w/x.parquet was stored under the\nliteral name odfs%2Fw%2Fx.parquet and was unreadable, since the reader\nencodes only once. Forward the raw path so it is encoded exactly once,\nmatching the reader and the other multipart calls.\n\nAdd regression tests asserting the write request single-encodes the path.\n\n* fix(services/gcs): percent-encode path in multipart initiation\n\ngcs_initiate_multipart_upload interpolated the object path into the URL\nwithout percent-encoding, unlike gcs_upload_part / gcs_complete_multipart_upload\n/ gcs_abort_multipart_upload. Once the writer forwards the raw path, object\nnames with characters that must be escaped (spaces, '#', non-ASCII, ...) would\nproduce an invalid or wrong initiation URI. Extract the request builder and\nencode the path once, matching the other multipart calls.\n\nAdd a regression test asserting the initiation URI single-encodes the path.\n\n* refactor(services/gcs): drop encoding-fix helpers per review\n\nAddress review feedback: remove the GcsWriter::insert_object_request\nhelper (inline into write_once), the build_test_core test constructor and\nthe request-builder unit tests that relied on it, and inline the\nmultipart-initiation request builder back into gcs_initiate_multipart_upload.\n\nThe source fixes are unchanged: the writer forwards the raw path and\ngcs_initiate_multipart_upload percent-encodes the path once, matching the\nother multipart helpers.",
+                    "files": [],
+                    "merge_sha": "19e028238cdc11398099bd25a8ef7895a15d68a7",
+                    "node_id": "Change:apache/opendal|7927",
+                    "node_type": "Change",
+                    "number": 7927,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-07-23T04:11:16+00:00",
+                    "title": "fix(services/gcs): stop double-encoding object paths in writer",
+                    "updated_at": "2026-07-23T04:11:16+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "8ddf090c-2eb6-5243-8c30-b34ce88b7bdf",
+                    "global_position": "2026-10-06T11:27:05.010575000Z/000000/8ddf090c-2eb6-5243-8c30-b34ce88b7bdf",
+                    "source": "spanner",
+                    "occurred_at": "2026-07-23T12:11:16+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-7927"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.5147,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.59.0": {
+                  "node_id": "Release:apache/opendal|v0.59.0",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": true,
+                    "node_id": "Release:apache/opendal|v0.59.0",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-08-31T17:26:45+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-08-31T17:26:45+00:00",
+                    "version": "v0.59.0"
+                  },
+                  "provenance": {
+                    "event_id": "6a21de42-c2f1-5da4-b62a-db9a3ab60ea6",
+                    "global_position": "2026-10-06T11:27:39.080815000Z/000000/6a21de42-c2f1-5da4-b62a-db9a3ab60ea6",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-01T01:26:45+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.59.0"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.2857,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|7943": {
+                  "node_id": "Change:apache/opendal|7943",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "Revert \"fix(services/gcs): stop double-encoding object paths in writer (#7927)\"\n\nThis reverts commit 19e028238cdc11398099bd25a8ef7895a15d68a7.",
+                    "files": [],
+                    "merge_sha": "eecfe563ac0302802da067f50e904f7e0121a01d",
+                    "node_id": "Change:apache/opendal|7943",
+                    "node_type": "Change",
+                    "number": 7943,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-07-24T04:33:16+00:00",
+                    "title": "Revert \"fix(services/gcs): stop double-encoding object paths in writer",
+                    "updated_at": "2026-07-24T04:33:16+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "35c63d99-3684-5752-9fe3-bfb5e87a2b54",
+                    "global_position": "2026-10-06T11:27:05.368655000Z/000000/35c63d99-3684-5752-9fe3-bfb5e87a2b54",
+                    "source": "spanner",
+                    "occurred_at": "2026-07-24T12:33:16+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-7943"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.147,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.58.1": {
+                  "node_id": "Release:apache/opendal|v0.58.1",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": false,
+                    "node_id": "Release:apache/opendal|v0.58.1",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-07-28T06:23:41+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-07-28T06:23:41+00:00",
+                    "version": "v0.58.1"
+                  },
+                  "provenance": {
+                    "event_id": "92fffbc5-d809-5979-bbb4-db03ca57963f",
+                    "global_position": "2026-10-06T11:27:08.758719000Z/000000/92fffbc5-d809-5979-bbb4-db03ca57963f",
+                    "source": "spanner",
+                    "occurred_at": "2026-07-28T14:23:41+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.58.1"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.147,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Change:apache/opendal|7943",
+                  "target": "Change:apache/opendal|7927",
+                  "edge_type": "REVERTS",
+                  "properties": {
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.58.1",
+                  "target": "Change:apache/opendal|7927",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.59.0",
+                  "target": "Change:apache/opendal|8153",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.59.0",
+                  "target": "Change:apache/opendal|8185",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.59.0",
+                  "target": "Change:apache/opendal|8186",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 1290,
+                "nodes_returned": 7,
+                "truncated": false,
+                "inferred_intents": {},
+                "intent_override": null,
+                "seed_nodes": [
+                  "Change:apache/opendal|8153",
+                  "Change:apache/opendal|8185",
+                  "Change:apache/opendal|8186",
+                  "Change:apache/opendal|7927"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 7,
+                  "max_depth": 3
+                },
+                "eval_pending": []
+              }
+            }
+          },
+          {
+            "id": "change-for-aws-profiles",
+            "f1": 1.0,
+            "found": [
+              "Change:apache/opendal|7949"
+            ],
+            "expected": [
+              "Change:apache/opendal|7949"
+            ],
+            "response": {
+              "nodes": {
+                "Change:apache/opendal|7949": {
+                  "node_id": "Change:apache/opendal|7949",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "* feat(services/s3): support explicit AWS profiles\n\n* chore: keep reqsign profile APIs pinned\n\n* chore(services/s3): use released reqsign profile APIs\n\n* refactor(services/s3): simplify profile delegation\n\n* refactor(services/s3): narrow profile selection changes\n\n* Update core/services/s3/src/config.rs\n\nCo-authored-by: Erick Guan <297343+erickguan@users.noreply.github.com>\n\n* chore(services/s3): bump reqsign to v0.20.5\n\nPick up the AssumeRole SignatureDoesNotMatch fix from the reqsign\n0.20.5 release and regenerate binding/docs config outputs after the\nprofile docs tweak.\n\n---------\n\nCo-authored-by: Erick Guan <297343+erickguan@users.noreply.github.com>",
+                    "files": [],
+                    "merge_sha": "18f245855959d9cb2192d07b14d101e98b541342",
+                    "node_id": "Change:apache/opendal|7949",
+                    "node_type": "Change",
+                    "number": 7949,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-07T14:02:33+00:00",
+                    "title": "feat(services/s3): support explicit AWS profiles",
+                    "updated_at": "2026-08-07T14:02:33+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "3fe88f72-eb5e-59e0-9ea1-573b61dfebea",
+                    "global_position": "2026-10-06T11:27:13.002543000Z/000000/3fe88f72-eb5e-59e0-9ea1-573b61dfebea",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-07T22:02:33+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-7949"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.9284,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.58.2": {
+                  "node_id": "Release:apache/opendal|v0.58.2",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": true,
+                    "node_id": "Release:apache/opendal|v0.58.2",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-08-17T06:51:09+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-08-17T06:51:09+00:00",
+                    "version": "v0.58.2"
+                  },
+                  "provenance": {
+                    "event_id": "c75acfe8-03a9-5189-8e36-06426b6fb3f7",
+                    "global_position": "2026-10-06T11:27:18.780751000Z/000000/c75acfe8-03a9-5189-8e36-06426b6fb3f7",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-17T14:51:09+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.58.2"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.2652,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Release:apache/opendal|v0.58.2",
+                  "target": "Change:apache/opendal|7949",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 1317,
+                "nodes_returned": 2,
+                "truncated": false,
+                "inferred_intents": {},
+                "intent_override": null,
+                "seed_nodes": [
+                  "Change:apache/opendal|7949"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 2,
+                  "max_depth": 3
+                },
+                "eval_pending": []
+              }
+            }
+          },
+          {
+            "id": "change-for-http-429",
+            "f1": 1.0,
+            "found": [
+              "Change:apache/opendal|8035"
+            ],
+            "expected": [
+              "Change:apache/opendal|8035"
+            ],
+            "response": {
+              "nodes": {
+                "Change:apache/opendal|8035": {
+                  "node_id": "Change:apache/opendal|8035",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "",
+                    "files": [],
+                    "merge_sha": "f4c6cda832b7529ddcb64eff2a1a3b2638d71bae",
+                    "node_id": "Change:apache/opendal|8035",
+                    "node_type": "Change",
+                    "number": 8035,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-07T13:23:19+00:00",
+                    "title": "feat(services): retry HTTP 429 responses",
+                    "updated_at": "2026-08-07T13:23:19+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "c4f86605-dca4-5e8a-89b1-a0f1b22c86bf",
+                    "global_position": "2026-10-06T11:27:12.878591000Z/000000/c4f86605-dca4-5e8a-89b1-a0f1b22c86bf",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-07T21:23:19+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8035"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 1.0,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.58.2": {
+                  "node_id": "Release:apache/opendal|v0.58.2",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": true,
+                    "node_id": "Release:apache/opendal|v0.58.2",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-08-17T06:51:09+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-08-17T06:51:09+00:00",
+                    "version": "v0.58.2"
+                  },
+                  "provenance": {
+                    "event_id": "c75acfe8-03a9-5189-8e36-06426b6fb3f7",
+                    "global_position": "2026-10-06T11:27:18.780751000Z/000000/c75acfe8-03a9-5189-8e36-06426b6fb3f7",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-17T14:51:09+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.58.2"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.2857,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Release:apache/opendal|v0.58.2",
+                  "target": "Change:apache/opendal|8035",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 1494,
+                "nodes_returned": 2,
+                "truncated": false,
+                "inferred_intents": {},
+                "intent_override": null,
+                "seed_nodes": [
+                  "Change:apache/opendal|8035"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 2,
+                  "max_depth": 3
+                },
+                "eval_pending": []
+              }
+            }
+          },
+          {
+            "id": "change-for-gcs-compose",
+            "f1": 0.6666666666666666,
+            "found": [
+              "Change:apache/opendal|8153",
+              "Change:apache/opendal|8191"
+            ],
+            "expected": [
+              "Change:apache/opendal|8191"
+            ],
+            "response": {
+              "nodes": {
+                "Change:apache/opendal|8191": {
+                  "node_id": "Change:apache/opendal|8191",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "",
+                    "files": [],
+                    "merge_sha": "56495b2e2035b3c8e90e674f0fc3187f5a5c2f73",
+                    "node_id": "Change:apache/opendal|8191",
+                    "node_type": "Change",
+                    "number": 8191,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-31T04:11:00+00:00",
+                    "title": "feat(services/gcs): support compose",
+                    "updated_at": "2026-08-31T04:11:00+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "57c2705b-7eff-5754-9f0a-da25f333234d",
+                    "global_position": "2026-10-06T11:27:35.125935000Z/000000/57c2705b-7eff-5754-9f0a-da25f333234d",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-31T12:11:00+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8191"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.867,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|8153": {
+                  "node_id": "Change:apache/opendal|8153",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "* feat(services/gcs-grpc): add GCS gRPC service\n\n* test(services/gcs-grpc): add behavior test\n\n* fix(services/gcs-grpc): preserve routing resource paths\n\n* fix(services/gcs-grpc): route resumable writes by upload ID\n\n* fix(services/gcs-grpc): bind resumable routing to bucket\n\n* chore(services/gcs-grpc): update generated service metadata",
+                    "files": [],
+                    "merge_sha": "6e921175e553c79a50eaed8e06f0a82f17c4e24a",
+                    "node_id": "Change:apache/opendal|8153",
+                    "node_type": "Change",
+                    "number": 8153,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-28T05:44:43+00:00",
+                    "title": "feat(services/gcs-grpc): add GCS gRPC service",
+                    "updated_at": "2026-08-28T05:44:43+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "59c39151-feb0-566f-aa87-976d0e64d283",
+                    "global_position": "2026-10-06T11:27:29.642655000Z/000000/59c39151-feb0-566f-aa87-976d0e64d283",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-28T13:44:43+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8153"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.4339,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.59.0": {
+                  "node_id": "Release:apache/opendal|v0.59.0",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": true,
+                    "node_id": "Release:apache/opendal|v0.59.0",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-08-31T17:26:45+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-08-31T17:26:45+00:00",
+                    "version": "v0.59.0"
+                  },
+                  "provenance": {
+                    "event_id": "6a21de42-c2f1-5da4-b62a-db9a3ab60ea6",
+                    "global_position": "2026-10-06T11:27:39.080815000Z/000000/6a21de42-c2f1-5da4-b62a-db9a3ab60ea6",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-01T01:26:45+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.59.0"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.2477,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Release:apache/opendal|v0.59.0",
+                  "target": "Change:apache/opendal|8153",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.59.0",
+                  "target": "Change:apache/opendal|8191",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 1338,
+                "nodes_returned": 3,
+                "truncated": false,
+                "inferred_intents": {},
+                "intent_override": null,
+                "seed_nodes": [
+                  "Change:apache/opendal|8191",
+                  "Change:apache/opendal|8153"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 3,
+                  "max_depth": 3
+                },
+                "eval_pending": []
+              }
+            }
+          },
+          {
+            "id": "release-for-gcs-grpc",
+            "f1": 0.5,
+            "found": [
+              "Release:apache/opendal|v0.58.1",
+              "Release:apache/opendal|v0.59.0",
+              "Release:apache/opendal|v0.59.1"
+            ],
+            "expected": [
+              "Release:apache/opendal|v0.59.0"
+            ],
+            "response": {
+              "nodes": {
+                "Change:apache/opendal|8153": {
+                  "node_id": "Change:apache/opendal|8153",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "* feat(services/gcs-grpc): add GCS gRPC service\n\n* test(services/gcs-grpc): add behavior test\n\n* fix(services/gcs-grpc): preserve routing resource paths\n\n* fix(services/gcs-grpc): route resumable writes by upload ID\n\n* fix(services/gcs-grpc): bind resumable routing to bucket\n\n* chore(services/gcs-grpc): update generated service metadata",
+                    "files": [],
+                    "merge_sha": "6e921175e553c79a50eaed8e06f0a82f17c4e24a",
+                    "node_id": "Change:apache/opendal|8153",
+                    "node_type": "Change",
+                    "number": 8153,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-28T05:44:43+00:00",
+                    "title": "feat(services/gcs-grpc): add GCS gRPC service",
+                    "updated_at": "2026-08-28T05:44:43+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "59c39151-feb0-566f-aa87-976d0e64d283",
+                    "global_position": "2026-10-06T11:27:29.642655000Z/000000/59c39151-feb0-566f-aa87-976d0e64d283",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-28T13:44:43+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8153"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.595,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|8185": {
+                  "node_id": "Change:apache/opendal|8185",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "",
+                    "files": [],
+                    "merge_sha": "302805dbb47f680e373bf0c2c1cd7c3586f63f1c",
+                    "node_id": "Change:apache/opendal|8185",
+                    "node_type": "Change",
+                    "number": 8185,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-28T06:28:20+00:00",
+                    "title": "fix(bindings): enable gcs-grpc service",
+                    "updated_at": "2026-08-28T06:28:20+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "b1bcd7b8-6007-55d8-8fd7-5d88cbfac21d",
+                    "global_position": "2026-10-06T11:27:30.164159000Z/000000/b1bcd7b8-6007-55d8-8fd7-5d88cbfac21d",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-28T14:28:20+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8185"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.595,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|8186": {
+                  "node_id": "Change:apache/opendal|8186",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "",
+                    "files": [],
+                    "merge_sha": "ba9bba03f45bd334161872f9a9275182fed463b6",
+                    "node_id": "Change:apache/opendal|8186",
+                    "node_type": "Change",
+                    "number": 8186,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-28T07:22:54+00:00",
+                    "title": "fix: update generated gcs-grpc service docs",
+                    "updated_at": "2026-08-28T07:22:54+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "11d427af-33b5-5f75-8fe3-f7d93465b683",
+                    "global_position": "2026-10-06T11:27:31.572479000Z/000000/11d427af-33b5-5f75-8fe3-f7d93465b683",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-28T15:22:54+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8186"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.595,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.59.0": {
+                  "node_id": "Release:apache/opendal|v0.59.0",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": true,
+                    "node_id": "Release:apache/opendal|v0.59.0",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-08-31T17:26:45+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-08-31T17:26:45+00:00",
+                    "version": "v0.59.0"
+                  },
+                  "provenance": {
+                    "event_id": "6a21de42-c2f1-5da4-b62a-db9a3ab60ea6",
+                    "global_position": "2026-10-06T11:27:39.080815000Z/000000/6a21de42-c2f1-5da4-b62a-db9a3ab60ea6",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-01T01:26:45+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.59.0"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.476,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|7927": {
+                  "node_id": "Change:apache/opendal|7927",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "* fix(services/gcs): stop double-encoding object paths in writer\n\nThe writer pre-encoded the path with gcs_percent_encode_path before\ncalling gcs_insert_object_request / gcs_initiate_multipart_upload, which\npercent-encode again. A key like odfs/w/x.parquet was stored under the\nliteral name odfs%2Fw%2Fx.parquet and was unreadable, since the reader\nencodes only once. Forward the raw path so it is encoded exactly once,\nmatching the reader and the other multipart calls.\n\nAdd regression tests asserting the write request single-encodes the path.\n\n* fix(services/gcs): percent-encode path in multipart initiation\n\ngcs_initiate_multipart_upload interpolated the object path into the URL\nwithout percent-encoding, unlike gcs_upload_part / gcs_complete_multipart_upload\n/ gcs_abort_multipart_upload. Once the writer forwards the raw path, object\nnames with characters that must be escaped (spaces, '#', non-ASCII, ...) would\nproduce an invalid or wrong initiation URI. Extract the request builder and\nencode the path once, matching the other multipart calls.\n\nAdd a regression test asserting the initiation URI single-encodes the path.\n\n* refactor(services/gcs): drop encoding-fix helpers per review\n\nAddress review feedback: remove the GcsWriter::insert_object_request\nhelper (inline into write_once), the build_test_core test constructor and\nthe request-builder unit tests that relied on it, and inline the\nmultipart-initiation request builder back into gcs_initiate_multipart_upload.\n\nThe source fixes are unchanged: the writer forwards the raw path and\ngcs_initiate_multipart_upload percent-encodes the path once, matching the\nother multipart helpers.",
+                    "files": [],
+                    "merge_sha": "19e028238cdc11398099bd25a8ef7895a15d68a7",
+                    "node_id": "Change:apache/opendal|7927",
+                    "node_type": "Change",
+                    "number": 7927,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-07-23T04:11:16+00:00",
+                    "title": "fix(services/gcs): stop double-encoding object paths in writer",
+                    "updated_at": "2026-07-23T04:11:16+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "8ddf090c-2eb6-5243-8c30-b34ce88b7bdf",
+                    "global_position": "2026-10-06T11:27:05.010575000Z/000000/8ddf090c-2eb6-5243-8c30-b34ce88b7bdf",
+                    "source": "spanner",
+                    "occurred_at": "2026-07-23T12:11:16+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-7927"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.3009,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|7943": {
+                  "node_id": "Change:apache/opendal|7943",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "Revert \"fix(services/gcs): stop double-encoding object paths in writer (#7927)\"\n\nThis reverts commit 19e028238cdc11398099bd25a8ef7895a15d68a7.",
+                    "files": [],
+                    "merge_sha": "eecfe563ac0302802da067f50e904f7e0121a01d",
+                    "node_id": "Change:apache/opendal|7943",
+                    "node_type": "Change",
+                    "number": 7943,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-07-24T04:33:16+00:00",
+                    "title": "Revert \"fix(services/gcs): stop double-encoding object paths in writer",
+                    "updated_at": "2026-07-24T04:33:16+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "35c63d99-3684-5752-9fe3-bfb5e87a2b54",
+                    "global_position": "2026-10-06T11:27:05.368655000Z/000000/35c63d99-3684-5752-9fe3-bfb5e87a2b54",
+                    "source": "spanner",
+                    "occurred_at": "2026-07-24T12:33:16+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-7943"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.3009,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|7947": {
+                  "node_id": "Change:apache/opendal|7947",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "",
+                    "files": [],
+                    "merge_sha": "7ce945d925ac765f3d5f877451a27f48bd7b862e",
+                    "node_id": "Change:apache/opendal|7947",
+                    "node_type": "Change",
+                    "number": 7947,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-07-27T01:51:36+00:00",
+                    "title": "fix(services/gcs): encode object paths exactly once",
+                    "updated_at": "2026-07-27T01:51:36+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "31ce333a-664d-542c-a49a-b6b53de99a2f",
+                    "global_position": "2026-10-06T11:27:06.362143000Z/000000/31ce333a-664d-542c-a49a-b6b53de99a2f",
+                    "source": "spanner",
+                    "occurred_at": "2026-07-27T09:51:36+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-7947"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.3009,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|8191": {
+                  "node_id": "Change:apache/opendal|8191",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "",
+                    "files": [],
+                    "merge_sha": "56495b2e2035b3c8e90e674f0fc3187f5a5c2f73",
+                    "node_id": "Change:apache/opendal|8191",
+                    "node_type": "Change",
+                    "number": 8191,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-31T04:11:00+00:00",
+                    "title": "feat(services/gcs): support compose",
+                    "updated_at": "2026-08-31T04:11:00+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "57c2705b-7eff-5754-9f0a-da25f333234d",
+                    "global_position": "2026-10-06T11:27:35.125935000Z/000000/57c2705b-7eff-5754-9f0a-da25f333234d",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-31T12:11:00+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8191"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.3009,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|8199": {
+                  "node_id": "Change:apache/opendal|8199",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "",
+                    "files": [],
+                    "merge_sha": "5de8df3818d5f6f7e0621162ee38ca367d46737f",
+                    "node_id": "Change:apache/opendal|8199",
+                    "node_type": "Change",
+                    "number": 8199,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-31T07:51:31+00:00",
+                    "title": "fix(services/gcs): make conditional uploads retry-safe",
+                    "updated_at": "2026-08-31T07:51:31+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "8307c2d8-d36b-5370-ab6a-53ba2b454d4f",
+                    "global_position": "2026-10-06T11:27:36.095471000Z/000000/8307c2d8-d36b-5370-ab6a-53ba2b454d4f",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-31T15:51:31+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8199"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.3009,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Change:apache/opendal|8206": {
+                  "node_id": "Change:apache/opendal|8206",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "Propagate override_content_disposition, override_content_type, and override_cache_control into query parameters (response-content-disposition, response-content-type, response-cache-control) for GCS XML GET and HEAD presigned requests.\n\nCloses #8187.",
+                    "files": [],
+                    "merge_sha": "670d8f9637ff79fd0a3a2f00cdf751fb3b11f994",
+                    "node_id": "Change:apache/opendal|8206",
+                    "node_type": "Change",
+                    "number": 8206,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-09-01T04:45:12+00:00",
+                    "title": "feat(services/gcs): propagate response header overrides into presigned XML requests",
+                    "updated_at": "2026-09-01T04:45:12+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "2d39cff7-6e00-5d51-9831-a83394f6213b",
+                    "global_position": "2026-10-06T11:27:39.609359000Z/000000/2d39cff7-6e00-5d51-9831-a83394f6213b",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-01T12:45:12+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8206"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.3009,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.58.1": {
+                  "node_id": "Release:apache/opendal|v0.58.1",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": false,
+                    "node_id": "Release:apache/opendal|v0.58.1",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-07-28T06:23:41+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-07-28T06:23:41+00:00",
+                    "version": "v0.58.1"
+                  },
+                  "provenance": {
+                    "event_id": "92fffbc5-d809-5979-bbb4-db03ca57963f",
+                    "global_position": "2026-10-06T11:27:08.758719000Z/000000/92fffbc5-d809-5979-bbb4-db03ca57963f",
+                    "source": "spanner",
+                    "occurred_at": "2026-07-28T14:23:41+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.58.1"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.2407,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.59.1": {
+                  "node_id": "Release:apache/opendal|v0.59.1",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": false,
+                    "node_id": "Release:apache/opendal|v0.59.1",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-09-05T07:28:18+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-09-05T07:28:18+00:00",
+                    "version": "v0.59.1"
+                  },
+                  "provenance": {
+                    "event_id": "217c8b3d-9183-5407-9a7d-96805fb00140",
+                    "global_position": "2026-10-06T11:27:43.121375000Z/000000/217c8b3d-9183-5407-9a7d-96805fb00140",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-05T15:28:18+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.59.1"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.2407,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Release:apache/opendal|v0.58.1",
+                  "target": "Change:apache/opendal|7927",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.58.1",
+                  "target": "Change:apache/opendal|7943",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.58.1",
+                  "target": "Change:apache/opendal|7947",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.59.0",
+                  "target": "Change:apache/opendal|8153",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.59.0",
+                  "target": "Change:apache/opendal|8185",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.59.0",
+                  "target": "Change:apache/opendal|8186",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.59.0",
+                  "target": "Change:apache/opendal|8191",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.59.0",
+                  "target": "Change:apache/opendal|8199",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                },
+                {
+                  "source": "Release:apache/opendal|v0.59.1",
+                  "target": "Change:apache/opendal|8206",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 1290,
+                "nodes_returned": 12,
+                "truncated": false,
+                "inferred_intents": {
+                  "trace": 1.0
+                },
+                "intent_override": null,
+                "seed_nodes": [
+                  "Change:apache/opendal|8153",
+                  "Change:apache/opendal|8185",
+                  "Change:apache/opendal|8186",
+                  "Change:apache/opendal|7927",
+                  "Change:apache/opendal|7943",
+                  "Change:apache/opendal|7947",
+                  "Change:apache/opendal|8191",
+                  "Change:apache/opendal|8199",
+                  "Change:apache/opendal|8206"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 12,
+                  "max_depth": 5
+                },
+                "eval_pending": []
+              }
+            }
+          },
+          {
+            "id": "release-for-s3-express",
+            "f1": 1.0,
+            "found": [
+              "Release:apache/opendal|v0.59.0"
+            ],
+            "expected": [
+              "Release:apache/opendal|v0.59.0"
+            ],
+            "response": {
+              "nodes": {
+                "Change:apache/opendal|8135": {
+                  "node_id": "Change:apache/opendal|8135",
+                  "node_type": "Change",
+                  "attributes": {
+                    "body": "* feat(services/s3): support S3 Express session auth\n\n* fix(services/s3): harden S3 Express session auth\n\n* test(services/s3): exercise concurrent session refresh\n\n* fix(services/s3): validate Express endpoints and credentials\n\n* refactor(services/s3): simplify Express signer state\n\n* refactor(services/s3): simplify Express signer selection\n\n* test(services/s3): cover S3 Express behavior\n\n* ci(services/s3): use services vault for Express tests\n\n* fix(bindings/ruby): update reqsign lockfile",
+                    "files": [],
+                    "merge_sha": "55530e90e6a70e2420ccbd8aa64e36a0320f0125",
+                    "node_id": "Change:apache/opendal|8135",
+                    "node_type": "Change",
+                    "number": 8135,
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "status": "merged",
+                    "status_changed_at": "2026-08-25T07:20:12+00:00",
+                    "title": "feat(services/s3): support S3 Express session authentication",
+                    "updated_at": "2026-08-25T07:20:12+00:00"
+                  },
+                  "provenance": {
+                    "event_id": "a15ce90c-75cb-5cd4-8995-3835aa349a25",
+                    "global_position": "2026-10-06T11:27:20.856767000Z/000000/a15ce90c-75cb-5cd4-8995-3835aa349a25",
+                    "source": "spanner",
+                    "occurred_at": "2026-08-25T15:20:12+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-pr-8135"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.7294,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "direct",
+                  "proactive_signal": null
+                },
+                "Release:apache/opendal|v0.59.0": {
+                  "node_id": "Release:apache/opendal|v0.59.0",
+                  "node_type": "Release",
+                  "attributes": {
+                    "breaking": true,
+                    "node_id": "Release:apache/opendal|v0.59.0",
+                    "node_type": "Release",
+                    "ontology_version": "sha256:3a7c761cd2848649",
+                    "released_at": "2026-08-31T17:26:45+00:00",
+                    "repo": "apache/opendal",
+                    "source_trust": "trusted",
+                    "updated_at": "2026-08-31T17:26:45+00:00",
+                    "version": "v0.59.0"
+                  },
+                  "provenance": {
+                    "event_id": "6a21de42-c2f1-5da4-b62a-db9a3ab60ea6",
+                    "global_position": "2026-10-06T11:27:39.080815000Z/000000/6a21de42-c2f1-5da4-b62a-db9a3ab60ea6",
+                    "source": "spanner",
+                    "occurred_at": "2026-09-01T01:26:45+08:00",
+                    "session_id": "pdlc:apache/opendal",
+                    "agent_id": "webhook:github",
+                    "trace_id": "opendal-release-v0.59.0"
+                  },
+                  "scores": {
+                    "decay_score": 0.0,
+                    "relevance_score": 0.5835,
+                    "importance_score": 0,
+                    "ppr_score": 0.0
+                  },
+                  "retrieval_reason": "proactive",
+                  "proactive_signal": null
+                }
+              },
+              "edges": [
+                {
+                  "source": "Release:apache/opendal|v0.59.0",
+                  "target": "Change:apache/opendal|8135",
+                  "edge_type": "INCLUDES",
+                  "properties": {
+                    "section": "other",
+                    "source_trust": "trusted"
+                  }
+                }
+              ],
+              "pagination": {
+                "cursor": null,
+                "has_more": false
+              },
+              "meta": {
+                "query_ms": 1454,
+                "nodes_returned": 2,
+                "truncated": false,
+                "inferred_intents": {
+                  "trace": 1.0
+                },
+                "intent_override": null,
+                "seed_nodes": [
+                  "Change:apache/opendal|8135"
+                ],
+                "seed_strategy": "artifact_seeds",
+                "proactive_nodes_count": 0,
+                "scoring_weights": {
+                  "recency": 1.0,
+                  "importance": 1.0,
+                  "relevance": 1.0
+                },
+                "retrieval_channels": {},
+                "capacity": {
+                  "max_nodes": 500,
+                  "used_nodes": 2,
+                  "max_depth": 5
+                },
+                "eval_pending": []
+              }
+            }
+          }
+        ]
+      },
+      "seconds": 20.2
+    }
+  ],
+  "resets": [],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

@@ -1,0 +1,1664 @@
+FFFFFFFFFFFF............................................................ [ 64%]
+.......................................                                  [100%]
+=================================== FAILURES ===================================
+______ test_contract_valid_unequal_keys_refuse_whole_plan[groups0-items0] ______
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+>           return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/context_graph/ontology/loader.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/__init__.py:81: in load
+    return loader.get_single_data()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/constructor.py:49: in get_single_data
+    node = self.get_single_node()
+           ^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:36: in get_single_node
+    document = self.compose_document()
+               ^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:55: in compose_document
+    node = self.compose_node(None, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.ontology.loader._PackLoader object at 0x110301e80>
+parent = MappingNode(tag='tag:yaml.org,2002:map', value=[(ScalarNode(tag='tag:yaml.org,2002:str', value='groups'), MappingNode(...ScalarNode(tag='tag:yaml.org,2002:str', value='type'), ScalarNode(tag='tag:yaml.org,2002:str', value='string'))]))]))])
+index = ScalarNode(tag='tag:yaml.org,2002:str', value='items')
+
+    def compose_node(self, parent: Any, index: Any) -> Any:
+        if self.check_event(yaml.events.AliasEvent):
+            event = self.peek_event()  # type: ignore[no-untyped-call]
+>           raise yaml.composer.ComposerError(
+                None, None, "aliases are not allowed in pack files", event.start_mark
+            )
+E           yaml.composer.ComposerError: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:59: ComposerError
+
+The above exception was the direct cause of the following exception:
+
+groups = ['g'], items = ['a', 'b']
+
+    @pytest.mark.parametrize("groups,items", [(["g"], ["a", "b"]), ([], ["a"])])
+    def test_contract_valid_unequal_keys_refuse_whole_plan(groups, items):
+        with pytest.raises(projection.ProjectionExpansionError) as error:
+>           plan({"groups": groups, "items": items})
+
+tests/unit/test_projection_expansion.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_projection_expansion.py:20: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_projection_expansion.py:16: in registry
+    return load_registry(["expansion"], [Path("tests/fixtures/pack_contracts")], builtin_packs=[])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:223: in load_registry
+    pack = load_pack_file(find_pack(name, dirs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:163: in load_pack_file
+    return parse_pack(path.read_text(encoding="utf-8"), source=str(path))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:149: in parse_pack
+    data = load_yaml(text, source)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+            return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+        except yaml.YAMLError as exc:
+>           raise OntologyError([f"{source}: {exc}"]) from exc
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - tests/fixtures/pack_contracts/expansion.pack.yaml: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:144: OntologyError
+______ test_contract_valid_unequal_keys_refuse_whole_plan[groups1-items1] ______
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+>           return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/context_graph/ontology/loader.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/__init__.py:81: in load
+    return loader.get_single_data()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/constructor.py:49: in get_single_data
+    node = self.get_single_node()
+           ^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:36: in get_single_node
+    document = self.compose_document()
+               ^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:55: in compose_document
+    node = self.compose_node(None, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.ontology.loader._PackLoader object at 0x1104cf110>
+parent = MappingNode(tag='tag:yaml.org,2002:map', value=[(ScalarNode(tag='tag:yaml.org,2002:str', value='groups'), MappingNode(...ScalarNode(tag='tag:yaml.org,2002:str', value='type'), ScalarNode(tag='tag:yaml.org,2002:str', value='string'))]))]))])
+index = ScalarNode(tag='tag:yaml.org,2002:str', value='items')
+
+    def compose_node(self, parent: Any, index: Any) -> Any:
+        if self.check_event(yaml.events.AliasEvent):
+            event = self.peek_event()  # type: ignore[no-untyped-call]
+>           raise yaml.composer.ComposerError(
+                None, None, "aliases are not allowed in pack files", event.start_mark
+            )
+E           yaml.composer.ComposerError: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:59: ComposerError
+
+The above exception was the direct cause of the following exception:
+
+groups = [], items = ['a']
+
+    @pytest.mark.parametrize("groups,items", [(["g"], ["a", "b"]), ([], ["a"])])
+    def test_contract_valid_unequal_keys_refuse_whole_plan(groups, items):
+        with pytest.raises(projection.ProjectionExpansionError) as error:
+>           plan({"groups": groups, "items": items})
+
+tests/unit/test_projection_expansion.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_projection_expansion.py:20: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_projection_expansion.py:16: in registry
+    return load_registry(["expansion"], [Path("tests/fixtures/pack_contracts")], builtin_packs=[])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:223: in load_registry
+    pack = load_pack_file(find_pack(name, dirs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:163: in load_pack_file
+    return parse_pack(path.read_text(encoding="utf-8"), source=str(path))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:149: in parse_pack
+    data = load_yaml(text, source)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+            return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+        except yaml.YAMLError as exc:
+>           raise OntologyError([f"{source}: {exc}"]) from exc
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - tests/fixtures/pack_contracts/expansion.pack.yaml: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:144: OntologyError
+_______________ test_equal_keys_and_all_empty_have_exact_outputs _______________
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+>           return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/context_graph/ontology/loader.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/__init__.py:81: in load
+    return loader.get_single_data()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/constructor.py:49: in get_single_data
+    node = self.get_single_node()
+           ^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:36: in get_single_node
+    document = self.compose_document()
+               ^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:55: in compose_document
+    node = self.compose_node(None, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.ontology.loader._PackLoader object at 0x1104f7bc0>
+parent = MappingNode(tag='tag:yaml.org,2002:map', value=[(ScalarNode(tag='tag:yaml.org,2002:str', value='groups'), MappingNode(...ScalarNode(tag='tag:yaml.org,2002:str', value='type'), ScalarNode(tag='tag:yaml.org,2002:str', value='string'))]))]))])
+index = ScalarNode(tag='tag:yaml.org,2002:str', value='items')
+
+    def compose_node(self, parent: Any, index: Any) -> Any:
+        if self.check_event(yaml.events.AliasEvent):
+            event = self.peek_event()  # type: ignore[no-untyped-call]
+>           raise yaml.composer.ComposerError(
+                None, None, "aliases are not allowed in pack files", event.start_mark
+            )
+E           yaml.composer.ComposerError: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:59: ComposerError
+
+The above exception was the direct cause of the following exception:
+
+    def test_equal_keys_and_all_empty_have_exact_outputs():
+>       result = plan({"groups": ["g", "h"], "items": ["a", "b"]})
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_projection_expansion.py:43: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_projection_expansion.py:20: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_projection_expansion.py:16: in registry
+    return load_registry(["expansion"], [Path("tests/fixtures/pack_contracts")], builtin_packs=[])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:223: in load_registry
+    pack = load_pack_file(find_pack(name, dirs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:163: in load_pack_file
+    return parse_pack(path.read_text(encoding="utf-8"), source=str(path))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:149: in parse_pack
+    data = load_yaml(text, source)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+            return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+        except yaml.YAMLError as exc:
+>           raise OntologyError([f"{source}: {exc}"]) from exc
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - tests/fixtures/pack_contracts/expansion.pack.yaml: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:144: OntologyError
+__________ test_scalar_keys_broadcast_and_preserve_original_positions __________
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+>           return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/context_graph/ontology/loader.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/__init__.py:81: in load
+    return loader.get_single_data()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/constructor.py:49: in get_single_data
+    node = self.get_single_node()
+           ^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:36: in get_single_node
+    document = self.compose_document()
+               ^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:55: in compose_document
+    node = self.compose_node(None, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.ontology.loader._PackLoader object at 0x1105a8620>
+parent = MappingNode(tag='tag:yaml.org,2002:map', value=[(ScalarNode(tag='tag:yaml.org,2002:str', value='groups'), MappingNode(...ScalarNode(tag='tag:yaml.org,2002:str', value='type'), ScalarNode(tag='tag:yaml.org,2002:str', value='string'))]))]))])
+index = ScalarNode(tag='tag:yaml.org,2002:str', value='items')
+
+    def compose_node(self, parent: Any, index: Any) -> Any:
+        if self.check_event(yaml.events.AliasEvent):
+            event = self.peek_event()  # type: ignore[no-untyped-call]
+>           raise yaml.composer.ComposerError(
+                None, None, "aliases are not allowed in pack files", event.start_mark
+            )
+E           yaml.composer.ComposerError: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:59: ComposerError
+
+The above exception was the direct cause of the following exception:
+
+    def test_scalar_keys_broadcast_and_preserve_original_positions():
+>       result = plan({"sources": ["a", "", "c"], "targets": ["x", "y", "z"]}, "expansion.stubbed")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_projection_expansion.py:50: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_projection_expansion.py:20: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_projection_expansion.py:16: in registry
+    return load_registry(["expansion"], [Path("tests/fixtures/pack_contracts")], builtin_packs=[])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:223: in load_registry
+    pack = load_pack_file(find_pack(name, dirs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:163: in load_pack_file
+    return parse_pack(path.read_text(encoding="utf-8"), source=str(path))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:149: in parse_pack
+    data = load_yaml(text, source)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+            return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+        except yaml.YAMLError as exc:
+>           raise OntologyError([f"{source}: {exc}"]) from exc
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - tests/fixtures/pack_contracts/expansion.pack.yaml: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:144: OntologyError
+_____________ test_equal_fanout_uses_index_join_not_quadratic_scan _____________
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+>           return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/context_graph/ontology/loader.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/__init__.py:81: in load
+    return loader.get_single_data()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/constructor.py:49: in get_single_data
+    node = self.get_single_node()
+           ^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:36: in get_single_node
+    document = self.compose_document()
+               ^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:55: in compose_document
+    node = self.compose_node(None, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.ontology.loader._PackLoader object at 0x110583b00>
+parent = MappingNode(tag='tag:yaml.org,2002:map', value=[(ScalarNode(tag='tag:yaml.org,2002:str', value='groups'), MappingNode(...ScalarNode(tag='tag:yaml.org,2002:str', value='type'), ScalarNode(tag='tag:yaml.org,2002:str', value='string'))]))]))])
+index = ScalarNode(tag='tag:yaml.org,2002:str', value='items')
+
+    def compose_node(self, parent: Any, index: Any) -> Any:
+        if self.check_event(yaml.events.AliasEvent):
+            event = self.peek_event()  # type: ignore[no-untyped-call]
+>           raise yaml.composer.ComposerError(
+                None, None, "aliases are not allowed in pack files", event.start_mark
+            )
+E           yaml.composer.ComposerError: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:59: ComposerError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1104f5820>
+
+    def test_equal_fanout_uses_index_join_not_quadratic_scan(monkeypatch):
+        # Each keyed index should be examined only a constant number of times.
+        original = projection._Keyed.__getattribute__
+        reads = 0
+    
+        def tracked(self, name):
+            nonlocal reads
+            reads += name == "index"
+            return original(self, name)
+    
+        monkeypatch.setattr(projection._Keyed, "__getattribute__", tracked)
+        ids = [f"ExpansionRecord:g|{i}" for i in range(100)]
+>       assert len(plan({"sources": ids, "targets": ids}, "expansion.linked").edges) == 100
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_projection_expansion.py:69: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_projection_expansion.py:20: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_projection_expansion.py:16: in registry
+    return load_registry(["expansion"], [Path("tests/fixtures/pack_contracts")], builtin_packs=[])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:223: in load_registry
+    pack = load_pack_file(find_pack(name, dirs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:163: in load_pack_file
+    return parse_pack(path.read_text(encoding="utf-8"), source=str(path))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:149: in parse_pack
+    data = load_yaml(text, source)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+            return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+        except yaml.YAMLError as exc:
+>           raise OntologyError([f"{source}: {exc}"]) from exc
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - tests/fixtures/pack_contracts/expansion.pack.yaml: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:144: OntologyError
+________________ test_unequal_endpoints_retain_bounded_product _________________
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+>           return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/context_graph/ontology/loader.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/__init__.py:81: in load
+    return loader.get_single_data()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/constructor.py:49: in get_single_data
+    node = self.get_single_node()
+           ^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:36: in get_single_node
+    document = self.compose_document()
+               ^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:55: in compose_document
+    node = self.compose_node(None, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.ontology.loader._PackLoader object at 0x11035d100>
+parent = MappingNode(tag='tag:yaml.org,2002:map', value=[(ScalarNode(tag='tag:yaml.org,2002:str', value='groups'), MappingNode(...ScalarNode(tag='tag:yaml.org,2002:str', value='type'), ScalarNode(tag='tag:yaml.org,2002:str', value='string'))]))]))])
+index = ScalarNode(tag='tag:yaml.org,2002:str', value='items')
+
+    def compose_node(self, parent: Any, index: Any) -> Any:
+        if self.check_event(yaml.events.AliasEvent):
+            event = self.peek_event()  # type: ignore[no-untyped-call]
+>           raise yaml.composer.ComposerError(
+                None, None, "aliases are not allowed in pack files", event.start_mark
+            )
+E           yaml.composer.ComposerError: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:59: ComposerError
+
+The above exception was the direct cause of the following exception:
+
+    def test_unequal_endpoints_retain_bounded_product():
+>       result = plan({"sources": ["a", "b"], "targets": ["x", "y", "z"]}, "expansion.stubbed")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_projection_expansion.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_projection_expansion.py:20: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_projection_expansion.py:16: in registry
+    return load_registry(["expansion"], [Path("tests/fixtures/pack_contracts")], builtin_packs=[])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:223: in load_registry
+    pack = load_pack_file(find_pack(name, dirs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:163: in load_pack_file
+    return parse_pack(path.read_text(encoding="utf-8"), source=str(path))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:149: in parse_pack
+    data = load_yaml(text, source)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+            return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+        except yaml.YAMLError as exc:
+>           raise OntologyError([f"{source}: {exc}"]) from exc
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - tests/fixtures/pack_contracts/expansion.pack.yaml: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:144: OntologyError
+_____________ test_budget_counts_provenance_and_states_at_boundary _____________
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+>           return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/context_graph/ontology/loader.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/__init__.py:81: in load
+    return loader.get_single_data()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/constructor.py:49: in get_single_data
+    node = self.get_single_node()
+           ^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:36: in get_single_node
+    document = self.compose_document()
+               ^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:55: in compose_document
+    node = self.compose_node(None, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.ontology.loader._PackLoader object at 0x1104cc4a0>
+parent = MappingNode(tag='tag:yaml.org,2002:map', value=[(ScalarNode(tag='tag:yaml.org,2002:str', value='groups'), MappingNode(...ScalarNode(tag='tag:yaml.org,2002:str', value='type'), ScalarNode(tag='tag:yaml.org,2002:str', value='string'))]))]))])
+index = ScalarNode(tag='tag:yaml.org,2002:str', value='items')
+
+    def compose_node(self, parent: Any, index: Any) -> Any:
+        if self.check_event(yaml.events.AliasEvent):
+            event = self.peek_event()  # type: ignore[no-untyped-call]
+>           raise yaml.composer.ComposerError(
+                None, None, "aliases are not allowed in pack files", event.start_mark
+            )
+E           yaml.composer.ComposerError: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:59: ComposerError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x110554d10>
+
+    def test_budget_counts_provenance_and_states_at_boundary(monkeypatch):
+        monkeypatch.setattr(projection, "MAX_PROJECTION_OPERATIONS", 3)
+>       result = plan({"groups": ["g"], "items": ["a"]})
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_projection_expansion.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_projection_expansion.py:20: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_projection_expansion.py:16: in registry
+    return load_registry(["expansion"], [Path("tests/fixtures/pack_contracts")], builtin_packs=[])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:223: in load_registry
+    pack = load_pack_file(find_pack(name, dirs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:163: in load_pack_file
+    return parse_pack(path.read_text(encoding="utf-8"), source=str(path))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:149: in parse_pack
+    data = load_yaml(text, source)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+            return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+        except yaml.YAMLError as exc:
+>           raise OntologyError([f"{source}: {exc}"]) from exc
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - tests/fixtures/pack_contracts/expansion.pack.yaml: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:144: OntologyError
+_ test_keys_references_products_stubs_and_lookups_are_bounded[expansion.recorded-payload0-3] _
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+>           return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/context_graph/ontology/loader.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/__init__.py:81: in load
+    return loader.get_single_data()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/constructor.py:49: in get_single_data
+    node = self.get_single_node()
+           ^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:36: in get_single_node
+    document = self.compose_document()
+               ^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:55: in compose_document
+    node = self.compose_node(None, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.ontology.loader._PackLoader object at 0x107b95e20>
+parent = MappingNode(tag='tag:yaml.org,2002:map', value=[(ScalarNode(tag='tag:yaml.org,2002:str', value='groups'), MappingNode(...ScalarNode(tag='tag:yaml.org,2002:str', value='type'), ScalarNode(tag='tag:yaml.org,2002:str', value='string'))]))]))])
+index = ScalarNode(tag='tag:yaml.org,2002:str', value='items')
+
+    def compose_node(self, parent: Any, index: Any) -> Any:
+        if self.check_event(yaml.events.AliasEvent):
+            event = self.peek_event()  # type: ignore[no-untyped-call]
+>           raise yaml.composer.ComposerError(
+                None, None, "aliases are not allowed in pack files", event.start_mark
+            )
+E           yaml.composer.ComposerError: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:59: ComposerError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1105b9940>
+event_type = 'expansion.recorded'
+payload = {'groups': ['g', 'g', 'g', 'g'], 'items': ['a', 'a', 'a', 'a']}
+limit = 3
+
+    @pytest.mark.parametrize(
+        "event_type,payload,limit",
+        [
+            ("expansion.recorded", {"groups": ["g"] * 4, "items": ["a"] * 4}, 3),
+            ("expansion.linked", {"sources": ["invalid"] * 4, "targets": []}, 3),
+            ("expansion.stubbed", {"sources": ["a", "b"], "targets": ["x", "y", "z"]}, 10),
+            ("expansion.looked_up", {"items": ["a", "b"], "target_group": "right"}, 3),
+        ],
+    )
+    def test_keys_references_products_stubs_and_lookups_are_bounded(
+        monkeypatch, event_type, payload, limit
+    ):
+        monkeypatch.setattr(projection, "MAX_PROJECTION_OPERATIONS", limit)
+        with pytest.raises(projection.ProjectionExpansionError, match="plan_limit_exceeded"):
+>           plan(payload, event_type)
+
+tests/unit/test_projection_expansion.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_projection_expansion.py:20: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_projection_expansion.py:16: in registry
+    return load_registry(["expansion"], [Path("tests/fixtures/pack_contracts")], builtin_packs=[])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:223: in load_registry
+    pack = load_pack_file(find_pack(name, dirs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:163: in load_pack_file
+    return parse_pack(path.read_text(encoding="utf-8"), source=str(path))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:149: in parse_pack
+    data = load_yaml(text, source)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+            return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+        except yaml.YAMLError as exc:
+>           raise OntologyError([f"{source}: {exc}"]) from exc
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - tests/fixtures/pack_contracts/expansion.pack.yaml: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:144: OntologyError
+_ test_keys_references_products_stubs_and_lookups_are_bounded[expansion.linked-payload1-3] _
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+>           return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/context_graph/ontology/loader.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/__init__.py:81: in load
+    return loader.get_single_data()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/constructor.py:49: in get_single_data
+    node = self.get_single_node()
+           ^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:36: in get_single_node
+    document = self.compose_document()
+               ^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:55: in compose_document
+    node = self.compose_node(None, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.ontology.loader._PackLoader object at 0x107b07710>
+parent = MappingNode(tag='tag:yaml.org,2002:map', value=[(ScalarNode(tag='tag:yaml.org,2002:str', value='groups'), MappingNode(...ScalarNode(tag='tag:yaml.org,2002:str', value='type'), ScalarNode(tag='tag:yaml.org,2002:str', value='string'))]))]))])
+index = ScalarNode(tag='tag:yaml.org,2002:str', value='items')
+
+    def compose_node(self, parent: Any, index: Any) -> Any:
+        if self.check_event(yaml.events.AliasEvent):
+            event = self.peek_event()  # type: ignore[no-untyped-call]
+>           raise yaml.composer.ComposerError(
+                None, None, "aliases are not allowed in pack files", event.start_mark
+            )
+E           yaml.composer.ComposerError: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:59: ComposerError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x110580bc0>
+event_type = 'expansion.linked'
+payload = {'sources': ['invalid', 'invalid', 'invalid', 'invalid'], 'targets': []}
+limit = 3
+
+    @pytest.mark.parametrize(
+        "event_type,payload,limit",
+        [
+            ("expansion.recorded", {"groups": ["g"] * 4, "items": ["a"] * 4}, 3),
+            ("expansion.linked", {"sources": ["invalid"] * 4, "targets": []}, 3),
+            ("expansion.stubbed", {"sources": ["a", "b"], "targets": ["x", "y", "z"]}, 10),
+            ("expansion.looked_up", {"items": ["a", "b"], "target_group": "right"}, 3),
+        ],
+    )
+    def test_keys_references_products_stubs_and_lookups_are_bounded(
+        monkeypatch, event_type, payload, limit
+    ):
+        monkeypatch.setattr(projection, "MAX_PROJECTION_OPERATIONS", limit)
+        with pytest.raises(projection.ProjectionExpansionError, match="plan_limit_exceeded"):
+>           plan(payload, event_type)
+
+tests/unit/test_projection_expansion.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_projection_expansion.py:20: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_projection_expansion.py:16: in registry
+    return load_registry(["expansion"], [Path("tests/fixtures/pack_contracts")], builtin_packs=[])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:223: in load_registry
+    pack = load_pack_file(find_pack(name, dirs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:163: in load_pack_file
+    return parse_pack(path.read_text(encoding="utf-8"), source=str(path))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:149: in parse_pack
+    data = load_yaml(text, source)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+            return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+        except yaml.YAMLError as exc:
+>           raise OntologyError([f"{source}: {exc}"]) from exc
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - tests/fixtures/pack_contracts/expansion.pack.yaml: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:144: OntologyError
+_ test_keys_references_products_stubs_and_lookups_are_bounded[expansion.stubbed-payload2-10] _
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+>           return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/context_graph/ontology/loader.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/__init__.py:81: in load
+    return loader.get_single_data()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/constructor.py:49: in get_single_data
+    node = self.get_single_node()
+           ^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:36: in get_single_node
+    document = self.compose_document()
+               ^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:55: in compose_document
+    node = self.compose_node(None, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.ontology.loader._PackLoader object at 0x11058c050>
+parent = MappingNode(tag='tag:yaml.org,2002:map', value=[(ScalarNode(tag='tag:yaml.org,2002:str', value='groups'), MappingNode(...ScalarNode(tag='tag:yaml.org,2002:str', value='type'), ScalarNode(tag='tag:yaml.org,2002:str', value='string'))]))]))])
+index = ScalarNode(tag='tag:yaml.org,2002:str', value='items')
+
+    def compose_node(self, parent: Any, index: Any) -> Any:
+        if self.check_event(yaml.events.AliasEvent):
+            event = self.peek_event()  # type: ignore[no-untyped-call]
+>           raise yaml.composer.ComposerError(
+                None, None, "aliases are not allowed in pack files", event.start_mark
+            )
+E           yaml.composer.ComposerError: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:59: ComposerError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x107b96480>
+event_type = 'expansion.stubbed'
+payload = {'sources': ['a', 'b'], 'targets': ['x', 'y', 'z']}, limit = 10
+
+    @pytest.mark.parametrize(
+        "event_type,payload,limit",
+        [
+            ("expansion.recorded", {"groups": ["g"] * 4, "items": ["a"] * 4}, 3),
+            ("expansion.linked", {"sources": ["invalid"] * 4, "targets": []}, 3),
+            ("expansion.stubbed", {"sources": ["a", "b"], "targets": ["x", "y", "z"]}, 10),
+            ("expansion.looked_up", {"items": ["a", "b"], "target_group": "right"}, 3),
+        ],
+    )
+    def test_keys_references_products_stubs_and_lookups_are_bounded(
+        monkeypatch, event_type, payload, limit
+    ):
+        monkeypatch.setattr(projection, "MAX_PROJECTION_OPERATIONS", limit)
+        with pytest.raises(projection.ProjectionExpansionError, match="plan_limit_exceeded"):
+>           plan(payload, event_type)
+
+tests/unit/test_projection_expansion.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_projection_expansion.py:20: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_projection_expansion.py:16: in registry
+    return load_registry(["expansion"], [Path("tests/fixtures/pack_contracts")], builtin_packs=[])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:223: in load_registry
+    pack = load_pack_file(find_pack(name, dirs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:163: in load_pack_file
+    return parse_pack(path.read_text(encoding="utf-8"), source=str(path))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:149: in parse_pack
+    data = load_yaml(text, source)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+            return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+        except yaml.YAMLError as exc:
+>           raise OntologyError([f"{source}: {exc}"]) from exc
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - tests/fixtures/pack_contracts/expansion.pack.yaml: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:144: OntologyError
+_ test_keys_references_products_stubs_and_lookups_are_bounded[expansion.looked_up-payload3-3] _
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+>           return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/context_graph/ontology/loader.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/__init__.py:81: in load
+    return loader.get_single_data()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/constructor.py:49: in get_single_data
+    node = self.get_single_node()
+           ^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:36: in get_single_node
+    document = self.compose_document()
+               ^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:55: in compose_document
+    node = self.compose_node(None, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.ontology.loader._PackLoader object at 0x1105aa5a0>
+parent = MappingNode(tag='tag:yaml.org,2002:map', value=[(ScalarNode(tag='tag:yaml.org,2002:str', value='groups'), MappingNode(...ScalarNode(tag='tag:yaml.org,2002:str', value='type'), ScalarNode(tag='tag:yaml.org,2002:str', value='string'))]))]))])
+index = ScalarNode(tag='tag:yaml.org,2002:str', value='items')
+
+    def compose_node(self, parent: Any, index: Any) -> Any:
+        if self.check_event(yaml.events.AliasEvent):
+            event = self.peek_event()  # type: ignore[no-untyped-call]
+>           raise yaml.composer.ComposerError(
+                None, None, "aliases are not allowed in pack files", event.start_mark
+            )
+E           yaml.composer.ComposerError: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:59: ComposerError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x1104ec830>
+event_type = 'expansion.looked_up'
+payload = {'items': ['a', 'b'], 'target_group': 'right'}, limit = 3
+
+    @pytest.mark.parametrize(
+        "event_type,payload,limit",
+        [
+            ("expansion.recorded", {"groups": ["g"] * 4, "items": ["a"] * 4}, 3),
+            ("expansion.linked", {"sources": ["invalid"] * 4, "targets": []}, 3),
+            ("expansion.stubbed", {"sources": ["a", "b"], "targets": ["x", "y", "z"]}, 10),
+            ("expansion.looked_up", {"items": ["a", "b"], "target_group": "right"}, 3),
+        ],
+    )
+    def test_keys_references_products_stubs_and_lookups_are_bounded(
+        monkeypatch, event_type, payload, limit
+    ):
+        monkeypatch.setattr(projection, "MAX_PROJECTION_OPERATIONS", limit)
+        with pytest.raises(projection.ProjectionExpansionError, match="plan_limit_exceeded"):
+>           plan(payload, event_type)
+
+tests/unit/test_projection_expansion.py:101: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_projection_expansion.py:20: in plan
+    schema = schema or registry()
+                       ^^^^^^^^^^
+tests/unit/test_projection_expansion.py:16: in registry
+    return load_registry(["expansion"], [Path("tests/fixtures/pack_contracts")], builtin_packs=[])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:223: in load_registry
+    pack = load_pack_file(find_pack(name, dirs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:163: in load_pack_file
+    return parse_pack(path.read_text(encoding="utf-8"), source=str(path))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:149: in parse_pack
+    data = load_yaml(text, source)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+            return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+        except yaml.YAMLError as exc:
+>           raise OntologyError([f"{source}: {exc}"]) from exc
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - tests/fixtures/pack_contracts/expansion.pack.yaml: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:144: OntologyError
+________________ test_budget_is_shared_across_subscriber_rules _________________
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+>           return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+src/context_graph/ontology/loader.py:142: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/__init__.py:81: in load
+    return loader.get_single_data()
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/constructor.py:49: in get_single_data
+    node = self.get_single_node()
+           ^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:36: in get_single_node
+    document = self.compose_document()
+               ^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:55: in compose_document
+    node = self.compose_node(None, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:62: in compose_node
+    node = super().compose_node(parent, index)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:84: in compose_node
+    node = self.compose_mapping_node(anchor)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/yaml/composer.py:133: in compose_mapping_node
+    item_value = self.compose_node(node, item_key)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <context_graph.ontology.loader._PackLoader object at 0x1105e19d0>
+parent = MappingNode(tag='tag:yaml.org,2002:map', value=[(ScalarNode(tag='tag:yaml.org,2002:str', value='groups'), MappingNode(...ScalarNode(tag='tag:yaml.org,2002:str', value='type'), ScalarNode(tag='tag:yaml.org,2002:str', value='string'))]))]))])
+index = ScalarNode(tag='tag:yaml.org,2002:str', value='items')
+
+    def compose_node(self, parent: Any, index: Any) -> Any:
+        if self.check_event(yaml.events.AliasEvent):
+            event = self.peek_event()  # type: ignore[no-untyped-call]
+>           raise yaml.composer.ComposerError(
+                None, None, "aliases are not allowed in pack files", event.start_mark
+            )
+E           yaml.composer.ComposerError: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:59: ComposerError
+
+The above exception was the direct cause of the following exception:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x11058d250>
+
+    def test_budget_is_shared_across_subscriber_rules(monkeypatch):
+>       base = registry()
+               ^^^^^^^^^^
+
+tests/unit/test_projection_expansion.py:105: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/unit/test_projection_expansion.py:16: in registry
+    return load_registry(["expansion"], [Path("tests/fixtures/pack_contracts")], builtin_packs=[])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:223: in load_registry
+    pack = load_pack_file(find_pack(name, dirs))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:163: in load_pack_file
+    return parse_pack(path.read_text(encoding="utf-8"), source=str(path))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/context_graph/ontology/loader.py:149: in parse_pack
+    data = load_yaml(text, source)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+text = "# Test-only unfamiliar pack for generic expansion and worker disposition.\npack: {name: expansion, version: 0.1.0, re...Record, key: {group: left, item: '$.items[*]'}}\n        to: {type: ExpansionRecord, match: {group: $.target_group}}\n"
+source = 'tests/fixtures/pack_contracts/expansion.pack.yaml'
+
+    def load_yaml(text: str, source: str) -> Any:
+        """YAML read with the pack loader's strict rules (no aliases, tags or YAML 1.1 booleans)."""
+        try:
+            return yaml.load(text, Loader=_PackLoader)  # noqa: S506 - _PackLoader is a SafeLoader
+        except yaml.YAMLError as exc:
+>           raise OntologyError([f"{source}: {exc}"]) from exc
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - tests/fixtures/pack_contracts/expansion.pack.yaml: aliases are not allowed in pack files
+E             in "<unicode string>", line 18, column 16:
+E                       items: *strings
+E                              ^
+
+src/context_graph/ontology/loader.py:144: OntologyError
+=========================== short test summary info ============================
+FAILED tests/unit/test_projection_expansion.py::test_contract_valid_unequal_keys_refuse_whole_plan[groups0-items0]
+FAILED tests/unit/test_projection_expansion.py::test_contract_valid_unequal_keys_refuse_whole_plan[groups1-items1]
+FAILED tests/unit/test_projection_expansion.py::test_equal_keys_and_all_empty_have_exact_outputs
+FAILED tests/unit/test_projection_expansion.py::test_scalar_keys_broadcast_and_preserve_original_positions
+FAILED tests/unit/test_projection_expansion.py::test_equal_fanout_uses_index_join_not_quadratic_scan
+FAILED tests/unit/test_projection_expansion.py::test_unequal_endpoints_retain_bounded_product
+FAILED tests/unit/test_projection_expansion.py::test_budget_counts_provenance_and_states_at_boundary
+FAILED tests/unit/test_projection_expansion.py::test_keys_references_products_stubs_and_lookups_are_bounded[expansion.recorded-payload0-3]
+FAILED tests/unit/test_projection_expansion.py::test_keys_references_products_stubs_and_lookups_are_bounded[expansion.linked-payload1-3]
+FAILED tests/unit/test_projection_expansion.py::test_keys_references_products_stubs_and_lookups_are_bounded[expansion.stubbed-payload2-10]
+FAILED tests/unit/test_projection_expansion.py::test_keys_references_products_stubs_and_lookups_are_bounded[expansion.looked_up-payload3-3]
+FAILED tests/unit/test_projection_expansion.py::test_budget_is_shared_across_subscriber_rules
+12 failed, 99 passed in 1.81s

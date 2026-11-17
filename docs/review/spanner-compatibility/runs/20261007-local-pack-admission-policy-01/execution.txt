@@ -1,0 +1,163 @@
+..........................FFFF.......................................... [ 35%]
+........................................................................ [ 71%]
+..........................................................               [100%]
+=================================== FAILURES ===================================
+____ test_explicit_core_namespace_is_open_but_domain_namespaces_stay_closed ____
+
+    def test_explicit_core_namespace_is_open_but_domain_namespaces_stay_closed():
+        base = core().model_copy(deep=True)
+>       base.open_event_namespaces = ["tool"]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_pack_admission.py:126: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/pydantic/main.py:1048: in __setattr__
+    elif (setattr_handler := self._setattr_handler(name, value)) is not None:
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/pydantic/main.py:1084: in _setattr_handler
+    _check_frozen(cls, name, value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model_cls = <class 'context_graph.domain.ontology.Pack'>
+name = 'open_event_namespaces', value = ['tool']
+
+    def _check_frozen(model_cls: type[BaseModel], name: str, value: Any) -> None:
+        if model_cls.model_config.get('frozen'):
+            error_type = 'frozen_instance'
+        elif getattr(model_cls.__pydantic_fields__.get(name), 'frozen', False):
+            error_type = 'frozen_field'
+        else:
+            return
+    
+>       raise ValidationError.from_exception_data(
+            model_cls.__name__, [{'type': error_type, 'loc': (name,), 'input': value}]
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for Pack
+E       open_event_namespaces
+E         Instance is frozen [type=frozen_instance, input_value=['tool'], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.13/v/frozen_instance
+
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/pydantic/main.py:90: ValidationError
+________ test_open_namespace_must_be_explicitly_owned_by_core[missing] _________
+
+namespace = 'missing'
+
+    @pytest.mark.parametrize("namespace", ["missing", "bad.namespace", ""])
+    def test_open_namespace_must_be_explicitly_owned_by_core(namespace):
+        base = core().model_copy(deep=True)
+>       base.open_event_namespaces = [namespace]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_pack_admission.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/pydantic/main.py:1048: in __setattr__
+    elif (setattr_handler := self._setattr_handler(name, value)) is not None:
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/pydantic/main.py:1084: in _setattr_handler
+    _check_frozen(cls, name, value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model_cls = <class 'context_graph.domain.ontology.Pack'>
+name = 'open_event_namespaces', value = ['missing']
+
+    def _check_frozen(model_cls: type[BaseModel], name: str, value: Any) -> None:
+        if model_cls.model_config.get('frozen'):
+            error_type = 'frozen_instance'
+        elif getattr(model_cls.__pydantic_fields__.get(name), 'frozen', False):
+            error_type = 'frozen_field'
+        else:
+            return
+    
+>       raise ValidationError.from_exception_data(
+            model_cls.__name__, [{'type': error_type, 'loc': (name,), 'input': value}]
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for Pack
+E       open_event_namespaces
+E         Instance is frozen [type=frozen_instance, input_value=['missing'], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.13/v/frozen_instance
+
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/pydantic/main.py:90: ValidationError
+_____ test_open_namespace_must_be_explicitly_owned_by_core[bad.namespace] ______
+
+namespace = 'bad.namespace'
+
+    @pytest.mark.parametrize("namespace", ["missing", "bad.namespace", ""])
+    def test_open_namespace_must_be_explicitly_owned_by_core(namespace):
+        base = core().model_copy(deep=True)
+>       base.open_event_namespaces = [namespace]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_pack_admission.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/pydantic/main.py:1048: in __setattr__
+    elif (setattr_handler := self._setattr_handler(name, value)) is not None:
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/pydantic/main.py:1084: in _setattr_handler
+    _check_frozen(cls, name, value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model_cls = <class 'context_graph.domain.ontology.Pack'>
+name = 'open_event_namespaces', value = ['bad.namespace']
+
+    def _check_frozen(model_cls: type[BaseModel], name: str, value: Any) -> None:
+        if model_cls.model_config.get('frozen'):
+            error_type = 'frozen_instance'
+        elif getattr(model_cls.__pydantic_fields__.get(name), 'frozen', False):
+            error_type = 'frozen_field'
+        else:
+            return
+    
+>       raise ValidationError.from_exception_data(
+            model_cls.__name__, [{'type': error_type, 'loc': (name,), 'input': value}]
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for Pack
+E       open_event_namespaces
+E         Instance is frozen [type=frozen_instance, input_value=['bad.namespace'], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.13/v/frozen_instance
+
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/pydantic/main.py:90: ValidationError
+____________ test_open_namespace_must_be_explicitly_owned_by_core[] ____________
+
+namespace = ''
+
+    @pytest.mark.parametrize("namespace", ["missing", "bad.namespace", ""])
+    def test_open_namespace_must_be_explicitly_owned_by_core(namespace):
+        base = core().model_copy(deep=True)
+>       base.open_event_namespaces = [namespace]
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_pack_admission.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/pydantic/main.py:1048: in __setattr__
+    elif (setattr_handler := self._setattr_handler(name, value)) is not None:
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/pydantic/main.py:1084: in _setattr_handler
+    _check_frozen(cls, name, value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model_cls = <class 'context_graph.domain.ontology.Pack'>
+name = 'open_event_namespaces', value = ['']
+
+    def _check_frozen(model_cls: type[BaseModel], name: str, value: Any) -> None:
+        if model_cls.model_config.get('frozen'):
+            error_type = 'frozen_instance'
+        elif getattr(model_cls.__pydantic_fields__.get(name), 'frozen', False):
+            error_type = 'frozen_field'
+        else:
+            return
+    
+>       raise ValidationError.from_exception_data(
+            model_cls.__name__, [{'type': error_type, 'loc': (name,), 'input': value}]
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for Pack
+E       open_event_namespaces
+E         Instance is frozen [type=frozen_instance, input_value=[''], input_type=list]
+E           For further information visit https://errors.pydantic.dev/2.13/v/frozen_instance
+
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/pydantic/main.py:90: ValidationError
+=========================== short test summary info ============================
+FAILED tests/unit/test_pack_admission.py::test_explicit_core_namespace_is_open_but_domain_namespaces_stay_closed
+FAILED tests/unit/test_pack_admission.py::test_open_namespace_must_be_explicitly_owned_by_core[missing]
+FAILED tests/unit/test_pack_admission.py::test_open_namespace_must_be_explicitly_owned_by_core[bad.namespace]
+FAILED tests/unit/test_pack_admission.py::test_open_namespace_must_be_explicitly_owned_by_core[]
+4 failed, 198 passed in 6.29s

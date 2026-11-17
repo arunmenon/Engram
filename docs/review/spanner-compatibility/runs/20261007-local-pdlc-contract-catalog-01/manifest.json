@@ -1,0 +1,27 @@
+{
+  "kind": "local_backend_neutral_whole_catalog_contract_check",
+  "started_at": "2026-10-07T10:08:08.307409+00:00",
+  "issues": [
+    4,
+    34,
+    36,
+    39
+  ],
+  "cloud_calls": false,
+  "source_sha256": {
+    "src/context_graph/domain/pack_contracts.py": "7a70a1c595ef01b7665a00e6f0b26fdeaefabe5a9b7f78ed476ea408b9ddc9ee",
+    "src/context_graph/domain/ontology.py": "f211a6e9fa3f21f23224f2ff8bf47ecd3c8bae5515896de4328266768844ec60",
+    "src/context_graph/ontology/packs/pdlc.pack.yaml": "c80eb0c32ced14ebe38c1b9329b45a291a6911cb0625c5fe619a92332701b459",
+    "tests/fixtures/pack_contracts/pdlc.json": "0fd4f33b812ecb5b481eca97ed14ff06bac34a7c439f4cc604363dc9de2fe2f1",
+    "tests/fixtures/pack_contracts/lab.pack.yaml": "5f6e3687430a67f7b5893b94b14b95f854a1239c462898ab35405add23499ca5",
+    "tests/unit/test_pack_payload_contracts.py": "ac800555fa258640ccfe0db0375ddaad4def1958230bf30b318443b0ef38ceb5",
+    "tests/unit/test_pdlc_payload_contracts.py": "5931e909105eb32ecd9378de9430f2da04175399d6e08f72036df6854a2b8e72"
+  },
+  "scope": "23 contract fixtures and pure projection plans, unknown path load refusal, reconstructed/public source normalization and existing pack/ontology/webhook regressions; no new service runners",
+  "limitations": [
+    "No API contract enforcement, Spanner acceptance, extraction model or full property/evidence/retrieval proof",
+    "List-valued expression mapped to scalar property without fan-out remains a known feature36 gap; supported lab fixture fans sample IDs and values together",
+    "Contracts for six missing-mapping events remain provisional; declarations do not add domain outputs"
+  ],
+  "run_id": "20261007-local-pdlc-contract-catalog-01"
+}

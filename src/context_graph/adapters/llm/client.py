@@ -178,17 +178,36 @@ step-by-step instructions, the expected output would be:
 """.strip()
 
 
+_ENTITY_SCHEMA = """
+You extract entities mentioned in a conversation.
+## Entity Types
+- agent: An AI agent or assistant
+- user: A human user
+- service: An external service or API
+- tool: A tool or instrument
+- resource: A document, file, or data resource
+- concept: An abstract concept or topic
+## Output Format
+Return a JSON object with entities: a list of
+{name, entity_type, confidence, source_quote}.
+Every entity must have a short exact source_quote from the conversation.
+Confidence is between 0.0 and 1.0. Deduplicate against existing entities.
+""".strip()
+
+
 def build_extraction_prompt(
     events: list[Event],
     existing_entities: list[dict[str, Any]],
     event_payloads: list[dict[str, Any]] | None = None,
+    *,
+    include_user: bool = True,
 ) -> str:
     """Construct the system prompt with ontology schema and existing entities.
 
     Includes the full extraction target schema description per ADR-0013 §4
     and appends existing entity names for deduplication.
     """
-    prompt_parts = [_ONTOLOGY_SCHEMA]
+    prompt_parts = [_ONTOLOGY_SCHEMA if include_user else _ENTITY_SCHEMA]
 
     if existing_entities:
         entity_names = [e.get("name", "") for e in existing_entities if e.get("name")]
@@ -464,6 +483,7 @@ class LLMExtractionClient:
         timeout: int = 60,
         max_retries: int = 2,
         prompt_version: str = "v1",
+        include_user: bool = True,
     ) -> None:
         self._model_id = model_id
         self._temperature = temperature
@@ -471,6 +491,7 @@ class LLMExtractionClient:
         self._timeout = timeout
         self._max_retries = max_retries
         self._prompt_version = prompt_version
+        self._include_user = include_user
 
     async def generate_text(self, prompt: str) -> str | None:
         """Generate text from a prompt. Used for HyDE and other expansions."""
@@ -540,6 +561,11 @@ class LLMExtractionClient:
                         "(4) all skills (declared, observed, inferred), "
                         "(5) all interests. "
                         "Return ONLY valid JSON matching the schema."
+                    )
+                    if self._include_user
+                    else (
+                        "Extract entities from the conversation above. "
+                        "Return ONLY valid JSON matching the entity schema."
                     ),
                 },
             ],
@@ -573,13 +599,20 @@ class LLMExtractionClient:
 
         conversation_text = build_conversation_text(events, event_payloads=event_payloads)
         prompt = build_extraction_prompt(
-            events, existing_entities=[], event_payloads=event_payloads
+            events,
+            existing_entities=[],
+            event_payloads=event_payloads,
+            include_user=self._include_user,
         )
 
         for attempt in range(self._max_retries + 1):
             try:
                 raw_text = await self._call_llm(prompt)
                 parsed = orjson.loads(raw_text)
+                if not self._include_user:
+                    # Treat unsolicited model fields as disabled outputs, even
+                    # when the model ignores the narrower extraction schema.
+                    parsed = {"entities": parsed.get("entities", [])}
 
                 # Parse persona — may be a dict or None
                 persona_raw = parsed.get("persona")

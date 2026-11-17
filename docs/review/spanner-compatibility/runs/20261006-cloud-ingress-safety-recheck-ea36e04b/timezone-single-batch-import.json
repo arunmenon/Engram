@@ -1,0 +1,123 @@
+{
+  "refusals": [
+    {
+      "field": "occurred_at",
+      "single_status": 422,
+      "single": {
+        "detail": [
+          {
+            "type": "timezone_required",
+            "loc": [
+              "occurred_at"
+            ],
+            "msg": "Timestamp requires an explicit timezone",
+            "input": "2026-10-06T12:00:00"
+          }
+        ]
+      },
+      "batch_status": 422,
+      "batch": {
+        "accepted": 0,
+        "rejected": 1,
+        "results": [],
+        "errors": [
+          {
+            "index": 0,
+            "event_id": "ed200633-400e-48c4-badd-89c3c71ae0ab",
+            "errors": [
+              {
+                "field": "occurred_at",
+                "message": "Timestamp requires an explicit timezone"
+              }
+            ]
+          }
+        ]
+      },
+      "import_status": 200,
+      "import": [
+        {
+          "index": 0,
+          "event_id": "ed200633-400e-48c4-badd-89c3c71ae0ab",
+          "errors": [
+            {
+              "field": "occurred_at",
+              "message": "Timestamp requires an explicit timezone"
+            }
+          ],
+          "status": "rejected"
+        },
+        {
+          "summary": {
+            "received": 1,
+            "order": "occurred_at",
+            "created": 0,
+            "duplicate": 0,
+            "rejected": 1,
+            "failed": 0
+          }
+        }
+      ]
+    },
+    {
+      "field": "ended_at",
+      "single_status": 422,
+      "single": {
+        "detail": [
+          {
+            "type": "timezone_required",
+            "loc": [
+              "ended_at"
+            ],
+            "msg": "Timestamp requires an explicit timezone",
+            "input": "2026-10-06T12:00:00"
+          }
+        ]
+      },
+      "batch_status": 422,
+      "batch": {
+        "accepted": 0,
+        "rejected": 1,
+        "results": [],
+        "errors": [
+          {
+            "index": 0,
+            "event_id": "a9d9ceee-9d3c-43b8-b67e-cb8991a85f3a",
+            "errors": [
+              {
+                "field": "ended_at",
+                "message": "Timestamp requires an explicit timezone"
+              }
+            ]
+          }
+        ]
+      },
+      "import_status": 200,
+      "import": [
+        {
+          "index": 0,
+          "event_id": "a9d9ceee-9d3c-43b8-b67e-cb8991a85f3a",
+          "errors": [
+            {
+              "field": "ended_at",
+              "message": "Timestamp requires an explicit timezone"
+            }
+          ],
+          "status": "rejected"
+        },
+        {
+          "summary": {
+            "received": 1,
+            "order": "occurred_at",
+            "created": 0,
+            "duplicate": 0,
+            "rejected": 1,
+            "failed": 0
+          }
+        }
+      ]
+    }
+  ],
+  "aware_status": 201,
+  "normalized_stored_timestamp": "2026-10-06T17:13:58.606451Z",
+  "invalid_rows_appended": 0
+}

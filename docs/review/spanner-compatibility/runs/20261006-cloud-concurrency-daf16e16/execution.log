@@ -1,0 +1,14 @@
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 160, in check
+    observation = await asyncio.wait_for(function(), timeout=timeout_seconds)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_remaining.py", line 289, in replicas
+    assert observed == expected, "same-session FOLLOWS skips another replica's predecessor"
+           ^^^^^^^^^^^^^^^^^^^^
+AssertionError: same-session FOLLOWS skips another replica's predecessor
+
+{"name": "two_replica_same_session_lineage", "scenarios": ["SUB-04", "PROJ-01", "LED-02"], "verdict": "failed", "error_type": "AssertionError", "error": "same-session FOLLOWS skips another replica's predecessor", "seconds": 10.01}
+{"name": "orphan_recovery_multiple_pending_pages", "scenarios": ["SUB-01", "SUB-03", "PROJ-01"], "verdict": "passed", "observation": {"prefilled_deliveries": 15, "worker_batch_size": 3, "setup": "API ingestion; public read_new seeds abandoned deliveries", "node_count": 15, "follows_count": 14, "unread": 0, "pending": 0}, "seconds": 13.0}

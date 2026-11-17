@@ -24,7 +24,10 @@ packs add (PDLC: changes, tickets, requirements, decisions, incidents):
    that names a node that way does not also seed nodes that only mention it
    (release ``v0.59.1``, not "chore: prepare release v0.59.1").
    Seeds are marked ``direct``; nodes the traversal reaches, ``proactive``
-   (as ``RetrievalEngine`` marks them).
+   (as ``RetrievalEngine`` marks them). With ``seed_mode="explicit"``, all
+   selected ids must resolve and fit the node budget; text discovery is disabled.
+   This does not constrain subsequent traversal or change given-seed admission.
+   It does not apply to the generic ``/v1/query`` engine.
 3. **Traversal**: level by level, bounded, following only the artifact
    edges the intent weights (edges between pack types; never provenance
    or session edges), in the intent's direction, to ``max_depth`` and
@@ -79,7 +82,7 @@ import re
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 import regex
 import structlog
@@ -131,6 +134,27 @@ _STOP = frozenset(
 )  # fmt: skip
 
 
+class UnresolvedSeedsError(ValueError):
+    """An explicit artifact query could not resolve its complete starting selection."""
+
+    def __init__(
+        self,
+        unresolved: list[str],
+        reason: Literal["empty", "unparseable", "missing", "budget", "over_capacity"],
+    ) -> None:
+        self.unresolved = unresolved
+        self.reason = reason
+        explanations = {
+            "empty": "Choose at least one starting entity for this question.",
+            "unparseable": "Some starting entities have invalid IDs or unknown types.",
+            "missing": "Some starting entities do not exist with those IDs on this graph.",
+            "budget": "The graph-call budget was exhausted before resolving starting entities.",
+            "over_capacity": "The starting selection exceeds this query's node limit.",
+        }
+        detail = explanations[reason]
+        super().__init__(detail + (" Entities: " + ", ".join(unresolved) if unresolved else ""))
+
+
 @dataclass(frozen=True)
 class ArtifactQuery:
     query: str
@@ -141,6 +165,12 @@ class ArtifactQuery:
     include_untrusted: bool = False
     # Packs whose intents and edge weights are not used (evaluation pending)
     exclude_packs: frozenset[str] = frozenset()
+    # Artifact queries only. Explicit selects origins, not traversal/account boundaries.
+    seed_mode: Literal["discover", "explicit"] = "discover"
+
+    def __post_init__(self) -> None:
+        if self.seed_mode not in {"discover", "explicit"}:
+            raise ValueError("seed_mode must be discover or explicit")
 
 
 @dataclass
@@ -284,6 +314,8 @@ class ArtifactRetriever:
         if completeness:
             # Scope comes from precise references only, not from loose word matches
             seeds = [s for s in seeds if s.origin != "word"]
+        if len(seeds) > query.max_nodes:
+            result.truncated = True
         for seed in seeds[: query.max_nodes]:
             result.nodes[self._node_key(seed.ref)] = seed
 
@@ -451,9 +483,35 @@ class ArtifactRetriever:
             return NodeRef(label, rest, node_type.key_property)
         return NodeRef(label, node_id)
 
+    async def _explicit_seeds(self, query: ArtifactQuery, result: _Result) -> list[_Found]:
+        selected = list(dict.fromkeys(query.seed_node_ids))
+        if not selected:
+            raise UnresolvedSeedsError([], "empty")
+        parsed = {node_id: self._parse_node_id(node_id) for node_id in selected}
+        invalid = [node_id for node_id, ref in parsed.items() if ref is None]
+        if invalid:
+            raise UnresolvedSeedsError(invalid, "unparseable")
+        refs = list(dict.fromkeys(ref for ref in parsed.values() if ref is not None))
+        if len(refs) > query.max_nodes:
+            raise UnresolvedSeedsError(selected, "over_capacity")
+        if not self._spend(result):
+            raise UnresolvedSeedsError(selected, "budget")
+        nodes = await self._graph.get_nodes(refs)
+        missing = [
+            node_id
+            for node_id, ref in parsed.items()
+            if ref not in nodes or ref is None or self._ref(ref.label, nodes[ref]) != ref
+        ]
+        if missing:
+            raise UnresolvedSeedsError(missing, "missing")
+        # Backends may return rows in storage order; preserve the caller's selection order.
+        return [_Found(ref, nodes[ref], 1.0, 0, origin="given") for ref in refs]
+
     async def _seeds(
         self, query: ArtifactQuery, prefer: list[str], result: _Result
     ) -> list[_Found]:
+        if query.seed_mode == "explicit":
+            return await self._explicit_seeds(query, result)
         given: list[_Found] = []
         refs = list(dict.fromkeys(r for r in map(self._parse_node_id, query.seed_node_ids) if r))
         if refs and self._spend(result):
@@ -973,6 +1031,9 @@ class ArtifactRetriever:
                     scope.setdefault(self._node_key(node), _Found(node, row["node"], 1.0, 1))
         if seeds:
             candidates = list(scope.values())
+        elif query.seed_mode == "explicit":
+            # Defense in depth: an explicit query must never become a global scan.
+            candidates = []
         else:
             candidates = await self._all_of(subject, query.query, result)
         return self._in_named_states(subject, query.query, candidates)
@@ -1136,7 +1197,9 @@ class ArtifactRetriever:
                 inferred_intents=intents,
                 intent_override=query.intent,
                 seed_nodes=[self._node_key(s.ref) for s in seeds],
-                seed_strategy="artifact_seeds",
+                seed_strategy="explicit_seeds"
+                if query.seed_mode == "explicit"
+                else "artifact_seeds",
                 retrieval_channels=reports,
                 capacity=QueryCapacity(
                     max_nodes=query.max_nodes, used_nodes=len(nodes), max_depth=depth

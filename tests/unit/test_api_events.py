@@ -105,11 +105,11 @@ class TestIngestEvent:
         response = test_client.post("/v1/events", json=data)
         assert response.status_code == 201
 
-    def test_ingest_with_non_dict_payload_ignored(self, test_client: TestClient) -> None:
-        """POST with non-dict payload value silently ignores it (201)."""
+    def test_ingest_with_non_dict_payload_rejected(self, test_client: TestClient) -> None:
+        """POST refuses non-object payloads rather than silently discarding them."""
         data = _make_event_payload(payload="just a string")
         response = test_client.post("/v1/events", json=data)
-        assert response.status_code == 201
+        assert response.status_code == 422
 
     def test_response_has_timing_header(self, test_client: TestClient) -> None:
         payload = _make_event_payload()

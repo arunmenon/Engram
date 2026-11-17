@@ -1,0 +1,68 @@
+{
+  "description": "Synthetic Northstar webhook adapter output. Payload paths are relative to payload. Envelope includes event_type, producer_id and occurred_at.",
+  "events": {
+    "incident.opened": {
+      "handling": "processed",
+      "payload_contract": {
+        "version": 1,
+        "additional_fields": "preserve",
+        "properties": {
+          "account": {
+            "type": "string",
+            "required": true
+          },
+          "id": {
+            "type": "string",
+            "required": true
+          },
+          "service": {
+            "type": "string",
+            "required": true
+          },
+          "title": {
+            "type": "string",
+            "required": true
+          }
+        }
+      }
+    },
+    "incident.resolved": {
+      "handling": "processed",
+      "payload_contract": {
+        "version": 1,
+        "additional_fields": "preserve",
+        "properties": {
+          "account": {
+            "type": "string",
+            "required": true
+          },
+          "id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      }
+    },
+    "incident.comment": {
+      "handling": "ledger_only",
+      "payload_contract": {
+        "version": 1,
+        "additional_fields": "preserve",
+        "properties": {
+          "account": {
+            "type": "string",
+            "required": true
+          },
+          "id": {
+            "type": "string",
+            "required": true
+          },
+          "text": {
+            "type": "string",
+            "required": true
+          }
+        }
+      }
+    }
+  }
+}

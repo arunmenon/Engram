@@ -1,0 +1,1004 @@
+{
+  "source": "Synthetic explicitly normalized producer records; no captured native-source claim.",
+  "ids": {
+    "spec": "Spec:g03/workbench-baseline-v1-reset|1",
+    "expiry": "Requirement:g03/workbench-baseline-v1-reset|1|expiry",
+    "hld": "DesignElement:g03/workbench-baseline-v1-hld|tokens|1",
+    "lld": "DesignElement:g03/workbench-baseline-v1-lld|storage|1",
+    "ticket": "WorkItem:jira|g03/workbench-baseline-v1-17",
+    "change": "Change:g03/workbench-baseline-v1/payments|7",
+    "review_bad": "Review:g03/workbench-baseline-v1/payments|7|alex-1",
+    "review_good": "Review:g03/workbench-baseline-v1/payments|7|robin-2",
+    "test": "TestCase:g03/workbench-baseline-v1/payments|expiry",
+    "run_bad": "TestRun:g03/workbench-baseline-v1-failure",
+    "run_good": "TestRun:g03/workbench-baseline-v1-success",
+    "other_spec": "Spec:g03/workbench-baseline-v1-newsletter|1",
+    "other_req": "Requirement:g03/workbench-baseline-v1-newsletter|1|expiry",
+    "other_ticket": "WorkItem:linear|g03/workbench-baseline-v1-17",
+    "other_change": "Change:g03/workbench-baseline-v1/newsletter|7",
+    "other_test": "TestCase:g03/workbench-baseline-v1/newsletter|expiry",
+    "other_run": "TestRun:g03/workbench-baseline-v1-other",
+    "unlinked": "Change:g03/workbench-baseline-v1/payments|8",
+    "unlinked_test": "TestCase:g03/workbench-baseline-v1/payments|unmapped",
+    "unlinked_run": "TestRun:g03/workbench-baseline-v1-unmapped"
+  },
+  "steps": [
+    {
+      "scenario": "IM01",
+      "request": {
+        "event_id": "b0e00bdd-7f69-5488-b01e-2c67341b8ed9",
+        "event_type": "pdlc.spec.changed",
+        "occurred_at": "2026-10-08T00:00:00+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM01",
+        "payload": {
+          "doc_id": "g03/workbench-baseline-v1-reset",
+          "version": "1",
+          "title": "Password reset PRD"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Spec:g03/workbench-baseline-v1-reset|1",
+      "expected_props": {
+        "title": "Password reset PRD"
+      },
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM02",
+      "request": {
+        "event_id": "837e26ba-8586-56d1-adcb-0c793a0bf989",
+        "event_type": "pdlc.requirement.changed",
+        "occurred_at": "2026-10-08T00:00:01+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM02",
+        "payload": {
+          "spec_id": "g03/workbench-baseline-v1-reset",
+          "spec_version": "1",
+          "local_id": "expiry",
+          "statement": "Reset token expires in fifteen minutes"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Requirement:g03/workbench-baseline-v1-reset|1|expiry",
+      "expected_props": {
+        "statement": "Reset token expires in fifteen minutes"
+      },
+      "expected_edges": [
+        [
+          "REFINES",
+          "Requirement:g03/workbench-baseline-v1-reset|1|expiry",
+          "Spec:g03/workbench-baseline-v1-reset|1"
+        ]
+      ],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM03",
+      "request": {
+        "event_id": "f8632320-a516-5f15-92a9-f46ba52c9634",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-08T00:00:02+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM03",
+        "payload": {
+          "doc_id": "g03/workbench-baseline-v1-hld",
+          "section_path": "tokens",
+          "version": "1",
+          "kind": "hld",
+          "body": "Reset service validates token expiry.",
+          "requirements": [
+            {
+              "spec_id": "g03/workbench-baseline-v1-reset",
+              "spec_version": "1",
+              "local_id": "expiry"
+            }
+          ]
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "DesignElement:g03/workbench-baseline-v1-hld|tokens|1",
+      "expected_props": {
+        "kind": "hld"
+      },
+      "expected_edges": [
+        [
+          "REFINES",
+          "DesignElement:g03/workbench-baseline-v1-hld|tokens|1",
+          "Requirement:g03/workbench-baseline-v1-reset|1|expiry"
+        ]
+      ],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM04",
+      "request": {
+        "event_id": "5d109508-345d-5b60-8385-ace695c27974",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-08T00:00:03+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM04",
+        "payload": {
+          "doc_id": "g03/workbench-baseline-v1-lld",
+          "section_path": "storage",
+          "version": "1",
+          "kind": "lld",
+          "body": "Store a token digest and expires_at; reject expired tokens.",
+          "requirements": [
+            {
+              "spec_id": "g03/workbench-baseline-v1-reset",
+              "spec_version": "1",
+              "local_id": "expiry"
+            }
+          ],
+          "refines_designs": [
+            {
+              "doc_id": "g03/workbench-baseline-v1-hld",
+              "section_path": "tokens",
+              "version": "1"
+            }
+          ]
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "DesignElement:g03/workbench-baseline-v1-lld|storage|1",
+      "expected_props": {
+        "kind": "lld"
+      },
+      "expected_edges": [
+        [
+          "REFINES",
+          "DesignElement:g03/workbench-baseline-v1-lld|storage|1",
+          "DesignElement:g03/workbench-baseline-v1-hld|tokens|1"
+        ],
+        [
+          "REFINES",
+          "DesignElement:g03/workbench-baseline-v1-lld|storage|1",
+          "Requirement:g03/workbench-baseline-v1-reset|1|expiry"
+        ]
+      ],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM05",
+      "request": {
+        "event_id": "934243a4-e70d-5fd8-8833-e1ef0860a75f",
+        "event_type": "pdlc.ticket.created",
+        "occurred_at": "2026-10-08T00:00:04+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM05",
+        "payload": {
+          "tracker": "jira",
+          "key": "g03/workbench-baseline-v1-17",
+          "title": "Implement reset expiry",
+          "work_type": "task",
+          "status": "To Do",
+          "requirements": [
+            {
+              "spec_id": "g03/workbench-baseline-v1-reset",
+              "spec_version": "1",
+              "local_id": "expiry"
+            }
+          ],
+          "designs": [
+            {
+              "doc_id": "g03/workbench-baseline-v1-lld",
+              "section_path": "storage",
+              "version": "1"
+            }
+          ]
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "WorkItem:jira|g03/workbench-baseline-v1-17",
+      "expected_props": {
+        "title": "Implement reset expiry"
+      },
+      "expected_edges": [
+        [
+          "IMPLEMENTS",
+          "WorkItem:jira|g03/workbench-baseline-v1-17",
+          "Requirement:g03/workbench-baseline-v1-reset|1|expiry"
+        ],
+        [
+          "IMPLEMENTS",
+          "WorkItem:jira|g03/workbench-baseline-v1-17",
+          "DesignElement:g03/workbench-baseline-v1-lld|storage|1"
+        ]
+      ],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM06",
+      "request": {
+        "event_id": "dee61562-8409-5a57-a07e-700e472c6dac",
+        "event_type": "pdlc.change.created",
+        "occurred_at": "2026-10-08T00:00:05+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM06",
+        "payload": {
+          "repo": "g03/workbench-baseline-v1/payments",
+          "number": 7,
+          "title": "Reject expired password-reset tokens",
+          "head_sha": "abc123",
+          "work_items": [
+            {
+              "tracker": "jira",
+              "external_key": "g03/workbench-baseline-v1-17"
+            }
+          ]
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Change:g03/workbench-baseline-v1/payments|7",
+      "expected_props": {
+        "head_sha": "abc123",
+        "title": "Reject expired password-reset tokens"
+      },
+      "expected_edges": [
+        [
+          "IMPLEMENTS",
+          "Change:g03/workbench-baseline-v1/payments|7",
+          "WorkItem:jira|g03/workbench-baseline-v1-17"
+        ]
+      ],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM07-requested",
+      "request": {
+        "event_id": "b45dffb8-9aa6-569f-8567-4c0932711224",
+        "event_type": "pdlc.change.reviewed",
+        "occurred_at": "2026-10-08T00:00:06+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM07-requested",
+        "payload": {
+          "repo": "g03/workbench-baseline-v1/payments",
+          "number": 7,
+          "review_id": "alex-1",
+          "reviewer": "Alex",
+          "verdict": "changes_requested"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Review:g03/workbench-baseline-v1/payments|7|alex-1",
+      "expected_props": {
+        "verdict": "changes_requested",
+        "reviewer": "Alex"
+      },
+      "expected_edges": [
+        [
+          "REVIEWS",
+          "Review:g03/workbench-baseline-v1/payments|7|alex-1",
+          "Change:g03/workbench-baseline-v1/payments|7"
+        ]
+      ],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM07-approved",
+      "request": {
+        "event_id": "e41fb3ef-b766-515d-bf12-984d7d4071bb",
+        "event_type": "pdlc.change.reviewed",
+        "occurred_at": "2026-10-08T00:00:07+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM07-approved",
+        "payload": {
+          "repo": "g03/workbench-baseline-v1/payments",
+          "number": 7,
+          "review_id": "robin-2",
+          "reviewer": "Robin",
+          "verdict": "approved"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Review:g03/workbench-baseline-v1/payments|7|robin-2",
+      "expected_props": {
+        "verdict": "approved",
+        "reviewer": "Robin"
+      },
+      "expected_edges": [
+        [
+          "REVIEWS",
+          "Review:g03/workbench-baseline-v1/payments|7|robin-2",
+          "Change:g03/workbench-baseline-v1/payments|7"
+        ]
+      ],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM08-failure",
+      "request": {
+        "event_id": "3922cb15-8af1-5c0f-8990-f0e7f9cab0d9",
+        "event_type": "pdlc.testcaserun.finished",
+        "occurred_at": "2026-10-08T00:00:08+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM08-failure",
+        "payload": {
+          "repo": "g03/workbench-baseline-v1/payments",
+          "test_id": "expiry",
+          "run_id": "g03/workbench-baseline-v1-failure",
+          "outcome": "failure",
+          "name": "Reject expired reset token",
+          "path": "tests/test_expiry.py",
+          "commit_sha": "abc123",
+          "change_number": 7,
+          "requirements": [
+            {
+              "spec_id": "g03/workbench-baseline-v1-reset",
+              "spec_version": "1",
+              "local_id": "expiry"
+            }
+          ]
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "TestRun:g03/workbench-baseline-v1-failure",
+      "expected_props": {
+        "outcome": "failure",
+        "commit_sha": "abc123"
+      },
+      "expected_edges": [
+        [
+          "EXECUTES",
+          "TestRun:g03/workbench-baseline-v1-failure",
+          "TestCase:g03/workbench-baseline-v1/payments|expiry"
+        ],
+        [
+          "RAN_AGAINST",
+          "TestRun:g03/workbench-baseline-v1-failure",
+          "Change:g03/workbench-baseline-v1/payments|7"
+        ],
+        [
+          "VERIFIES",
+          "TestCase:g03/workbench-baseline-v1/payments|expiry",
+          "Requirement:g03/workbench-baseline-v1-reset|1|expiry"
+        ]
+      ],
+      "extra_nodes": {
+        "TestCase:g03/workbench-baseline-v1/payments|expiry": {
+          "name": "Reject expired reset token",
+          "path": "tests/test_expiry.py"
+        }
+      }
+    },
+    {
+      "scenario": "IM08-success",
+      "request": {
+        "event_id": "2aab0b55-0f02-5363-ae3b-f47dca1c7938",
+        "event_type": "pdlc.testcaserun.finished",
+        "occurred_at": "2026-10-08T00:00:09+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM08-success",
+        "payload": {
+          "repo": "g03/workbench-baseline-v1/payments",
+          "test_id": "expiry",
+          "run_id": "g03/workbench-baseline-v1-success",
+          "outcome": "success",
+          "name": "Reject expired reset token",
+          "path": "tests/test_expiry.py",
+          "commit_sha": "abc123",
+          "change_number": 7,
+          "requirements": [
+            {
+              "spec_id": "g03/workbench-baseline-v1-reset",
+              "spec_version": "1",
+              "local_id": "expiry"
+            }
+          ]
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "TestRun:g03/workbench-baseline-v1-success",
+      "expected_props": {
+        "outcome": "success",
+        "commit_sha": "abc123"
+      },
+      "expected_edges": [
+        [
+          "EXECUTES",
+          "TestRun:g03/workbench-baseline-v1-success",
+          "TestCase:g03/workbench-baseline-v1/payments|expiry"
+        ],
+        [
+          "RAN_AGAINST",
+          "TestRun:g03/workbench-baseline-v1-success",
+          "Change:g03/workbench-baseline-v1/payments|7"
+        ],
+        [
+          "VERIFIES",
+          "TestCase:g03/workbench-baseline-v1/payments|expiry",
+          "Requirement:g03/workbench-baseline-v1-reset|1|expiry"
+        ]
+      ],
+      "extra_nodes": {
+        "TestCase:g03/workbench-baseline-v1/payments|expiry": {
+          "name": "Reject expired reset token",
+          "path": "tests/test_expiry.py"
+        }
+      }
+    },
+    {
+      "scenario": "IM09-spec",
+      "request": {
+        "event_id": "cb00a488-23ea-51e7-8ba5-e893130d7458",
+        "event_type": "pdlc.spec.changed",
+        "occurred_at": "2026-10-08T00:00:10+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM09-spec",
+        "payload": {
+          "doc_id": "g03/workbench-baseline-v1-newsletter",
+          "version": "1",
+          "title": "Newsletter PRD"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Spec:g03/workbench-baseline-v1-newsletter|1",
+      "expected_props": {
+        "title": "Newsletter PRD"
+      },
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM09-requirement",
+      "request": {
+        "event_id": "4485d33f-f83d-5ab0-9f58-9c77e6aaf777",
+        "event_type": "pdlc.requirement.changed",
+        "occurred_at": "2026-10-08T00:00:11+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM09-requirement",
+        "payload": {
+          "spec_id": "g03/workbench-baseline-v1-newsletter",
+          "spec_version": "1",
+          "local_id": "expiry",
+          "statement": "Newsletter link lasts seven days"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Requirement:g03/workbench-baseline-v1-newsletter|1|expiry",
+      "expected_props": {
+        "statement": "Newsletter link lasts seven days"
+      },
+      "expected_edges": [
+        [
+          "REFINES",
+          "Requirement:g03/workbench-baseline-v1-newsletter|1|expiry",
+          "Spec:g03/workbench-baseline-v1-newsletter|1"
+        ]
+      ],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM09-ticket",
+      "request": {
+        "event_id": "c5c45f75-d355-568b-ab2b-7d350a08002b",
+        "event_type": "pdlc.ticket.created",
+        "occurred_at": "2026-10-08T00:00:12+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM09-ticket",
+        "payload": {
+          "tracker": "linear",
+          "key": "g03/workbench-baseline-v1-17",
+          "title": "Newsletter expiry",
+          "requirements": [
+            {
+              "spec_id": "g03/workbench-baseline-v1-newsletter",
+              "spec_version": "1",
+              "local_id": "expiry"
+            }
+          ]
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "WorkItem:linear|g03/workbench-baseline-v1-17",
+      "expected_props": {
+        "title": "Newsletter expiry"
+      },
+      "expected_edges": [
+        [
+          "IMPLEMENTS",
+          "WorkItem:linear|g03/workbench-baseline-v1-17",
+          "Requirement:g03/workbench-baseline-v1-newsletter|1|expiry"
+        ]
+      ],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM09-change",
+      "request": {
+        "event_id": "075b41ec-a375-5658-8d89-42964f7a1c30",
+        "event_type": "pdlc.change.created",
+        "occurred_at": "2026-10-08T00:00:13+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM09-change",
+        "payload": {
+          "repo": "g03/workbench-baseline-v1/newsletter",
+          "number": 7,
+          "title": "Newsletter expiry",
+          "work_items": [
+            {
+              "tracker": "linear",
+              "external_key": "g03/workbench-baseline-v1-17"
+            }
+          ]
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Change:g03/workbench-baseline-v1/newsletter|7",
+      "expected_props": {
+        "title": "Newsletter expiry"
+      },
+      "expected_edges": [
+        [
+          "IMPLEMENTS",
+          "Change:g03/workbench-baseline-v1/newsletter|7",
+          "WorkItem:linear|g03/workbench-baseline-v1-17"
+        ]
+      ],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM09-test",
+      "request": {
+        "event_id": "895286c8-c9e7-51c8-b652-1f06755259e4",
+        "event_type": "pdlc.testcaserun.finished",
+        "occurred_at": "2026-10-08T00:00:14+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM09-test",
+        "payload": {
+          "repo": "g03/workbench-baseline-v1/newsletter",
+          "test_id": "expiry",
+          "run_id": "g03/workbench-baseline-v1-other",
+          "outcome": "success",
+          "commit_sha": "def456",
+          "change_number": 7,
+          "requirements": [
+            {
+              "spec_id": "g03/workbench-baseline-v1-newsletter",
+              "spec_version": "1",
+              "local_id": "expiry"
+            }
+          ]
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "TestRun:g03/workbench-baseline-v1-other",
+      "expected_props": {
+        "outcome": "success",
+        "commit_sha": "def456"
+      },
+      "expected_edges": [
+        [
+          "EXECUTES",
+          "TestRun:g03/workbench-baseline-v1-other",
+          "TestCase:g03/workbench-baseline-v1/newsletter|expiry"
+        ],
+        [
+          "RAN_AGAINST",
+          "TestRun:g03/workbench-baseline-v1-other",
+          "Change:g03/workbench-baseline-v1/newsletter|7"
+        ],
+        [
+          "VERIFIES",
+          "TestCase:g03/workbench-baseline-v1/newsletter|expiry",
+          "Requirement:g03/workbench-baseline-v1-newsletter|1|expiry"
+        ]
+      ],
+      "extra_nodes": {
+        "TestCase:g03/workbench-baseline-v1/newsletter|expiry": {}
+      }
+    },
+    {
+      "scenario": "IM10-change",
+      "request": {
+        "event_id": "5989a501-e280-5800-9b50-d6d8b00c81d5",
+        "event_type": "pdlc.change.created",
+        "occurred_at": "2026-10-08T00:00:15+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM10-change",
+        "payload": {
+          "repo": "g03/workbench-baseline-v1/payments",
+          "number": 8,
+          "title": "Unlinked maintenance"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "Change:g03/workbench-baseline-v1/payments|8",
+      "expected_props": {
+        "title": "Unlinked maintenance"
+      },
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM10-test",
+      "request": {
+        "event_id": "cc413cfd-b9d4-5009-9e17-5abf91500587",
+        "event_type": "pdlc.testcaserun.finished",
+        "occurred_at": "2026-10-08T00:00:16+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM10-test",
+        "payload": {
+          "repo": "g03/workbench-baseline-v1/payments",
+          "test_id": "unmapped",
+          "run_id": "g03/workbench-baseline-v1-unmapped",
+          "outcome": "failure"
+        }
+      },
+      "expected_status": 201,
+      "expected_node": "TestRun:g03/workbench-baseline-v1-unmapped",
+      "expected_props": {
+        "outcome": "failure"
+      },
+      "expected_edges": [
+        [
+          "EXECUTES",
+          "TestRun:g03/workbench-baseline-v1-unmapped",
+          "TestCase:g03/workbench-baseline-v1/payments|unmapped"
+        ]
+      ],
+      "extra_nodes": {
+        "TestCase:g03/workbench-baseline-v1/payments|unmapped": {}
+      }
+    },
+    {
+      "scenario": "IM11-duplicate",
+      "request": {
+        "event_id": "2aab0b55-0f02-5363-ae3b-f47dca1c7938",
+        "event_type": "pdlc.testcaserun.finished",
+        "occurred_at": "2026-10-08T00:00:09+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM08-success",
+        "payload": {
+          "repo": "g03/workbench-baseline-v1/payments",
+          "test_id": "expiry",
+          "run_id": "g03/workbench-baseline-v1-success",
+          "outcome": "success",
+          "name": "Reject expired reset token",
+          "path": "tests/test_expiry.py",
+          "commit_sha": "abc123",
+          "change_number": 7,
+          "requirements": [
+            {
+              "spec_id": "g03/workbench-baseline-v1-reset",
+              "spec_version": "1",
+              "local_id": "expiry"
+            }
+          ]
+        }
+      },
+      "expected_status": 201,
+      "expected_node": null,
+      "expected_props": {
+        "outcome": "success",
+        "commit_sha": "abc123"
+      },
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM11-conflict",
+      "request": {
+        "event_id": "2aab0b55-0f02-5363-ae3b-f47dca1c7938",
+        "event_type": "pdlc.testcaserun.finished",
+        "occurred_at": "2026-10-08T00:00:09+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM08-success",
+        "payload": {
+          "repo": "g03/workbench-baseline-v1/payments",
+          "test_id": "expiry",
+          "run_id": "g03/workbench-baseline-v1-success",
+          "outcome": "failure",
+          "name": "Reject expired reset token",
+          "path": "tests/test_expiry.py",
+          "commit_sha": "abc123",
+          "change_number": 7,
+          "requirements": [
+            {
+              "spec_id": "g03/workbench-baseline-v1-reset",
+              "spec_version": "1",
+              "local_id": "expiry"
+            }
+          ]
+        }
+      },
+      "expected_status": 409,
+      "expected_node": null,
+      "expected_props": {
+        "outcome": "success",
+        "commit_sha": "abc123"
+      },
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM12-revision",
+      "request": {
+        "event_id": "550ff651-08fb-534b-ab01-ff0313d8fb2e",
+        "event_type": "pdlc.ticket.created",
+        "occurred_at": "2026-10-08T00:00:17+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM12-revision",
+        "payload": {
+          "tracker": "jira",
+          "key": "g03/workbench-baseline-v1-17",
+          "title": "Implement reset expiry",
+          "work_type": "task",
+          "status": "To Do",
+          "requirements": [
+            {
+              "spec_id": "g03/workbench-baseline-v1-reset",
+              "local_id": "expiry"
+            }
+          ],
+          "designs": [
+            {
+              "doc_id": "g03/workbench-baseline-v1-lld",
+              "section_path": "storage",
+              "version": "1"
+            }
+          ]
+        }
+      },
+      "expected_status": 422,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM12-ticket",
+      "request": {
+        "event_id": "c14c3722-a8ad-56b7-bc5e-caffbef668ab",
+        "event_type": "pdlc.change.created",
+        "occurred_at": "2026-10-08T00:00:18+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM12-ticket",
+        "payload": {
+          "repo": "g03/workbench-baseline-v1/payments",
+          "number": 7,
+          "title": "Reject expired password-reset tokens",
+          "head_sha": "abc123",
+          "work_items": [
+            {
+              "tracker": "jira"
+            }
+          ]
+        }
+      },
+      "expected_status": 422,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM12-review",
+      "request": {
+        "event_id": "92590607-7279-5d46-b110-039c93ebd927",
+        "event_type": "pdlc.change.reviewed",
+        "occurred_at": "2026-10-08T00:00:19+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM12-review",
+        "payload": {
+          "repo": "g03/workbench-baseline-v1/payments",
+          "number": 7,
+          "review_id": "invalid",
+          "verdict": "unknown"
+        }
+      },
+      "expected_status": 422,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [],
+      "extra_nodes": {}
+    },
+    {
+      "scenario": "IM12-test",
+      "request": {
+        "event_id": "406d9b9b-1e9d-5e44-a531-f646056a9588",
+        "event_type": "pdlc.testcaserun.finished",
+        "occurred_at": "2026-10-08T00:00:20+00:00",
+        "session_id": "implementation:g03/workbench-baseline-v1",
+        "agent_id": "implementation.publisher",
+        "trace_id": "workbench-baseline-v1",
+        "payload_ref": "synthetic:workbench-baseline-v1:IM12-test",
+        "payload": {
+          "repo": "g03/workbench-baseline-v1/payments",
+          "test_id": "expiry",
+          "run_id": "g03/workbench-baseline-v1-invalid",
+          "outcome": "passed"
+        }
+      },
+      "expected_status": 422,
+      "expected_node": null,
+      "expected_props": {},
+      "expected_edges": [],
+      "extra_nodes": {}
+    }
+  ],
+  "queries": [
+    {
+      "scenario": "IM13-expiry",
+      "seed": "Requirement:g03/workbench-baseline-v1-reset|1|expiry",
+      "intent": "trace",
+      "required": [
+        "Spec:g03/workbench-baseline-v1-reset|1",
+        "Requirement:g03/workbench-baseline-v1-reset|1|expiry",
+        "DesignElement:g03/workbench-baseline-v1-hld|tokens|1",
+        "DesignElement:g03/workbench-baseline-v1-lld|storage|1",
+        "WorkItem:jira|g03/workbench-baseline-v1-17",
+        "Change:g03/workbench-baseline-v1/payments|7",
+        "Review:g03/workbench-baseline-v1/payments|7|alex-1",
+        "Review:g03/workbench-baseline-v1/payments|7|robin-2",
+        "TestCase:g03/workbench-baseline-v1/payments|expiry",
+        "TestRun:g03/workbench-baseline-v1-failure",
+        "TestRun:g03/workbench-baseline-v1-success"
+      ],
+      "forbidden": [
+        "Spec:g03/workbench-baseline-v1-newsletter|1",
+        "Requirement:g03/workbench-baseline-v1-newsletter|1|expiry",
+        "WorkItem:linear|g03/workbench-baseline-v1-17",
+        "Change:g03/workbench-baseline-v1/newsletter|7",
+        "TestCase:g03/workbench-baseline-v1/newsletter|expiry",
+        "TestRun:g03/workbench-baseline-v1-other",
+        "Change:g03/workbench-baseline-v1/payments|8",
+        "TestCase:g03/workbench-baseline-v1/payments|unmapped",
+        "TestRun:g03/workbench-baseline-v1-unmapped"
+      ]
+    },
+    {
+      "scenario": "IM13-lld",
+      "seed": "DesignElement:g03/workbench-baseline-v1-lld|storage|1",
+      "intent": "trace",
+      "required": [
+        "Spec:g03/workbench-baseline-v1-reset|1",
+        "Requirement:g03/workbench-baseline-v1-reset|1|expiry",
+        "DesignElement:g03/workbench-baseline-v1-hld|tokens|1",
+        "DesignElement:g03/workbench-baseline-v1-lld|storage|1",
+        "WorkItem:jira|g03/workbench-baseline-v1-17",
+        "Change:g03/workbench-baseline-v1/payments|7",
+        "Review:g03/workbench-baseline-v1/payments|7|alex-1",
+        "Review:g03/workbench-baseline-v1/payments|7|robin-2",
+        "TestCase:g03/workbench-baseline-v1/payments|expiry",
+        "TestRun:g03/workbench-baseline-v1-failure",
+        "TestRun:g03/workbench-baseline-v1-success"
+      ],
+      "forbidden": [
+        "Spec:g03/workbench-baseline-v1-newsletter|1",
+        "Requirement:g03/workbench-baseline-v1-newsletter|1|expiry",
+        "WorkItem:linear|g03/workbench-baseline-v1-17",
+        "Change:g03/workbench-baseline-v1/newsletter|7",
+        "TestCase:g03/workbench-baseline-v1/newsletter|expiry",
+        "TestRun:g03/workbench-baseline-v1-other",
+        "Change:g03/workbench-baseline-v1/payments|8",
+        "TestCase:g03/workbench-baseline-v1/payments|unmapped",
+        "TestRun:g03/workbench-baseline-v1-unmapped"
+      ]
+    },
+    {
+      "scenario": "IM13-change",
+      "seed": "Change:g03/workbench-baseline-v1/payments|7",
+      "intent": "trace",
+      "required": [
+        "Spec:g03/workbench-baseline-v1-reset|1",
+        "Requirement:g03/workbench-baseline-v1-reset|1|expiry",
+        "DesignElement:g03/workbench-baseline-v1-hld|tokens|1",
+        "DesignElement:g03/workbench-baseline-v1-lld|storage|1",
+        "WorkItem:jira|g03/workbench-baseline-v1-17",
+        "Change:g03/workbench-baseline-v1/payments|7",
+        "Review:g03/workbench-baseline-v1/payments|7|alex-1",
+        "Review:g03/workbench-baseline-v1/payments|7|robin-2",
+        "TestCase:g03/workbench-baseline-v1/payments|expiry",
+        "TestRun:g03/workbench-baseline-v1-failure",
+        "TestRun:g03/workbench-baseline-v1-success"
+      ],
+      "forbidden": [
+        "Spec:g03/workbench-baseline-v1-newsletter|1",
+        "Requirement:g03/workbench-baseline-v1-newsletter|1|expiry",
+        "WorkItem:linear|g03/workbench-baseline-v1-17",
+        "Change:g03/workbench-baseline-v1/newsletter|7",
+        "TestCase:g03/workbench-baseline-v1/newsletter|expiry",
+        "TestRun:g03/workbench-baseline-v1-other",
+        "Change:g03/workbench-baseline-v1/payments|8",
+        "TestCase:g03/workbench-baseline-v1/payments|unmapped",
+        "TestRun:g03/workbench-baseline-v1-unmapped"
+      ]
+    },
+    {
+      "scenario": "IM13-test",
+      "seed": "TestCase:g03/workbench-baseline-v1/payments|expiry",
+      "intent": "trace",
+      "required": [
+        "Spec:g03/workbench-baseline-v1-reset|1",
+        "Requirement:g03/workbench-baseline-v1-reset|1|expiry",
+        "DesignElement:g03/workbench-baseline-v1-hld|tokens|1",
+        "DesignElement:g03/workbench-baseline-v1-lld|storage|1",
+        "WorkItem:jira|g03/workbench-baseline-v1-17",
+        "Change:g03/workbench-baseline-v1/payments|7",
+        "Review:g03/workbench-baseline-v1/payments|7|alex-1",
+        "Review:g03/workbench-baseline-v1/payments|7|robin-2",
+        "TestCase:g03/workbench-baseline-v1/payments|expiry",
+        "TestRun:g03/workbench-baseline-v1-failure",
+        "TestRun:g03/workbench-baseline-v1-success"
+      ],
+      "forbidden": [
+        "Spec:g03/workbench-baseline-v1-newsletter|1",
+        "Requirement:g03/workbench-baseline-v1-newsletter|1|expiry",
+        "WorkItem:linear|g03/workbench-baseline-v1-17",
+        "Change:g03/workbench-baseline-v1/newsletter|7",
+        "TestCase:g03/workbench-baseline-v1/newsletter|expiry",
+        "TestRun:g03/workbench-baseline-v1-other",
+        "Change:g03/workbench-baseline-v1/payments|8",
+        "TestCase:g03/workbench-baseline-v1/payments|unmapped",
+        "TestRun:g03/workbench-baseline-v1-unmapped"
+      ]
+    },
+    {
+      "scenario": "IM13-text",
+      "seed": null,
+      "text": "fifteen minutes",
+      "intent": "trace",
+      "required": [
+        "Requirement:g03/workbench-baseline-v1-reset|1|expiry"
+      ],
+      "forbidden": [
+        "Spec:g03/workbench-baseline-v1-newsletter|1",
+        "Requirement:g03/workbench-baseline-v1-newsletter|1|expiry",
+        "WorkItem:linear|g03/workbench-baseline-v1-17",
+        "Change:g03/workbench-baseline-v1/newsletter|7",
+        "TestCase:g03/workbench-baseline-v1/newsletter|expiry",
+        "TestRun:g03/workbench-baseline-v1-other",
+        "Change:g03/workbench-baseline-v1/payments|8",
+        "TestCase:g03/workbench-baseline-v1/payments|unmapped",
+        "TestRun:g03/workbench-baseline-v1-unmapped"
+      ]
+    }
+  ]
+}

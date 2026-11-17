@@ -1,0 +1,26 @@
+2026-10-06 19:05:40 [info     ] worker_starting                consumer=projection neo4j_uri=bolt://localhost:7687 redis_host=localhost storage={'event_log': 'spanner', 'subscription': 'spanner', 'graph': 'spanner', 'keyword_index': 'spanner', 'vector_index': 'spanner', 'archive': 'fs'}
+2026-10-06 19:05:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:41 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 19:05:41 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 19:05:41 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 19:05:41 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 19:05:41 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 19:05:41 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 19:05:42 [info     ] ontology_loaded                edge_types=45 event_types=38 intents=['completeness', 'general', 'how_does', 'impact', 'personalize', 'preflight', 'related', 'status', 'trace', 'what', 'when', 'who_is', 'why'] node_types=28 packs=[{'name': 'core', 'version': '1.1.0', 'owner': 'engram'}, {'name': 'memory', 'version': '1.0.0', 'owner': 'engram'}, {'name': 'user', 'version': '1.0.0', 'owner': 'engram'}, {'name': 'pdlc', 'version': '1.7.0', 'owner': 'TBD'}] version=sha256:3a7c761cd2848649
+2026-10-06 19:05:42 [info     ] ontology_change                eval_required=['pdlc'] kind=initial pack_changes={} reasons=['the graph records no ontology version'] replay_event_types=[] version_problems=[]
+2026-10-06 19:05:42 [info     ] worker_running                 consumer=projection
+2026-10-06 19:05:42 [info     ] consumer_started               consumer=fault-transient_once group=graph-projection stream=Events
+2026-10-06 19:05:42 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:05:43 [warning  ] storage_unavailable_retrying   error='controlled test-only transient write failure' group=graph-projection operation=merge_event_nodes retry_in_ms=200
+2026-10-06 19:05:44 [info     ] shutdown_signal_received       consumer=projection
+2026-10-06 19:05:44 [info     ] consumer_stopped               consumer=fault-transient_once group=graph-projection
+2026-10-06 19:05:44 [info     ] worker_shutting_down           consumer=projection
+2026-10-06 19:05:44 [info     ] worker_stopped                 consumer=projection
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

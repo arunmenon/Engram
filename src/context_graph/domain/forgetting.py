@@ -71,7 +71,7 @@ def should_prune_warm(
     (the score on the SIMILAR_TO edge, not the event itself).
     """
     similarity: float = event_data.get("similarity_score", 1.0)
-    return bool(similarity < warm_min_similarity)
+    return similarity is not None and bool(similarity < warm_min_similarity)
 
 
 def should_prune_cold(

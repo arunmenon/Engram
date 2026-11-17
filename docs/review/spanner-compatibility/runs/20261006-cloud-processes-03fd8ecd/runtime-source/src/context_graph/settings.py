@@ -1,0 +1,768 @@
+"""Application settings via Pydantic BaseSettings.
+
+All configuration uses the CG_ environment variable prefix.
+Centralized here to prevent hardcoded magic numbers across the codebase.
+
+Sources:
+  - ADR-0008: Decay scoring defaults (S_base, S_boost, weights)
+  - ADR-0009: Intent weight matrix, traversal bounds
+  - ADR-0010: Redis connection, consumer group names
+  - ADR-0012: Preference stability defaults, confidence thresholds
+  - ADR-0019: Storage backend selection, backend-neutral consumer settings
+"""
+
+from __future__ import annotations
+
+from typing import Annotated
+
+from pydantic import Field, SecretStr, field_validator, model_validator
+from pydantic_settings import BaseSettings, NoDecode
+
+from context_graph.domain.models import EdgeType, IntentType
+
+
+class RedisSettings(BaseSettings):
+    """Redis connection settings."""
+
+    model_config = {"env_prefix": "CG_REDIS_"}
+
+    host: str = "localhost"
+    port: int = 6379
+    db: int = 0
+    password: SecretStr | None = None
+
+    # Stream keys
+    global_stream: str = "events:__global__"
+    dedup_set: str = "dedup:events"
+    # Entries read per step when a session stream is read backwards
+    session_scan_count: int = 200
+
+    # Consumer group names (ADR-0013)
+    group_projection: str = "graph-projection"
+    group_extraction: str = "session-extraction"
+    group_enrichment: str = "enrichment"
+    group_consolidation: str = "consolidation"
+
+    # Consumer group block timeout (ms)
+    block_timeout_ms: int = 5000
+
+    # Event key prefix
+    event_key_prefix: str = "evt:"
+
+    # RediSearch index name
+    event_index: str = "idx:events"
+
+    # Replica acknowledgment — if True, WAIT for 1 replica after writes
+    replica_wait: bool = False
+
+    # Hot tier window (days) — stream entries trimmed after this
+    hot_window_days: int = 7
+
+    # Total retention ceiling (days) — JSON docs deleted after this
+    retention_ceiling_days: int = 90
+
+    # Approximate MAXLEN for global stream XADD (0 = uncapped) — ADR-0014
+    global_stream_maxlen: int = 0
+
+    # Session stream retention (hours) — streams older than this are deleted
+    session_stream_retention_hours: int = 168  # 7 days
+
+
+class Neo4jSettings(BaseSettings):
+    """Neo4j connection settings."""
+
+    model_config = {"env_prefix": "CG_NEO4J_"}
+
+    uri: str = "bolt://localhost:7687"
+    username: str = "neo4j"
+    password: SecretStr = SecretStr("engram-dev-password")
+    database: str = "neo4j"
+    max_connection_pool_size: int = 50
+
+
+class DecaySettings(BaseSettings):
+    """Ebbinghaus decay scoring parameters (ADR-0008)."""
+
+    model_config = {"env_prefix": "CG_DECAY_"}
+
+    # Stability factor defaults (hours)
+    s_base: float = 168.0  # 1 week time constant (half-life ~4.85 days)
+    s_boost: float = 24.0  # Each access adds 24h of stability
+
+    # Entity-specific stability (entities persist longer than events)
+    entity_s_base: float = 336.0  # 2-week time constant (half-life ~9.7 days)
+    entity_s_boost: float = 24.0  # Each mention adds 24h of stability
+
+    # Scoring weights: score = w_r*recency + w_i*importance + w_v*relevance + w_u*user_affinity
+    weight_recency: float = 1.0
+    weight_importance: float = 1.0
+    weight_relevance: float = 1.0
+    weight_user_affinity: float = 0.5
+
+    # Similarity threshold for SIMILAR_TO edge creation
+    similarity_threshold: float = 0.85
+
+    # Reflection trigger threshold (ADR-0008)
+    reflection_threshold: int = 150
+
+    # Re-consolidation interval (hours) — supports fractional for testing
+    reconsolidation_interval_hours: float = 6.0
+
+
+class RetentionSettings(BaseSettings):
+    """Neo4j graph retention tier boundaries (ADR-0008)."""
+
+    model_config = {"env_prefix": "CG_RETENTION_"}
+
+    # Neo4j retention tiers (hours)
+    hot_hours: int = 24
+    warm_hours: int = 168  # 7 days
+    cold_hours: int = 720  # 30 days
+
+    # Warm tier: prune SIMILAR_TO edges below this score
+    warm_min_similarity_score: float = 0.7
+
+    # Cold tier thresholds
+    cold_min_importance: int = 5
+    cold_min_access_count: int = 3
+
+    # Orphan cleanup batch size (nodes per transaction) — ADR-0014 Amendment
+    orphan_cleanup_batch_size: int = 500
+
+    # ADR-0019: event log hot-tier retention, backend-neutral. A value not
+    # set here falls back to its old CG_REDIS_* setting (see Settings).
+    log_hot_window_days: int = 7  # was CG_REDIS_HOT_WINDOW_DAYS
+    log_retention_ceiling_days: int = 90  # was CG_REDIS_RETENTION_CEILING_DAYS
+    log_session_index_max_age_hours: int = 168  # was CG_REDIS_SESSION_STREAM_RETENTION_HOURS
+
+
+class QuerySettings(BaseSettings):
+    """Bounded query limits (ADR-0001, ADR-0009)."""
+
+    model_config = {"env_prefix": "CG_QUERY_"}
+
+    # Traversal bounds
+    default_max_depth: int = 3
+    max_max_depth: int = 10
+    default_max_nodes: int = 100
+    max_max_nodes: int = 500
+    default_timeout_ms: int = 5000
+    max_timeout_ms: int = 30000
+
+    # Multi-intent confidence threshold
+    intent_confidence_threshold: float = 0.3
+
+    # Maximum neighbors returned per seed node in subgraph traversal
+    default_neighbor_limit: int = 50
+
+
+class PreferenceSettings(BaseSettings):
+    """Preference-specific settings (ADR-0012)."""
+
+    model_config = {"env_prefix": "CG_PREF_"}
+
+    # Default initial stability by category (hours) — ADR-0012 §7
+    stability_communication: float = 720.0  # 30 days
+    stability_environment: float = 720.0
+    stability_tool: float = 336.0  # 14 days
+    stability_workflow: float = 336.0
+    stability_domain: float = 168.0  # 7 days
+    stability_style: float = 168.0
+
+    # Behavioral pattern default stability (hours) — ADR-0012 §1.5
+    stability_behavioral_pattern: float = 336.0  # 14 days
+
+    # Confidence thresholds for graph insertion (ADR-0013 §7)
+    min_confidence_explicit: float = 0.7
+    min_confidence_implicit_intentional: float = 0.4
+    min_confidence_implicit_unintentional: float = 0.3
+    min_confidence_inferred: float = 0.15
+
+    # Max active preferences per user
+    max_preferences_per_user: int = 500
+
+
+# ---------------------------------------------------------------------------
+# Intent Weight Matrix (ADR-0009 + ADR-0012 §3)
+# ---------------------------------------------------------------------------
+
+# Default intent weight matrix — configurable per deployment
+INTENT_WEIGHTS: dict[str, dict[str, float]] = {
+    IntentType.WHY: {
+        EdgeType.CAUSED_BY: 5.0,
+        EdgeType.FOLLOWS: 1.0,
+        EdgeType.SIMILAR_TO: 1.5,
+        EdgeType.REFERENCES: 2.0,
+        EdgeType.SUMMARIZES: 1.0,
+    },
+    IntentType.WHEN: {
+        EdgeType.CAUSED_BY: 1.0,
+        EdgeType.FOLLOWS: 5.0,
+        EdgeType.SIMILAR_TO: 0.5,
+        EdgeType.REFERENCES: 1.0,
+        EdgeType.SUMMARIZES: 0.5,
+    },
+    IntentType.WHAT: {
+        EdgeType.CAUSED_BY: 2.0,
+        EdgeType.FOLLOWS: 1.0,
+        EdgeType.SIMILAR_TO: 2.0,
+        EdgeType.REFERENCES: 5.0,
+        EdgeType.SUMMARIZES: 2.0,
+    },
+    IntentType.RELATED: {
+        EdgeType.CAUSED_BY: 1.5,
+        EdgeType.FOLLOWS: 0.5,
+        EdgeType.SIMILAR_TO: 5.0,
+        EdgeType.REFERENCES: 2.0,
+        EdgeType.SUMMARIZES: 1.5,
+    },
+    IntentType.GENERAL: {
+        EdgeType.CAUSED_BY: 2.0,
+        EdgeType.FOLLOWS: 2.0,
+        EdgeType.SIMILAR_TO: 2.0,
+        EdgeType.REFERENCES: 2.0,
+        EdgeType.SUMMARIZES: 2.0,
+    },
+    IntentType.WHO_IS: {
+        EdgeType.CAUSED_BY: 1.0,
+        EdgeType.FOLLOWS: 0.5,
+        EdgeType.SIMILAR_TO: 1.0,
+        EdgeType.REFERENCES: 3.0,
+        EdgeType.SUMMARIZES: 1.0,
+        EdgeType.HAS_PROFILE: 5.0,
+        EdgeType.HAS_PREFERENCE: 5.0,
+        EdgeType.HAS_SKILL: 5.0,
+        EdgeType.EXHIBITS_PATTERN: 4.0,
+        EdgeType.INTERESTED_IN: 4.0,
+        EdgeType.ABOUT: 3.0,
+        EdgeType.DERIVED_FROM: 2.0,
+        EdgeType.ABSTRACTED_FROM: 1.0,
+        EdgeType.PARENT_SKILL: 2.0,
+        EdgeType.SAME_AS: 4.0,
+        EdgeType.RELATED_TO: 3.0,
+    },
+    IntentType.HOW_DOES: {
+        EdgeType.CAUSED_BY: 2.0,
+        EdgeType.FOLLOWS: 3.0,
+        EdgeType.SIMILAR_TO: 1.0,
+        EdgeType.REFERENCES: 2.0,
+        EdgeType.SUMMARIZES: 1.0,
+        EdgeType.HAS_PROFILE: 1.0,
+        EdgeType.HAS_PREFERENCE: 2.0,
+        EdgeType.HAS_SKILL: 3.0,
+        EdgeType.EXHIBITS_PATTERN: 5.0,
+        EdgeType.INTERESTED_IN: 2.0,
+        EdgeType.ABOUT: 1.0,
+        EdgeType.DERIVED_FROM: 1.0,
+        EdgeType.ABSTRACTED_FROM: 4.0,
+        EdgeType.PARENT_SKILL: 1.0,
+        EdgeType.SAME_AS: 1.0,
+        EdgeType.RELATED_TO: 2.0,
+    },
+    IntentType.PERSONALIZE: {
+        EdgeType.CAUSED_BY: 1.0,
+        EdgeType.FOLLOWS: 0.5,
+        EdgeType.SIMILAR_TO: 1.5,
+        EdgeType.REFERENCES: 2.0,
+        EdgeType.SUMMARIZES: 1.0,
+        EdgeType.HAS_PROFILE: 4.0,
+        EdgeType.HAS_PREFERENCE: 5.0,
+        EdgeType.HAS_SKILL: 4.0,
+        EdgeType.EXHIBITS_PATTERN: 3.0,
+        EdgeType.INTERESTED_IN: 4.0,
+        EdgeType.ABOUT: 3.0,
+        EdgeType.DERIVED_FROM: 3.0,
+        EdgeType.ABSTRACTED_FROM: 1.0,
+        EdgeType.PARENT_SKILL: 2.0,
+        EdgeType.SAME_AS: 2.0,
+        EdgeType.RELATED_TO: 2.0,
+    },
+}
+
+
+# ---------------------------------------------------------------------------
+# OTel Mapping (ADR-0011 §2)
+# ---------------------------------------------------------------------------
+
+OTEL_TO_EVENT_TYPE: dict[str, str] = {
+    "invoke_agent": "agent.invoke",
+    "create_agent": "agent.create",
+    "execute_tool": "tool.execute",
+    "chat": "llm.chat",
+    "text_completion": "llm.completion",
+    "embeddings": "llm.embed",
+    "generate_content": "llm.generate",
+}
+
+
+class EmbeddingSettings(BaseSettings):
+    """Embedding service settings for semantic entity matching (Tier 2b).
+
+    Controls the sentence-transformer model, Neo4j vector index parameters,
+    and similarity thresholds for SAME_AS / RELATED_TO edge creation.
+
+    Embeddings are stored exclusively on Neo4j node properties and searched
+    via the Neo4j vector index (entity_embedding_idx).
+    """
+
+    model_config = {"env_prefix": "CG_EMBEDDING_"}
+
+    model_name: str = "all-MiniLM-L6-v2"
+    dimensions: int = 384
+    device: str = "cpu"
+    same_as_threshold: float = 0.90
+    related_to_threshold: float = 0.75
+    knn_k: int = 10
+    batch_size: int = 64
+
+
+class LLMSettings(BaseSettings):
+    """LLM extraction settings (ADR-0013).
+
+    OPENAI_API_KEY is read by litellm from env automatically.
+    """
+
+    model_config = {"env_prefix": "CG_LLM_"}
+
+    model_id: str = "gpt-5.2-2025-12-11"
+    temperature: float = 0.1
+    max_tokens: int = 4096
+    timeout_seconds: int = 60
+    max_retries: int = 2
+
+
+class IntentSettings(BaseSettings):
+    """Intent classification settings (ADR-0009 amendment).
+
+    When use_llm is True, the LLMIntentClassifier is used for intent
+    classification with automatic fallback to keyword-based classification
+    on any error.
+    """
+
+    model_config = {"env_prefix": "CG_INTENT_"}
+
+    use_llm: bool = False
+    fallback_on_error: bool = True
+    timeout_seconds: int = 5
+
+
+class HyDESettings(BaseSettings):
+    """HyDE query expansion settings (L6)."""
+
+    model_config = {"env_prefix": "CG_HYDE_"}
+
+    enabled: bool = False
+    temperature: float = 0.7
+    max_tokens: int = 256
+    hot_path_timeout_seconds: float = 2.0
+
+
+class PPRSettings(BaseSettings):
+    """Personalized PageRank settings (L5)."""
+
+    model_config = {"env_prefix": "CG_PPR_"}
+
+    enabled: bool = False
+    damping: float = 0.85
+    iterations: int = 5
+    max_subgraph_size: int = 500
+    blend_weight: float = 0.3
+
+
+class RateLimitSettings(BaseSettings):
+    """Token bucket rate limiting settings.
+
+    Controls per-client request rate limits for standard and admin tiers.
+    Health and metrics endpoints are exempt.
+    """
+
+    model_config = {"env_prefix": "CG_RATELIMIT_"}
+
+    enabled: bool = True
+    standard_rpm: int = 120  # requests per minute for standard endpoints
+    admin_rpm: int = 30  # requests per minute for admin endpoints
+    max_clients: int = 10000  # LRU size for client tracking
+
+
+class IngestSettings(BaseSettings):
+    """Event ingestion limits (``/v1/events``, ``/v1/events/batch``, ``/v1/events/import``).
+
+    Body sizes count the bytes after ``Content-Encoding: gzip`` is undone
+    (and the bytes sent, before it). The event quota is per client and
+    charged per event, on top of the per-request rate limit.
+    """
+
+    model_config = {"env_prefix": "CG_INGEST_"}
+
+    max_body_bytes: int = 10_000_000  # /v1/events and /v1/events/batch
+    batch_max_events: int = 1000
+    import_max_body_bytes: int = 200_000_000  # /v1/events/import (NDJSON)
+    import_max_events: int = 500_000
+    import_batch_size: int = 500  # events per store append during an import
+    body_read_timeout_s: float = 60.0
+    # Events a client may ingest per minute through /v1/events and /batch (0: no quota)
+    events_per_minute: int = 60_000
+
+
+class AuthSettings(BaseSettings):
+    """API authentication settings.
+
+    When api_key is set, all endpoints (except /health) require
+    ``Authorization: Bearer <api_key>``.  Admin and GDPR endpoints
+    additionally require the admin_key.
+
+    Set both to None (default) to disable auth (development mode).
+    """
+
+    model_config = {"env_prefix": "CG_AUTH_"}
+
+    api_key: str | None = None
+    admin_key: str | None = None
+
+
+class ArchiveSettings(BaseSettings):
+    """Archive storage settings (ADR-0014).
+
+    Controls where expired events are archived before deletion from Redis.
+    Supports local filesystem (dev/testing) and GCS (production).
+    Set gcs_endpoint for emulator (fake-gcs-server) in local dev.
+    """
+
+    model_config = {"env_prefix": "CG_ARCHIVE_"}
+
+    backend: str = "fs"  # "fs" or "gcs"
+    enabled: bool = True
+    fs_base_path: str = "/tmp/engram-archives"
+    gcs_bucket: str = ""
+    gcs_prefix: str = "engram/archives"
+    gcs_endpoint: str = ""  # e.g. "http://fake-gcs:4443" for emulator
+    batch_size: int = 1000
+
+
+class SimulationSettings(BaseSettings):
+    """Dynamic conversation simulation settings.
+
+    Controls the LLM proxy endpoint for TinyTroupe-style
+    two-agent conversations in the frontend demo.
+    """
+
+    model_config = {"env_prefix": "CG_SIM_"}
+
+    # Intentionally uses a cheaper model than LLMSettings.model_id (extraction).
+    # Simulation generates many turns; extraction needs high quality.
+    default_model_id: str = "gpt-4o-mini"
+    default_temperature: float = 0.7
+    max_turns: int = 50
+    max_tokens_per_turn: int = 512
+    allowed_models: list[str] = Field(
+        default=["gpt-4o-mini", "gpt-4o", "gpt-4.1-mini", "gpt-4.1-nano"]
+    )
+
+
+class ConsumerSettings(BaseSettings):
+    """Consumer resilience settings (H4, H5).
+
+    Controls orphaned message claiming (XAUTOCLAIM) and dead-letter queue
+    behavior for all Redis Stream consumer workers.
+    """
+
+    model_config = {"env_prefix": "CG_CONSUMER_"}
+
+    # H4: Min idle time (ms) before claiming orphaned messages from other consumers
+    claim_idle_ms: int = 300_000  # 5 minutes
+
+    # H4: Max messages to claim per XAUTOCLAIM call
+    claim_batch_size: int = 100
+
+    # H5: Max delivery attempts before dead-lettering a message
+    max_retries: int = 5
+
+    # A storage call that fails because the backend is unavailable or slow is
+    # retried in place (never dead-lettered): first wait, and the cap the
+    # doubling wait stops at
+    transient_backoff_ms: int = 200
+    transient_backoff_max_ms: int = 10_000
+
+    # Projection worker: events per flush (also the number read per poll, so
+    # one read fills one flush), and the longest a partial flush waits
+    projection_batch_size: int = 50
+    projection_batch_timeout_ms: int = 100
+
+    # H5: DLQ stream suffix — appended to the source stream key
+    dlq_stream_suffix: str = ":dlq"
+
+    # ADR-0019: backend-neutral names for what consumers read. A value not
+    # set here falls back to its old CG_REDIS_* setting (see Settings), so
+    # existing deployments keep working.
+    source: str = "events:__global__"  # was CG_REDIS_GLOBAL_STREAM
+    group_projection: str = "graph-projection"  # was CG_REDIS_GROUP_PROJECTION
+    group_extraction: str = "session-extraction"  # was CG_REDIS_GROUP_EXTRACTION
+    group_enrichment: str = "enrichment"  # was CG_REDIS_GROUP_ENRICHMENT
+    group_consolidation: str = "consolidation"  # was CG_REDIS_GROUP_CONSOLIDATION
+    group_pack_extraction: str = "pack-extraction"  # ADR-0018: LLM extraction for packs
+    block_timeout_ms: int = 5000  # was CG_REDIS_BLOCK_TIMEOUT_MS
+
+
+# ConsumerSettings field -> the RedisSettings field it replaces (ADR-0019)
+_CONSUMER_REDIS_ALIASES = {
+    "source": "global_stream",
+    "group_projection": "group_projection",
+    "group_extraction": "group_extraction",
+    "group_enrichment": "group_enrichment",
+    "group_consolidation": "group_consolidation",
+    "block_timeout_ms": "block_timeout_ms",
+}
+
+
+# RetentionSettings field -> the RedisSettings field it replaces (ADR-0019)
+_RETENTION_REDIS_ALIASES = {
+    "log_hot_window_days": "hot_window_days",
+    "log_retention_ceiling_days": "retention_ceiling_days",
+    "log_session_index_max_age_hours": "session_stream_retention_hours",
+}
+
+
+class SpannerSettings(BaseSettings):
+    """Cloud Spanner connection and layout (ADR-0019 step 4, Spanner design brief).
+
+    Set ``emulator_host`` (for example ``localhost:9010``) to use the local
+    Spanner emulator; the client then needs no credentials. Against a real
+    instance, credentials come from Application Default Credentials.
+    """
+
+    model_config = {"env_prefix": "CG_SPANNER_"}
+
+    project: str = "engram-local"
+    instance: str = "engram"
+    database: str = "engram"
+    emulator_host: str | None = None
+
+    # Create the database when missing (and, on the emulator, the instance).
+    # For local development and tests. On a real instance the database is
+    # created only when allow_create_on_instance is also set; instances are
+    # always provisioned outside Engram.
+    create_if_missing: bool = False
+    allow_create_on_instance: bool = False
+
+    # Check an existing database against the expected schema when opening it
+    check_schema: bool = True
+
+    # Commit budget: writes are split into transactions under these estimates.
+    # Spanner refuses a commit over 80,000 mutations or 100 MiB (indexes
+    # included); the defaults keep half of each as headroom for estimate error.
+    commit_max_mutations: int = 40_000
+    commit_max_bytes: int = 50 * 1024 * 1024
+
+    # Rows each retention statement (trim, expire, housekeep, purge) changes
+    # per transaction; it repeats until no rows are left.
+    retention_batch_rows: int = 1_000
+
+    # Session shards for the ledger's time index (design brief D3)
+    shards: int = 16
+
+    # Subscription polling interval while waiting for new events (D2)
+    poll_interval_ms: int = 50
+
+    # Entity embedding size for the vector index (matches the Neo4j index)
+    embedding_dimensions: int = 384
+
+
+class OntologySettings(BaseSettings):
+    """Active ontology packs (ADR-0018).
+
+    ``core`` is mandatory. ``builtin_packs`` defaults to memory/user for
+    compatibility; an explicit empty selection omits those optional roots.
+    ``packs`` names the domain packs added to them,
+    comma-separated (``CG_ONTOLOGY_PACKS=pdlc``); their required packs are
+    loaded too. Packs are looked up in ``pack_dirs`` first
+    (``CG_ONTOLOGY_PACK_DIRS``, comma-separated), then in the built-in
+    ``context_graph/ontology/packs``.
+    """
+
+    model_config = {"env_prefix": "CG_ONTOLOGY_"}
+
+    packs: Annotated[list[str], NoDecode] = Field(default=["pdlc"])
+    builtin_packs: Annotated[list[str], NoDecode] = Field(default=["memory", "user"])
+    pack_dirs: Annotated[list[str], NoDecode] = Field(default_factory=list)
+
+    # Event agent_ids whose events mark pack nodes source_trust=trusted
+    # (the webhook routes ingest as webhook:<tool>); everything else is untrusted
+    trusted_sources: Annotated[list[str], NoDecode] = Field(
+        default=["webhook:github", "webhook:jira"]
+    )
+
+    # Nodes read when a rule finds an edge target by matching (to_latest,
+    # match_any_prefix)
+    lookup_limit: int = 1000
+
+    # Artifact retrieval (POST /v1/query/artifacts): seeds taken from the
+    # query, edges read per traversal step, and the weakest word-matched
+    # seed kept, relative to the best word match
+    retrieval_seed_limit: int = 10
+    retrieval_neighbor_limit: int = 200
+    retrieval_seed_min_ratio: float = 0.5
+    # Per artifact query: key tokens, words and #numbers used from the
+    # question (each), graph calls made, subject nodes a completeness
+    # question scans, and the request's question length and given seeds
+    retrieval_max_terms: int = 16
+    retrieval_max_graph_calls: int = 400
+    retrieval_scan_limit: int = 5000
+    # Candidates per seed type a word search reads to weigh each word by
+    # how rare it is among them
+    retrieval_word_scan_limit: int = 500
+    # Decision 10: a pack's intents and edge weights are not used for
+    # artifact queries until its evaluation set passes on this graph. The
+    # recorded state is re-read this often; serve_unevaluated turns the
+    # check off (development only)
+    eval_state_ttl_s: float = 30.0
+    serve_unevaluated: bool = False
+    retrieval_max_query_length: int = 2000
+    retrieval_max_seed_ids: int = 50
+
+    # Pack extraction (python -m context_graph.worker --consumer pack_extraction):
+    # proposals accepted per event, prose sent to the model, existing items
+    # offered as link targets, and the words of the text searched for them
+    extraction_max_nodes: int = 20
+    extraction_max_links: int = 40
+    extraction_max_text_chars: int = 20_000
+    extraction_known_limit: int = 30
+    extraction_search_terms: int = 12
+    # Characters of one proposed property value, and of a known item's label
+    extraction_max_value_chars: int = 4000
+    extraction_label_chars: int = 160
+
+    # Versioning (ADR-0018 decision 8): the projection worker refuses a
+    # breaking pack change on a live graph unless this is set; ledger events
+    # read per batch when a mapping change replays or a rebuild projects
+    allow_breaking: bool = False
+    # ...and a pack whose version does not rise with what changed in it
+    allow_version_problems: bool = False
+    replay_batch_size: int = 500
+
+    @field_validator("packs", "builtin_packs", "pack_dirs", "trusted_sources", mode="before")
+    @classmethod
+    def _split(cls, value: object) -> object:
+        if isinstance(value, str):
+            return [item.strip() for item in value.split(",") if item.strip()]
+        return value
+
+
+class WebhookSettings(BaseSettings):
+    """Tool webhooks that feed ontology packs (ADR-0018 phase 1).
+
+    ``POST /v1/webhooks/<source>`` verifies each delivery's HMAC-SHA256
+    signature with the source's secret; a source without a secret is
+    disabled (503). Secrets come from the environment only.
+    """
+
+    model_config = {"env_prefix": "CG_WEBHOOK_"}
+
+    github_secret: SecretStr | None = None
+    jira_secret: SecretStr | None = None
+
+    # Largest delivery body accepted, in bytes
+    max_body_bytes: int = 1_000_000
+
+
+class MigrationSettings(BaseSettings):
+    """Ledger copy, mirroring and comparison between backends (ADR-0019 §7).
+
+    Used by ``python -m context_graph.migration``.
+    """
+
+    model_config = {"env_prefix": "CG_MIGRATION_"}
+
+    # Events read from the source and imported per batch
+    batch_size: int = 500
+
+    # Mirror: pause between catch-up passes once the target is current
+    poll_interval_ms: int = 1000
+
+    # Compare: sessions sampled for graph and retrieval answers (0 = all)
+    sample_sessions: int = 50
+
+
+class KeywordSearchSettings(BaseSettings):
+    """Keyword (BM25) retrieval channel, shared by every event-log backend.
+
+    See ``domain/keyword_search.py``.
+    """
+
+    model_config = {"env_prefix": "CG_KEYWORD_"}
+
+    # Searchable text built from an event's payload at ingest, in characters
+    text_max_chars: int = 8000
+
+    # Distinct query terms looked up (any may match)
+    max_query_terms: int = 16
+
+
+class StorageSettings(BaseSettings):
+    """Storage backend selection per port (ADR-0019).
+
+    Each value names a backend registered in ``adapters/registry.py``.
+    """
+
+    model_config = {"env_prefix": "CG_STORAGE_"}
+
+    event_log: str = "redis"
+    subscription: str = "redis"
+    graph: str = "neo4j"
+    keyword_index: str = "redis"
+    vector_index: str = "neo4j"
+    # Empty means "use CG_ARCHIVE_BACKEND" (the old setting is still honoured)
+    archive: str = ""
+
+
+class Settings(BaseSettings):
+    """Root application settings."""
+
+    model_config = {"env_prefix": "CG_"}
+
+    app_name: str = "context-graph"
+    debug: bool = False
+    log_level: str = "INFO"
+    uvicorn_workers: int = 4
+
+    cors_origins: list[str] = Field(default=["http://localhost:5173"])
+
+    redis: RedisSettings = Field(default_factory=RedisSettings)
+    neo4j: Neo4jSettings = Field(default_factory=Neo4jSettings)
+    decay: DecaySettings = Field(default_factory=DecaySettings)
+    retention: RetentionSettings = Field(default_factory=RetentionSettings)
+    query: QuerySettings = Field(default_factory=QuerySettings)
+    preference: PreferenceSettings = Field(default_factory=PreferenceSettings)
+    embedding: EmbeddingSettings = Field(default_factory=EmbeddingSettings)
+    llm: LLMSettings = Field(default_factory=LLMSettings)
+    auth: AuthSettings = Field(default_factory=AuthSettings)
+    archive: ArchiveSettings = Field(default_factory=ArchiveSettings)
+    consumer: ConsumerSettings = Field(default_factory=ConsumerSettings)
+    intent: IntentSettings = Field(default_factory=IntentSettings)
+    hyde: HyDESettings = Field(default_factory=HyDESettings)
+    ppr: PPRSettings = Field(default_factory=PPRSettings)
+    rate_limit: RateLimitSettings = Field(default_factory=RateLimitSettings)
+    ingest: IngestSettings = Field(default_factory=IngestSettings)
+    simulation: SimulationSettings = Field(default_factory=SimulationSettings)
+    storage: StorageSettings = Field(default_factory=StorageSettings)
+    spanner: SpannerSettings = Field(default_factory=SpannerSettings)
+    migration: MigrationSettings = Field(default_factory=MigrationSettings)
+    keyword: KeywordSearchSettings = Field(default_factory=KeywordSearchSettings)
+    ontology: OntologySettings = Field(default_factory=OntologySettings)
+    webhooks: WebhookSettings = Field(default_factory=WebhookSettings)
+
+    @model_validator(mode="after")
+    def _resolve_consumer_aliases(self) -> Settings:
+        """Fill consumer settings not set directly from their old CG_REDIS_* names (ADR-0019)."""
+        consumer = self.consumer
+        explicitly_set = consumer.model_fields_set
+        for consumer_field, redis_field in _CONSUMER_REDIS_ALIASES.items():
+            if consumer_field not in explicitly_set:
+                setattr(consumer, consumer_field, getattr(self.redis, redis_field))
+        retention = self.retention
+        retention_set = retention.model_fields_set
+        for retention_field, redis_field in _RETENTION_REDIS_ALIASES.items():
+            if retention_field not in retention_set:
+                setattr(retention, retention_field, getattr(self.redis, redis_field))
+        if not self.storage.archive:
+            self.storage.archive = self.archive.backend
+        return self

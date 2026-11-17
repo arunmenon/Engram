@@ -18,6 +18,7 @@ import orjson
 from context_graph.adapters.graph_ops import LABEL_KEYS
 from context_graph.adapters.neo4j.ontology_schema import schema_statements
 from context_graph.domain.ontology import EDGE_TYPE_NAME, NODE_TYPE_NAME, PROPERTY_NAME
+from context_graph.domain.pack_removals import validate_edge_removals, validate_node_removals
 from context_graph.ports.errors import InvalidRequestError
 
 if TYPE_CHECKING:
@@ -108,13 +109,14 @@ class Neo4jPackGraph:
                 await session.run(statement)
 
     async def upsert_nodes(self, writes: list[NodeWrite]) -> None:
+        validate_node_removals(writes)
         groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
         for write in writes:
             label, key_property = _label(write.ref.label), _property(write.ref.key_property)
             groups[(label, key_property)].append(
                 {
                     "key": write.ref.key,
-                    "props": _props(write.properties),
+                    "props": {**_props(write.properties), **dict.fromkeys(write.remove_properties)},
                     "defaults": _props(write.defaults),
                 }
             )
@@ -130,6 +132,7 @@ class Neo4jPackGraph:
             await self._pack_write(statements)
 
     async def upsert_edges(self, writes: list[EdgeWrite]) -> int:
+        validate_edge_removals(writes)
         groups: dict[tuple[str, str, str, str, str, bool], list[dict[str, Any]]] = defaultdict(list)
         for write in writes:
             group = (
@@ -144,7 +147,7 @@ class Neo4jPackGraph:
                 {
                     "source": write.source.key,
                     "target": write.target.key,
-                    "props": _props(write.properties),
+                    "props": {**_props(write.properties), **dict.fromkeys(write.remove_properties)},
                 }
             )
         statements = [

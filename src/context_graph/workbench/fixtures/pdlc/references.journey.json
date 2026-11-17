@@ -1,0 +1,434 @@
+{
+  "format_version": 1,
+  "id": "pdlc-reference-boundaries",
+  "title": "Keep complete references without expanding into sibling work",
+  "story": "Replay two small source regressions: a planning trace must keep connected edges without including unrelated siblings; a ticket with multiple references must preserve each complete requirement and design identity.",
+  "source_refs": [
+    "tests/unit/test_planning_journey.py::test_connected_paths_keep_edges_without_expanding_to_siblings",
+    "tests/unit/test_implementation_journey.py::test_multiple_explicit_references_keep_each_complete_identity"
+  ],
+  "pack_digest": "4a2b1da76bf84bfb0b0a48e1196a595d83ae0a28fb0ec99f0dcd966418347172",
+  "starting_state": "empty",
+  "events": [
+    {
+      "id": "reference-1",
+      "title": "Create shared specification",
+      "request": {
+        "event_id": "41ff4287-3df5-5bbb-bea0-c512c878a029",
+        "event_type": "pdlc.spec.changed",
+        "occurred_at": "2026-10-08T12:00:00+00:00",
+        "session_id": "references",
+        "agent_id": "publisher",
+        "trace_id": "reference-boundaries",
+        "payload_ref": "synthetic:references:0",
+        "payload": {
+          "doc_id": "s",
+          "version": "1",
+          "title": "Spec"
+        }
+      }
+    },
+    {
+      "id": "reference-2",
+      "title": "Define expiry requirement",
+      "request": {
+        "event_id": "0b86a7b5-e9fd-5f56-b074-29c972f506c8",
+        "event_type": "pdlc.requirement.changed",
+        "occurred_at": "2026-10-08T12:00:01+00:00",
+        "session_id": "references",
+        "agent_id": "publisher",
+        "trace_id": "reference-boundaries",
+        "payload_ref": "synthetic:references:1",
+        "payload": {
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "expiry",
+          "statement": "expiry"
+        }
+      }
+    },
+    {
+      "id": "reference-3",
+      "title": "Define unrelated requirement",
+      "request": {
+        "event_id": "84c87c3a-166a-5c0f-9a2a-27714d4d2723",
+        "event_type": "pdlc.requirement.changed",
+        "occurred_at": "2026-10-08T12:00:02+00:00",
+        "session_id": "references",
+        "agent_id": "publisher",
+        "trace_id": "reference-boundaries",
+        "payload_ref": "synthetic:references:2",
+        "payload": {
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "unrelated",
+          "statement": "unrelated"
+        }
+      }
+    },
+    {
+      "id": "reference-4",
+      "title": "Define token architecture",
+      "request": {
+        "event_id": "962e93fd-8f98-55d3-9a19-7ed60b09784e",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-08T12:00:03+00:00",
+        "session_id": "references",
+        "agent_id": "publisher",
+        "trace_id": "reference-boundaries",
+        "payload_ref": "synthetic:references:3",
+        "payload": {
+          "doc_id": "hld",
+          "section_path": "tokens",
+          "version": "1",
+          "kind": "hld",
+          "body": "Token architecture",
+          "requirements": [
+            {
+              "spec_id": "s",
+              "spec_version": "1",
+              "local_id": "expiry"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "reference-5",
+      "title": "Connect storage design to architecture and requirements",
+      "request": {
+        "event_id": "ac8ff4b5-4bf8-5f6e-9637-3e3262131d32",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-08T12:00:04+00:00",
+        "session_id": "references",
+        "agent_id": "publisher",
+        "trace_id": "reference-boundaries",
+        "payload_ref": "synthetic:references:4",
+        "payload": {
+          "doc_id": "lld",
+          "section_path": "storage",
+          "version": "1",
+          "kind": "lld",
+          "body": "Token storage",
+          "requirements": [
+            {
+              "spec_id": "s",
+              "spec_version": "1",
+              "local_id": "expiry"
+            },
+            {
+              "spec_id": "s",
+              "spec_version": "1",
+              "local_id": "unrelated"
+            }
+          ],
+          "refines_designs": [
+            {
+              "doc_id": "hld",
+              "section_path": "tokens",
+              "version": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "reference-6",
+      "title": "Add a sibling design sharing one requirement",
+      "request": {
+        "event_id": "c4e5fe77-42e1-5f0f-8023-3e0712fa5f68",
+        "event_type": "pdlc.design.section_changed",
+        "occurred_at": "2026-10-08T12:00:05+00:00",
+        "session_id": "references",
+        "agent_id": "publisher",
+        "trace_id": "reference-boundaries",
+        "payload_ref": "synthetic:references:5",
+        "payload": {
+          "doc_id": "other",
+          "section_path": "unrelated",
+          "version": "1",
+          "kind": "hld",
+          "body": "Other design",
+          "requirements": [
+            {
+              "spec_id": "s",
+              "spec_version": "1",
+              "local_id": "expiry"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "reference-7",
+      "title": "Link one ticket to complete identities from two scopes",
+      "request": {
+        "event_id": "858c4538-f0a8-534e-adc4-31c5af77cb04",
+        "event_type": "pdlc.ticket.created",
+        "occurred_at": "2026-10-08T12:00:06+00:00",
+        "session_id": "references",
+        "agent_id": "publisher",
+        "trace_id": "reference-boundaries",
+        "payload_ref": "synthetic:references:6",
+        "payload": {
+          "tracker": "jira",
+          "key": "RESET-17",
+          "requirements": [
+            {
+              "spec_id": "reset",
+              "spec_version": "1",
+              "local_id": "expiry"
+            },
+            {
+              "spec_id": "newsletter",
+              "spec_version": "2",
+              "local_id": "expiry"
+            }
+          ],
+          "designs": [
+            {
+              "doc_id": "reset-lld",
+              "section_path": "storage",
+              "version": "1"
+            },
+            {
+              "doc_id": "newsletter-hld",
+              "section_path": "delivery",
+              "version": "2"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "checks": [
+    {
+      "id": "reference-check-1",
+      "description": "Create shared specification is accepted",
+      "source": "tests/unit/test_planning_journey.py::test_connected_paths_keep_edges_without_expanding_to_siblings",
+      "kind": "disposition",
+      "after_step": 0,
+      "expected": {
+        "http_status": 201
+      }
+    },
+    {
+      "id": "reference-check-2",
+      "description": "Define expiry requirement is accepted",
+      "source": "tests/unit/test_planning_journey.py::test_connected_paths_keep_edges_without_expanding_to_siblings",
+      "kind": "disposition",
+      "after_step": 1,
+      "expected": {
+        "http_status": 201
+      }
+    },
+    {
+      "id": "reference-check-3",
+      "description": "Define unrelated requirement is accepted",
+      "source": "tests/unit/test_planning_journey.py::test_connected_paths_keep_edges_without_expanding_to_siblings",
+      "kind": "disposition",
+      "after_step": 2,
+      "expected": {
+        "http_status": 201
+      }
+    },
+    {
+      "id": "reference-check-4",
+      "description": "Define token architecture is accepted",
+      "source": "tests/unit/test_planning_journey.py::test_connected_paths_keep_edges_without_expanding_to_siblings",
+      "kind": "disposition",
+      "after_step": 3,
+      "expected": {
+        "http_status": 201
+      }
+    },
+    {
+      "id": "reference-check-5",
+      "description": "Connect storage design to architecture and requirements is accepted",
+      "source": "tests/unit/test_planning_journey.py::test_connected_paths_keep_edges_without_expanding_to_siblings",
+      "kind": "disposition",
+      "after_step": 4,
+      "expected": {
+        "http_status": 201
+      }
+    },
+    {
+      "id": "reference-check-6",
+      "description": "Add a sibling design sharing one requirement is accepted",
+      "source": "tests/unit/test_planning_journey.py::test_connected_paths_keep_edges_without_expanding_to_siblings",
+      "kind": "disposition",
+      "after_step": 5,
+      "expected": {
+        "http_status": 201
+      }
+    },
+    {
+      "id": "reference-check-7",
+      "description": "Link one ticket to complete identities from two scopes is accepted",
+      "source": "tests/unit/test_implementation_journey.py::test_multiple_explicit_references_keep_each_complete_identity",
+      "kind": "disposition",
+      "after_step": 6,
+      "expected": {
+        "http_status": 201
+      }
+    },
+    {
+      "id": "reference-check-8",
+      "description": "Trace keeps connected edges without pulling in siblings",
+      "source": "tests/unit/test_planning_journey.py::test_connected_paths_keep_edges_without_expanding_to_siblings",
+      "kind": "retrieval",
+      "after_step": null,
+      "expected": {
+        "seed": "DesignElement:hld|tokens|1",
+        "intent": "trace",
+        "required": [
+          "DesignElement:lld|storage|1",
+          "Requirement:s|1|expiry"
+        ],
+        "forbidden": [
+          "DesignElement:other|unrelated|1",
+          "Requirement:s|1|unrelated"
+        ],
+        "edges": [
+          [
+            "REFINES",
+            "DesignElement:lld|storage|1",
+            "Requirement:s|1|expiry"
+          ]
+        ]
+      }
+    },
+    {
+      "id": "reference-check-9",
+      "description": "Retain complete reference: Requirement:reset|1|expiry",
+      "source": "tests/unit/test_implementation_journey.py::test_multiple_explicit_references_keep_each_complete_identity",
+      "kind": "edge_present",
+      "after_step": null,
+      "expected": {
+        "type": "IMPLEMENTS",
+        "source": "WorkItem:jira|RESET-17",
+        "target": "Requirement:reset|1|expiry"
+      }
+    },
+    {
+      "id": "reference-check-10",
+      "description": "Retain complete reference: Requirement:newsletter|2|expiry",
+      "source": "tests/unit/test_implementation_journey.py::test_multiple_explicit_references_keep_each_complete_identity",
+      "kind": "edge_present",
+      "after_step": null,
+      "expected": {
+        "type": "IMPLEMENTS",
+        "source": "WorkItem:jira|RESET-17",
+        "target": "Requirement:newsletter|2|expiry"
+      }
+    },
+    {
+      "id": "reference-check-11",
+      "description": "Retain complete reference: DesignElement:reset-lld|storage|1",
+      "source": "tests/unit/test_implementation_journey.py::test_multiple_explicit_references_keep_each_complete_identity",
+      "kind": "edge_present",
+      "after_step": null,
+      "expected": {
+        "type": "IMPLEMENTS",
+        "source": "WorkItem:jira|RESET-17",
+        "target": "DesignElement:reset-lld|storage|1"
+      }
+    },
+    {
+      "id": "reference-check-12",
+      "description": "Retain complete reference: DesignElement:newsletter-hld|delivery|2",
+      "source": "tests/unit/test_implementation_journey.py::test_multiple_explicit_references_keep_each_complete_identity",
+      "kind": "edge_present",
+      "after_step": null,
+      "expected": {
+        "type": "IMPLEMENTS",
+        "source": "WorkItem:jira|RESET-17",
+        "target": "DesignElement:newsletter-hld|delivery|2"
+      }
+    },
+    {
+      "id": "reference-check-13",
+      "description": "Keep exact domain nodes and reference targets across both scenarios",
+      "source": "tests/unit/test_implementation_journey.py::test_multiple_explicit_references_keep_each_complete_identity",
+      "kind": "graph_exact",
+      "after_step": null,
+      "expected": {
+        "nodes": {
+          "Spec:s|1": {},
+          "Requirement:s|1|expiry": {},
+          "Requirement:s|1|unrelated": {},
+          "DesignElement:hld|tokens|1": {},
+          "DesignElement:lld|storage|1": {},
+          "DesignElement:other|unrelated|1": {},
+          "WorkItem:jira|RESET-17": {},
+          "Requirement:reset|1|expiry": {},
+          "Requirement:newsletter|2|expiry": {},
+          "DesignElement:reset-lld|storage|1": {},
+          "DesignElement:newsletter-hld|delivery|2": {}
+        },
+        "edges": [
+          [
+            "REFINES",
+            "Requirement:s|1|expiry",
+            "Spec:s|1"
+          ],
+          [
+            "REFINES",
+            "Requirement:s|1|unrelated",
+            "Spec:s|1"
+          ],
+          [
+            "REFINES",
+            "DesignElement:hld|tokens|1",
+            "Requirement:s|1|expiry"
+          ],
+          [
+            "REFINES",
+            "DesignElement:lld|storage|1",
+            "Requirement:s|1|expiry"
+          ],
+          [
+            "REFINES",
+            "DesignElement:lld|storage|1",
+            "Requirement:s|1|unrelated"
+          ],
+          [
+            "REFINES",
+            "DesignElement:lld|storage|1",
+            "DesignElement:hld|tokens|1"
+          ],
+          [
+            "REFINES",
+            "DesignElement:other|unrelated|1",
+            "Requirement:s|1|expiry"
+          ],
+          [
+            "IMPLEMENTS",
+            "WorkItem:jira|RESET-17",
+            "Requirement:reset|1|expiry"
+          ],
+          [
+            "IMPLEMENTS",
+            "WorkItem:jira|RESET-17",
+            "Requirement:newsletter|2|expiry"
+          ],
+          [
+            "IMPLEMENTS",
+            "WorkItem:jira|RESET-17",
+            "DesignElement:reset-lld|storage|1"
+          ],
+          [
+            "IMPLEMENTS",
+            "WorkItem:jira|RESET-17",
+            "DesignElement:newsletter-hld|delivery|2"
+          ]
+        ],
+        "evidence": {}
+      }
+    }
+  ],
+  "trusted_producers": [
+    "publisher"
+  ],
+  "expectations_reviewed": true
+}

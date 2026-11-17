@@ -98,3 +98,50 @@ async def test_a_pending_packs_weights_are_not_used(monkeypatch: pytest.MonkeyPa
     app.state.settings = Settings()
     assert (await _post(app, {"query": "trace PAY-1", "intent": "trace"})).status_code == 200
     assert retriever.queries[-1].exclude_packs == frozenset()
+
+
+async def test_explicit_empty_selection_fails_before_retrieval(monkeypatch):
+    app, retriever = _app(monkeypatch, delay_s=0)
+    response = await _post(app, {"query": "trace", "seed_mode": "explicit"})
+    assert response.status_code == 422
+    assert response.json()["reason"] == "empty"
+    assert not retriever.queries
+
+
+async def test_seed_mode_forwarded_and_resolution_error_is_typed(monkeypatch):
+    from context_graph.retrieval.artifacts import UnresolvedSeedsError
+
+    app, retriever = _app(monkeypatch, delay_s=0)
+    assert (await _post(app, {"query": "trace"})).status_code == 200
+    assert retriever.queries[-1].seed_mode == "discover"
+    body = {"query": "trace", "seed_mode": "explicit", "seed_node_ids": ["Change:absent|9"]}
+    assert (await _post(app, body)).status_code == 200
+    assert retriever.queries[-1].seed_mode == "explicit"
+
+    async def fail(query):
+        raise UnresolvedSeedsError(list(query.seed_node_ids), "missing")
+
+    monkeypatch.setattr(retriever, "retrieve", fail)
+    response = await _post(app, body)
+    assert response.status_code == 422
+    assert response.json()["unresolved_seed_ids"] == body["seed_node_ids"]
+    assert response.json()["reason"] == "missing"
+    assert (await _post(app, dict(body, seed_mode="strict"))).status_code == 422
+
+
+async def test_real_retriever_route_preserves_discovery_and_rejects_missing_explicit(monkeypatch):
+    from tests.unit.test_resolved_artifact_seeds import retriever as real_retriever
+
+    app, _ = _app(monkeypatch, delay_s=0)
+    app.state.artifacts = await real_retriever()
+    # Enough time for the actual traversal; this is not the timeout test.
+    monkeypatch.setenv("CG_QUERY_DEFAULT_TIMEOUT_MS", "5000")
+    app.state.settings = Settings()
+    body = {"query": "trace APP-42", "seed_node_ids": ["Change:absent|9"]}
+    legacy = await _post(app, body)
+    assert legacy.status_code == 200
+    assert legacy.json()["meta"]["seed_strategy"] == "artifact_seeds"
+    assert "WorkItem:jira|APP-42" in legacy.json()["nodes"]
+    strict = await _post(app, dict(body, seed_mode="explicit"))
+    assert strict.status_code == 422
+    assert strict.json()["unresolved_seed_ids"] == body["seed_node_ids"]

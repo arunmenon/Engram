@@ -1,0 +1,116 @@
+# Syntax reference only. Do not copy domain concepts without source evidence.
+pack:
+  name: incident_ops
+  version: 1.0.0
+  requires:
+  - core>=1.1
+types:
+  nodes:
+    Incident:
+      key:
+      - account
+      - id
+      interfaces:
+      - Sourced
+      - Lifecycled
+      properties:
+        account: string
+        id: string
+        title: string
+      text_fields:
+      - title
+      lifecycle:
+        initial: open
+        states:
+        - open
+        - resolved
+    Service:
+      key:
+      - name
+      properties:
+        name: string
+      text_fields:
+      - name
+  edges:
+    AFFECTS:
+      from:
+      - Incident
+      to:
+      - Service
+events:
+  incident.opened:
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        account:
+          type: string
+          required: true
+        id:
+          type: string
+          required: true
+        title:
+          type: string
+    handling: processed
+  incident.resolved:
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        account:
+          type: string
+          required: true
+        id:
+          type: string
+          required: true
+        title:
+          type: string
+    handling: processed
+projection:
+- event: incident.opened
+  upsert:
+  - type: Incident
+    key:
+      account: $.account
+      id: $.id
+    set:
+      title: $.title
+  - type: Service
+    key:
+      name: $.account
+  edges:
+  - type: AFFECTS
+    from:
+      type: Incident
+      key:
+        account: $.account
+        id: $.id
+    to:
+      type: Service
+      key:
+        name: $.account
+- event: incident.resolved
+  upsert:
+  - type: Incident
+    key:
+      account: $.account
+      id: $.id
+    set:
+      title: $.title
+  transition:
+    type: Incident
+    to: resolved
+    only_from:
+    - open
+retrieval:
+  seed_types:
+  - Incident
+  intents:
+    incident_status:
+      description: Incident status
+      examples:
+      - What happened to the incident?
+      keywords:
+      - incident
+      weights:
+        AFFECTS: 1

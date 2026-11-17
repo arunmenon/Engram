@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import time
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import structlog
 
@@ -195,7 +195,8 @@ async def cleanup_session_streams(
             entry_id = entries[0][0]
             if isinstance(entry_id, bytes):
                 entry_id = entry_id.decode()
-            entry_ms = int(entry_id.split("-")[0])
+            # XREVRANGE entries always carry IDs; client stubs also cover missing IDs.
+            entry_ms = int(cast("str", entry_id).split("-")[0])
 
             if entry_ms < cutoff_ms:
                 await redis_client.delete(key_str)

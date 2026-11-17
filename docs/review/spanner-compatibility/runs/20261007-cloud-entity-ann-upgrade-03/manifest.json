@@ -1,0 +1,46 @@
+{
+  "kind": "cloud_entity_ann_upgrade",
+  "cloud_calls": true,
+  "issues": [
+    44,
+    41,
+    23,
+    42
+  ],
+  "target": {
+    "GOOGLE_CLOUD_PROJECT": "portiq-mvp",
+    "SPANNER_DATABASE_ID": "engram",
+    "SPANNER_INSTANCE_ID": "engram-experiment"
+  },
+  "dimensions": 384,
+  "source_sha256": {
+    "scripts/engram_spanner_entity_ann.py": "60688767971b0a4d8f81ab35306e128340ff8324cfe609ce62ca9081685671df",
+    "src/context_graph/adapters/spanner/entity_index.py": "48c4c476c62da1bb3411c39ce3599cd475d130778b2332499325e8ffcafecff6",
+    "src/context_graph/adapters/spanner/ddl_upgrade.py": "5b1ead0d6f72cfa2df4bf814559f4b0ed565181d161f252285a68ef9739970ae",
+    "src/context_graph/adapters/spanner/schema.py": "2379029e6b25637bef68612bc1e1c30b14ea6db7f440cc8d24a2fddee7cd984d",
+    "src/context_graph/adapters/spanner/graph.py": "24a850d5a38ee0c45ccccdae4f3fcd957418c417338cc8efde40a217a76f331a",
+    "src/context_graph/adapters/spanner/commits.py": "c09da09c1eb2dbc0616efefe2392d82a542a27eb53065a7ff09af04ee4ef11ca"
+  },
+  "scope": "Physical schema/upgrade only; no full ANN or baseline scenario closure",
+  "registered_attempt": {
+    "database": "projects/portiq-mvp/instances/engram-experiment/databases/engram",
+    "dimensions": 384,
+    "operation_id": "engram_ann_68b0c66ce3b944bdafbef6dbdd517a25",
+    "statements": [
+      "ALTER TABLE GraphNodes ADD COLUMN entity_embedding_member BOOL AS (IF(label = 'Entity', TRUE, NULL)) HIDDEN",
+      "CREATE VECTOR INDEX GraphEntitiesByEmbeddingV1 ON GraphNodes (embedding) STORING (entity_embedding_member) WHERE embedding IS NOT NULL AND entity_embedding_member IS NOT NULL OPTIONS (distance_type = 'COSINE')"
+    ],
+    "digest": "32ba8d14ca2902d98d59bd7cbe009df7d0d9ed4afb2fa2b0e2f9c18fe9957355",
+    "state": "unresolved",
+    "observed": false,
+    "submissions": 1,
+    "last_rpc_error": null,
+    "error": {
+      "kind": "operation_identity"
+    },
+    "predecessor": null,
+    "migration": "entity_ann_v1"
+  },
+  "resume_source": "docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-upgrade-02/attempt.json",
+  "run_id": "20261007-cloud-entity-ann-upgrade-03"
+}

@@ -1,0 +1,24 @@
+2026-10-06 22:36:38 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 22:36:38 [info     ] llm_client_initialized
+2026-10-06 22:36:38 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 22:36:38 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 22:36:38 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 22:36:38 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 22:36:38 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 22:36:38 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 22:36:38 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 22:36:38 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 22:36:38 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 22:36:38 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 22:36:38 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 22:36:38 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 22:36:38 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 22:36:38 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 22:36:39 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 22:36:39 [info     ] event_ingested                 event_id=8e79b81e-cf0e-41e0-bc46-282ac5c9f1be event_type=observation.input global_position=2026-10-06T17:06:39.787359000Z/000000/8e79b81e-cf0e-41e0-bc46-282ac5c9f1be request_id=9a157c24-3eab-4be3-89aa-561cff6b0e10 status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+{"name": "JSON_literal_float_marker_numeric_tag", "scenarios": ["LED-01"], "verdict": "passed", "observation": {"event_id": "8e79b81e-cf0e-41e0-bc46-282ac5c9f1be", "ingestion_status": 201, "expected_payload": {"content": "marker collision", "literal_object": {"$float": "0.125"}}, "stored_payload": {"content": "marker collision", "literal_object": {"$float": "0.125"}}, "read_error": null}, "seconds": 0.2}
+2026-10-06 22:36:39 [info     ] event_ingested                 event_id=98f648d7-b510-4146-964e-52ed1b8ba42f event_type=observation.input global_position=2026-10-06T17:06:39.918543000Z/000000/98f648d7-b510-4146-964e-52ed1b8ba42f request_id=5ae18713-533e-45ad-9be9-326f8400f3cc status=created
+{"name": "JSON_literal_float_marker_text_tag", "scenarios": ["LED-01"], "verdict": "passed", "observation": {"event_id": "98f648d7-b510-4146-964e-52ed1b8ba42f", "ingestion_status": 201, "expected_payload": {"content": "marker collision", "literal_object": {"$float": "ordinary-text"}}, "stored_payload": {"content": "marker collision", "literal_object": {"$float": "ordinary-text"}}, "read_error": null}, "seconds": 0.2}
+2026-10-06 22:36:40 [info     ] app_stopped

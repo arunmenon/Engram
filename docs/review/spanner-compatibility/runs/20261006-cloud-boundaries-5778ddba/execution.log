@@ -1,0 +1,470 @@
+2026-10-06 15:38:29 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 15:38:29 [info     ] llm_client_initialized
+2026-10-06 15:38:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 15:38:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 15:38:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 15:38:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 15:38:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 15:38:29 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 15:38:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 15:38:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 15:38:29 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 15:38:29 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 15:38:29 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 15:38:29 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 15:38:29 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 15:38:29 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 15:38:31 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'crm@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:ae97ca85cb6403f5 redis_host=localhost
+2026-10-06 15:38:31 [info     ] event_ingested                 event_id=b5d8733b-e539-4afa-a17f-86fdf274fe5f event_type=tool.execute global_position=2026-10-06T10:08:31.212623000Z/000000/b5d8733b-e539-4afa-a17f-86fdf274fe5f request_id=63a38f92-4e69-4c72-b5bd-d292bb9cf410 status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 15:38:31 [info     ] event_ingested                 event_id=b5d8733b-e539-4afa-a17f-86fdf274fe5f event_type=tool.execute global_position=2026-10-06T10:08:31.212623000Z/000000/b5d8733b-e539-4afa-a17f-86fdf274fe5f request_id=904cafdc-6da0-4954-993b-2f46065a461a status=duplicate
+{"name": "valid_ingest_duplicate_JSON_roundtrip", "scenarios": ["ING-01", "ING-04", "LED-01"], "verdict": "passed", "observation": {"created": true, "duplicate": true, "lossless_nested_float": true}, "seconds": 0.27}
+2026-10-06 15:38:31 [info     ] event_ingested                 event_id=d794d6d3-1b77-44c8-a9d3-815dd03aa3d8 event_type=crm.deal.created global_position=2026-10-06T10:08:31.415999000Z/000000/d794d6d3-1b77-44c8-a9d3-815dd03aa3d8 request_id=74387679-e15e-44a2-b473-2f5967264a23 status=created
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 137, in check
+    observation = await asyncio.wait_for(function(), timeout=120)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 428, in missing_payload
+    assert response.status_code == 422, (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: missing pack key accepted HTTP201
+
+{"name": "pack_payload_missing_key_rejected", "scenarios": ["ING-01"], "verdict": "failed", "error_type": "AssertionError", "error": "missing pack key accepted HTTP201", "seconds": 0.17}
+2026-10-06 15:38:31 [error    ] unhandled_exception
+  + Exception Group Traceback (most recent call last):
+  |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_utils.py", line 107, in create_collapsing_task_group
+  |     async with anyio.create_task_group() as tg:
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 847, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/telemetry/_asgi.py", line 151, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 91, in __call__
+    |     await self.simple_response(scope, receive, send, request_headers=headers)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 149, in simple_response
+    |     await self.app(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 197, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/arunmenon/projects/Engram/src/context_graph/api/middleware.py", line 166, in dispatch
+    |     response: Response = await call_next(request)
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 173, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 197, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/arunmenon/projects/Engram/src/context_graph/api/middleware.py", line 102, in dispatch
+    |     response: Response = await call_next(request)
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 173, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 197, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/arunmenon/projects/Engram/src/context_graph/api/middleware.py", line 86, in dispatch
+    |     response: Response = await call_next(request)
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 173, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/routing.py", line 676, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 2786, in app
+    |     await route.handle(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 1817, in handle
+    |     await self.original_router.handle(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 2869, in handle
+    |     await included_router._handle_selected(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 1843, in _handle_selected
+    |     await original_route.handle(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 1308, in handle
+    |     await effective_context.app(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 165, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 151, in app
+    |     response = await f(request)
+    |                ^^^^^^^^^^^^^^^^
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 727, in app
+    |     raw_response = await run_endpoint_function(
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 360, in run_endpoint_function
+    |     return await dependant.call(**values)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/arunmenon/projects/Engram/src/context_graph/api/routes/events.py", line 191, in ingest_event
+    |     validation_result = validate_event(event)
+    |                         ^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/arunmenon/projects/Engram/src/context_graph/domain/validation.py", line 91, in validate_event
+    |     if event.ended_at is not None and event.ended_at < event.occurred_at:
+    |                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    | TypeError: can't compare offset-naive and offset-aware datetimes
+    +------------------------------------
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/telemetry/_asgi.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 91, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 149, in simple_response
+    await self.app(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 197, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/api/middleware.py", line 166, in dispatch
+    response: Response = await call_next(request)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 173, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 197, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/api/middleware.py", line 102, in dispatch
+    response: Response = await call_next(request)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 173, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 197, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/api/middleware.py", line 86, in dispatch
+    response: Response = await call_next(request)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 173, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/routing.py", line 676, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 2786, in app
+    await route.handle(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 1817, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 2869, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 1843, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 1308, in handle
+    await effective_context.app(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 165, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 151, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 727, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 360, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/api/routes/events.py", line 191, in ingest_event
+    validation_result = validate_event(event)
+                        ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/domain/validation.py", line 91, in validate_event
+    if event.ended_at is not None and event.ended_at < event.occurred_at:
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: can't compare offset-naive and offset-aware datetimes
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/errors.py:176: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await self.handler(request, exc)  # type: ignore[assignment, arg-type]
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 137, in check
+    observation = await asyncio.wait_for(function(), timeout=120)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 437, in timezone
+    assert response.status_code == 422, (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: mixed timezone response HTTP500
+
+{"name": "mixed_timezone_controlled_error", "scenarios": ["ING-01"], "verdict": "failed", "error_type": "AssertionError", "error": "mixed timezone response HTTP500", "seconds": 0.01}
+2026-10-06 15:38:31 [info     ] event_ingested                 event_id=f5de423b-7383-49cf-9258-18b8125a1802 event_type=tool.execute global_position=2026-10-06T10:08:31.597471000Z/000000/f5de423b-7383-49cf-9258-18b8125a1802 request_id=48064008-d121-443c-aec1-5c945aecf8a9 status=created
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 137, in check
+    observation = await asyncio.wait_for(function(), timeout=120)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 448, in gzip_integrity
+    assert response.status_code == 400, f"truncated gzip HTTP{response.status_code}"
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: truncated gzip HTTP201
+
+{"name": "truncated_gzip_rejected", "scenarios": ["ING-03"], "verdict": "failed", "error_type": "AssertionError", "error": "truncated gzip HTTP201", "seconds": 0.08}
+2026-10-06 15:38:31 [info     ] batch_ingested                 accepted=2 rejected=1 request_id=03e0e673-d320-400f-94a3-929327d97471 store_failures=0 total=3
+{"name": "batch_mixed_outcomes_and_boundaries", "scenarios": ["ING-02"], "verdict": "passed", "observation": {"mixed_created_duplicate_rejected": true, "empty_and_max_plus_one": true}, "seconds": 0.09}
+2026-10-06 15:38:31 [info     ] events_imported                created=3 duplicate=0 failed=0 order=occurred_at received=4 rejected=1 request_id=e1762171-dd5f-4a50-82d7-1f01f8a1d904
+2026-10-06 15:38:31 [info     ] events_imported                created=0 duplicate=3 failed=0 order=occurred_at received=4 rejected=1 request_id=3a200961-ae49-479b-b862-8afdef33a557
+{"name": "historical_import_order_invalid_line_retry", "scenarios": ["ING-05", "LED-02"], "verdict": "passed", "observation": {"gzip_NDJSON_order_invalid_line_retry": true}, "seconds": 0.22}
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await handler(conn, exc)  # type: ignore[arg-type]
+{"name": "namespace_and_webhook_identity_guards", "scenarios": ["ING-01", "OPS-02"], "verdict": "passed", "observation": {"namespace_and_reserved_identity": "rejected"}, "seconds": 0.01}
+2026-10-06 15:38:32 [info     ] webhook_ingested               delivery_id=96fb42290b37000ee0069611d2f6b3c50dbe9d8e40931a3c1f510a60295bed88 event_types=['pdlc.change.created'] request_id=2eb1d5a6-b8c2-465f-98f6-9e593c193364 source=github
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 137, in check
+    observation = await asyncio.wait_for(function(), timeout=120)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 534, in future_hook
+    assert response.status_code in (400, 422), (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: future webhook HTTP202
+
+{"name": "webhook_future_envelope_rejected", "scenarios": ["HOOK-03"], "verdict": "failed", "error_type": "AssertionError", "error": "future webhook HTTP202", "seconds": 0.17}
+2026-10-06 15:38:32 [error    ] unhandled_exception
+  + Exception Group Traceback (most recent call last):
+  |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_utils.py", line 107, in create_collapsing_task_group
+  |     async with anyio.create_task_group() as tg:
+  |                ^^^^^^^^^^^^^^^^^^^^^^^^^
+  |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 847, in __aexit__
+  |     raise BaseExceptionGroup(
+  | ExceptionGroup: unhandled errors in a TaskGroup (1 sub-exception)
+  +-+---------------- 1 ----------------
+    | Traceback (most recent call last):
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    |     await self.app(scope, receive, _send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/telemetry/_asgi.py", line 151, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 91, in __call__
+    |     await self.simple_response(scope, receive, send, request_headers=headers)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 149, in simple_response
+    |     await self.app(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 197, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/arunmenon/projects/Engram/src/context_graph/api/middleware.py", line 166, in dispatch
+    |     response: Response = await call_next(request)
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 173, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 197, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/arunmenon/projects/Engram/src/context_graph/api/middleware.py", line 102, in dispatch
+    |     response: Response = await call_next(request)
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 173, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 197, in __call__
+    |     response = await self.dispatch_func(request, call_next)
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/arunmenon/projects/Engram/src/context_graph/api/middleware.py", line 86, in dispatch
+    |     response: Response = await call_next(request)
+    |                          ^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 173, in call_next
+    |     raise app_exc from app_exc.__cause__ or app_exc.__context__
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    |     await self.app(scope, receive_or_disconnect, send_no_error)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    |     await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    |     await self.app(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/routing.py", line 676, in __call__
+    |     await self.middleware_stack(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 2786, in app
+    |     await route.handle(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 1817, in handle
+    |     await self.original_router.handle(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 2869, in handle
+    |     await included_router._handle_selected(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 1843, in _handle_selected
+    |     await original_route.handle(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 1308, in handle
+    |     await effective_context.app(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 165, in app
+    |     await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    |     raise exc
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    |     await app(scope, receive, sender)
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 151, in app
+    |     response = await f(request)
+    |                ^^^^^^^^^^^^^^^^
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 727, in app
+    |     raw_response = await run_endpoint_function(
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 360, in run_endpoint_function
+    |     return await dependant.call(**values)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/arunmenon/projects/Engram/src/context_graph/api/routes/webhooks.py", line 169, in receive_webhook
+    |     for item in _translate(source, request, payload)
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/arunmenon/projects/Engram/src/context_graph/api/routes/webhooks.py", line 96, in _translate
+    |     return github.translate(request.headers.get("x-github-event", ""), payload)
+    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |   File "/Users/arunmenon/projects/Engram/src/context_graph/sources/github.py", line 63, in translate
+    |     repo = _repo(payload)
+    |            ^^^^^^^^^^^^^^
+    |   File "/Users/arunmenon/projects/Engram/src/context_graph/sources/github.py", line 57, in _repo
+    |     name = repository.get("full_name")
+    |            ^^^^^^^^^^^^^^
+    | AttributeError: 'list' object has no attribute 'get'
+    +------------------------------------
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/telemetry/_asgi.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 91, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 149, in simple_response
+    await self.app(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 197, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/api/middleware.py", line 166, in dispatch
+    response: Response = await call_next(request)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 173, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 197, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/api/middleware.py", line 102, in dispatch
+    response: Response = await call_next(request)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 173, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 197, in __call__
+    response = await self.dispatch_func(request, call_next)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/api/middleware.py", line 86, in dispatch
+    response: Response = await call_next(request)
+                         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 173, in call_next
+    raise app_exc from app_exc.__cause__ or app_exc.__context__
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py", line 149, in coro
+    await self.app(scope, receive_or_disconnect, send_no_error)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/routing.py", line 676, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 2786, in app
+    await route.handle(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 1817, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 2869, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 1843, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 1308, in handle
+    await effective_context.app(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 165, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 151, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 727, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 360, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/api/routes/webhooks.py", line 169, in receive_webhook
+    for item in _translate(source, request, payload)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/api/routes/webhooks.py", line 96, in _translate
+    return github.translate(request.headers.get("x-github-event", ""), payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/sources/github.py", line 63, in translate
+    repo = _repo(payload)
+           ^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/sources/github.py", line 57, in _repo
+    name = repository.get("full_name")
+           ^^^^^^^^^^^^^^
+AttributeError: 'list' object has no attribute 'get'
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/errors.py:176: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await self.handler(request, exc)  # type: ignore[assignment, arg-type]
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 137, in check
+    observation = await asyncio.wait_for(function(), timeout=120)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 542, in bad_hook
+    assert response.status_code in (400, 422), (
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: malformed webhook HTTP500
+
+{"name": "webhook_nested_shape_controlled_error", "scenarios": ["HOOK-03"], "verdict": "failed", "error_type": "AssertionError", "error": "malformed webhook HTTP500", "seconds": 0.0}
+2026-10-06 15:38:32 [warning  ] webhook_signature_invalid      request_id=6354e3f6-e015-4fb4-8cd1-cbab45dacea1 source=github
+{"name": "webhook_signature_guard", "scenarios": ["HOOK-03", "OPS-02"], "verdict": "passed", "observation": {"unsigned": "rejected"}, "seconds": 0.0}
+{"name": "observability_routes", "scenarios": ["OPS-01", "ONT-01"], "verdict": "passed", "observation": {"health_detailed_stats_ontology": "HTTP200"}, "seconds": 1.74}
+2026-10-06 15:38:33 [info     ] app_stopped

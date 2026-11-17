@@ -1,0 +1,124 @@
+{
+  "checks": [
+    {
+      "name": "tied_event_projection_and_JSON",
+      "scenarios": [
+        "LED-01",
+        "PROJ-01",
+        "ING-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "tied_occurrence_events": 7,
+        "lossless_nested_JSON": true
+      },
+      "seconds": 7.52
+    },
+    {
+      "name": "context_tied_keyset_pages_empty_and_bounds",
+      "scenarios": [
+        "MEM-01",
+        "MEM-05"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "pages": 4,
+        "unique_events": 7,
+        "empty_and_bounds": "passed"
+      },
+      "seconds": 2.64
+    },
+    {
+      "name": "lineage_node_depth_bounds_and_missing",
+      "scenarios": [
+        "MEM-02",
+        "MEM-05"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "lineage max_nodes does not bound unique nodes",
+      "seconds": 1.13
+    },
+    {
+      "name": "native_ANN_multivector_topk_threshold",
+      "scenarios": [
+        "SEARCH-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "native_force_index": true,
+        "seed_setup": "four public graph-port Entity writes",
+        "dimensions": 384,
+        "topk": [
+          {
+            "id": "entity:compat-self",
+            "score": 1.0,
+            "rank": 0
+          },
+          {
+            "id": "entity:compat-near",
+            "score": 0.9009414138066998,
+            "rank": 1
+          }
+        ],
+        "threshold": "passed"
+      },
+      "seconds": 1.14
+    },
+    {
+      "name": "HTTP_graph_vector_combined_and_empty_keyword_filter",
+      "scenarios": [
+        "MEM-03",
+        "SEARCH-01",
+        "SEARCH-02"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "vector channel returned no nodes",
+      "seconds": 0.96
+    },
+    {
+      "name": "feedback_ledger_success_graph_partial_failure_retry_semantics",
+      "scenarios": [
+        "FB-02"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "",
+      "seconds": 4.29
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 14
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 15
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

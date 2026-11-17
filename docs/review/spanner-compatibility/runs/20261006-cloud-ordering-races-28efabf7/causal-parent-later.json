@@ -1,0 +1,51 @@
+{
+  "child": {
+    "event_id": "e9dd9f80-0274-41fb-8754-37cee85f5761",
+    "event_type": "observation.input",
+    "occurred_at": "2026-10-06T14:14:03.624052+00:00",
+    "session_id": "parent-later",
+    "agent_id": "compat-resume",
+    "trace_id": "parent-later",
+    "payload_ref": "compat:resume",
+    "payload": {
+      "content": "Spanner recovery evidence"
+    },
+    "parent_event_id": "c4259cbb-26f7-4976-9da2-5624a633de6f"
+  },
+  "parent": {
+    "event_id": "c4259cbb-26f7-4976-9da2-5624a633de6f",
+    "event_type": "observation.input",
+    "occurred_at": "2026-10-06T14:14:03.624019+00:00",
+    "session_id": "parent-later",
+    "agent_id": "compat-resume",
+    "trace_id": "parent-later",
+    "payload_ref": "compat:resume",
+    "payload": {
+      "content": "Spanner recovery evidence"
+    }
+  },
+  "before_parent": {
+    "nodes": {
+      "Event": 1
+    },
+    "edges": []
+  },
+  "after_parent": {
+    "nodes": {
+      "Event": 2
+    },
+    "edges": [
+      [
+        "c4259cbb-26f7-4976-9da2-5624a633de6f",
+        "FOLLOWS",
+        "e9dd9f80-0274-41fb-8754-37cee85f5761"
+      ]
+    ]
+  },
+  "expected": [
+    "e9dd9f80-0274-41fb-8754-37cee85f5761",
+    "CAUSED_BY",
+    "c4259cbb-26f7-4976-9da2-5624a633de6f"
+  ],
+  "scope": "child and referenced parent accepted/projected in separate flushes; later endpoint arrival"
+}

@@ -1,0 +1,59 @@
+{
+  "database": "engram-compat-target",
+  "admin": {
+    "nodes": {
+      "Event": 9,
+      "Entity": 0,
+      "Summary": 0,
+      "UserProfile": 0,
+      "Preference": 0,
+      "Skill": 0,
+      "Workflow": 0,
+      "BehavioralPattern": 0
+    },
+    "edges": {
+      "FOLLOWS": 6,
+      "CAUSED_BY": 0,
+      "SIMILAR_TO": 0,
+      "REFERENCES": 0,
+      "SUMMARIZES": 0,
+      "SAME_AS": 0,
+      "RELATED_TO": 0
+    },
+    "total_nodes": 9,
+    "total_edges": 6,
+    "event_log": {
+      "backend": "spanner",
+      "length": 0
+    },
+    "redis": {
+      "stream_length": 0
+    }
+  },
+  "actual": {
+    "nodes": {
+      "Change": 2,
+      "Component": 1,
+      "Deployment": 1,
+      "Event": 9,
+      "OntologyState": 1,
+      "Release": 1,
+      "Review": 1,
+      "TestCase": 1,
+      "TestRun": 1,
+      "WorkItem": 2
+    },
+    "edges": {
+      "DECOMPOSES_INTO": 1,
+      "DEPLOYED_TO": 1,
+      "DEPLOYS": 1,
+      "DERIVED_FROM": 10,
+      "EXECUTES": 1,
+      "FOLLOWS": 6,
+      "IMPLEMENTS": 1,
+      "INCLUDES": 2,
+      "RAN_AGAINST": 1,
+      "REVIEWS": 1
+    }
+  }
+}

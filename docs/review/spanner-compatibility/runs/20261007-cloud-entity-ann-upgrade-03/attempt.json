@@ -1,0 +1,17 @@
+{
+  "database": "projects/portiq-mvp/instances/engram-experiment/databases/engram",
+  "dimensions": 384,
+  "operation_id": "engram_ann_68b0c66ce3b944bdafbef6dbdd517a25",
+  "statements": [
+    "ALTER TABLE GraphNodes ADD COLUMN entity_embedding_member BOOL AS (IF(label = 'Entity', TRUE, NULL)) HIDDEN",
+    "CREATE VECTOR INDEX GraphEntitiesByEmbeddingV1 ON GraphNodes (embedding) STORING (entity_embedding_member) WHERE embedding IS NOT NULL AND entity_embedding_member IS NOT NULL OPTIONS (distance_type = 'COSINE')"
+  ],
+  "digest": "32ba8d14ca2902d98d59bd7cbe009df7d0d9ed4afb2fa2b0e2f9c18fe9957355",
+  "state": "ready",
+  "observed": true,
+  "submissions": 1,
+  "last_rpc_error": null,
+  "error": null,
+  "predecessor": null,
+  "migration": "entity_ann_v1"
+}

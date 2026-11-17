@@ -1,0 +1,320 @@
+{
+  "source": "output/workbench/spanner/northstar-ui-result.json; unchanged synthetic content and pack",
+  "content": {
+    "name": "Northstar Payments \u2014 incident pilot",
+    "environment": "sandbox-training",
+    "roots": [],
+    "existing_packs": [],
+    "scope": "Track Northstar incidents affecting checkout services across US and EU accounts, from open to resolved. Preserve title on resolution. Exclude on-call scheduling, postmortems, extraction and remediation. Synthetic training data only.",
+    "data_policy": "provider_allowed",
+    "redaction_confirmed": true,
+    "sources": [
+      {
+        "id": "15c715be-a6b6-41b7-8edd-e3a81b37cdb4",
+        "name": "01-domain-spec.md",
+        "kind": "specification",
+        "text": "# Northstar Payments: incident visibility pilot\nSynthetic customer exercise; all names, identifiers and events are invented.\n\n## Purpose and boundaries\nNorthstar operates checkout services in US and EU accounts. Operators need to see which incidents affect a service and preserve an incident's title when resolution notifications omit it. Exclude on-call scheduling, alert deduplication, postmortems, natural-language extraction and automated remediation.\n\n## Vocabulary and identity\nAn Incident is identified by the ordered pair account and id. Incident numbers can repeat across accounts. Incident INC-1042 in us is different from INC-1042 in eu.\nA Service is identified by the ordered pair account and name. The checkout service exists independently in both accounts.\nAccount is an identity field, not a separate graph node in this pilot.\nAn Incident AFFECTS exactly one Service. Both implement source provenance; Incident also has a lifecycle.\n\n## Lifecycle and updates\nNew incidents start open. Only an open incident may transition to resolved. Reopening is out of scope.\nResolution events still upsert the incident for provenance, then apply the guarded transition.\nA missing title on an update preserves the stored title. Null titles are invalid under the interface contract.\nThe service association is established by the opened event and never changed by resolution.\n\n## Source authority\nThe sole producer in this pilot is northstar-monitor. It is trusted for these synthetic events. This is a sandbox identity; it is not a production credential grant.\n\n## Event handling\nincident.opened creates or updates Incident and Service and the AFFECTS relationship.\nincident.resolved records provenance and resolves the Incident; it must not invent a new service.\nincident.comment is ledger-only: keep the event but do not write domain nodes or relationships.\nA missing account is invalid and must be rejected before graph projection.\n\n## Questions and test oracle\nFor Service:us|checkout, which incidents affect it? Expected exactly Incident:us|INC-1042 and Incident:us|INC-1043.\nFor Service:eu|checkout, which incidents affect it? Expected exactly Incident:eu|INC-1042.\nThese are graph retrieval questions, not free-form narrative answer generation. Use intent incidents_for_service, traversing AFFECTS from the given Service seed and returning Incident nodes only. The two questions and answers are fixed before execution. Do not broaden expected answers to make a failing run pass.\n"
+      },
+      {
+        "id": "d536fe84-4dbe-4541-b368-914b4ff815cc",
+        "name": "02-event-contracts.json",
+        "kind": "schema",
+        "text": "{\n  \"description\": \"Synthetic Northstar webhook adapter output. Payload paths are relative to payload. Envelope includes event_type, producer_id and occurred_at.\",\n  \"events\": {\n    \"incident.opened\": {\n      \"handling\": \"processed\",\n      \"payload_contract\": {\n        \"version\": 1,\n        \"additional_fields\": \"preserve\",\n        \"properties\": {\n          \"account\": {\n            \"type\": \"string\",\n            \"required\": true\n          },\n          \"id\": {\n            \"type\": \"string\",\n            \"required\": true\n          },\n          \"service\": {\n            \"type\": \"string\",\n            \"required\": true\n          },\n          \"title\": {\n            \"type\": \"string\",\n            \"required\": true\n          }\n        }\n      }\n    },\n    \"incident.resolved\": {\n      \"handling\": \"processed\",\n      \"payload_contract\": {\n        \"version\": 1,\n        \"additional_fields\": \"preserve\",\n        \"properties\": {\n          \"account\": {\n            \"type\": \"string\",\n            \"required\": true\n          },\n          \"id\": {\n            \"type\": \"string\",\n            \"required\": true\n          }\n        }\n      }\n    },\n    \"incident.comment\": {\n      \"handling\": \"ledger_only\",\n      \"payload_contract\": {\n        \"version\": 1,\n        \"additional_fields\": \"preserve\",\n        \"properties\": {\n          \"account\": {\n            \"type\": \"string\",\n            \"required\": true\n          },\n          \"id\": {\n            \"type\": \"string\",\n            \"required\": true\n          },\n          \"text\": {\n            \"type\": \"string\",\n            \"required\": true\n          }\n        }\n      }\n    }\n  }\n}\n"
+      },
+      {
+        "id": "b6f72498-64c1-444e-a413-40e54293c687",
+        "name": "03-sample-events.json",
+        "kind": "samples",
+        "text": "[\n  {\n    \"event_type\": \"incident.opened\",\n    \"payload\": {\n      \"account\": \"us\",\n      \"id\": \"INC-1042\",\n      \"service\": \"checkout\",\n      \"title\": \"Payment authorization timeouts\"\n    },\n    \"producer_id\": \"northstar-monitor\",\n    \"occurred_at\": \"2026-10-30T10:00:00Z\"\n  },\n  {\n    \"event_type\": \"incident.opened\",\n    \"payload\": {\n      \"account\": \"eu\",\n      \"id\": \"INC-1042\",\n      \"service\": \"checkout\",\n      \"title\": \"Elevated card declines\"\n    },\n    \"producer_id\": \"northstar-monitor\",\n    \"occurred_at\": \"2026-10-30T10:01:00Z\"\n  },\n  {\n    \"event_type\": \"incident.opened\",\n    \"payload\": {\n      \"account\": \"us\",\n      \"id\": \"INC-1043\",\n      \"service\": \"checkout\",\n      \"title\": \"Slow checkout responses\"\n    },\n    \"producer_id\": \"northstar-monitor\",\n    \"occurred_at\": \"2026-10-30T10:02:00Z\"\n  },\n  {\n    \"event_type\": \"incident.resolved\",\n    \"payload\": {\n      \"account\": \"us\",\n      \"id\": \"INC-1042\"\n    },\n    \"producer_id\": \"northstar-monitor\",\n    \"occurred_at\": \"2026-10-30T10:03:00Z\"\n  },\n  {\n    \"event_type\": \"incident.comment\",\n    \"payload\": {\n      \"account\": \"us\",\n      \"id\": \"INC-1043\",\n      \"text\": \"Investigating upstream latency\"\n    },\n    \"producer_id\": \"northstar-monitor\",\n    \"occurred_at\": \"2026-10-30T10:04:00Z\"\n  },\n  {\n    \"event_type\": \"incident.opened\",\n    \"payload\": {\n      \"id\": \"INC-BAD\",\n      \"service\": \"checkout\",\n      \"title\": \"Missing account must be rejected\"\n    },\n    \"producer_id\": \"northstar-monitor\",\n    \"occurred_at\": \"2026-10-30T10:05:00Z\",\n    \"expect_admitted\": false\n  }\n]\n"
+      }
+    ],
+    "decisions": {
+      "identity": "Incident key is account then id; Service key is account then name. Numbers repeat across accounts. Account is a field, not a node.",
+      "lifecycle": "Open may resolve only; no reopen. Resolution upserts provenance and then transitions with only_from open. Absent title preserves the previous value. Comment is ledger-only.",
+      "dec-ns-01-source-provenance-shape": "Use Engram built-in Sourced provenance and DERIVED_FROM event links from upserts. No additional producer/time node properties are required in this pilot; retain the original event envelope in the ledger.",
+      "dec-ns-02-service-name-field": "Use Service.name, explicitly as the specification states. Map payload service to name. Key order is account, name."
+    },
+    "questions": [
+      {
+        "id": "q-96ddfe69",
+        "query": "Which incidents affect US checkout?",
+        "expected": [
+          "Incident:us|INC-1042",
+          "Incident:us|INC-1043"
+        ],
+        "intent": "incidents_for_service",
+        "seed_node_ids": [
+          "Service:us|checkout"
+        ],
+        "node_type": "Incident",
+        "reviewed": true
+      },
+      {
+        "id": "q-197e0538",
+        "query": "Which incidents affect EU checkout?",
+        "expected": [
+          "Incident:eu|INC-1042"
+        ],
+        "intent": "incidents_for_service",
+        "seed_node_ids": [
+          "Service:eu|checkout"
+        ],
+        "node_type": "Incident",
+        "reviewed": true
+      }
+    ],
+    "expected_nodes": [
+      "Incident:us|INC-1042",
+      "Incident:us|INC-1043",
+      "Incident:eu|INC-1042",
+      "Service:us|checkout",
+      "Service:eu|checkout"
+    ],
+    "forbidden_nodes": [
+      "Incident:us|INC-BAD"
+    ],
+    "graph_reviewed": true,
+    "min_f1": 1.0,
+    "producer_ids": [
+      "northstar-monitor"
+    ],
+    "trusted_ids": [
+      "northstar-monitor"
+    ],
+    "trust_reviewed": true,
+    "instruction": "Resolve the two recorded decisions and return the complete executable pack. Use built-in Sourced provenance, no custom metadata. Service.name maps from $.service. Keep the reviewed evaluation expectations unchanged. Verify supported payload string contracts reject null rather than claiming null validation is unavailable. Keep exactly-one-service enforcement as an explicit limitation for changed opened associations; do not invent support."
+  },
+  "pack": {
+    "pack": {
+      "name": "northstar_incident_pilot",
+      "version": "1.0.0",
+      "requires": [
+        "core>=1.1"
+      ],
+      "description": "Tenant-private pack for synthetic Northstar incident visibility pilot (Incident/Service + AFFECTS), with open\u2192resolved lifecycle and title preservation on resolution."
+    },
+    "types": {
+      "nodes": {
+        "Incident": {
+          "key": [
+            "account",
+            "id"
+          ],
+          "interfaces": [
+            "Sourced",
+            "Lifecycled"
+          ],
+          "properties": {
+            "account": "string",
+            "id": "string",
+            "title": "string"
+          },
+          "text_fields": [
+            "title"
+          ],
+          "lifecycle": {
+            "initial": "open",
+            "states": [
+              "open",
+              "resolved"
+            ]
+          },
+          "note": "Keyed by (account,id). Title is set on incident.opened; preserved when incident.resolved omits it."
+        },
+        "Service": {
+          "key": [
+            "account",
+            "name"
+          ],
+          "interfaces": [
+            "Sourced"
+          ],
+          "properties": {
+            "account": "string",
+            "name": "string"
+          },
+          "text_fields": [
+            "name"
+          ],
+          "note": "Keyed by (account,name). Payload field $.service maps to Service.name."
+        }
+      },
+      "edges": {
+        "AFFECTS": {
+          "from": [
+            "Incident"
+          ],
+          "to": [
+            "Service"
+          ],
+          "note": "Incident affects exactly one Service; association is established by incident.opened."
+        }
+      }
+    },
+    "events": {
+      "incident.opened": {
+        "payload_contract": {
+          "version": 1,
+          "additional_fields": "preserve",
+          "properties": {
+            "account": {
+              "type": "string",
+              "required": true
+            },
+            "id": {
+              "type": "string",
+              "required": true
+            },
+            "service": {
+              "type": "string",
+              "required": true
+            },
+            "title": {
+              "type": "string",
+              "required": true
+            }
+          }
+        },
+        "handling": "processed",
+        "note": "Creates/updates Incident and Service and writes AFFECTS."
+      },
+      "incident.resolved": {
+        "payload_contract": {
+          "version": 1,
+          "additional_fields": "preserve",
+          "properties": {
+            "account": {
+              "type": "string",
+              "required": true
+            },
+            "id": {
+              "type": "string",
+              "required": true
+            }
+          }
+        },
+        "handling": "processed",
+        "note": "Upserts Incident for provenance and transitions open\u2192resolved; must not create or change Service association."
+      },
+      "incident.comment": {
+        "payload_contract": {
+          "version": 1,
+          "additional_fields": "preserve",
+          "properties": {
+            "account": {
+              "type": "string",
+              "required": true
+            },
+            "id": {
+              "type": "string",
+              "required": true
+            },
+            "text": {
+              "type": "string",
+              "required": true
+            }
+          }
+        },
+        "handling": "ledger_only",
+        "note": "Kept in ledger only; no node/edge writes."
+      }
+    },
+    "projection": [
+      {
+        "event": "incident.opened",
+        "upsert": [
+          {
+            "type": "Incident",
+            "key": {
+              "account": "$.account",
+              "id": "$.id"
+            },
+            "set": {
+              "title": "$.title"
+            }
+          },
+          {
+            "type": "Service",
+            "key": {
+              "account": "$.account",
+              "name": "$.service"
+            },
+            "set": {
+              "name": "$.service"
+            }
+          }
+        ],
+        "edges": [
+          {
+            "type": "AFFECTS",
+            "from": {
+              "type": "Incident",
+              "key": {
+                "account": "$.account",
+                "id": "$.id"
+              }
+            },
+            "to": {
+              "type": "Service",
+              "key": {
+                "account": "$.account",
+                "name": "$.service"
+              }
+            }
+          }
+        ]
+      },
+      {
+        "event": "incident.resolved",
+        "upsert": [
+          {
+            "type": "Incident",
+            "key": {
+              "account": "$.account",
+              "id": "$.id"
+            }
+          }
+        ],
+        "transition": {
+          "type": "Incident",
+          "to": "resolved",
+          "only_from": [
+            "open"
+          ]
+        },
+        "edges": []
+      }
+    ],
+    "retrieval": {
+      "seed_types": [
+        "Service"
+      ],
+      "intents": {
+        "incidents_for_service": {
+          "description": "Return incidents that affect a given Service seed by traversing AFFECTS inbound to Incident.",
+          "examples": [
+            "Which incidents affect US checkout?",
+            "Which incidents affect EU checkout?"
+          ],
+          "keywords": [
+            "incident",
+            "incidents",
+            "affect",
+            "service",
+            "checkout",
+            "us",
+            "eu"
+          ],
+          "weights": {
+            "AFFECTS": 1.0
+          },
+          "direction": "inbound",
+          "prefer_types": [
+            "Incident"
+          ],
+          "max_depth": 1
+        }
+      }
+    }
+  }
+}

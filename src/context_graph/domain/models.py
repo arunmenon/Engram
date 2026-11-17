@@ -18,11 +18,12 @@ Sources:
 from __future__ import annotations
 
 import enum
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+from pydantic_core import PydanticCustomError
 
 # ---------------------------------------------------------------------------
 # Enums
@@ -315,6 +316,18 @@ class Event(BaseModel):
     status: EventStatus | None = None
     schema_version: int | None = Field(default=1, ge=1)
     importance_hint: int | None = Field(default=None, ge=1, le=10)
+
+    @field_validator("occurred_at", "ended_at")
+    @classmethod
+    def normalize_timestamp(cls, value: datetime | None) -> datetime | None:
+        """Require an explicit timezone and persist a canonical UTC instant."""
+        if value is None:
+            return None
+        if value.tzinfo is None or value.utcoffset() is None:
+            raise PydanticCustomError(
+                "timezone_required", "Timestamp requires an explicit timezone"
+            )
+        return value.astimezone(UTC)
 
 
 # ---------------------------------------------------------------------------

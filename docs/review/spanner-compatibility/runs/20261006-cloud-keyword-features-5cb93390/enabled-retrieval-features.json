@@ -1,0 +1,28 @@
+{
+  "calls": {
+    "embeddings": [],
+    "hyde": 0,
+    "MMR": 0,
+    "PPR": 0
+  },
+  "status": 422,
+  "body": {
+    "detail": [
+      {
+        "type": "missing",
+        "loc": [
+          "body",
+          "agent_id"
+        ],
+        "msg": "Field required",
+        "input": {
+          "query": "Python",
+          "session_id": "keyword-a",
+          "use_hyde": true,
+          "max_nodes": 10
+        }
+      }
+    ]
+  },
+  "scope": "scripted HyDE/query embedding; real graph, ANN and keyword ports; bounded feature smoke, not ranking quality benchmark"
+}

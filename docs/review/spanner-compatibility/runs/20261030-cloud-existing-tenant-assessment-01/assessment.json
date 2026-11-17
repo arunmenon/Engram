@@ -1,0 +1,170 @@
+{
+  "scope": "One existing database; observed owner used as test fixture, not reconstructed runtime configuration. Real fence and HTTP guard; no dispatcher, worker loops or mutations.",
+  "checks": [
+    {
+      "name": "matching_owner_real_snapshot_allowed",
+      "passed": true
+    },
+    {
+      "name": "wrong_tenant_read_refused",
+      "passed": true
+    },
+    {
+      "name": "wrong_tenant_admission_callback_refused",
+      "passed": true
+    },
+    {
+      "name": "wrong_tenant_processing_callback_refused",
+      "passed": true
+    },
+    {
+      "name": "wrong_binding_read_refused",
+      "passed": true
+    },
+    {
+      "name": "wrong_binding_admission_callback_refused",
+      "passed": true
+    },
+    {
+      "name": "wrong_binding_processing_callback_refused",
+      "passed": true
+    },
+    {
+      "name": "stale_epoch_read_refused",
+      "passed": true
+    },
+    {
+      "name": "stale_epoch_admission_callback_refused",
+      "passed": true
+    },
+    {
+      "name": "stale_epoch_processing_callback_refused",
+      "passed": true
+    },
+    {
+      "name": "wrong_bundle_read_refused",
+      "passed": true
+    },
+    {
+      "name": "wrong_bundle_admission_callback_refused",
+      "passed": true
+    },
+    {
+      "name": "wrong_bundle_processing_callback_refused",
+      "passed": true
+    },
+    {
+      "name": "wrong_database_read_refused",
+      "passed": true
+    },
+    {
+      "name": "wrong_database_admission_callback_refused",
+      "passed": true
+    },
+    {
+      "name": "wrong_database_processing_callback_refused",
+      "passed": true
+    },
+    {
+      "name": "http_guard_valid",
+      "passed": true
+    },
+    {
+      "name": "http_guard_no_principal",
+      "passed": true
+    },
+    {
+      "name": "http_guard_foreign_principal",
+      "passed": true
+    },
+    {
+      "name": "http_guard_stale_before",
+      "passed": true
+    },
+    {
+      "name": "http_guard_stale_at_release",
+      "passed": true
+    },
+    {
+      "name": "active_owner_unchanged",
+      "passed": true
+    }
+  ],
+  "status": "passed",
+  "owner": [
+    [
+      "compat-control",
+      "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+      "compat-control-binding",
+      43,
+      "sha256:1261c6566b0d624bb9f5763c6e01d0f249b8e61b8280ddce1bd5b559cc166f72",
+      "active"
+    ]
+  ],
+  "source_hashes": {
+    "scripts/engram_tenant_existing_assessment.py": "042c22bc47f5758db0fd32cfcd2cd89455eb481e4fb9c24335261a1debecf026",
+    "src/context_graph/adapters/spanner/tenant_control.py": "7cdb0efcc9794060c203e24e8a06a5ba48603a27d1aa890bea3e6d8174a29a82",
+    "src/context_graph/api/tenant_responses.py": "a70bb101d15edd9b18019aca111ba22d2e52c9f742a86751ff002da70c88e5ec"
+  },
+  "application_rows_unchanged": true,
+  "before": {
+    "Events": {
+      "count": 27,
+      "sha256": "0db5ee70059256a150a035e61ca9a3b49a029ae69683ec3d44028ec1b3749a7d"
+    },
+    "GraphNodes": {
+      "count": 63,
+      "sha256": "0cde9839c9f990892b23169d61657bdf3f17d5e932493839b604996f92ef9374"
+    },
+    "GraphEdges": {
+      "count": 102,
+      "sha256": "209f9d3bd4ee63429a096dd79cdbac6c7a9893954380272c183d49fa8b440e3f"
+    },
+    "ConsumerGroups": {
+      "count": 5,
+      "sha256": "6d73e5b27ca042089338c4d64be9c3ea791bb72fc7346ba46c04c059c92dfcaf"
+    },
+    "ConsumerCursors": {
+      "count": 80,
+      "sha256": "2eb9e17d35430237a95a8b8c1be2ec1846013df8409cae0183c9b8e324185328"
+    },
+    "ConsumerDeliveries": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeadLetters": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "after": {
+    "Events": {
+      "count": 27,
+      "sha256": "0db5ee70059256a150a035e61ca9a3b49a029ae69683ec3d44028ec1b3749a7d"
+    },
+    "GraphNodes": {
+      "count": 63,
+      "sha256": "0cde9839c9f990892b23169d61657bdf3f17d5e932493839b604996f92ef9374"
+    },
+    "GraphEdges": {
+      "count": 102,
+      "sha256": "209f9d3bd4ee63429a096dd79cdbac6c7a9893954380272c183d49fa8b440e3f"
+    },
+    "ConsumerGroups": {
+      "count": 5,
+      "sha256": "6d73e5b27ca042089338c4d64be9c3ea791bb72fc7346ba46c04c059c92dfcaf"
+    },
+    "ConsumerCursors": {
+      "count": 80,
+      "sha256": "2eb9e17d35430237a95a8b8c1be2ec1846013df8409cae0183c9b8e324185328"
+    },
+    "ConsumerDeliveries": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "ConsumerDeadLetters": {
+      "count": 0,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  }
+}

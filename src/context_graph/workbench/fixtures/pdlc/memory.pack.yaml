@@ -1,0 +1,57 @@
+# Ontology pack: memory (ADR-0018).
+# Beliefs, goals and episodes (ADR-0009 amendment). Must stay equal to
+# domain/models.py and docker/neo4j/constraints.cypher.
+
+pack:
+  name: memory
+  version: 1.0.0
+  requires: [core>=1.0]
+  owner: engram
+  description: Beliefs, goals and episodes derived from agent sessions.
+
+types:
+  nodes:
+    Belief:
+      key: [belief_id]
+      id_property: belief_id
+      properties:
+        belief_id: string
+        belief_text: string
+        confidence: float
+        category: {enum: [user_model, world_model, capability]}
+        created_at: datetime
+        last_confirmed_at: datetime
+        confirmation_count: int
+        superseded_by: string
+      text_fields: [belief_text]
+    Goal:
+      key: [goal_id]
+      id_property: goal_id
+      properties:
+        goal_id: string
+        description: string
+        status: {enum: [active, completed, abandoned, superseded]}
+        created_at: datetime
+        last_active_at: datetime
+        priority: int
+        evidence_count: int
+      text_fields: [description]
+    Episode:
+      key: [episode_id]
+      id_property: episode_id
+      properties:
+        episode_id: string
+        session_id: string
+        start_time: datetime
+        end_time: datetime
+        event_count: int
+        episode_type: {enum: [temporal, causal, thematic]}
+        summary_id: string
+
+  edges:
+    CONTAINS: {from: [Episode], to: ["core:Event"]}
+    PURSUES:  {from: ["core:Entity"], to: [Goal]}
+
+  extends_core_edges:
+    SUPERSEDES:  {from: [Belief], to: [Belief]}
+    CONTRADICTS: {from: [Belief], to: [Belief]}

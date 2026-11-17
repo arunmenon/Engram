@@ -1,0 +1,19 @@
+{
+  "kind": "local_worker_boundary",
+  "cloud_calls": false,
+  "issues": [
+    34,
+    35,
+    42,
+    39
+  ],
+  "source_sha256": {
+    "src/context_graph/adapters/llm/client.py": "05887f7e19feff6cb1c07de3766806198d3d32dfbf1aa4291de0d9facda903c2",
+    "src/context_graph/worker/__main__.py": "830cd018faf256b122d8ace310ade04574271dbeba3e8cbce333bac84556a620",
+    "src/context_graph/worker/extraction.py": "b7cb47da783442629a8efe1e66a102ce81d203d4e31fc84b83a4a4c03bffafd4",
+    "tests/unit/test_extraction_pack_boundary.py": "7f3a232fa8a0a121bd95441c4a6a9f98a56023ddb25870bc5fdd0a44827cf35e",
+    "tests/unit/test_extraction_worker.py": "d4f036ea3fd9c21cfc93ec37135e365256a873adb4f456d7578a51bde145f5e5"
+  },
+  "scope": "Core entity/user extraction capability gates, both model prompts, adversarial unsolicited output, factory validation before stores. Mock ports only; no Redis/Neo4j runners. No tenant/retrieval/cloud signoff.",
+  "run_id": "20261007-local-worker-boundary-01"
+}

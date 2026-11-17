@@ -24,7 +24,7 @@ from context_graph.metrics import (
     CONSUMER_MESSAGES_DEAD_LETTERED,
     CONSUMER_MESSAGES_PROCESSED,
 )
-from context_graph.ports.errors import TRANSIENT_ERRORS
+from context_graph.ports.errors import TRANSIENT_ERRORS, RuntimeFencedError
 from context_graph.ports.subscription import Delivery
 
 if TYPE_CHECKING:
@@ -193,9 +193,13 @@ class BaseConsumer:
                         first_seen_count + failures_this_run.get(entry_id, 0),
                     )
                     if msg_delivery_count > self._max_retries:
-                        await self._dead_letter_message(
-                            entry_id, delivery.fields, msg_delivery_count
-                        )
+                        try:
+                            await self._dead_letter_message(
+                                entry_id, delivery.fields, msg_delivery_count
+                            )
+                        except RuntimeFencedError:
+                            self.stop()
+                            raise
                         CONSUMER_MESSAGES_DEAD_LETTERED.labels(consumer=self._group_name).inc()
                         continue
 
@@ -205,6 +209,9 @@ class BaseConsumer:
                             await self._ack(entry_id)
                         processed_this_run.add(entry_id)
                         CONSUMER_MESSAGES_PROCESSED.labels(consumer=self._group_name).inc()
+                    except RuntimeFencedError:
+                        self.stop()
+                        raise
                     except Exception:
                         failures_this_run[entry_id] = failures_this_run.get(entry_id, 0) + 1
                         failed_in_sweep = True
@@ -257,6 +264,9 @@ class BaseConsumer:
             if not deliveries:
                 try:
                     await self.on_idle()
+                except RuntimeFencedError:
+                    self.stop()
+                    raise
                 except Exception:
                     CONSUMER_MESSAGE_ERRORS.labels(consumer=self._group_name).inc()
                     log.exception(
@@ -273,6 +283,9 @@ class BaseConsumer:
                     if not self.deferred_ack:
                         await self._ack(entry_id)
                     CONSUMER_MESSAGES_PROCESSED.labels(consumer=self._group_name).inc()
+                except RuntimeFencedError:
+                    self.stop()
+                    raise
                 except Exception:
                     CONSUMER_MESSAGE_ERRORS.labels(consumer=self._group_name).inc()
                     # Item stays pending for retry on next read cycle

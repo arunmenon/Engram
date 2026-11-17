@@ -1,0 +1,364 @@
+{
+  "checks": [
+    {
+      "name": "user_active_preferences_categories_patterns_export_and_shared_deletion",
+      "scenarios": [
+        "USER-01",
+        "USER-02"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "before": {
+          "profile": {
+            "created_at": "2026-10-06T14:19:06.395923+00:00",
+            "display_name": "user:bounded-A",
+            "profile_id": "profile:user:bounded-A",
+            "updated_at": "2026-10-06T14:19:06.395923+00:00",
+            "user_id": "user:bounded-A"
+          },
+          "preferences": [
+            {
+              "category": "tool",
+              "confidence": 0.5,
+              "first_observed_at": "2026-10-06T14:19:14.164915+00:00",
+              "key": "format-other",
+              "last_confirmed_at": "2026-10-06T14:19:14.164915+00:00",
+              "observation_count": 1,
+              "polarity": "positive",
+              "preference_id": "pref:bounded-other",
+              "scope": "global",
+              "source": "inferred",
+              "strength": 0.9
+            },
+            {
+              "category": "communication",
+              "confidence": 0.5,
+              "first_observed_at": "2026-10-06T14:19:13.135596+00:00",
+              "key": "format-new",
+              "last_confirmed_at": "2026-10-06T14:19:13.135596+00:00",
+              "observation_count": 1,
+              "polarity": "positive",
+              "preference_id": "pref:bounded-new",
+              "scope": "global",
+              "source": "inferred",
+              "strength": 0.9
+            }
+          ],
+          "skills": [
+            {
+              "category": "domain_knowledge",
+              "created_at": "2026-10-06T14:19:07.366558+00:00",
+              "name": "Python",
+              "skill_id": "skill:bounded-shared"
+            }
+          ],
+          "patterns": [
+            {
+              "last_confirmed_at": "2026-10-06T14:19:15.552058+00:00",
+              "name": "verified pattern",
+              "pattern_id": "pattern:bounded-A"
+            }
+          ],
+          "interests": [
+            {
+              "entity_id": "entity:bounded-topic",
+              "name": "bounded-topic",
+              "entity_type": "technology",
+              "weight": 0.9,
+              "source": "explicit"
+            }
+          ],
+          "data-export": {
+            "user_id": "user:bounded-A",
+            "profile": {
+              "created_at": "2026-10-06T14:19:06.395923+00:00",
+              "display_name": "user:bounded-A",
+              "profile_id": "profile:user:bounded-A",
+              "updated_at": "2026-10-06T14:19:06.395923+00:00",
+              "user_id": "user:bounded-A"
+            },
+            "preferences": [
+              {
+                "category": "communication",
+                "confidence": 0.5,
+                "first_observed_at": "2026-10-06T14:19:13.135596+00:00",
+                "key": "format-new",
+                "last_confirmed_at": "2026-10-06T14:19:13.135596+00:00",
+                "observation_count": 1,
+                "polarity": "positive",
+                "preference_id": "pref:bounded-new",
+                "scope": "global",
+                "source": "inferred",
+                "strength": 0.9
+              },
+              {
+                "category": "communication",
+                "confidence": 0.5,
+                "first_observed_at": "2026-10-06T14:19:12.062059+00:00",
+                "key": "format-old",
+                "last_confirmed_at": "2026-10-06T14:19:12.062059+00:00",
+                "observation_count": 1,
+                "polarity": "positive",
+                "preference_id": "pref:bounded-old",
+                "scope": "global",
+                "source": "inferred",
+                "strength": 0.9,
+                "superseded_by": "pref:bounded-new"
+              },
+              {
+                "category": "tool",
+                "confidence": 0.5,
+                "first_observed_at": "2026-10-06T14:19:14.164915+00:00",
+                "key": "format-other",
+                "last_confirmed_at": "2026-10-06T14:19:14.164915+00:00",
+                "observation_count": 1,
+                "polarity": "positive",
+                "preference_id": "pref:bounded-other",
+                "scope": "global",
+                "source": "inferred",
+                "strength": 0.9
+              }
+            ],
+            "skills": [
+              {
+                "category": "domain_knowledge",
+                "created_at": "2026-10-06T14:19:07.366558+00:00",
+                "name": "Python",
+                "skill_id": "skill:bounded-shared"
+              }
+            ],
+            "patterns": [
+              {
+                "last_confirmed_at": "2026-10-06T14:19:15.552058+00:00",
+                "name": "verified pattern",
+                "pattern_id": "pattern:bounded-A"
+              }
+            ],
+            "interests": [
+              {
+                "entity_id": "entity:bounded-topic",
+                "name": "bounded-topic",
+                "entity_type": "technology",
+                "weight": 0.9,
+                "source": "explicit"
+              }
+            ],
+            "provenance_chains": [
+              {
+                "source_id": "pref:bounded-new",
+                "source_type": "Preference",
+                "event_id": "8eb17e5d-aab1-4867-88ce-bcfc2888b893",
+                "method": "compatibility_fixture",
+                "session_id": "user-feedback",
+                "extracted_at": "2026-10-06T14:19:13.135596+00:00"
+              },
+              {
+                "source_id": "pref:bounded-old",
+                "source_type": "Preference",
+                "event_id": "8eb17e5d-aab1-4867-88ce-bcfc2888b893",
+                "method": "compatibility_fixture",
+                "session_id": "user-feedback",
+                "extracted_at": "2026-10-06T14:19:12.062059+00:00"
+              },
+              {
+                "source_id": "pref:bounded-other",
+                "source_type": "Preference",
+                "event_id": "8eb17e5d-aab1-4867-88ce-bcfc2888b893",
+                "method": "compatibility_fixture",
+                "session_id": "user-feedback",
+                "extracted_at": "2026-10-06T14:19:14.164915+00:00"
+              },
+              {
+                "source_id": "skill:bounded-shared",
+                "source_type": "Skill",
+                "event_id": "8eb17e5d-aab1-4867-88ce-bcfc2888b893",
+                "method": "compatibility_fixture",
+                "session_id": "user-feedback",
+                "extracted_at": "2026-10-06T14:19:10.136867+00:00"
+              }
+            ]
+          }
+        },
+        "category_filtered": [
+          {
+            "category": "communication",
+            "confidence": 0.5,
+            "first_observed_at": "2026-10-06T14:19:13.135596+00:00",
+            "key": "format-new",
+            "last_confirmed_at": "2026-10-06T14:19:13.135596+00:00",
+            "observation_count": 1,
+            "polarity": "positive",
+            "preference_id": "pref:bounded-new",
+            "scope": "global",
+            "source": "inferred",
+            "strength": 0.9
+          }
+        ],
+        "delete": {
+          "deleted_count": 1,
+          "status": "erased"
+        },
+        "after": {
+          "profile": {
+            "status": 404,
+            "body": {
+              "detail": "User profile not found"
+            }
+          },
+          "preferences": {
+            "status": 200,
+            "body": []
+          },
+          "skills": {
+            "status": 200,
+            "body": []
+          },
+          "patterns": {
+            "status": 200,
+            "body": []
+          },
+          "interests": {
+            "status": 200,
+            "body": []
+          }
+        },
+        "other_user_shared_nodes_preserved": [
+          "skill:bounded-shared",
+          "entity:bounded-topic"
+        ],
+        "ledger_documents_preserved": 3,
+        "scope": "fixture data through public UserStore/PackGraph ports plus actual API read/export/delete; core interest extraction remains failed #20"
+      },
+      "seconds": 15.55
+    },
+    {
+      "name": "feedback_clamps_duplicate_overlap_missing_and_resubmission_audits",
+      "scenarios": [
+        "FB-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "responses": [
+          {
+            "query_id": "bounded-feedback",
+            "global_position": "2026-10-06T14:19:22.134767000Z/000000/0cd02084-72f1-476a-9b7e-ac2abb0da088",
+            "bumped": 3,
+            "decremented": 3
+          },
+          {
+            "query_id": "bounded-feedback",
+            "global_position": "2026-10-06T14:19:24.400847000Z/000000/3c4cdf0b-d68c-42af-a936-d2418879e5d1",
+            "bumped": 3,
+            "decremented": 3
+          }
+        ],
+        "importance": [
+          10,
+          1,
+          5
+        ],
+        "audit_documents": [
+          {
+            "agent_id": "system",
+            "ended_at": null,
+            "event_id": "0cd02084-72f1-476a-9b7e-ac2abb0da088",
+            "event_type": "system.feedback",
+            "global_position": "2026-10-06T14:19:22.134767000Z/000000/0cd02084-72f1-476a-9b7e-ac2abb0da088",
+            "importance_hint": null,
+            "occurred_at": "2026-10-06T14:19:21.961548Z",
+            "parent_event_id": null,
+            "payload": {
+              "helpful_node_ids": [
+                "8eb17e5d-aab1-4867-88ce-bcfc2888b893",
+                "8eb17e5d-aab1-4867-88ce-bcfc2888b893",
+                "5c35fe44-b92e-40c7-b18d-f5a5f6a588d1",
+                "missing-node"
+              ],
+              "irrelevant_node_ids": [
+                "7e2fd966-3bbb-4909-8ba4-9bd4dcdf2ca8",
+                "7e2fd966-3bbb-4909-8ba4-9bd4dcdf2ca8",
+                "5c35fe44-b92e-40c7-b18d-f5a5f6a588d1",
+                "missing-node"
+              ],
+              "query_id": "bounded-feedback"
+            },
+            "payload_ref": "feedback:bounded-feedback",
+            "schema_version": 1,
+            "search_text": "bounded-feedback 8eb17e5d-aab1-4867-88ce-bcfc2888b893 8eb17e5d-aab1-4867-88ce-bcfc2888b893 5c35fe44-b92e-40c7-b18d-f5a5f6a588d1 missing-node 7e2fd966-3bbb-4909-8ba4-9bd4dcdf2ca8 7e2fd966-3bbb-4909-8ba4-9bd4dcdf2ca8 5c35fe44-b92e-40c7-b18d-f5a5f6a588d1 missing-node",
+            "session_id": "user-feedback",
+            "status": null,
+            "tool_name": null,
+            "trace_id": "bounded-feedback"
+          },
+          {
+            "agent_id": "system",
+            "ended_at": null,
+            "event_id": "3c4cdf0b-d68c-42af-a936-d2418879e5d1",
+            "event_type": "system.feedback",
+            "global_position": "2026-10-06T14:19:24.400847000Z/000000/3c4cdf0b-d68c-42af-a936-d2418879e5d1",
+            "importance_hint": null,
+            "occurred_at": "2026-10-06T14:19:24.231944Z",
+            "parent_event_id": null,
+            "payload": {
+              "helpful_node_ids": [
+                "8eb17e5d-aab1-4867-88ce-bcfc2888b893",
+                "8eb17e5d-aab1-4867-88ce-bcfc2888b893",
+                "5c35fe44-b92e-40c7-b18d-f5a5f6a588d1",
+                "missing-node"
+              ],
+              "irrelevant_node_ids": [
+                "7e2fd966-3bbb-4909-8ba4-9bd4dcdf2ca8",
+                "7e2fd966-3bbb-4909-8ba4-9bd4dcdf2ca8",
+                "5c35fe44-b92e-40c7-b18d-f5a5f6a588d1",
+                "missing-node"
+              ],
+              "query_id": "bounded-feedback"
+            },
+            "payload_ref": "feedback:bounded-feedback",
+            "schema_version": 1,
+            "search_text": "bounded-feedback 8eb17e5d-aab1-4867-88ce-bcfc2888b893 8eb17e5d-aab1-4867-88ce-bcfc2888b893 5c35fe44-b92e-40c7-b18d-f5a5f6a588d1 missing-node 7e2fd966-3bbb-4909-8ba4-9bd4dcdf2ca8 7e2fd966-3bbb-4909-8ba4-9bd4dcdf2ca8 5c35fe44-b92e-40c7-b18d-f5a5f6a588d1 missing-node",
+            "session_id": "user-feedback",
+            "status": null,
+            "tool_name": null,
+            "trace_id": "bounded-feedback"
+          }
+        ],
+        "semantics": "each duplicate ID adjusts again; overlaps apply helpful then irrelevant; clamps1..10; each request has a distinct audit"
+      },
+      "seconds": 5.01
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 5
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 6
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 5
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

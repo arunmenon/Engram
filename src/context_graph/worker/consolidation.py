@@ -16,7 +16,6 @@ Source: ADR-0008 Stage 3, ADR-0013 Consumer 4, ADR-0014
 from __future__ import annotations
 
 import asyncio
-import contextlib
 from typing import TYPE_CHECKING, Any
 
 import structlog
@@ -27,6 +26,7 @@ from context_graph.domain.consolidation import (
     group_events_into_episodes,
     should_reconsolidate,
 )
+from context_graph.ports.errors import RuntimeFencedError
 from context_graph.worker.consumer import BaseConsumer
 
 if TYPE_CHECKING:
@@ -75,12 +75,18 @@ class ConsolidationConsumer(BaseConsumer):
     async def run(self) -> None:
         """Start the timer loop alongside the base consumer loop."""
         timer_task = asyncio.create_task(self._timer_loop())
+        consumer_task = asyncio.create_task(super().run())
         try:
-            await super().run()
+            done, _ = await asyncio.wait(
+                (timer_task, consumer_task), return_when=asyncio.FIRST_COMPLETED
+            )
+            if timer_task in done:
+                await timer_task  # Propagate a fenced background cycle immediately.
+            await consumer_task
         finally:
             timer_task.cancel()
-            with contextlib.suppress(asyncio.CancelledError):
-                await timer_task
+            consumer_task.cancel()
+            await asyncio.gather(timer_task, consumer_task, return_exceptions=True)
 
     async def _timer_loop(self) -> None:
         """Periodically trigger consolidation cycles (ADR-0014)."""
@@ -129,6 +135,9 @@ class ConsolidationConsumer(BaseConsumer):
             log.info("consolidation_cycle_started", source=source)
             try:
                 await self._run_consolidation_cycle()
+            except RuntimeFencedError:
+                self.stop()
+                raise
             except Exception:
                 log.exception("consolidation_cycle_failed", source=source)
             else:

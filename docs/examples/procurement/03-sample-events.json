@@ -1,0 +1,399 @@
+[
+  {
+    "event_id": "procurement-pilot-001",
+    "event_type": "procurement.supplier.recorded",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:00:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "supplier_id": "VEN-1",
+      "name": "Atlas Office Supplies"
+    }
+  },
+  {
+    "event_id": "procurement-pilot-002",
+    "event_type": "procurement.request.submitted",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:01:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "request_id": "PR-100",
+      "description": "Monitor refresh",
+      "requester_id": "employee-17",
+      "amount_minor": 100000,
+      "currency": "USD"
+    }
+  },
+  {
+    "event_id": "procurement-pilot-003",
+    "event_type": "procurement.request.approved",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:02:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "request_id": "PR-100",
+      "approver_id": "manager-8",
+      "decision_id": "D-100"
+    }
+  },
+  {
+    "event_id": "procurement-pilot-004",
+    "event_type": "procurement.order.issued",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:03:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "order_id": "PO-100",
+      "request_id": "PR-100",
+      "supplier_id": "VEN-1",
+      "currency": "USD"
+    }
+  },
+  {
+    "event_id": "procurement-pilot-005",
+    "event_type": "procurement.order_line.recorded",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:04:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "order_id": "PO-100",
+      "line_id": "1",
+      "description": "Monitors",
+      "quantity": 10,
+      "unit_price_minor": 10000
+    }
+  },
+  {
+    "event_id": "procurement-pilot-006",
+    "event_type": "procurement.receipt.recorded",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:05:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "receipt_id": "GR-100",
+      "order_id": "PO-100",
+      "line_id": "1",
+      "received_quantity": 10
+    }
+  },
+  {
+    "event_id": "procurement-pilot-007",
+    "event_type": "procurement.invoice.received",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:06:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "invoice_id": "INV-100",
+      "order_id": "PO-100",
+      "line_id": "1",
+      "supplier_id": "VEN-1",
+      "quantity": 10,
+      "amount_minor": 100000,
+      "currency": "USD"
+    }
+  },
+  {
+    "event_id": "procurement-pilot-008",
+    "event_type": "procurement.match.assessed",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:07:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "assessment_id": "M-100",
+      "invoice_id": "INV-100",
+      "verdict": "matched",
+      "ordered_quantity": 10,
+      "received_quantity": 10,
+      "invoiced_quantity": 10,
+      "reason": "Ordered, received and invoiced quantities agree."
+    }
+  },
+  {
+    "event_id": "procurement-pilot-009",
+    "event_type": "procurement.request.submitted",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:08:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "request_id": "PR-200",
+      "description": "Keyboard refresh",
+      "requester_id": "employee-17",
+      "amount_minor": 100000,
+      "currency": "USD"
+    }
+  },
+  {
+    "event_id": "procurement-pilot-010",
+    "event_type": "procurement.request.approved",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:09:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "request_id": "PR-200",
+      "approver_id": "manager-8",
+      "decision_id": "D-200"
+    }
+  },
+  {
+    "event_id": "procurement-pilot-011",
+    "event_type": "procurement.order.issued",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:10:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "order_id": "PO-200",
+      "request_id": "PR-200",
+      "supplier_id": "VEN-1",
+      "currency": "USD"
+    }
+  },
+  {
+    "event_id": "procurement-pilot-012",
+    "event_type": "procurement.order_line.recorded",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:11:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "order_id": "PO-200",
+      "line_id": "1",
+      "description": "Keyboards",
+      "quantity": 10,
+      "unit_price_minor": 10000
+    }
+  },
+  {
+    "event_id": "procurement-pilot-013",
+    "event_type": "procurement.receipt.recorded",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:12:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "receipt_id": "GR-200A",
+      "order_id": "PO-200",
+      "line_id": "1",
+      "received_quantity": 4
+    }
+  },
+  {
+    "event_id": "procurement-pilot-014",
+    "event_type": "procurement.receipt.recorded",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:13:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "receipt_id": "GR-200B",
+      "order_id": "PO-200",
+      "line_id": "1",
+      "received_quantity": 6
+    }
+  },
+  {
+    "event_id": "procurement-pilot-015",
+    "event_type": "procurement.invoice.received",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:14:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "invoice_id": "INV-200",
+      "order_id": "PO-200",
+      "line_id": "1",
+      "supplier_id": "VEN-1",
+      "quantity": 12,
+      "amount_minor": 120000,
+      "currency": "USD"
+    }
+  },
+  {
+    "event_id": "procurement-pilot-016",
+    "event_type": "procurement.match.assessed",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:15:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "assessment_id": "M-200",
+      "invoice_id": "INV-200",
+      "verdict": "quantity_mismatch",
+      "ordered_quantity": 10,
+      "received_quantity": 10,
+      "invoiced_quantity": 12,
+      "reason": "Invoice bills 12 units; order and two receipts cover only 10."
+    }
+  },
+  {
+    "event_id": "procurement-pilot-017",
+    "event_type": "procurement.supplier.recorded",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:16:00+00:00",
+    "payload": {
+      "company_id": "eu",
+      "supplier_id": "VEN-1",
+      "name": "Atlas Office Supplies"
+    }
+  },
+  {
+    "event_id": "procurement-pilot-018",
+    "event_type": "procurement.request.submitted",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:17:00+00:00",
+    "payload": {
+      "company_id": "eu",
+      "request_id": "PR-100",
+      "description": "Monitor refresh",
+      "requester_id": "employee-17",
+      "amount_minor": 100000,
+      "currency": "EUR"
+    }
+  },
+  {
+    "event_id": "procurement-pilot-019",
+    "event_type": "procurement.request.approved",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:18:00+00:00",
+    "payload": {
+      "company_id": "eu",
+      "request_id": "PR-100",
+      "approver_id": "manager-8",
+      "decision_id": "D-100"
+    }
+  },
+  {
+    "event_id": "procurement-pilot-020",
+    "event_type": "procurement.order.issued",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:19:00+00:00",
+    "payload": {
+      "company_id": "eu",
+      "order_id": "PO-100",
+      "request_id": "PR-100",
+      "supplier_id": "VEN-1",
+      "currency": "EUR"
+    }
+  },
+  {
+    "event_id": "procurement-pilot-021",
+    "event_type": "procurement.order_line.recorded",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:20:00+00:00",
+    "payload": {
+      "company_id": "eu",
+      "order_id": "PO-100",
+      "line_id": "1",
+      "description": "Monitors",
+      "quantity": 10,
+      "unit_price_minor": 10000
+    }
+  },
+  {
+    "event_id": "procurement-pilot-022",
+    "event_type": "procurement.receipt.recorded",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:21:00+00:00",
+    "payload": {
+      "company_id": "eu",
+      "receipt_id": "GR-100",
+      "order_id": "PO-100",
+      "line_id": "1",
+      "received_quantity": 10
+    }
+  },
+  {
+    "event_id": "procurement-pilot-023",
+    "event_type": "procurement.invoice.received",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:22:00+00:00",
+    "payload": {
+      "company_id": "eu",
+      "invoice_id": "INV-100",
+      "order_id": "PO-100",
+      "line_id": "1",
+      "supplier_id": "VEN-1",
+      "quantity": 10,
+      "amount_minor": 100000,
+      "currency": "EUR"
+    }
+  },
+  {
+    "event_id": "procurement-pilot-024",
+    "event_type": "procurement.match.assessed",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:23:00+00:00",
+    "payload": {
+      "company_id": "eu",
+      "assessment_id": "M-100",
+      "invoice_id": "INV-100",
+      "verdict": "matched",
+      "ordered_quantity": 10,
+      "received_quantity": 10,
+      "invoiced_quantity": 10,
+      "reason": "Ordered, received and invoiced quantities agree."
+    }
+  },
+  {
+    "event_id": "procurement-pilot-025",
+    "event_type": "procurement.note.added",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:24:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "order_id": "PO-200",
+      "text": "Ask supplier to correct the two-unit overbilling; do not execute payment."
+    }
+  },
+  {
+    "event_id": "procurement-pilot-026",
+    "event_type": "procurement.request.rejected",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:25:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "request_id": "PR-100",
+      "rejected_by": "manager-9",
+      "decision_id": "D-late",
+      "reason": "Late notification: state guard must preserve approved."
+    }
+  },
+  {
+    "event_id": "procurement-pilot-005",
+    "event_type": "procurement.order_line.recorded",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:04:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "order_id": "PO-100",
+      "line_id": "1",
+      "description": "Monitors",
+      "quantity": 10,
+      "unit_price_minor": 10000
+    }
+  },
+  {
+    "event_id": "procurement-pilot-028",
+    "event_type": "procurement.invoice.received",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:27:00+00:00",
+    "payload": {
+      "invoice_id": "INV-BAD",
+      "order_id": "PO-100",
+      "line_id": "1",
+      "supplier_id": "VEN-1",
+      "quantity": 1,
+      "amount_minor": 10000,
+      "currency": "USD"
+    },
+    "expect_admitted": false
+  },
+  {
+    "event_id": "procurement-pilot-029",
+    "event_type": "procurement.receipt.recorded",
+    "producer_id": "procurement-adapter",
+    "occurred_at": "2026-11-01T09:28:00+00:00",
+    "payload": {
+      "company_id": "us",
+      "receipt_id": "GR-BAD",
+      "order_id": "PO-200",
+      "line_id": "1",
+      "received_quantity": "ten"
+    },
+    "expect_admitted": false
+  }
+]

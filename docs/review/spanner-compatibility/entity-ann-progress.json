@@ -1,0 +1,62 @@
+{
+  "status": "in_progress",
+  "issue": 44,
+  "implemented_locally": [
+    "Entity-only generated membership and new filtered native ANN index",
+    "Strict expression/filter/dimensions/readiness handshake",
+    "Canonical Entity return identity checks",
+    "Additive planner/executor with no destructive DDL",
+    "Coexistence write/delete accounting including prior physical embeddings",
+    "Database-scoped exact-operation GET recovery with durable target/request digest and bounded submission count",
+    "Explicit terminal-parent retry; RPC errors cannot erase unresolved state; canonical metadata formatting accepted without changing request digest"
+  ],
+  "local_result": "93 passed, 10 integration tests deselected",
+  "local_run": "runs/20261007-local-ddl-recovery-03",
+  "design_review": "2026-10-07-astra-entity-ann-design-review.md",
+  "implementation_review": "2026-10-07-astra-entity-ann-implementation-review.md",
+  "cloud_inspection": "runs/20261007-cloud-entity-ann-inspect-01",
+  "cloud_upgrade_attempt": "runs/20261007-cloud-entity-ann-upgrade-01",
+  "cloud_permission_diagnostic": "runs/20261007-cloud-entity-ann-iam-01",
+  "cloud_findings": [
+    "Fresh token obtained through user token script; private credential file only",
+    "Real engram database is legacy-only and requires two additive schema objects",
+    "Read-only graph fingerprint unchanged",
+    "Upgrade stopped before DDL submission: SDK list_database_operations uses instance parent and is denied",
+    "TestIamPermissions confirms all requested DDL operation/get/list/update permissions at DATABASE scope; do not claim token lacks database admin rights",
+    "Need database-scoped known-operation recovery instead of instance-wide listing; Astra medium follow-up requested",
+    "SDK optional Cloud Monitoring exporter lacks monitoring.timeSeries.create; schema reads still succeeded",
+    "Exact database operation GET/submission works with existing database-scoped token; no IAM change",
+    "Server canonicalizes DDL whitespace in operation metadata; strictly ordered token equality now reconciles the unchanged request",
+    "Known DDL operation completed successfully and resumed without another submission; data hashes unchanged",
+    "Native Entity-only ANN fixture verified on upgraded real database; six checks passed and run-owned rows/edges removed. Adapter reconstruction is not full-process restart evidence."
+  ],
+  "submitted_ddl_operations": [
+    "projects/portiq-mvp/instances/engram-experiment/databases/engram/operations/engram_ann_68b0c66ce3b944bdafbef6dbdd517a25"
+  ],
+  "pending": [
+    "Publish reviewed runtime and redacted evidence before issue closure",
+    "Broader mixed-ID retrieval, failure recovery, composition/tenant and baseline acceptance remain under #34/#41"
+  ],
+  "compatibility_signoff": false,
+  "baseline_scenarios_changed": false,
+  "db_scoped_design_review": "2026-10-07-astra-db-scoped-ddl-design-review.md",
+  "db_scoped_implementation_review": "2026-10-07-astra-db-scoped-ddl-implementation-review.md",
+  "cloud_upgrade_attempts": [
+    "runs/20261007-cloud-entity-ann-upgrade-01",
+    "runs/20261007-cloud-entity-ann-upgrade-02",
+    "runs/20261007-cloud-entity-ann-upgrade-03"
+  ],
+  "cloud_operation_observation": "runs/20261007-cloud-entity-ann-observe-01",
+  "cloud_upgrade_result": "Successful exact-operation reconciliation; compatible READ_WRITE schema; second apply no DDL; original pre-upgrade graph fingerprint unchanged",
+  "cloud_native_ann_run": "runs/20261007-cloud-entity-ann-verify-01",
+  "cloud_native_ann_result": "6/6 real-Spanner assertions passed: 65 closer non-Entity vectors excluded before top-k; typed Entity hits resolve correct evidence Events despite raw-ID collision; adapter reconstruction; update/removal; exact owned cleanup and unchanged existing node/edge hashes",
+  "fixture_review": "2026-10-07-astra-entity-ann-fixture-review.md",
+  "cloud_api_startup_run": "runs/20261007-cloud-entity-ann-startup-01",
+  "cloud_api_startup_result": "4/4 passed: two independent healthy real-Spanner API processes, compatible unchanged schema and unchanged existing GraphNodes. Both processes stopped. Explicit-token/scripted-provider bootstrap only, no worker/ADC acceptance.",
+  "cloud_bulk_run": "runs/20261007-cloud-entity-ann-bulk-01",
+  "cloud_bulk_result": "3/3 passed: six Entity inserts and replacements each split 2/2/2, retained properties and physical replacement embeddings/membership verified, exact cleanup and existing GraphNodes hash preserved. Legacy and filtered vector indexes coexist. Estimated-budget acceptance, not service-limit stress.",
+  "cloud_dimension_refusal_run": "runs/20261006-cloud-schema-d8ead18a",
+  "cloud_dimension_refusal_result": "Passed on 2026-10-07 despite legacy runner ID date prefix: 3D configuration refused against 384D schema, API exited3, no healthy service/native ANN attempt; no resets.",
+  "cloud_worker_process_run": "runs/20261006-cloud-processes-03fd8ecd",
+  "cloud_worker_process_result": "API+five independent workers completed journey; extracted Entity384-vector self-hit via native ANN and scoped full-text passed. All stopped. Single-config smoke; failure recovery and tenant acceptance separate."
+}

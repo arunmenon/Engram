@@ -1,0 +1,2702 @@
+{
+  "pending_intents": {
+    "pdlc": {
+      "intent": "trace",
+      "status": 409
+    },
+    "crm": {
+      "intent": "pipeline",
+      "status": 409
+    }
+  },
+  "cleared_intents": {
+    "pdlc": 200,
+    "crm": 200
+  },
+  "unknown_intent_status": 422,
+  "ontology_status": {
+    "version": "sha256:ae97ca85cb6403f5",
+    "packs": [
+      {
+        "name": "core",
+        "version": "1.1.0",
+        "owner": "engram"
+      },
+      {
+        "name": "memory",
+        "version": "1.0.0",
+        "owner": "engram"
+      },
+      {
+        "name": "user",
+        "version": "1.0.0",
+        "owner": "engram"
+      },
+      {
+        "name": "crm",
+        "version": "1.0.0",
+        "owner": "docs"
+      },
+      {
+        "name": "pdlc",
+        "version": "1.7.0",
+        "owner": "TBD"
+      }
+    ],
+    "node_types": {
+      "Account": {
+        "pack": "crm",
+        "key": [
+          "account_id"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Sourced"
+        ],
+        "properties": {
+          "account_id": "string",
+          "industry": "string",
+          "name": "string",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          }
+        },
+        "lifecycle": null
+      },
+      "BehavioralPattern": {
+        "pack": "user",
+        "key": [
+          "pattern_id"
+        ],
+        "key_property": "pattern_id",
+        "interfaces": [],
+        "properties": {
+          "access_count": "int",
+          "confidence": "float",
+          "description": "string",
+          "first_detected_at": "datetime",
+          "involved_agents": "list<string>",
+          "last_confirmed_at": "datetime",
+          "observation_count": "int",
+          "pattern_id": "string",
+          "pattern_type": {
+            "enum": [
+              "delegation",
+              "escalation",
+              "routine",
+              "avoidance",
+              "exploration",
+              "specialization"
+            ]
+          },
+          "stability": "float"
+        },
+        "lifecycle": null
+      },
+      "Belief": {
+        "pack": "memory",
+        "key": [
+          "belief_id"
+        ],
+        "key_property": "belief_id",
+        "interfaces": [],
+        "properties": {
+          "belief_id": "string",
+          "belief_text": "string",
+          "category": {
+            "enum": [
+              "user_model",
+              "world_model",
+              "capability"
+            ]
+          },
+          "confidence": "float",
+          "confirmation_count": "int",
+          "created_at": "datetime",
+          "last_confirmed_at": "datetime",
+          "superseded_by": "string"
+        },
+        "lifecycle": null
+      },
+      "Change": {
+        "pack": "pdlc",
+        "key": [
+          "repo",
+          "number"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Lifecycled",
+          "Anchored",
+          "Sourced"
+        ],
+        "properties": {
+          "anchor_path": "string",
+          "body": "text",
+          "change_type": "string",
+          "content_hash": "string",
+          "files": "list<string>",
+          "head_sha": "string",
+          "merge_sha": "string",
+          "number": "int",
+          "repo": "string",
+          "scope": "string",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "source_uri": "string",
+          "status": "string",
+          "status_changed_at": "datetime",
+          "ticket_exempt": "bool",
+          "title": "string"
+        },
+        "lifecycle": {
+          "initial": "open",
+          "states": [
+            "open",
+            "reviewed",
+            "merged",
+            "abandoned"
+          ]
+        }
+      },
+      "Component": {
+        "pack": "pdlc",
+        "key": [
+          "catalog_name"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Owned",
+          "Lifecycled",
+          "Sourced"
+        ],
+        "properties": {
+          "catalog_name": "string",
+          "kind": {
+            "enum": [
+              "service",
+              "library_module",
+              "binding",
+              "website",
+              "other"
+            ]
+          },
+          "path_prefixes": "list<string>",
+          "repo": "string",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "status": "string",
+          "status_changed_at": "datetime",
+          "system": "string",
+          "tier": "string"
+        },
+        "lifecycle": {
+          "initial": "production",
+          "states": [
+            "experimental",
+            "production",
+            "deprecated"
+          ]
+        }
+      },
+      "Constraint": {
+        "pack": "pdlc",
+        "key": [
+          "content_hash"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Lifecycled",
+          "Claim",
+          "Sourced"
+        ],
+        "properties": {
+          "confidence": "float",
+          "content_hash": "string",
+          "method": "string",
+          "scope": "string",
+          "severity": "string",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "statement": "text",
+          "status": "string",
+          "status_changed_at": "datetime"
+        },
+        "lifecycle": {
+          "initial": "active",
+          "states": [
+            "active",
+            "relaxed",
+            "retired"
+          ]
+        }
+      },
+      "Contact": {
+        "pack": "crm",
+        "key": [
+          "email"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Sourced"
+        ],
+        "properties": {
+          "email": "string",
+          "name": "string",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "title": "string"
+        },
+        "lifecycle": null
+      },
+      "Deal": {
+        "pack": "crm",
+        "key": [
+          "deal_id"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Lifecycled",
+          "Sourced"
+        ],
+        "properties": {
+          "amount": "float",
+          "deal_id": "string",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "status": "string",
+          "status_changed_at": "datetime",
+          "title": "string"
+        },
+        "lifecycle": {
+          "initial": "open",
+          "states": [
+            "open",
+            "won",
+            "lost",
+            "replaced"
+          ]
+        }
+      },
+      "Decision": {
+        "pack": "pdlc",
+        "key": [
+          "content_hash"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Lifecycled",
+          "Anchored",
+          "Claim",
+          "Sourced"
+        ],
+        "properties": {
+          "alternatives": "text",
+          "anchor_path": "string",
+          "confidence": "float",
+          "content_hash": "string",
+          "decided_at": "datetime",
+          "method": "string",
+          "rationale": "text",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "source_uri": "string",
+          "statement": "text",
+          "status": "string",
+          "status_changed_at": "datetime",
+          "valid_from": "datetime",
+          "valid_to": "datetime"
+        },
+        "lifecycle": {
+          "initial": "proposed",
+          "states": [
+            "proposed",
+            "accepted",
+            "superseded",
+            "reversed"
+          ]
+        }
+      },
+      "Deployment": {
+        "pack": "pdlc",
+        "key": [
+          "environment",
+          "artifact_id",
+          "started_at"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Lifecycled",
+          "Sourced"
+        ],
+        "properties": {
+          "artifact_id": "string",
+          "environment": "string",
+          "repo": "string",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "started_at": "datetime",
+          "status": "string",
+          "status_changed_at": "datetime"
+        },
+        "lifecycle": {
+          "initial": "started",
+          "states": [
+            "started",
+            "succeeded",
+            "failed",
+            "rolled_back"
+          ]
+        }
+      },
+      "DesignElement": {
+        "pack": "pdlc",
+        "key": [
+          "doc_id",
+          "section_path"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Lifecycled",
+          "Anchored",
+          "Versioned",
+          "Sourced"
+        ],
+        "properties": {
+          "anchor_path": "string",
+          "body": "text",
+          "content_hash": "string",
+          "doc_id": "string",
+          "kind": {
+            "enum": [
+              "hld",
+              "lld"
+            ]
+          },
+          "section_path": "string",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "source_uri": "string",
+          "status": "string",
+          "status_changed_at": "datetime",
+          "title": "string",
+          "version": "string"
+        },
+        "lifecycle": {
+          "initial": "draft",
+          "states": [
+            "draft",
+            "reviewed",
+            "approved",
+            "superseded"
+          ]
+        }
+      },
+      "Entity": {
+        "pack": "core",
+        "key": [
+          "entity_id"
+        ],
+        "key_property": "entity_id",
+        "interfaces": [],
+        "properties": {
+          "embedding": "list<float>",
+          "entity_id": "string",
+          "entity_type": {
+            "enum": [
+              "agent",
+              "user",
+              "service",
+              "tool",
+              "resource",
+              "concept"
+            ]
+          },
+          "first_seen": "datetime",
+          "last_seen": "datetime",
+          "mention_count": "int",
+          "name": "string"
+        },
+        "lifecycle": null
+      },
+      "Episode": {
+        "pack": "memory",
+        "key": [
+          "episode_id"
+        ],
+        "key_property": "episode_id",
+        "interfaces": [],
+        "properties": {
+          "end_time": "datetime",
+          "episode_id": "string",
+          "episode_type": {
+            "enum": [
+              "temporal",
+              "causal",
+              "thematic"
+            ]
+          },
+          "event_count": "int",
+          "session_id": "string",
+          "start_time": "datetime",
+          "summary_id": "string"
+        },
+        "lifecycle": null
+      },
+      "Event": {
+        "pack": "core",
+        "key": [
+          "event_id"
+        ],
+        "key_property": "event_id",
+        "interfaces": [],
+        "properties": {
+          "access_count": "int",
+          "agent_id": "string",
+          "embedding": "list<float>",
+          "event_id": "string",
+          "event_type": "string",
+          "global_position": "string",
+          "importance_score": "int",
+          "keywords": "list<string>",
+          "last_accessed_at": "datetime",
+          "occurred_at": "datetime",
+          "session_id": "string",
+          "summary": "string",
+          "tool_name": "string",
+          "trace_id": "string"
+        },
+        "lifecycle": null
+      },
+      "Goal": {
+        "pack": "memory",
+        "key": [
+          "goal_id"
+        ],
+        "key_property": "goal_id",
+        "interfaces": [],
+        "properties": {
+          "created_at": "datetime",
+          "description": "string",
+          "evidence_count": "int",
+          "goal_id": "string",
+          "last_active_at": "datetime",
+          "priority": "int",
+          "status": {
+            "enum": [
+              "active",
+              "completed",
+              "abandoned",
+              "superseded"
+            ]
+          }
+        },
+        "lifecycle": null
+      },
+      "Incident": {
+        "pack": "pdlc",
+        "key": [
+          "incident_id"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Lifecycled",
+          "Owned",
+          "Sourced"
+        ],
+        "properties": {
+          "artifact_id": "string",
+          "environment": "string",
+          "incident_id": "string",
+          "severity": "string",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "status": "string",
+          "status_changed_at": "datetime",
+          "summary": "text",
+          "ticket_uri": "string",
+          "title": "string"
+        },
+        "lifecycle": {
+          "initial": "detected",
+          "states": [
+            "detected",
+            "mitigated",
+            "resolved",
+            "postmortem_done"
+          ]
+        }
+      },
+      "Lesson": {
+        "pack": "pdlc",
+        "key": [
+          "content_hash"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Claim",
+          "Lifecycled",
+          "Sourced"
+        ],
+        "properties": {
+          "confidence": "float",
+          "content_hash": "string",
+          "method": "string",
+          "polarity": {
+            "enum": [
+              "apply",
+              "avoid"
+            ]
+          },
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "statement": "text",
+          "status": "string",
+          "status_changed_at": "datetime",
+          "support_count": "int"
+        },
+        "lifecycle": {
+          "initial": "tentative",
+          "states": [
+            "tentative",
+            "validated",
+            "deprecated"
+          ]
+        }
+      },
+      "Preference": {
+        "pack": "user",
+        "key": [
+          "preference_id"
+        ],
+        "key_property": "preference_id",
+        "interfaces": [],
+        "properties": {
+          "access_count": "int",
+          "category": {
+            "enum": [
+              "tool",
+              "workflow",
+              "communication",
+              "domain",
+              "environment",
+              "style"
+            ]
+          },
+          "confidence": "float",
+          "consent_ref": "string",
+          "context": "string",
+          "first_observed_at": "datetime",
+          "key": "string",
+          "last_confirmed_at": "datetime",
+          "observation_count": "int",
+          "polarity": {
+            "enum": [
+              "positive",
+              "negative",
+              "neutral"
+            ]
+          },
+          "preference_id": "string",
+          "scope": {
+            "enum": [
+              "global",
+              "agent",
+              "session"
+            ]
+          },
+          "scope_id": "string",
+          "source": {
+            "enum": [
+              "explicit",
+              "implicit_intentional",
+              "implicit_unintentional",
+              "inferred"
+            ]
+          },
+          "stability": "float",
+          "strength": "float",
+          "superseded_by": "string"
+        },
+        "lifecycle": null
+      },
+      "Release": {
+        "pack": "pdlc",
+        "key": [
+          "repo",
+          "version"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Sourced"
+        ],
+        "properties": {
+          "breaking": "bool",
+          "released_at": "datetime",
+          "repo": "string",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "version": "string"
+        },
+        "lifecycle": null
+      },
+      "Request": {
+        "pack": "pdlc",
+        "key": [
+          "source_system",
+          "external_id"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Lifecycled",
+          "Owned",
+          "Sourced"
+        ],
+        "properties": {
+          "description": "text",
+          "external_id": "string",
+          "priority": "string",
+          "source_system": "string",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "status": "string",
+          "status_changed_at": "datetime",
+          "title": "string"
+        },
+        "lifecycle": {
+          "initial": "new",
+          "states": [
+            "new",
+            "triaged",
+            "accepted",
+            "rejected",
+            "done"
+          ]
+        }
+      },
+      "Requirement": {
+        "pack": "pdlc",
+        "key": [
+          "spec_id",
+          "local_id"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Lifecycled",
+          "Anchored",
+          "Sourced"
+        ],
+        "properties": {
+          "anchor_path": "string",
+          "content_hash": "string",
+          "local_id": "string",
+          "priority": "string",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "source_uri": "string",
+          "spec_id": "string",
+          "statement": "text",
+          "status": "string",
+          "status_changed_at": "datetime"
+        },
+        "lifecycle": {
+          "initial": "proposed",
+          "states": [
+            "proposed",
+            "accepted",
+            "implemented",
+            "verified",
+            "retired"
+          ]
+        }
+      },
+      "Review": {
+        "pack": "pdlc",
+        "key": [
+          "repo",
+          "number",
+          "review_id"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Sourced"
+        ],
+        "properties": {
+          "number": "int",
+          "repo": "string",
+          "review_id": "string",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "verdict": {
+            "enum": [
+              "commented",
+              "approved",
+              "changes_requested"
+            ]
+          }
+        },
+        "lifecycle": null
+      },
+      "Skill": {
+        "pack": "user",
+        "key": [
+          "skill_id"
+        ],
+        "key_property": "skill_id",
+        "interfaces": [],
+        "properties": {
+          "category": "string",
+          "created_at": "datetime",
+          "description": "string",
+          "name": "string",
+          "skill_id": "string"
+        },
+        "lifecycle": null
+      },
+      "Spec": {
+        "pack": "pdlc",
+        "key": [
+          "doc_id",
+          "version"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Lifecycled",
+          "Anchored",
+          "Versioned",
+          "Sourced"
+        ],
+        "properties": {
+          "acceptance_criteria": "text",
+          "anchor_path": "string",
+          "content_hash": "string",
+          "doc_id": "string",
+          "scope": "text",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "source_uri": "string",
+          "status": "string",
+          "status_changed_at": "datetime",
+          "title": "string",
+          "version": "string"
+        },
+        "lifecycle": {
+          "initial": "draft",
+          "states": [
+            "draft",
+            "approved",
+            "superseded"
+          ]
+        }
+      },
+      "Summary": {
+        "pack": "core",
+        "key": [
+          "summary_id"
+        ],
+        "key_property": "summary_id",
+        "interfaces": [],
+        "properties": {
+          "content": "string",
+          "created_at": "datetime",
+          "event_count": "int",
+          "scope": "string",
+          "scope_id": "string",
+          "summary_id": "string",
+          "time_range": "list<datetime>"
+        },
+        "lifecycle": null
+      },
+      "Team": {
+        "pack": "pdlc",
+        "key": [
+          "catalog_name"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Sourced"
+        ],
+        "properties": {
+          "catalog_name": "string",
+          "display_name": "string",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          }
+        },
+        "lifecycle": null
+      },
+      "TestCase": {
+        "pack": "pdlc",
+        "key": [
+          "repo",
+          "test_id"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Lifecycled",
+          "Sourced"
+        ],
+        "properties": {
+          "name": "string",
+          "path": "string",
+          "repo": "string",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "status": "string",
+          "status_changed_at": "datetime",
+          "test_id": "string"
+        },
+        "lifecycle": {
+          "initial": "active",
+          "states": [
+            "active",
+            "quarantined",
+            "retired"
+          ]
+        }
+      },
+      "TestRun": {
+        "pack": "pdlc",
+        "key": [
+          "run_id"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Sourced"
+        ],
+        "properties": {
+          "commit_sha": "string",
+          "finished_at": "datetime",
+          "outcome": {
+            "enum": [
+              "success",
+              "failure",
+              "cancel",
+              "error",
+              "skipped"
+            ]
+          },
+          "run_id": "string",
+          "severity": {
+            "enum": [
+              "low",
+              "medium",
+              "high",
+              "critical"
+            ]
+          },
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "test_type": "string"
+        },
+        "lifecycle": null
+      },
+      "UserProfile": {
+        "pack": "user",
+        "key": [
+          "user_id"
+        ],
+        "key_property": "user_id",
+        "interfaces": [],
+        "properties": {
+          "communication_style": "string",
+          "created_at": "datetime",
+          "display_name": "string",
+          "language": "string",
+          "profile_id": "string",
+          "technical_level": "string",
+          "timezone": "string",
+          "updated_at": "datetime",
+          "user_id": "string"
+        },
+        "lifecycle": null
+      },
+      "WorkItem": {
+        "pack": "pdlc",
+        "key": [
+          "tracker",
+          "external_key"
+        ],
+        "key_property": "node_id",
+        "interfaces": [
+          "Lifecycled",
+          "Owned",
+          "Sourced"
+        ],
+        "properties": {
+          "assignees": "list<string>",
+          "criticality": "string",
+          "external_key": "string",
+          "labels": "list<string>",
+          "milestone": "string",
+          "priority": "string",
+          "resolution": "string",
+          "source_trust": {
+            "enum": [
+              "trusted",
+              "untrusted"
+            ]
+          },
+          "status": "string",
+          "status_changed_at": "datetime",
+          "title": "string",
+          "tracker": "string",
+          "work_type": {
+            "enum": [
+              "epic",
+              "story",
+              "task",
+              "bug",
+              "production_change"
+            ]
+          }
+        },
+        "lifecycle": {
+          "initial": "open",
+          "states": [
+            "open",
+            "in_progress",
+            "done",
+            "cancelled"
+          ]
+        }
+      },
+      "Workflow": {
+        "pack": "user",
+        "key": [
+          "workflow_id"
+        ],
+        "key_property": "workflow_id",
+        "interfaces": [],
+        "properties": {
+          "abstraction_level": {
+            "enum": [
+              "case",
+              "strategy",
+              "skill"
+            ]
+          },
+          "avg_duration_ms": "int",
+          "created_at": "datetime",
+          "embedding": "list<float>",
+          "execution_count": "int",
+          "name": "string",
+          "source_session_ids": "list<string>",
+          "success_rate": "float",
+          "updated_at": "datetime",
+          "workflow_id": "string"
+        },
+        "lifecycle": null
+      }
+    },
+    "edge_types": {
+      "ABOUT": {
+        "pack": "user",
+        "from": [
+          "Preference"
+        ],
+        "to": [
+          "Entity"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "ABSTRACTED_FROM": {
+        "pack": "user",
+        "from": [
+          "Workflow"
+        ],
+        "to": [
+          "Workflow"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "AFFECTS": {
+        "pack": "pdlc",
+        "from": [
+          "Incident"
+        ],
+        "to": [
+          "Component"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "confidence": "float",
+          "link_status": {
+            "enum": [
+              "proposed",
+              "confirmed",
+              "rejected"
+            ]
+          },
+          "method": "string"
+        }
+      },
+      "AMENDS": {
+        "pack": "pdlc",
+        "from": [
+          "Decision"
+        ],
+        "to": [
+          "Decision"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "confidence": "float",
+          "kind": {
+            "enum": [
+              "builds_on",
+              "updates",
+              "replaces_part"
+            ]
+          },
+          "link_status": {
+            "enum": [
+              "proposed",
+              "confirmed",
+              "rejected"
+            ]
+          },
+          "method": "string"
+        }
+      },
+      "APPLIES_TO": {
+        "pack": "pdlc",
+        "from": [
+          "Decision"
+        ],
+        "to": [
+          "Change",
+          "Component",
+          "DesignElement",
+          "Requirement"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "confidence": "float",
+          "link_status": {
+            "enum": [
+              "proposed",
+              "confirmed",
+              "rejected"
+            ]
+          },
+          "method": "string"
+        }
+      },
+      "ATTRIBUTED_TO": {
+        "pack": "pdlc",
+        "from": [
+          "Incident"
+        ],
+        "to": [
+          "Change",
+          "WorkItem"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "confidence": "float",
+          "link_status": {
+            "enum": [
+              "proposed",
+              "confirmed",
+              "rejected"
+            ]
+          },
+          "method": "string"
+        }
+      },
+      "BELONGS_TO": {
+        "pack": "crm",
+        "from": [
+          "Deal"
+        ],
+        "to": [
+          "Account"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "CAUSED_BY": {
+        "pack": "core",
+        "from": [
+          "Event"
+        ],
+        "to": [
+          "Event"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "mechanism": "string"
+        }
+      },
+      "CITES": {
+        "pack": "pdlc",
+        "from": [
+          "Change",
+          "Spec"
+        ],
+        "to": [
+          "Constraint",
+          "Decision",
+          "DesignElement",
+          "Lesson",
+          "Requirement"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "pinned_position": "string"
+        }
+      },
+      "CONSTRAINS": {
+        "pack": "pdlc",
+        "from": [
+          "Constraint"
+        ],
+        "to": [
+          "Component",
+          "DesignElement",
+          "Requirement",
+          "WorkItem"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "scope": "string"
+        }
+      },
+      "CONTAINS": {
+        "pack": "memory",
+        "from": [
+          "Episode"
+        ],
+        "to": [
+          "Event"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "CONTRADICTS": {
+        "pack": "core",
+        "from": [
+          "Belief",
+          "Constraint",
+          "Decision"
+        ],
+        "to": [
+          "Belief",
+          "Constraint",
+          "Decision"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "DECIDED_BY": {
+        "pack": "pdlc",
+        "from": [
+          "Constraint",
+          "Decision"
+        ],
+        "to": [
+          "Entity"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "DECOMPOSES_INTO": {
+        "pack": "pdlc",
+        "from": [
+          "Spec",
+          "WorkItem"
+        ],
+        "to": [
+          "WorkItem"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "order": "int"
+        }
+      },
+      "DEPENDS_ON": {
+        "pack": "pdlc",
+        "from": [
+          "Component",
+          "WorkItem"
+        ],
+        "to": [
+          "Component",
+          "WorkItem"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "kind": {
+            "enum": [
+              "blocks",
+              "needs"
+            ]
+          }
+        }
+      },
+      "DEPLOYED_TO": {
+        "pack": "pdlc",
+        "from": [
+          "Deployment"
+        ],
+        "to": [
+          "Component"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "environment": "string"
+        }
+      },
+      "DEPLOYS": {
+        "pack": "pdlc",
+        "from": [
+          "Deployment"
+        ],
+        "to": [
+          "Change",
+          "Release"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "DERIVED_FROM": {
+        "pack": "core",
+        "from": [
+          "BehavioralPattern",
+          "Preference",
+          "Skill",
+          "Workflow"
+        ],
+        "to": [
+          "Event"
+        ],
+        "from_packs": [
+          "crm",
+          "pdlc"
+        ],
+        "to_packs": [],
+        "properties": {
+          "evidence_quote": "text",
+          "extracted_at": "datetime",
+          "method": "string",
+          "model_id": "string",
+          "prompt_version": "string",
+          "session_id": "string",
+          "source_turn_index": "int"
+        }
+      },
+      "EXECUTES": {
+        "pack": "pdlc",
+        "from": [
+          "TestRun"
+        ],
+        "to": [
+          "TestCase"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "EXHIBITS_PATTERN": {
+        "pack": "user",
+        "from": [
+          "Entity"
+        ],
+        "to": [
+          "BehavioralPattern"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "FOLLOWS": {
+        "pack": "core",
+        "from": [
+          "Event"
+        ],
+        "to": [
+          "Event"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "delta_ms": "int",
+          "session_id": "string"
+        }
+      },
+      "HAS_PREFERENCE": {
+        "pack": "user",
+        "from": [
+          "Entity"
+        ],
+        "to": [
+          "Preference"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "HAS_PROFILE": {
+        "pack": "user",
+        "from": [
+          "Entity"
+        ],
+        "to": [
+          "UserProfile"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "HAS_SKILL": {
+        "pack": "user",
+        "from": [
+          "Entity"
+        ],
+        "to": [
+          "Skill"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "assessment_count": "int",
+          "confidence": "float",
+          "last_assessed_at": "datetime",
+          "proficiency": "float",
+          "source": "string",
+          "updated_at": "datetime"
+        }
+      },
+      "IMPLEMENTS": {
+        "pack": "pdlc",
+        "from": [
+          "Change",
+          "WorkItem"
+        ],
+        "to": [
+          "DesignElement",
+          "Requirement",
+          "WorkItem"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "confidence": "float",
+          "link_status": {
+            "enum": [
+              "proposed",
+              "confirmed",
+              "rejected"
+            ]
+          },
+          "method": "string"
+        }
+      },
+      "INCLUDES": {
+        "pack": "pdlc",
+        "from": [
+          "Release"
+        ],
+        "to": [
+          "Change"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "section": {
+            "enum": [
+              "breaking",
+              "added",
+              "fixed",
+              "docs",
+              "ci",
+              "other"
+            ]
+          }
+        }
+      },
+      "INTERESTED_IN": {
+        "pack": "user",
+        "from": [
+          "Entity"
+        ],
+        "to": [
+          "Entity"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "source": "string",
+          "updated_at": "datetime",
+          "weight": "float"
+        }
+      },
+      "LEARNED_FROM": {
+        "pack": "pdlc",
+        "from": [
+          "Lesson"
+        ],
+        "to": [
+          "Change",
+          "Incident"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "OCCURRED_ON": {
+        "pack": "pdlc",
+        "from": [
+          "Incident"
+        ],
+        "to": [
+          "Deployment"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "OWNED_BY": {
+        "pack": "pdlc",
+        "from": [
+          "Component",
+          "Incident",
+          "Request",
+          "WorkItem"
+        ],
+        "to": [
+          "Entity",
+          "Team"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "PARENT_SKILL": {
+        "pack": "user",
+        "from": [
+          "Skill"
+        ],
+        "to": [
+          "Skill"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "PURSUES": {
+        "pack": "memory",
+        "from": [
+          "Entity"
+        ],
+        "to": [
+          "Goal"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "RAISES": {
+        "pack": "pdlc",
+        "from": [
+          "Incident"
+        ],
+        "to": [
+          "Request"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "RAN_AGAINST": {
+        "pack": "pdlc",
+        "from": [
+          "TestRun"
+        ],
+        "to": [
+          "Change"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "commit_sha": "string"
+        }
+      },
+      "REFERENCES": {
+        "pack": "core",
+        "from": [
+          "Event"
+        ],
+        "to": [
+          "Entity"
+        ],
+        "from_packs": [],
+        "to_packs": [
+          "pdlc"
+        ],
+        "properties": {
+          "role": "string"
+        }
+      },
+      "REFINES": {
+        "pack": "pdlc",
+        "from": [
+          "DesignElement",
+          "Requirement",
+          "Spec"
+        ],
+        "to": [
+          "Request",
+          "Requirement",
+          "Spec"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "confidence": "float",
+          "link_status": {
+            "enum": [
+              "proposed",
+              "confirmed",
+              "rejected"
+            ]
+          },
+          "method": "string"
+        }
+      },
+      "RELATED_TO": {
+        "pack": "core",
+        "from": [
+          "Entity"
+        ],
+        "to": [
+          "Entity"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "confidence": "float",
+          "justification": "text",
+          "resolved_at": "datetime"
+        }
+      },
+      "REMEDIATES": {
+        "pack": "pdlc",
+        "from": [
+          "Change"
+        ],
+        "to": [
+          "Incident"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "confidence": "float",
+          "link_status": {
+            "enum": [
+              "proposed",
+              "confirmed",
+              "rejected"
+            ]
+          },
+          "method": "string"
+        }
+      },
+      "REVERTS": {
+        "pack": "pdlc",
+        "from": [
+          "Change"
+        ],
+        "to": [
+          "Change"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "REVIEWS": {
+        "pack": "pdlc",
+        "from": [
+          "Review"
+        ],
+        "to": [
+          "Change"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "SAME_AS": {
+        "pack": "core",
+        "from": [
+          "Component",
+          "Entity",
+          "WorkItem"
+        ],
+        "to": [
+          "Component",
+          "Entity",
+          "WorkItem"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "confidence": "float",
+          "justification": "text",
+          "resolved_at": "datetime"
+        }
+      },
+      "SIMILAR_TO": {
+        "pack": "core",
+        "from": [
+          "Event"
+        ],
+        "to": [
+          "Event"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "similarity_score": "float"
+        }
+      },
+      "SUMMARIZES": {
+        "pack": "core",
+        "from": [
+          "Summary"
+        ],
+        "to": [
+          "Event",
+          "Summary"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "SUPERSEDES": {
+        "pack": "core",
+        "from": [
+          "Belief",
+          "Deal",
+          "Decision",
+          "DesignElement",
+          "Spec"
+        ],
+        "to": [
+          "Belief",
+          "Deal",
+          "Decision",
+          "DesignElement",
+          "Spec"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "TOUCHES": {
+        "pack": "pdlc",
+        "from": [
+          "Change"
+        ],
+        "to": [
+          "Component"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      },
+      "VERIFIES": {
+        "pack": "pdlc",
+        "from": [
+          "TestCase"
+        ],
+        "to": [
+          "Change",
+          "Requirement",
+          "Spec",
+          "WorkItem"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {
+          "confidence": "float",
+          "link_status": {
+            "enum": [
+              "proposed",
+              "confirmed",
+              "rejected"
+            ]
+          },
+          "method": "string"
+        }
+      },
+      "WORKS_AT": {
+        "pack": "crm",
+        "from": [
+          "Contact"
+        ],
+        "to": [
+          "Account"
+        ],
+        "from_packs": [],
+        "to_packs": [],
+        "properties": {}
+      }
+    },
+    "event_types": {
+      "agent.create": {
+        "pack": "core"
+      },
+      "agent.invoke": {
+        "pack": "core"
+      },
+      "crm.account.created": {
+        "pack": "crm"
+      },
+      "crm.contact.added": {
+        "pack": "crm"
+      },
+      "crm.deal.created": {
+        "pack": "crm"
+      },
+      "crm.deal.lost": {
+        "pack": "crm"
+      },
+      "crm.deal.replaced": {
+        "pack": "crm"
+      },
+      "crm.deal.won": {
+        "pack": "crm"
+      },
+      "llm.chat": {
+        "pack": "core"
+      },
+      "llm.completion": {
+        "pack": "core"
+      },
+      "llm.embed": {
+        "pack": "core"
+      },
+      "llm.generate": {
+        "pack": "core"
+      },
+      "observation.input": {
+        "pack": "core"
+      },
+      "observation.output": {
+        "pack": "core"
+      },
+      "pdlc.change.abandoned": {
+        "pack": "pdlc"
+      },
+      "pdlc.change.committed": {
+        "pack": "pdlc"
+      },
+      "pdlc.change.created": {
+        "pack": "pdlc"
+      },
+      "pdlc.change.merged": {
+        "pack": "pdlc"
+      },
+      "pdlc.change.reviewed": {
+        "pack": "pdlc"
+      },
+      "pdlc.change.updated": {
+        "pack": "pdlc"
+      },
+      "pdlc.decision.recorded": {
+        "pack": "pdlc"
+      },
+      "pdlc.design.section_changed": {
+        "pack": "pdlc"
+      },
+      "pdlc.incident.detected": {
+        "pack": "pdlc"
+      },
+      "pdlc.incident.reported": {
+        "pack": "pdlc"
+      },
+      "pdlc.incident.resolved": {
+        "pack": "pdlc"
+      },
+      "pdlc.release.published": {
+        "pack": "pdlc"
+      },
+      "pdlc.request.created": {
+        "pack": "pdlc"
+      },
+      "pdlc.requirement.changed": {
+        "pack": "pdlc"
+      },
+      "pdlc.service.deployed": {
+        "pack": "pdlc"
+      },
+      "pdlc.service.rolledback": {
+        "pack": "pdlc"
+      },
+      "pdlc.service.upgraded": {
+        "pack": "pdlc"
+      },
+      "pdlc.spec.approved": {
+        "pack": "pdlc"
+      },
+      "pdlc.testcaserun.finished": {
+        "pack": "pdlc"
+      },
+      "pdlc.testcaserun.skipped": {
+        "pack": "pdlc"
+      },
+      "pdlc.ticket.closed": {
+        "pack": "pdlc"
+      },
+      "pdlc.ticket.created": {
+        "pack": "pdlc"
+      },
+      "pdlc.ticket.updated": {
+        "pack": "pdlc"
+      },
+      "system.session_end": {
+        "pack": "core"
+      },
+      "system.session_start": {
+        "pack": "core"
+      },
+      "tool.execute": {
+        "pack": "core"
+      },
+      "user.preference.revoked": {
+        "pack": "user"
+      },
+      "user.preference.stated": {
+        "pack": "user"
+      },
+      "user.profile.updated": {
+        "pack": "user"
+      },
+      "user.skill.declared": {
+        "pack": "user"
+      }
+    },
+    "intents": [
+      "completeness",
+      "coverage",
+      "general",
+      "how_does",
+      "impact",
+      "people",
+      "personalize",
+      "pipeline",
+      "preflight",
+      "related",
+      "status",
+      "trace",
+      "what",
+      "when",
+      "who_is",
+      "why"
+    ],
+    "intent_definitions": {
+      "completeness": {
+        "pack": "pdlc",
+        "keywords": [
+          "missing",
+          "without",
+          "no tests",
+          "no test",
+          "untested",
+          "unreviewed",
+          "unlinked",
+          "not linked",
+          "have no",
+          "has no",
+          "lack",
+          "lacks",
+          "lacking",
+          "nobody",
+          "uncovered",
+          "no review",
+          "no reviews"
+        ],
+        "weights": {
+          "IMPLEMENTS": 5.0,
+          "REFINES": 3.0,
+          "REVIEWS": 4.0,
+          "VERIFIES": 5.0
+        },
+        "seed_strategy": null,
+        "plugin": "missing_links",
+        "direction": "both"
+      },
+      "coverage": {
+        "pack": "crm",
+        "keywords": [
+          "no deals",
+          "without deals",
+          "no contacts",
+          "without contacts",
+          "have no"
+        ],
+        "weights": {
+          "BELONGS_TO": 5.0,
+          "WORKS_AT": 4.0
+        },
+        "seed_strategy": null,
+        "plugin": "missing_links",
+        "direction": "both"
+      },
+      "general": {
+        "pack": "core",
+        "keywords": [],
+        "weights": {
+          "CAUSED_BY": 2.0,
+          "FOLLOWS": 2.0,
+          "REFERENCES": 2.0,
+          "SIMILAR_TO": 2.0,
+          "SUMMARIZES": 2.0
+        },
+        "seed_strategy": null,
+        "plugin": null,
+        "direction": "both"
+      },
+      "how_does": {
+        "pack": "core",
+        "keywords": [
+          "how",
+          "process",
+          "method",
+          "approach",
+          "workflow",
+          "steps"
+        ],
+        "weights": {
+          "ABOUT": 1.0,
+          "ABSTRACTED_FROM": 4.0,
+          "CAUSED_BY": 2.0,
+          "DERIVED_FROM": 1.0,
+          "EXHIBITS_PATTERN": 5.0,
+          "FOLLOWS": 3.0,
+          "HAS_PREFERENCE": 2.0,
+          "HAS_PROFILE": 1.0,
+          "HAS_SKILL": 3.0,
+          "INTERESTED_IN": 2.0,
+          "PARENT_SKILL": 1.0,
+          "REFERENCES": 2.0,
+          "RELATED_TO": 2.0,
+          "SAME_AS": 1.0,
+          "SIMILAR_TO": 1.0,
+          "SUMMARIZES": 1.0
+        },
+        "seed_strategy": "workflow_pattern",
+        "plugin": null,
+        "direction": "both"
+      },
+      "impact": {
+        "pack": "pdlc",
+        "keywords": [
+          "depends",
+          "depend",
+          "dependent",
+          "affected",
+          "impact",
+          "breaks",
+          "break",
+          "blast radius"
+        ],
+        "weights": {
+          "AFFECTS": 3.0,
+          "CONSTRAINS": 4.0,
+          "DEPENDS_ON": 5.0,
+          "OWNED_BY": 2.0
+        },
+        "seed_strategy": null,
+        "plugin": null,
+        "direction": "inbound"
+      },
+      "people": {
+        "pack": "crm",
+        "keywords": [
+          "who works",
+          "contact",
+          "contacts",
+          "people"
+        ],
+        "weights": {
+          "WORKS_AT": 5.0
+        },
+        "seed_strategy": null,
+        "plugin": null,
+        "direction": "both"
+      },
+      "personalize": {
+        "pack": "user",
+        "keywords": [
+          "prefer",
+          "favorite",
+          "style",
+          "personalize",
+          "customize"
+        ],
+        "weights": {
+          "ABOUT": 3.0,
+          "ABSTRACTED_FROM": 1.0,
+          "CAUSED_BY": 1.0,
+          "DERIVED_FROM": 3.0,
+          "EXHIBITS_PATTERN": 3.0,
+          "FOLLOWS": 0.5,
+          "HAS_PREFERENCE": 5.0,
+          "HAS_PROFILE": 4.0,
+          "HAS_SKILL": 4.0,
+          "INTERESTED_IN": 4.0,
+          "PARENT_SKILL": 2.0,
+          "REFERENCES": 2.0,
+          "RELATED_TO": 2.0,
+          "SAME_AS": 2.0,
+          "SIMILAR_TO": 1.5,
+          "SUMMARIZES": 1.0
+        },
+        "seed_strategy": "user_profile",
+        "plugin": null,
+        "direction": "both"
+      },
+      "pipeline": {
+        "pack": "crm",
+        "keywords": [
+          "pipeline",
+          "deal",
+          "deals"
+        ],
+        "weights": {
+          "BELONGS_TO": 5.0
+        },
+        "seed_strategy": null,
+        "plugin": null,
+        "direction": "both"
+      },
+      "preflight": {
+        "pack": "pdlc",
+        "keywords": [
+          "before i",
+          "should know",
+          "before editing",
+          "before i edit",
+          "lessons",
+          "risks",
+          "warnings",
+          "gotchas"
+        ],
+        "weights": {
+          "AFFECTS": 4.0,
+          "APPLIES_TO": 4.0,
+          "ATTRIBUTED_TO": 3.0,
+          "CONSTRAINS": 5.0,
+          "LEARNED_FROM": 5.0,
+          "RAN_AGAINST": 3.0,
+          "REVERTS": 4.0,
+          "TOUCHES": 5.0
+        },
+        "seed_strategy": null,
+        "plugin": null,
+        "direction": "both"
+      },
+      "related": {
+        "pack": "core",
+        "keywords": [
+          "similar",
+          "related",
+          "like",
+          "compare",
+          "associated"
+        ],
+        "weights": {
+          "CAUSED_BY": 1.5,
+          "FOLLOWS": 0.5,
+          "REFERENCES": 2.0,
+          "SIMILAR_TO": 5.0,
+          "SUMMARIZES": 1.5
+        },
+        "seed_strategy": "similar_cluster",
+        "plugin": null,
+        "direction": "both"
+      },
+      "status": {
+        "pack": "pdlc",
+        "keywords": [
+          "still",
+          "current",
+          "latest",
+          "valid",
+          "superseded",
+          "replaced",
+          "reversed",
+          "amended",
+          "contradict",
+          "contradicts",
+          "approved version"
+        ],
+        "weights": {
+          "AMENDS": 4.0,
+          "APPLIES_TO": 3.0,
+          "CITES": 4.0,
+          "CONTRADICTS": 4.0,
+          "DECIDED_BY": 2.0,
+          "SUPERSEDES": 5.0
+        },
+        "seed_strategy": null,
+        "plugin": null,
+        "direction": "both"
+      },
+      "trace": {
+        "pack": "pdlc",
+        "keywords": [
+          "trace",
+          "deployed",
+          "implements",
+          "implemented",
+          "delivered",
+          "deliver",
+          "shipped",
+          "ship",
+          "release"
+        ],
+        "weights": {
+          "DECOMPOSES_INTO": 3.0,
+          "DEPLOYED_TO": 3.0,
+          "DEPLOYS": 4.0,
+          "IMPLEMENTS": 5.0,
+          "INCLUDES": 4.0,
+          "REFINES": 5.0,
+          "VERIFIES": 4.0
+        },
+        "seed_strategy": null,
+        "plugin": null,
+        "direction": "both"
+      },
+      "what": {
+        "pack": "core",
+        "keywords": [
+          "what",
+          "describe",
+          "explain",
+          "definition",
+          "meaning"
+        ],
+        "weights": {
+          "CAUSED_BY": 2.0,
+          "FOLLOWS": 1.0,
+          "REFERENCES": 5.0,
+          "SIMILAR_TO": 2.0,
+          "SUMMARIZES": 2.0
+        },
+        "seed_strategy": "entity_hubs",
+        "plugin": null,
+        "direction": "both"
+      },
+      "when": {
+        "pack": "core",
+        "keywords": [
+          "when",
+          "timeline",
+          "before",
+          "after",
+          "sequence",
+          "order",
+          "time"
+        ],
+        "weights": {
+          "CAUSED_BY": 1.0,
+          "FOLLOWS": 5.0,
+          "REFERENCES": 1.0,
+          "SIMILAR_TO": 0.5,
+          "SUMMARIZES": 0.5
+        },
+        "seed_strategy": "temporal_anchors",
+        "plugin": null,
+        "direction": "both"
+      },
+      "who_is": {
+        "pack": "core",
+        "keywords": [
+          "who",
+          "person",
+          "user",
+          "team",
+          "member",
+          "author"
+        ],
+        "weights": {
+          "ABOUT": 3.0,
+          "ABSTRACTED_FROM": 1.0,
+          "CAUSED_BY": 1.0,
+          "DECIDED_BY": 4.0,
+          "DERIVED_FROM": 2.0,
+          "EXHIBITS_PATTERN": 4.0,
+          "FOLLOWS": 0.5,
+          "HAS_PREFERENCE": 5.0,
+          "HAS_PROFILE": 5.0,
+          "HAS_SKILL": 5.0,
+          "INTERESTED_IN": 4.0,
+          "OWNED_BY": 5.0,
+          "PARENT_SKILL": 2.0,
+          "REFERENCES": 3.0,
+          "RELATED_TO": 3.0,
+          "SAME_AS": 4.0,
+          "SIMILAR_TO": 1.0,
+          "SUMMARIZES": 1.0
+        },
+        "seed_strategy": "entity_hubs",
+        "plugin": null,
+        "direction": "both"
+      },
+      "why": {
+        "pack": "core",
+        "keywords": [
+          "why",
+          "because",
+          "caused",
+          "reason",
+          "root cause",
+          "due to"
+        ],
+        "weights": {
+          "APPLIES_TO": 4.0,
+          "ATTRIBUTED_TO": 3.0,
+          "CAUSED_BY": 5.0,
+          "CITES": 3.0,
+          "DECIDED_BY": 3.0,
+          "FOLLOWS": 1.0,
+          "IMPLEMENTS": 4.0,
+          "RAISES": 3.0,
+          "REFERENCES": 2.0,
+          "REFINES": 4.0,
+          "SIMILAR_TO": 1.5,
+          "SUMMARIZES": 1.0
+        },
+        "seed_strategy": "causal_roots",
+        "plugin": null,
+        "direction": "both"
+      }
+    },
+    "extraction": [
+      {
+        "pack": "pdlc",
+        "sources": [
+          "observation.input",
+          "pdlc.design.section_changed",
+          "pdlc.spec.approved"
+        ],
+        "propose_nodes": [
+          "Constraint",
+          "Decision",
+          "Lesson"
+        ],
+        "propose_links": [
+          "AMENDS",
+          "APPLIES_TO",
+          "IMPLEMENTS",
+          "VERIFIES"
+        ],
+        "never_propose": [
+          "Change",
+          "Deployment",
+          "Incident",
+          "Release",
+          "TestRun",
+          "WorkItem"
+        ],
+        "output_schema": {
+          "$schema": "https://json-schema.org/draft/2020-12/schema",
+          "title": "pdlc extraction",
+          "type": "object",
+          "properties": {
+            "nodes": {
+              "type": "array",
+              "maxItems": 20,
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "ref": {
+                        "type": "string",
+                        "pattern": "^n[0-9]{1,4}$"
+                      },
+                      "type": {
+                        "const": "Constraint"
+                      },
+                      "confidence": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "evidence": {
+                        "type": "string"
+                      },
+                      "scope": {
+                        "type": "string"
+                      },
+                      "severity": {
+                        "type": "string"
+                      },
+                      "statement": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "ref",
+                      "type",
+                      "confidence",
+                      "statement"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "ref": {
+                        "type": "string",
+                        "pattern": "^n[0-9]{1,4}$"
+                      },
+                      "type": {
+                        "const": "Decision"
+                      },
+                      "confidence": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "evidence": {
+                        "type": "string"
+                      },
+                      "alternatives": {
+                        "type": "string"
+                      },
+                      "decided_at": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "rationale": {
+                        "type": "string"
+                      },
+                      "statement": {
+                        "type": "string"
+                      },
+                      "valid_from": {
+                        "type": "string",
+                        "format": "date-time"
+                      },
+                      "valid_to": {
+                        "type": "string",
+                        "format": "date-time"
+                      }
+                    },
+                    "required": [
+                      "ref",
+                      "type",
+                      "confidence",
+                      "statement"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "ref": {
+                        "type": "string",
+                        "pattern": "^n[0-9]{1,4}$"
+                      },
+                      "type": {
+                        "const": "Lesson"
+                      },
+                      "confidence": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "evidence": {
+                        "type": "string"
+                      },
+                      "polarity": {
+                        "type": "string",
+                        "enum": [
+                          "apply",
+                          "avoid"
+                        ]
+                      },
+                      "statement": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "ref",
+                      "type",
+                      "confidence",
+                      "statement"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "links": {
+              "type": "array",
+              "maxItems": 40,
+              "items": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "const": "AMENDS"
+                      },
+                      "from": {
+                        "type": "string"
+                      },
+                      "to": {
+                        "type": "string"
+                      },
+                      "confidence": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "evidence": {
+                        "type": "string"
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "builds_on",
+                          "updates",
+                          "replaces_part"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "from",
+                      "to",
+                      "confidence"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "const": "APPLIES_TO"
+                      },
+                      "from": {
+                        "type": "string"
+                      },
+                      "to": {
+                        "type": "string"
+                      },
+                      "confidence": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "evidence": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "from",
+                      "to",
+                      "confidence"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "const": "IMPLEMENTS"
+                      },
+                      "from": {
+                        "type": "string"
+                      },
+                      "to": {
+                        "type": "string"
+                      },
+                      "confidence": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "evidence": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "from",
+                      "to",
+                      "confidence"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "type": {
+                        "const": "VERIFIES"
+                      },
+                      "from": {
+                        "type": "string"
+                      },
+                      "to": {
+                        "type": "string"
+                      },
+                      "confidence": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "evidence": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "type",
+                      "from",
+                      "to",
+                      "confidence"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          },
+          "required": [
+            "nodes",
+            "links"
+          ],
+          "additionalProperties": false
+        }
+      }
+    ],
+    "graph": {
+      "version": "sha256:ae97ca85cb6403f5",
+      "recorded_at": "2026-10-06T16:33:31.450271+00:00",
+      "applied": "compat-fixture",
+      "packs": [
+        "core@1.1.0",
+        "memory@1.0.0",
+        "user@1.0.0",
+        "crm@1.0.0",
+        "pdlc@1.7.0"
+      ],
+      "eval_pending": [
+        "pdlc",
+        "crm"
+      ],
+      "gate_passed": null
+    },
+    "change": {
+      "kind": "none",
+      "reasons": [],
+      "replay_event_types": [],
+      "eval_required": [],
+      "version_problems": [],
+      "pack_changes": {}
+    }
+  },
+  "scope": "loaded combined pack namespaces and weight definitions; fixture pending transitions; quality covered by independent competency fixtures"
+}

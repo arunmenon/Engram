@@ -183,7 +183,7 @@ class RedisEventStore:
     async def health_ping(self) -> bool:
         """Return True if Redis is reachable."""
         try:
-            result = await self._client.ping()  # type: ignore[misc]
+            result = await self._client.ping()
             return bool(result)
         except Exception:
             return False
@@ -225,7 +225,7 @@ class RedisEventStore:
             await self._register_script()
 
         session_stream_key = f"events:session:{event.session_id}"
-        result = await self._client.evalsha(  # type: ignore[misc]
+        result = await self._client.evalsha(
             self._script_sha,  # type: ignore[arg-type]
             4,  # number of KEYS
             self._settings.global_stream,

@@ -1,0 +1,20 @@
+{
+  "kind": "local_worker_control_fence",
+  "issues": [
+    34,
+    43
+  ],
+  "scope": "Stop/rethrow control-plane refusal without acknowledgement/deadletter; supervise consolidation background failure; local recording/mocked ports only; no backend runners/cloud",
+  "source_sha256": {
+    "src/context_graph/ports/errors.py": "92c3f5c47c5c719233d1b8af36158bea8c9a599e29418d144a47251cd45976ae",
+    "src/context_graph/adapters/spanner/tenant_control.py": "1adf991ba80dc644003ca2b17d9a7f0480be672964f56b60da60f8eb0f27e78f",
+    "src/context_graph/worker/consumer.py": "626d414b21a6f16aa4cec1ded1e167f241e1ba083e0ac76979c52303a1fe9ef4",
+    "src/context_graph/worker/projection.py": "4b90ff639a69a08c1afe5089254bcca728975864b0d4c906f048306648ff4fcb",
+    "src/context_graph/worker/extraction.py": "23bed9653ce0c9cb092b053a4ea616d269b918a0eb5a11deb2d6013de6a24f39",
+    "src/context_graph/worker/consolidation.py": "15ead9ef9caf00a14a1448df0a95ce4e2f33f324ad76be4911eb0f3c49fd424d",
+    "tests/unit/test_worker_fences.py": "c7c55d738f2a41b320cbb1c4cc35d37e5a69d2980a80591dc02e1bd84e639bc2"
+  },
+  "cloud_calls": false,
+  "command": "pytest -q tests/unit/test_worker_fences.py tests/unit/test_spanner_tenant_control.py tests/unit/test_consumer.py tests/unit/test_projection_worker.py tests/unit/test_extraction_worker.py tests/unit/test_consolidation_worker.py",
+  "run_id": "20261007-local-worker-fence-01"
+}

@@ -1,0 +1,49 @@
+{
+  "database": "engram-compat-target",
+  "admin": {
+    "nodes": {
+      "Event": 11,
+      "Entity": 0,
+      "Summary": 0,
+      "UserProfile": 0,
+      "Preference": 0,
+      "Skill": 0,
+      "Workflow": 0,
+      "BehavioralPattern": 0
+    },
+    "edges": {
+      "FOLLOWS": 10,
+      "CAUSED_BY": 0,
+      "SIMILAR_TO": 0,
+      "REFERENCES": 0,
+      "SUMMARIZES": 0,
+      "SAME_AS": 0,
+      "RELATED_TO": 0
+    },
+    "total_nodes": 11,
+    "total_edges": 10,
+    "event_log": {
+      "backend": "spanner",
+      "length": 0
+    },
+    "redis": {
+      "stream_length": 0
+    }
+  },
+  "actual": {
+    "nodes": {
+      "Account": 3,
+      "Contact": 2,
+      "Deal": 4,
+      "Event": 11,
+      "OntologyState": 1
+    },
+    "edges": {
+      "BELONGS_TO": 4,
+      "DERIVED_FROM": 11,
+      "FOLLOWS": 10,
+      "SUPERSEDES": 1,
+      "WORKS_AT": 2
+    }
+  }
+}

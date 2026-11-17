@@ -1,0 +1,58 @@
+{
+  "checks": [
+    {
+      "name": "replay_tied_timestamp_cursor_progress",
+      "scenarios": [
+        "LIFE-04",
+        "LED-02"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "replay cursor repeats the same 100-event page at tied times",
+      "seconds": 0.61
+    },
+    {
+      "name": "replay_API_completes_once_per_event",
+      "scenarios": [
+        "LIFE-04"
+      ],
+      "verdict": "failed",
+      "error_type": "ReadTimeout",
+      "error": "",
+      "seconds": 30.04
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 15
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 9
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 80
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 5
+    },
+    {
+      "table": "Events",
+      "rows": 3
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

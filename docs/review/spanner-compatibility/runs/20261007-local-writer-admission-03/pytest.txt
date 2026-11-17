@@ -1,0 +1,75 @@
+............................................F........................... [ 32%]
+........................................................................ [ 65%]
+........................................................................ [ 98%]
+....                                                                     [100%]
+=================================== FAILURES ===================================
+_ test_writer_construction_rejects_binding_authority_mismatch_before_io[nested_mutation] _
+
+fault = 'nested_mutation'
+
+    @pytest.mark.parametrize(
+        "fault", ["bundle", "engine", "tenant", "epoch", "nested_mutation", "missing_fence"]
+    )
+    def test_writer_construction_rejects_binding_authority_mismatch_before_io(fault):
+        from dataclasses import replace
+    
+        binding = bind()
+        db = Database(binding)
+        fence = TenantFence.from_binding(binding)
+        revision = binding.engine_revision
+        supplied = binding
+        if fault == "bundle":
+            supplied = pdlc_binding()
+        elif fault == "engine":
+            revision = "other-engine"
+        elif fault == "tenant":
+            supplied = replace(binding, tenant_id="other")
+        elif fault == "epoch":
+            supplied = replace(binding, epoch=binding.epoch + 1)
+        elif fault == "nested_mutation":
+>           binding.bundle.registry.pack("core").description = "changed after binding"
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/unit/test_spanner_pack_admission.py:244: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/pydantic/main.py:1048: in __setattr__
+    elif (setattr_handler := self._setattr_handler(name, value)) is not None:
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/pydantic/main.py:1084: in _setattr_handler
+    _check_frozen(cls, name, value)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+model_cls = <class 'context_graph.domain.ontology.Pack'>, name = 'description'
+value = 'changed after binding'
+
+    def _check_frozen(model_cls: type[BaseModel], name: str, value: Any) -> None:
+        if model_cls.model_config.get('frozen'):
+            error_type = 'frozen_instance'
+        elif getattr(model_cls.__pydantic_fields__.get(name), 'frozen', False):
+            error_type = 'frozen_field'
+        else:
+            return
+    
+>       raise ValidationError.from_exception_data(
+            model_cls.__name__, [{'type': error_type, 'loc': (name,), 'input': value}]
+        )
+E       pydantic_core._pydantic_core.ValidationError: 1 validation error for Pack
+E       description
+E         Instance is frozen [type=frozen_instance, input_value='changed after binding', input_type=str]
+E           For further information visit https://errors.pydantic.dev/2.13/v/frozen_instance
+
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/pydantic/main.py:90: ValidationError
+=============================== warnings summary ===============================
+tests/unit/test_spanner_pack_admission.py::test_http_admission_rejections_keep_input_indexes_and_no_storage_failure
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/unit/test_spanner_pack_admission.py::test_http_admission_rejections_keep_input_indexes_and_no_storage_failure
+tests/unit/test_spanner_event_acceptance.py::test_authenticated_http_path_stamps_receipt_and_reports_conflict
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_spanner_pack_admission.py::test_writer_construction_rejects_binding_authority_mismatch_before_io[nested_mutation]
+1 failed, 219 passed, 3 warnings in 16.44s

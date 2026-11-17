@@ -1,0 +1,15 @@
+{
+  "scenarios": [],
+  "summary": "Persisted five-wave implementation mapping; all30 existing issues and13 partial rows assigned, dependency graph acyclic; no runtime change or cloud run.",
+  "verification": {
+    "issue_count": 30,
+    "partial_rows": 13,
+    "unmapped_failed_scenarios": [],
+    "dependencies_acyclic": true,
+    "artifact_sha256": {
+      "docs/review/2026-10-06-spanner-compatibility-plan.md": "735c9de0fb983bcfbab5a6324186ebef716f6d6d00c68847a8fa2d021ba78b68",
+      "docs/review/spanner-compatibility/implementation-waves.csv": "67a1be63cd3b89b6321675d9c374dc9f814b406845331cf1b0d8f2fc5a3ac5e1"
+    }
+  },
+  "cleanup": "Local planning only; existing DB/schema fixtures and runtime remain unchanged; historical compatibility verdicts retained."
+}

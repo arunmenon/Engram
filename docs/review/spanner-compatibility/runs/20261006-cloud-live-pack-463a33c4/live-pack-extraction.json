@@ -1,0 +1,27 @@
+{
+  "calls": [
+    {
+      "model": "gpt-5.2-2025-12-11",
+      "max_output_tokens": 256,
+      "retries": 0,
+      "timeout_seconds": 30,
+      "answer": "{\n  \"nodes\": [\n    {\n      \"ref\": \"n1\",\n      \"type\": \"Decision\",\n      \"statement\": \"Use Spanner native graph to store compatibility evidence.\",\n      \"rationale\": \"Durable graph relationships are required.\",\n      \"alternatives\": \"\",\n      \"confidence\": 0.8,\n      \"evidence\": \"Decision: use Spanner native graph to store compatibility evidence, because durable graph relationships are required.\"\n    }\n  ],\n  \"links\": []\n}"
+    }
+  ],
+  "event_id": "a498011b-3413-4f49-a01a-60d69e3c0748",
+  "graph": {
+    "nodes": {
+      "Decision": 1,
+      "Event": 1
+    },
+    "edges": [
+      [
+        "Decision:0efb3c59481c184ae5bfe17655a1dade9b5f2382ff6178265e4bb394a13778e1",
+        "DERIVED_FROM",
+        "a498011b-3413-4f49-a01a-60d69e3c0748"
+      ]
+    ]
+  },
+  "pending": {},
+  "scope": "one bounded real configured-model call through Engram PackExtractionConsumer; actual Spanner ledger/graph; local embeddings verified separately; no backend substitution"
+}

@@ -1,0 +1,104 @@
+{
+  "runtime_source_unchanged_during_run": true,
+  "checks": [
+    {
+      "name": "timezone_refusal_all_ingress_routes_and_aware_UTC_storage",
+      "scenarios": [
+        "ING-01",
+        "ING-02",
+        "ING-05"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "{'field': 'occurred_at', 'single_status': 422, 'single': {'detail': [{'type': 'timezone_required', 'loc': ['occurred_at'], 'msg': 'Timestamp requires an explicit timezone', 'input': '2026-10-06T12:00:00'}]}, 'batch_status': 422, 'batch': {'accepted': 0, 'rejected': 1, 'results': [], 'errors': [{'index': 0, 'event_id': '2880841b-1d3d-4fed-b455-39e6ac4db4ac', 'errors': [{'field': 'occurred_at', 'message': 'Timestamp requires an explicit timezone'}]}]}, 'import_status': 200, 'import': [{'index': 0, 'event_id': '2880841b-1d3d-4fed-b455-39e6ac4db4ac', 'errors': [{'field': 'occurred_at', 'message': 'Timestamp requires an explicit timezone'}], 'status': 'rejected'}, {'summary': {'received': 1, 'order': 'occurred_at', 'created': 0, 'duplicate': 0, 'rejected': 1, 'failed': 0}}]}",
+      "seconds": 0.14
+    },
+    {
+      "name": "gzip_complete_member_required_before_append",
+      "scenarios": [
+        "ING-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "invalid_gzip": [
+          {
+            "status": 400,
+            "response": {
+              "detail": [
+                {
+                  "message": "body is an incomplete gzip stream"
+                }
+              ]
+            }
+          },
+          {
+            "status": 400,
+            "response": {
+              "detail": [
+                {
+                  "message": "body is an incomplete gzip stream"
+                }
+              ]
+            }
+          },
+          {
+            "status": 400,
+            "response": {
+              "detail": [
+                {
+                  "message": "body is an incomplete gzip stream"
+                }
+              ]
+            }
+          },
+          {
+            "status": 400,
+            "response": {
+              "detail": [
+                {
+                  "message": "body contains data after the gzip stream"
+                }
+              ]
+            }
+          }
+        ],
+        "valid_status": 201,
+        "ledger_delta": 1
+      },
+      "seconds": 0.53
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 1
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 2
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "table": "Events",
+      "rows": 2
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

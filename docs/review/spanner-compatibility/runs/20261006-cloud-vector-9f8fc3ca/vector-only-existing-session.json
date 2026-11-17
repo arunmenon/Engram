@@ -1,0 +1,121 @@
+{
+  "setup": "same existing session; graph seed stage returns empty; keyword disabled; real ANN",
+  "persisted": {
+    "nodes": {
+      "Entity": 4,
+      "Event": 7
+    },
+    "edges": [
+      [
+        "1c55f3dd-47a0-4b32-9c79-8cb05e6c1f2b",
+        "CAUSED_BY",
+        "5e8cedc3-fdb5-4429-8c19-823c5a917672"
+      ],
+      [
+        "1c55f3dd-47a0-4b32-9c79-8cb05e6c1f2b",
+        "FOLLOWS",
+        "5e8cedc3-fdb5-4429-8c19-823c5a917672"
+      ],
+      [
+        "1c55f3dd-47a0-4b32-9c79-8cb05e6c1f2b",
+        "REFERENCES",
+        "entity:compat-near"
+      ],
+      [
+        "34252778-ff95-42b7-9b2d-1dc5ef036ca5",
+        "CAUSED_BY",
+        "a429c591-9f85-429d-86e0-f32a76a00ecb"
+      ],
+      [
+        "34252778-ff95-42b7-9b2d-1dc5ef036ca5",
+        "FOLLOWS",
+        "a429c591-9f85-429d-86e0-f32a76a00ecb"
+      ],
+      [
+        "4669767a-bf97-487d-99ed-4aa01e51b772",
+        "CAUSED_BY",
+        "34252778-ff95-42b7-9b2d-1dc5ef036ca5"
+      ],
+      [
+        "4669767a-bf97-487d-99ed-4aa01e51b772",
+        "FOLLOWS",
+        "34252778-ff95-42b7-9b2d-1dc5ef036ca5"
+      ],
+      [
+        "5e8cedc3-fdb5-4429-8c19-823c5a917672",
+        "REFERENCES",
+        "entity:compat-self"
+      ],
+      [
+        "9a5797a0-44a3-4f23-9668-9b571abf14c7",
+        "CAUSED_BY",
+        "e6399078-0325-4d46-baaf-716944e527a6"
+      ],
+      [
+        "9a5797a0-44a3-4f23-9668-9b571abf14c7",
+        "FOLLOWS",
+        "e6399078-0325-4d46-baaf-716944e527a6"
+      ],
+      [
+        "a429c591-9f85-429d-86e0-f32a76a00ecb",
+        "CAUSED_BY",
+        "1c55f3dd-47a0-4b32-9c79-8cb05e6c1f2b"
+      ],
+      [
+        "a429c591-9f85-429d-86e0-f32a76a00ecb",
+        "FOLLOWS",
+        "1c55f3dd-47a0-4b32-9c79-8cb05e6c1f2b"
+      ],
+      [
+        "e6399078-0325-4d46-baaf-716944e527a6",
+        "CAUSED_BY",
+        "4669767a-bf97-487d-99ed-4aa01e51b772"
+      ],
+      [
+        "e6399078-0325-4d46-baaf-716944e527a6",
+        "FOLLOWS",
+        "4669767a-bf97-487d-99ed-4aa01e51b772"
+      ]
+    ]
+  },
+  "response": {
+    "nodes": {},
+    "edges": [],
+    "pagination": {
+      "cursor": null,
+      "has_more": false
+    },
+    "meta": {
+      "query_ms": 389,
+      "nodes_returned": 0,
+      "truncated": false,
+      "inferred_intents": {
+        "general": 0.5
+      },
+      "intent_override": null,
+      "seed_nodes": [
+        "entity:compat-self",
+        "entity:compat-near",
+        "entity:compat-orthogonal"
+      ],
+      "seed_strategy": "general",
+      "proactive_nodes_count": 0,
+      "scoring_weights": {
+        "recency": 1.0,
+        "importance": 1.0,
+        "relevance": 1.0
+      },
+      "retrieval_channels": {
+        "graph": 0,
+        "vector": 3,
+        "bm25": 0
+      },
+      "capacity": {
+        "max_nodes": 10,
+        "used_nodes": 0,
+        "max_depth": 3
+      },
+      "eval_pending": []
+    }
+  }
+}

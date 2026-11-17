@@ -10,6 +10,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from context_graph.domain.pack_bundle import ActiveBundle, resolve_bundle
 from context_graph.domain.pack_projection import PackProjector
 from context_graph.ontology.loader import load_registry
 
@@ -19,13 +20,27 @@ if TYPE_CHECKING:
 
 
 @lru_cache(maxsize=8)
-def _registry(packs: tuple[str, ...], pack_dirs: tuple[str, ...]) -> OntologyRegistry:
-    return load_registry(list(packs), [Path(d) for d in pack_dirs])
+def _bundle(
+    packs: tuple[str, ...], pack_dirs: tuple[str, ...], builtin_packs: tuple[str, ...]
+) -> ActiveBundle:
+    registry = load_registry(
+        list(packs), [Path(d) for d in pack_dirs], builtin_packs=list(builtin_packs)
+    )
+    return resolve_bundle(registry)
+
+
+def configured_bundle(settings: OntologySettings) -> ActiveBundle:
+    """Immutable composition snapshot; not a tenant routing or service-readiness proof."""
+    return _bundle(
+        tuple(sorted(set(settings.packs))),
+        tuple(settings.pack_dirs),
+        tuple(sorted(set(settings.builtin_packs))),
+    )
 
 
 def configured_registry(settings: OntologySettings) -> OntologyRegistry:
     """The registry for ``CG_ONTOLOGY_*`` (loaded once per configuration)."""
-    return _registry(tuple(settings.packs), tuple(settings.pack_dirs))
+    return configured_bundle(settings).registry
 
 
 def configured_projector(settings: OntologySettings) -> PackProjector:

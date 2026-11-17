@@ -1,0 +1,28 @@
+{
+  "run_id": "20261006-emulator-retrospective",
+  "recorded_at": "2026-10-06T09:53:51.451709+00:00",
+  "kind": "retrospective",
+  "backend": "spanner_emulator",
+  "commit": "6a30dcfd376d21b2732ffc36b8ed8847abb2a9de",
+  "result": "41 passed,81 deselected; two product failures reproduced",
+  "scenario_families": [
+    "BOOT",
+    "ING",
+    "HOOK",
+    "PROJ",
+    "MEM",
+    "ART",
+    "SEARCH"
+  ],
+  "scope": "existing ASGI/worker tests and direct-adapter probes; not separate-process/cloud acceptance",
+  "pytest_command": "pytest tests/unit/test_backend_end_to_end.py tests/unit/test_pdlc_end_to_end.py tests/unit/test_pack_toy_end_to_end.py tests/conformance/test_graph_reads.py tests/conformance/test_pack_graph.py tests/conformance/test_search_indexes.py -k spanner -q -p no:cacheprovider",
+  "cleanup": "temporary databases dropped; owned emulator stopped",
+  "issues": [
+    6,
+    7
+  ],
+  "missing_metadata": [
+    "original exact UTC start/finish not preserved in manifest",
+    "no new claim of dependency/configuration completeness"
+  ]
+}

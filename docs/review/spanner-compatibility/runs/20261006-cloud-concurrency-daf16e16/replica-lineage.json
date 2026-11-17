@@ -1,0 +1,49 @@
+{
+  "schedule": "A event1, B event2, A event3; both processes alive",
+  "expected": [
+    [
+      "236a451a-15fa-43eb-bcff-141730f9a64a",
+      "FOLLOWS",
+      "fc9421b2-8761-4aa8-a9af-031cf3b16007"
+    ],
+    [
+      "fc9421b2-8761-4aa8-a9af-031cf3b16007",
+      "FOLLOWS",
+      "9da68333-a700-4861-a781-af6557571a45"
+    ]
+  ],
+  "actual": [
+    [
+      "236a451a-15fa-43eb-bcff-141730f9a64a",
+      "FOLLOWS",
+      "9da68333-a700-4861-a781-af6557571a45"
+    ],
+    [
+      "fc9421b2-8761-4aa8-a9af-031cf3b16007",
+      "FOLLOWS",
+      "9da68333-a700-4861-a781-af6557571a45"
+    ]
+  ],
+  "all_edges": [
+    [
+      "236a451a-15fa-43eb-bcff-141730f9a64a",
+      "CAUSED_BY",
+      "fc9421b2-8761-4aa8-a9af-031cf3b16007"
+    ],
+    [
+      "236a451a-15fa-43eb-bcff-141730f9a64a",
+      "FOLLOWS",
+      "9da68333-a700-4861-a781-af6557571a45"
+    ],
+    [
+      "fc9421b2-8761-4aa8-a9af-031cf3b16007",
+      "CAUSED_BY",
+      "9da68333-a700-4861-a781-af6557571a45"
+    ],
+    [
+      "fc9421b2-8761-4aa8-a9af-031cf3b16007",
+      "FOLLOWS",
+      "9da68333-a700-4861-a781-af6557571a45"
+    ]
+  ]
+}

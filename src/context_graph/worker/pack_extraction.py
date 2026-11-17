@@ -38,12 +38,15 @@ from context_graph.domain.pack_extraction import (
     event_text,
     parse_answer,
 )
+from context_graph.ports.errors import RuntimeFencedError
+from context_graph.ports.event_log import AcceptedRecordReader
 from context_graph.worker.consumer import BaseConsumer
 from context_graph.worker.pack_projection import apply_plan
 
 if TYPE_CHECKING:
     from context_graph.domain.pack_extraction import ExtractionProfile
     from context_graph.domain.pack_projection import PackProjector
+    from context_graph.domain.source_trust import VerifiedSourceProvenance
     from context_graph.ports.event_log import EventLog
     from context_graph.ports.extraction import TextGenerator
     from context_graph.ports.pack_graph import PackGraph
@@ -96,7 +99,15 @@ class PackExtractionConsumer(BaseConsumer):
         self._profiles = profiles
         self._projector = projector
         self._model = model
-        self._trusted = frozenset(settings.ontology.trusted_sources)
+        if (
+            getattr(event_log, "requires_source_provenance", False) is True
+            and projector.requires_provenance is not True
+        ):
+            raise RuntimeFencedError("Bound ledger requires authenticated extraction policy")
+        if projector.requires_provenance is True and not isinstance(
+            event_log, AcceptedRecordReader
+        ):
+            raise RuntimeFencedError("Bound extraction requires an accepted-record reader")
         self._known_limit = settings.ontology.extraction_known_limit
         self._search_terms = settings.ontology.extraction_search_terms
         self._lookup_limit = settings.ontology.lookup_limit
@@ -104,26 +115,36 @@ class PackExtractionConsumer(BaseConsumer):
 
     async def process_message(self, entry_id: str, data: dict[str, str]) -> None:
         event_id = data.get("event_id")
-        event_type = data.get("event_type")
-        profiles = [p for p in self._profiles if event_type is None or p.handles(event_type)]
-        if event_id is None or not profiles:
+        if event_id is None:
             return
-        (document,) = await self._event_log.get_documents([event_id])
+        provenance = None
+        document: dict[str, Any] | None
+        if self._projector.requires_provenance is True:
+            assert isinstance(self._event_log, AcceptedRecordReader)
+            (record,) = await self._event_log.get_accepted_records([event_id])
+            document, provenance = record.document, record.provenance
+        else:
+            (document,) = await self._event_log.get_documents([event_id])
         if document is None:
             log.warning("pack_extraction_event_missing", event_id=event_id, entry_id=entry_id)
             return
         event = Event.model_validate(document, strict=False)
-        for profile in profiles:
+        self._projector.source_trusted(event, document, provenance)
+        for profile in self._profiles:
             if profile.handles(event.event_type):
-                await self._extract(profile, event, document)
+                await self._extract(profile, event, document, provenance)
 
     async def _extract(
-        self, profile: ExtractionProfile, event: Event, document: dict[str, Any]
+        self,
+        profile: ExtractionProfile,
+        event: Event,
+        document: dict[str, Any],
+        provenance: VerifiedSourceProvenance | None = None,
     ) -> None:
         text = event_text(document, profile.max_text_chars)
         if not text:
             return
-        known = await self._known_items(profile, event, document, text)
+        known = await self._known_items(profile, event, document, text, provenance)
         answer = await self._model.generate_text(profile.prompt(text, known))
         if answer is None:
             raise ModelUnavailableError(f"no answer for event {event.event_id}")
@@ -137,7 +158,12 @@ class PackExtractionConsumer(BaseConsumer):
                 error=str(exc),
             )
             return
-        result = profile.plan(raw, event, trusted=event.agent_id in self._trusted, known=known)
+        result = profile.plan(
+            raw,
+            event,
+            trusted=self._projector.source_trusted(event, document, provenance),
+            known=known,
+        )
         written = await apply_plan(self._graph, result.plan, self._lookup_limit)
         log.info(
             "pack_extraction_applied",
@@ -155,10 +181,11 @@ class PackExtractionConsumer(BaseConsumer):
         event: Event,
         document: dict[str, Any],
         text: str,
+        provenance: VerifiedSourceProvenance | None = None,
     ) -> list[KnownItem]:
         """Items the text may link to: this event's own nodes, then word matches."""
         known: dict[str, KnownItem] = {}
-        own = self._projector.plan(event, document).nodes
+        own = self._projector.plan(event, document, provenance=provenance).nodes
         refs = [write.ref for write in own if write.ref.key_property == "node_id"]
         found = await self._graph.get_nodes(refs) if refs else {}
         for ref, node in found.items():

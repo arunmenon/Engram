@@ -5,6 +5,8 @@ not need Redis. Semantics follow the Redis adapter:
 
 - append is idempotent: a duplicate ``event_id`` returns the position
   first assigned;
+- batch outcomes additionally reject reused IDs with changed request content;
+  this is request comparison, not authenticated tenant/producer authorization;
 - every new event is published to the shared stream (``event_id`` field)
   and indexed by session in log order;
 - stored documents are the event's JSON fields plus ``global_position``
@@ -34,6 +36,7 @@ import orjson
 import structlog
 
 from context_graph.adapters.memory.stream import MemoryStream, position_sort_key
+from context_graph.domain.event_acceptance import request_fingerprint
 from context_graph.domain.keyword_search import event_search_text, query_terms, tokenize
 from context_graph.domain.models import Event
 from context_graph.ports.event_log import ImportedEvent, LogEntry
@@ -61,11 +64,12 @@ def _epoch_ms(moment: datetime) -> int:
 
 
 class _DedupRecord:
-    __slots__ = ("occurred_at_ms", "position")
+    __slots__ = ("occurred_at_ms", "position", "request_digest")
 
-    def __init__(self, position: str, occurred_at_ms: int) -> None:
+    def __init__(self, position: str, occurred_at_ms: int, request_digest: str) -> None:
         self.position = position
         self.occurred_at_ms = occurred_at_ms
+        self.request_digest = request_digest
 
 
 class MemoryEventLog:
@@ -125,6 +129,9 @@ class MemoryEventLog:
     async def _store(
         self, event_id: str, session_id: str, occurred_at_ms: int, document: dict[str, Any]
     ) -> str:
+        request_digest = request_fingerprint(
+            Event.model_validate(document, strict=False), document.get("payload")
+        )
         position = await self._stream.append({"event_id": event_id})
         stored = dict(document)
         stored["occurred_at_epoch_ms"] = occurred_at_ms
@@ -133,7 +140,7 @@ class MemoryEventLog:
 
         appended_at_ms = position_sort_key(position)[0]
         self._sessions.setdefault(session_id, []).append((position, event_id, appended_at_ms))
-        self._dedup[event_id] = _DedupRecord(position, occurred_at_ms)
+        self._dedup[event_id] = _DedupRecord(position, occurred_at_ms, request_digest)
         return position
 
     async def append_batch(
@@ -154,11 +161,18 @@ class MemoryEventLog:
     ) -> list[AppendOutcome]:
         outcomes: list[AppendOutcome] = []
         for idx, event in enumerate(events):
+            payload = payloads[idx] if payloads and idx < len(payloads) else None
             existing = self._dedup.get(str(event.event_id))
             if existing is not None:
-                outcomes.append(AppendOutcome("duplicate", existing.position))
+                if existing.request_digest != request_fingerprint(event, payload):
+                    outcomes.append(
+                        AppendOutcome(
+                            "conflict", error="Event ID conflicts with its original request"
+                        )
+                    )
+                else:
+                    outcomes.append(AppendOutcome("duplicate", existing.position))
                 continue
-            payload = payloads[idx] if payloads and idx < len(payloads) else None
             outcomes.append(AppendOutcome("created", await self.append(event, payload)))
         return outcomes
 

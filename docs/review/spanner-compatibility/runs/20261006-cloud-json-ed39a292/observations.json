@@ -1,0 +1,87 @@
+{
+  "checks": [
+    {
+      "name": "JSON_literal_float_marker_numeric_tag",
+      "scenarios": [
+        "LED-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "event_id": "8e79b81e-cf0e-41e0-bc46-282ac5c9f1be",
+        "ingestion_status": 201,
+        "expected_payload": {
+          "content": "marker collision",
+          "literal_object": {
+            "$float": "0.125"
+          }
+        },
+        "stored_payload": {
+          "content": "marker collision",
+          "literal_object": {
+            "$float": "0.125"
+          }
+        },
+        "read_error": null
+      },
+      "seconds": 0.2
+    },
+    {
+      "name": "JSON_literal_float_marker_text_tag",
+      "scenarios": [
+        "LED-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "event_id": "98f648d7-b510-4146-964e-52ed1b8ba42f",
+        "ingestion_status": 201,
+        "expected_payload": {
+          "content": "marker collision",
+          "literal_object": {
+            "$float": "ordinary-text"
+          }
+        },
+        "stored_payload": {
+          "content": "marker collision",
+          "literal_object": {
+            "$float": "ordinary-text"
+          }
+        },
+        "read_error": null
+      },
+      "seconds": 0.2
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 5
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 5
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 6
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

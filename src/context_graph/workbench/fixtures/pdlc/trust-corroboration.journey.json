@@ -1,0 +1,1273 @@
+{
+  "format_version": 1,
+  "id": "pdlc-trust-corroboration",
+  "title": "An untrusted producer cannot corroborate itself",
+  "story": "An untrusted producer cannot corroborate itself. Run the saved questions against this isolated example graph. Expected answers are preserved from the existing tests. This verifies retrieval, not ingestion or extraction.",
+  "source_refs": [
+    "tests/unit/test_pdlc_retrieval_eval.py::TestReviewFindings.test_an_untrusted_source_cannot_corroborate_itself"
+  ],
+  "pack_digest": "aa882fa31a865c3a6b2ffa1abc8d7ef7d609d244a50a2aa83100e99ea341d4cb",
+  "starting_state": {
+    "kind": "graph_fixture",
+    "nodes": [
+      {
+        "id": "Component:payments",
+        "type": "Component",
+        "properties": {
+          "node_id": "Component:payments",
+          "catalog_name": "payments",
+          "repo": "acme/app",
+          "path_prefixes": [
+            "refund/"
+          ],
+          "source_trust": "trusted",
+          "node_type": "Component",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "updated_at": "2026-09-01T09:14:00+00:00"
+        }
+      },
+      {
+        "id": "Component:ledger",
+        "type": "Component",
+        "properties": {
+          "node_id": "Component:ledger",
+          "catalog_name": "ledger",
+          "repo": "acme/app",
+          "path_prefixes": [
+            "ledger/"
+          ],
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "id": "a3cbdedb-a97e-5909-98b1-0c4084ccaeaa",
+        "type": "Event",
+        "properties": {
+          "event_id": "a3cbdedb-a97e-5909-98b1-0c4084ccaeaa",
+          "event_type": "pdlc.ticket.created",
+          "occurred_at": "2026-09-01T09:01:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:jira",
+          "trace_id": "t",
+          "global_position": "1-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "WorkItem:jira|PAY-300",
+        "type": "WorkItem",
+        "properties": {
+          "node_id": "WorkItem:jira|PAY-300",
+          "status": "in_progress",
+          "status_changed_at": "2026-09-01T09:01:00+00:00",
+          "tracker": "jira",
+          "external_key": "PAY-300",
+          "title": "Refund reliability",
+          "work_type": "epic",
+          "node_type": "WorkItem",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:01:00+00:00"
+        }
+      },
+      {
+        "id": "3696c1e6-66ee-5aa9-9fa0-547e0ebd3da8",
+        "type": "Event",
+        "properties": {
+          "event_id": "3696c1e6-66ee-5aa9-9fa0-547e0ebd3da8",
+          "event_type": "pdlc.ticket.created",
+          "occurred_at": "2026-09-01T09:02:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:jira",
+          "trace_id": "t",
+          "global_position": "2-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "WorkItem:jira|PAY-341",
+        "type": "WorkItem",
+        "properties": {
+          "node_id": "WorkItem:jira|PAY-341",
+          "status": "open",
+          "status_changed_at": "2026-09-01T09:02:00+00:00",
+          "tracker": "jira",
+          "external_key": "PAY-341",
+          "title": "Retry failed refunds",
+          "work_type": "story",
+          "node_type": "WorkItem",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:02:00+00:00"
+        }
+      },
+      {
+        "id": "b6d79eff-926c-56a7-9c56-8e6e11ba5855",
+        "type": "Event",
+        "properties": {
+          "event_id": "b6d79eff-926c-56a7-9c56-8e6e11ba5855",
+          "event_type": "pdlc.ticket.created",
+          "occurred_at": "2026-09-01T09:03:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:jira",
+          "trace_id": "t",
+          "global_position": "3-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "WorkItem:jira|PAY-342",
+        "type": "WorkItem",
+        "properties": {
+          "node_id": "WorkItem:jira|PAY-342",
+          "status": "in_progress",
+          "status_changed_at": "2026-09-01T09:03:00+00:00",
+          "tracker": "jira",
+          "external_key": "PAY-342",
+          "title": "Refund idempotency",
+          "work_type": "story",
+          "node_type": "WorkItem",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:03:00+00:00"
+        }
+      },
+      {
+        "id": "8c5f3a43-ce07-5b3e-affd-ec1296887ba8",
+        "type": "Event",
+        "properties": {
+          "event_id": "8c5f3a43-ce07-5b3e-affd-ec1296887ba8",
+          "event_type": "pdlc.ticket.created",
+          "occurred_at": "2026-09-01T09:04:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "unknown-bot",
+          "trace_id": "t",
+          "global_position": "4-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "WorkItem:jira|PAY-999",
+        "type": "WorkItem",
+        "properties": {
+          "node_id": "WorkItem:jira|PAY-999",
+          "status": "open",
+          "status_changed_at": "2026-09-01T09:04:00+00:00",
+          "tracker": "jira",
+          "external_key": "PAY-999",
+          "title": "Refund everything twice",
+          "work_type": "story",
+          "node_type": "WorkItem",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "untrusted",
+          "updated_at": "2026-09-01T09:04:00+00:00"
+        }
+      },
+      {
+        "id": "c6eb7f35-9021-5775-a7b3-974fb015c6ea",
+        "type": "Event",
+        "properties": {
+          "event_id": "c6eb7f35-9021-5775-a7b3-974fb015c6ea",
+          "event_type": "pdlc.spec.approved",
+          "occurred_at": "2026-09-01T09:05:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "5-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Spec:refunds|2",
+        "type": "Spec",
+        "properties": {
+          "node_id": "Spec:refunds|2",
+          "status": "approved",
+          "status_changed_at": "2026-09-01T09:05:00+00:00",
+          "doc_id": "refunds",
+          "version": "2",
+          "title": "Refunds",
+          "node_type": "Spec",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:05:00+00:00"
+        }
+      },
+      {
+        "id": "Request:jira|REQ-1",
+        "type": "Request",
+        "properties": {
+          "node_id": "Request:jira|REQ-1",
+          "status": "new",
+          "status_changed_at": "2026-09-01T09:05:00+00:00",
+          "source_system": "jira",
+          "external_id": "REQ-1",
+          "node_type": "Request",
+          "ontology_version": "sha256:11d2d04ace5faaf8"
+        }
+      },
+      {
+        "id": "7a1a027a-5584-52a1-a2d2-b3c41622ddd4",
+        "type": "Event",
+        "properties": {
+          "event_id": "7a1a027a-5584-52a1-a2d2-b3c41622ddd4",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-09-01T09:06:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "6-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Change:acme/app|7",
+        "type": "Change",
+        "properties": {
+          "node_id": "Change:acme/app|7",
+          "status": "merged",
+          "status_changed_at": "2026-09-01T09:06:00+00:00",
+          "repo": "acme/app",
+          "number": 7,
+          "merge_sha": "a7",
+          "title": "Fix refund retry",
+          "body": "Fixes PAY-341",
+          "files": [
+            "refund/retry.py"
+          ],
+          "node_type": "Change",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:06:00+00:00"
+        }
+      },
+      {
+        "id": "1d2d4846-dd05-5fda-b4f1-ce6620657706",
+        "type": "Event",
+        "properties": {
+          "event_id": "1d2d4846-dd05-5fda-b4f1-ce6620657706",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-09-01T09:07:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "7-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Change:acme/app|8",
+        "type": "Change",
+        "properties": {
+          "node_id": "Change:acme/app|8",
+          "status": "merged",
+          "status_changed_at": "2026-09-01T09:07:00+00:00",
+          "repo": "acme/app",
+          "number": 8,
+          "merge_sha": "a8",
+          "title": "Tidy logs",
+          "body": "",
+          "files": [
+            "logs/format.py"
+          ],
+          "node_type": "Change",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:07:00+00:00"
+        }
+      },
+      {
+        "id": "2d2cbdf9-bf71-57ac-bb99-1c0b2d5456fb",
+        "type": "Event",
+        "properties": {
+          "event_id": "2d2cbdf9-bf71-57ac-bb99-1c0b2d5456fb",
+          "event_type": "pdlc.change.merged",
+          "occurred_at": "2026-09-01T09:08:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "8-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Change:acme/app|9",
+        "type": "Change",
+        "properties": {
+          "node_id": "Change:acme/app|9",
+          "status": "merged",
+          "status_changed_at": "2026-09-01T09:08:00+00:00",
+          "repo": "acme/app",
+          "number": 9,
+          "merge_sha": "a9",
+          "title": "Refund idempotency keys",
+          "body": "Closes PAY-342",
+          "files": [
+            "refund/idempotency.py"
+          ],
+          "node_type": "Change",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:08:00+00:00"
+        }
+      },
+      {
+        "id": "5c9670a7-8ea6-5919-abfe-0166e0bdb09f",
+        "type": "Event",
+        "properties": {
+          "event_id": "5c9670a7-8ea6-5919-abfe-0166e0bdb09f",
+          "event_type": "pdlc.change.reviewed",
+          "occurred_at": "2026-09-01T09:09:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "9-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Review:acme/app|7|r7",
+        "type": "Review",
+        "properties": {
+          "node_id": "Review:acme/app|7|r7",
+          "repo": "acme/app",
+          "number": 7,
+          "review_id": "r7",
+          "verdict": "approved",
+          "node_type": "Review",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:09:00+00:00"
+        }
+      },
+      {
+        "id": "ba7dd313-9dcc-5853-b544-9470daee447f",
+        "type": "Event",
+        "properties": {
+          "event_id": "ba7dd313-9dcc-5853-b544-9470daee447f",
+          "event_type": "pdlc.change.reviewed",
+          "occurred_at": "2026-09-01T09:10:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "10-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Review:acme/app|9|r9",
+        "type": "Review",
+        "properties": {
+          "node_id": "Review:acme/app|9|r9",
+          "repo": "acme/app",
+          "number": 9,
+          "review_id": "r9",
+          "verdict": "approved",
+          "node_type": "Review",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:10:00+00:00"
+        }
+      },
+      {
+        "id": "eb949ab7-572c-57f0-82d2-5c4f63647d2b",
+        "type": "Event",
+        "properties": {
+          "event_id": "eb949ab7-572c-57f0-82d2-5c4f63647d2b",
+          "event_type": "pdlc.testcaserun.finished",
+          "occurred_at": "2026-09-01T09:11:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "11-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "TestCase:acme/app|test_retry",
+        "type": "TestCase",
+        "properties": {
+          "node_id": "TestCase:acme/app|test_retry",
+          "status": "active",
+          "status_changed_at": "2026-09-01T09:11:00+00:00",
+          "repo": "acme/app",
+          "test_id": "test_retry",
+          "name": "test_retry",
+          "node_type": "TestCase",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:11:00+00:00"
+        }
+      },
+      {
+        "id": "TestRun:run-1",
+        "type": "TestRun",
+        "properties": {
+          "node_id": "TestRun:run-1",
+          "run_id": "run-1",
+          "outcome": "success",
+          "finished_at": "2026-09-01T09:11:00+00:00",
+          "node_type": "TestRun",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:11:00+00:00"
+        }
+      },
+      {
+        "id": "fc90848a-1c27-5239-af4a-4de99c737f73",
+        "type": "Event",
+        "properties": {
+          "event_id": "fc90848a-1c27-5239-af4a-4de99c737f73",
+          "event_type": "pdlc.release.published",
+          "occurred_at": "2026-09-01T09:12:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "12-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Release:acme/app|v1.4.0",
+        "type": "Release",
+        "properties": {
+          "node_id": "Release:acme/app|v1.4.0",
+          "repo": "acme/app",
+          "version": "v1.4.0",
+          "released_at": "2026-09-01T09:12:00+00:00",
+          "breaking": false,
+          "node_type": "Release",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:12:00+00:00"
+        }
+      },
+      {
+        "id": "e5e7e719-ec9a-52d2-a6d1-276d964d55c1",
+        "type": "Event",
+        "properties": {
+          "event_id": "e5e7e719-ec9a-52d2-a6d1-276d964d55c1",
+          "event_type": "pdlc.service.deployed",
+          "occurred_at": "2026-09-01T09:13:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "13-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Deployment:prod|app:1.4|2026-09-01T09:13:00+00:00",
+        "type": "Deployment",
+        "properties": {
+          "node_id": "Deployment:prod|app:1.4|2026-09-01T09:13:00+00:00",
+          "status": "succeeded",
+          "status_changed_at": "2026-09-01T09:13:00+00:00",
+          "environment": "prod",
+          "artifact_id": "app:1.4",
+          "started_at": "2026-09-01T09:13:00+00:00",
+          "repo": "acme/app",
+          "node_type": "Deployment",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:13:00+00:00"
+        }
+      },
+      {
+        "id": "e7f41a29-802b-5b7a-a5fc-b0ab0eec40ff",
+        "type": "Event",
+        "properties": {
+          "event_id": "e7f41a29-802b-5b7a-a5fc-b0ab0eec40ff",
+          "event_type": "pdlc.incident.detected",
+          "occurred_at": "2026-09-01T09:14:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "14-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Incident:INC-77",
+        "type": "Incident",
+        "properties": {
+          "node_id": "Incident:INC-77",
+          "status": "detected",
+          "status_changed_at": "2026-09-01T09:14:00+00:00",
+          "incident_id": "INC-77",
+          "severity": "high",
+          "title": "Duplicate refunds after retry",
+          "environment": "prod",
+          "artifact_id": "app:1.4",
+          "node_type": "Incident",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:14:00+00:00"
+        }
+      },
+      {
+        "id": "afd367e2-487d-5ae6-8055-292534ba0eab",
+        "type": "Event",
+        "properties": {
+          "event_id": "afd367e2-487d-5ae6-8055-292534ba0eab",
+          "event_type": "pdlc.decision.recorded",
+          "occurred_at": "2026-09-01T09:15:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "15-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Decision:4d926cc0010f45b58987128cb09a86a76c30bd5028a87147bbb0e76007b6b566",
+        "type": "Decision",
+        "properties": {
+          "node_id": "Decision:4d926cc0010f45b58987128cb09a86a76c30bd5028a87147bbb0e76007b6b566",
+          "status": "accepted",
+          "status_changed_at": "2026-09-01T09:15:00+00:00",
+          "content_hash": "4d926cc0010f45b58987128cb09a86a76c30bd5028a87147bbb0e76007b6b566",
+          "statement": "Retry failed refunds once",
+          "rationale": "keep it simple",
+          "node_type": "Decision",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:15:00+00:00"
+        }
+      },
+      {
+        "id": "9b4c7a0b-cba6-50a0-9fbb-20db711629e9",
+        "type": "Event",
+        "properties": {
+          "event_id": "9b4c7a0b-cba6-50a0-9fbb-20db711629e9",
+          "event_type": "pdlc.decision.recorded",
+          "occurred_at": "2026-09-01T09:16:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "16-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Decision:19f16f126b8b94b8a7cc54cd3fb846c8307e34ba2dc239eb671e819d7c279cf5",
+        "type": "Decision",
+        "properties": {
+          "node_id": "Decision:19f16f126b8b94b8a7cc54cd3fb846c8307e34ba2dc239eb671e819d7c279cf5",
+          "status": "accepted",
+          "status_changed_at": "2026-09-01T09:16:00+00:00",
+          "content_hash": "19f16f126b8b94b8a7cc54cd3fb846c8307e34ba2dc239eb671e819d7c279cf5",
+          "statement": "Retry failed refunds up to three times with idempotency keys",
+          "rationale": "INC-77 showed one retry is not enough",
+          "node_type": "Decision",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:16:00+00:00"
+        }
+      },
+      {
+        "id": "d4d4d1a5-bbea-5dfc-9f89-4798c00a9868",
+        "type": "Event",
+        "properties": {
+          "event_id": "d4d4d1a5-bbea-5dfc-9f89-4798c00a9868",
+          "event_type": "pdlc.decision.recorded",
+          "occurred_at": "2026-09-01T09:17:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "17-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Decision:3da66ded9b83b03de9a42896b6d6e4716a9726444d8ba4fc9d2cbc821244e93c",
+        "type": "Decision",
+        "properties": {
+          "node_id": "Decision:3da66ded9b83b03de9a42896b6d6e4716a9726444d8ba4fc9d2cbc821244e93c",
+          "status": "accepted",
+          "status_changed_at": "2026-09-01T09:17:00+00:00",
+          "content_hash": "3da66ded9b83b03de9a42896b6d6e4716a9726444d8ba4fc9d2cbc821244e93c",
+          "statement": "Refunds must be processed synchronously",
+          "rationale": "simpler error handling",
+          "node_type": "Decision",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:17:00+00:00"
+        }
+      },
+      {
+        "id": "dbe845bf-a7e7-54c3-9e0e-58360fa719b7",
+        "type": "Event",
+        "properties": {
+          "event_id": "dbe845bf-a7e7-54c3-9e0e-58360fa719b7",
+          "event_type": "pdlc.decision.recorded",
+          "occurred_at": "2026-09-01T09:18:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "webhook:github",
+          "trace_id": "t",
+          "global_position": "18-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Decision:9df55a7dcae2242ea11785b4cf88b88824fe76fe25a473d0bfc89bd24d2644d9",
+        "type": "Decision",
+        "properties": {
+          "node_id": "Decision:9df55a7dcae2242ea11785b4cf88b88824fe76fe25a473d0bfc89bd24d2644d9",
+          "status": "accepted",
+          "status_changed_at": "2026-09-01T09:18:00+00:00",
+          "content_hash": "9df55a7dcae2242ea11785b4cf88b88824fe76fe25a473d0bfc89bd24d2644d9",
+          "statement": "Refunds must be processed asynchronously",
+          "rationale": "provider rate limits",
+          "node_type": "Decision",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:18:00+00:00"
+        }
+      },
+      {
+        "id": "Requirement:refunds|2|R1",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:refunds|2|R1",
+          "spec_id": "refunds",
+          "spec_version": "2",
+          "local_id": "R1",
+          "statement": "Retry a failed refund",
+          "status": "accepted",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "id": "Requirement:refunds|2|R2",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:refunds|2|R2",
+          "spec_id": "refunds",
+          "spec_version": "2",
+          "local_id": "R2",
+          "statement": "Never refund more than the captured amount",
+          "status": "accepted",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "id": "Requirement:refunds|2|R3",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:refunds|2|R3",
+          "spec_id": "refunds",
+          "spec_version": "2",
+          "local_id": "R3",
+          "statement": "Refund within 24 hours",
+          "status": "accepted",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "id": "TestCase:acme/app|test_window",
+        "type": "TestCase",
+        "properties": {
+          "node_id": "TestCase:acme/app|test_window",
+          "repo": "acme/app",
+          "test_id": "test_window",
+          "name": "test_window"
+        }
+      },
+      {
+        "id": "DesignElement:refunds-hld|retry-v1|1",
+        "type": "DesignElement",
+        "properties": {
+          "node_id": "DesignElement:refunds-hld|retry-v1|1",
+          "doc_id": "refunds-hld",
+          "section_path": "retry-v1",
+          "version": "1",
+          "title": "Refund retry design",
+          "body": "Retry once",
+          "status": "approved",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "id": "DesignElement:refunds-hld|retry-v2|2",
+        "type": "DesignElement",
+        "properties": {
+          "node_id": "DesignElement:refunds-hld|retry-v2|2",
+          "doc_id": "refunds-hld",
+          "section_path": "retry-v2",
+          "version": "2",
+          "title": "Refund retry design",
+          "body": "Retry three times with idempotency keys",
+          "status": "approved",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "id": "Constraint:never-exceed",
+        "type": "Constraint",
+        "properties": {
+          "node_id": "Constraint:never-exceed",
+          "statement": "Refunds must never exceed the captured amount",
+          "status": "active",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "id": "Lesson:idempotency",
+        "type": "Lesson",
+        "properties": {
+          "node_id": "Lesson:idempotency",
+          "statement": "Avoid retrying refunds without idempotency keys",
+          "polarity": "avoid",
+          "status": "validated",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "id": "07611ab1-843b-503c-a35e-7950b684ba1c",
+        "type": "Event",
+        "properties": {
+          "event_id": "07611ab1-843b-503c-a35e-7950b684ba1c",
+          "event_type": "pdlc.ticket.created",
+          "occurred_at": "2026-09-02T09:00:00+00:00",
+          "session_id": "pdlc:acme/app",
+          "agent_id": "unknown-bot",
+          "trace_id": "t",
+          "global_position": "999-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "WorkItem:jira|PAY-666",
+        "type": "WorkItem",
+        "properties": {
+          "node_id": "WorkItem:jira|PAY-666",
+          "status": "open",
+          "status_changed_at": "2026-09-02T09:00:00+00:00",
+          "tracker": "jira",
+          "external_key": "PAY-666",
+          "title": "Disable refund limit checks",
+          "work_type": "story",
+          "node_type": "WorkItem",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "untrusted",
+          "updated_at": "2026-09-02T09:00:00+00:00"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "Component:payments",
+        "target": "Component:ledger",
+        "type": "DEPENDS_ON",
+        "properties": {
+          "kind": "needs"
+        }
+      },
+      {
+        "source": "WorkItem:jira|PAY-300",
+        "target": "a3cbdedb-a97e-5909-98b1-0c4084ccaeaa",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "WorkItem:jira|PAY-341",
+        "target": "3696c1e6-66ee-5aa9-9fa0-547e0ebd3da8",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "WorkItem:jira|PAY-300",
+        "target": "WorkItem:jira|PAY-341",
+        "type": "DECOMPOSES_INTO",
+        "properties": {
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "WorkItem:jira|PAY-342",
+        "target": "b6d79eff-926c-56a7-9c56-8e6e11ba5855",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "WorkItem:jira|PAY-300",
+        "target": "WorkItem:jira|PAY-342",
+        "type": "DECOMPOSES_INTO",
+        "properties": {
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "WorkItem:jira|PAY-999",
+        "target": "8c5f3a43-ce07-5b3e-affd-ec1296887ba8",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Spec:refunds|2",
+        "target": "c6eb7f35-9021-5775-a7b3-974fb015c6ea",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Spec:refunds|2",
+        "target": "Request:jira|REQ-1",
+        "type": "REFINES",
+        "properties": {
+          "confidence": 1.0,
+          "link_status": "confirmed",
+          "method": "declared",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Change:acme/app|7",
+        "target": "7a1a027a-5584-52a1-a2d2-b3c41622ddd4",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Change:acme/app|7",
+        "target": "WorkItem:jira|PAY-341",
+        "type": "IMPLEMENTS",
+        "properties": {
+          "confidence": 1.0,
+          "link_status": "confirmed",
+          "method": "declared",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Change:acme/app|7",
+        "target": "Component:payments",
+        "type": "TOUCHES",
+        "properties": {
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Change:acme/app|8",
+        "target": "1d2d4846-dd05-5fda-b4f1-ce6620657706",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Change:acme/app|9",
+        "target": "2d2cbdf9-bf71-57ac-bb99-1c0b2d5456fb",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Change:acme/app|9",
+        "target": "WorkItem:jira|PAY-342",
+        "type": "IMPLEMENTS",
+        "properties": {
+          "confidence": 1.0,
+          "link_status": "confirmed",
+          "method": "declared",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Change:acme/app|9",
+        "target": "Component:payments",
+        "type": "TOUCHES",
+        "properties": {
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Review:acme/app|7|r7",
+        "target": "5c9670a7-8ea6-5919-abfe-0166e0bdb09f",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Review:acme/app|7|r7",
+        "target": "Change:acme/app|7",
+        "type": "REVIEWS",
+        "properties": {
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Review:acme/app|9|r9",
+        "target": "ba7dd313-9dcc-5853-b544-9470daee447f",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Review:acme/app|9|r9",
+        "target": "Change:acme/app|9",
+        "type": "REVIEWS",
+        "properties": {
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "TestCase:acme/app|test_retry",
+        "target": "eb949ab7-572c-57f0-82d2-5c4f63647d2b",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "TestRun:run-1",
+        "target": "eb949ab7-572c-57f0-82d2-5c4f63647d2b",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "TestRun:run-1",
+        "target": "TestCase:acme/app|test_retry",
+        "type": "EXECUTES",
+        "properties": {
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "TestRun:run-1",
+        "target": "Change:acme/app|7",
+        "type": "RAN_AGAINST",
+        "properties": {
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Release:acme/app|v1.4.0",
+        "target": "fc90848a-1c27-5239-af4a-4de99c737f73",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Release:acme/app|v1.4.0",
+        "target": "Change:acme/app|7",
+        "type": "INCLUDES",
+        "properties": {
+          "section": "fixed",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Release:acme/app|v1.4.0",
+        "target": "Change:acme/app|9",
+        "type": "INCLUDES",
+        "properties": {
+          "section": "added",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Component:payments",
+        "target": "e5e7e719-ec9a-52d2-a6d1-276d964d55c1",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Deployment:prod|app:1.4|2026-09-01T09:13:00+00:00",
+        "target": "e5e7e719-ec9a-52d2-a6d1-276d964d55c1",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Deployment:prod|app:1.4|2026-09-01T09:13:00+00:00",
+        "target": "Component:payments",
+        "type": "DEPLOYED_TO",
+        "properties": {
+          "environment": "prod",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Deployment:prod|app:1.4|2026-09-01T09:13:00+00:00",
+        "target": "Change:acme/app|7",
+        "type": "DEPLOYS",
+        "properties": {
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Deployment:prod|app:1.4|2026-09-01T09:13:00+00:00",
+        "target": "Change:acme/app|9",
+        "type": "DEPLOYS",
+        "properties": {
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Incident:INC-77",
+        "target": "e7f41a29-802b-5b7a-a5fc-b0ab0eec40ff",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Component:payments",
+        "target": "e7f41a29-802b-5b7a-a5fc-b0ab0eec40ff",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Incident:INC-77",
+        "target": "Component:payments",
+        "type": "AFFECTS",
+        "properties": {
+          "confidence": 1.0,
+          "link_status": "confirmed",
+          "method": "declared",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Incident:INC-77",
+        "target": "Deployment:prod|app:1.4|2026-09-01T09:13:00+00:00",
+        "type": "OCCURRED_ON",
+        "properties": {
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Decision:4d926cc0010f45b58987128cb09a86a76c30bd5028a87147bbb0e76007b6b566",
+        "target": "afd367e2-487d-5ae6-8055-292534ba0eab",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Decision:4d926cc0010f45b58987128cb09a86a76c30bd5028a87147bbb0e76007b6b566",
+        "target": "Component:payments",
+        "type": "APPLIES_TO",
+        "properties": {
+          "confidence": 1.0,
+          "link_status": "confirmed",
+          "method": "declared",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Decision:19f16f126b8b94b8a7cc54cd3fb846c8307e34ba2dc239eb671e819d7c279cf5",
+        "target": "9b4c7a0b-cba6-50a0-9fbb-20db711629e9",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Decision:19f16f126b8b94b8a7cc54cd3fb846c8307e34ba2dc239eb671e819d7c279cf5",
+        "target": "Decision:4d926cc0010f45b58987128cb09a86a76c30bd5028a87147bbb0e76007b6b566",
+        "type": "SUPERSEDES",
+        "properties": {
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Decision:19f16f126b8b94b8a7cc54cd3fb846c8307e34ba2dc239eb671e819d7c279cf5",
+        "target": "Component:payments",
+        "type": "APPLIES_TO",
+        "properties": {
+          "confidence": 1.0,
+          "link_status": "confirmed",
+          "method": "declared",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Decision:3da66ded9b83b03de9a42896b6d6e4716a9726444d8ba4fc9d2cbc821244e93c",
+        "target": "d4d4d1a5-bbea-5dfc-9f89-4798c00a9868",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Decision:3da66ded9b83b03de9a42896b6d6e4716a9726444d8ba4fc9d2cbc821244e93c",
+        "target": "Component:payments",
+        "type": "APPLIES_TO",
+        "properties": {
+          "confidence": 1.0,
+          "link_status": "confirmed",
+          "method": "declared",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Decision:9df55a7dcae2242ea11785b4cf88b88824fe76fe25a473d0bfc89bd24d2644d9",
+        "target": "dbe845bf-a7e7-54c3-9e0e-58360fa719b7",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Decision:9df55a7dcae2242ea11785b4cf88b88824fe76fe25a473d0bfc89bd24d2644d9",
+        "target": "Component:payments",
+        "type": "APPLIES_TO",
+        "properties": {
+          "confidence": 1.0,
+          "link_status": "confirmed",
+          "method": "declared",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Requirement:refunds|2|R1",
+        "target": "Spec:refunds|2",
+        "type": "REFINES",
+        "properties": {
+          "confidence": 1.0,
+          "method": "declared",
+          "link_status": "confirmed"
+        }
+      },
+      {
+        "source": "Requirement:refunds|2|R2",
+        "target": "Spec:refunds|2",
+        "type": "REFINES",
+        "properties": {
+          "confidence": 1.0,
+          "method": "declared",
+          "link_status": "confirmed"
+        }
+      },
+      {
+        "source": "Requirement:refunds|2|R3",
+        "target": "Spec:refunds|2",
+        "type": "REFINES",
+        "properties": {
+          "confidence": 1.0,
+          "method": "declared",
+          "link_status": "confirmed"
+        }
+      },
+      {
+        "source": "TestCase:acme/app|test_retry",
+        "target": "Requirement:refunds|2|R1",
+        "type": "VERIFIES",
+        "properties": {
+          "confidence": 1.0,
+          "method": "declared",
+          "link_status": "confirmed"
+        }
+      },
+      {
+        "source": "TestCase:acme/app|test_window",
+        "target": "Requirement:refunds|2|R3",
+        "type": "VERIFIES",
+        "properties": {
+          "confidence": 0.3,
+          "method": "co_change",
+          "link_status": "proposed"
+        }
+      },
+      {
+        "source": "DesignElement:refunds-hld|retry-v2|2",
+        "target": "DesignElement:refunds-hld|retry-v1|1",
+        "type": "SUPERSEDES",
+        "properties": {}
+      },
+      {
+        "source": "Decision:3da66ded9b83b03de9a42896b6d6e4716a9726444d8ba4fc9d2cbc821244e93c",
+        "target": "Decision:9df55a7dcae2242ea11785b4cf88b88824fe76fe25a473d0bfc89bd24d2644d9",
+        "type": "CONTRADICTS",
+        "properties": {}
+      },
+      {
+        "source": "Constraint:never-exceed",
+        "target": "Component:payments",
+        "type": "CONSTRAINS",
+        "properties": {
+          "scope": "refunds"
+        }
+      },
+      {
+        "source": "Lesson:idempotency",
+        "target": "Incident:INC-77",
+        "type": "LEARNED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "WorkItem:jira|PAY-666",
+        "target": "07611ab1-843b-503c-a35e-7950b684ba1c",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "WorkItem:jira|PAY-300",
+        "target": "WorkItem:jira|PAY-666",
+        "type": "DECOMPOSES_INTO",
+        "properties": {
+          "source_trust": "untrusted"
+        }
+      }
+    ],
+    "retrieval_limits": {
+      "default_max_depth": 3,
+      "seed_limit": 10,
+      "neighbor_limit": 200
+    }
+  },
+  "events": [],
+  "checks": [
+    {
+      "id": "query-1",
+      "description": "Trace PAY-300",
+      "source": "tests/unit/test_pdlc_retrieval_eval.py::TestReviewFindings.test_an_untrusted_source_cannot_corroborate_itself",
+      "kind": "retrieval",
+      "after_step": null,
+      "expected": {
+        "text": "Trace PAY-300",
+        "seed": "",
+        "intent": null,
+        "required": [
+          "WorkItem:jira|PAY-342"
+        ],
+        "forbidden": [
+          "WorkItem:jira|PAY-666"
+        ],
+        "query_options": {
+          "max_nodes": 100,
+          "max_depth": null,
+          "include_untrusted": false
+        }
+      }
+    },
+    {
+      "id": "query-2",
+      "description": "Trace PAY-300",
+      "source": "tests/unit/test_pdlc_retrieval_eval.py::TestReviewFindings.test_an_untrusted_source_cannot_corroborate_itself",
+      "kind": "retrieval",
+      "after_step": null,
+      "expected": {
+        "text": "Trace PAY-300",
+        "seed": "",
+        "intent": null,
+        "required": [],
+        "forbidden": [],
+        "query_options": {
+          "max_nodes": 100,
+          "max_depth": null,
+          "include_untrusted": true
+        },
+        "reasons": {
+          "WorkItem:jira|PAY-666": "untrusted"
+        }
+      }
+    }
+  ],
+  "trusted_producers": [
+    "webhook:github",
+    "webhook:jira"
+  ],
+  "expectations_reviewed": true
+}

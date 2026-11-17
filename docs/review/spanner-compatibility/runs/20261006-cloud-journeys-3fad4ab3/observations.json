@@ -1,0 +1,139 @@
+{
+  "checks": [
+    {
+      "name": "agent_memory_API_worker_journey",
+      "scenarios": [
+        "APP-01",
+        "ING-01",
+        "PROJ-01",
+        "ENR-01",
+        "MEM-01",
+        "MEM-02",
+        "MEM-03"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "",
+      "seconds": 21.23
+    },
+    {
+      "name": "signed_PDLC_API_projection_artifact_extraction",
+      "scenarios": [
+        "APP-02",
+        "HOOK-01",
+        "HOOK-02",
+        "ART-01",
+        "PEXT-01",
+        "PEXT-02",
+        "ONT-01"
+      ],
+      "verdict": "failed",
+      "error_type": "KeyError",
+      "error": "NodeRef(label='Change', key='Change:acme/payments|7', key_property='node_id')",
+      "seconds": 8.6
+    },
+    {
+      "name": "CRM_API_projection_gate_retrieval",
+      "scenarios": [
+        "APP-03",
+        "ING-02",
+        "PROJ-02",
+        "ART-02",
+        "ART-05"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "",
+      "seconds": 7.8
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 7996
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 10115
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 32
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 2
+    },
+    {
+      "table": "Events",
+      "rows": 3071
+    },
+    {
+      "table": "GraphEdges",
+      "rows": 4
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 3
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 32
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 2
+    },
+    {
+      "table": "Events",
+      "rows": 3
+    },
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 8
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

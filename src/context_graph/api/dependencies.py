@@ -39,6 +39,27 @@ def get_event_store(request: Request) -> EventStore:
     return request.app.state.event_store  # type: ignore[no-any-return]
 
 
+def get_event_writer(request: Request) -> EventStore:
+    """Bind the authenticated producer to this request without mutable shared state."""
+    store = get_event_store(request)
+    binding = getattr(request.app.state, "tenant_binding", None)
+    if binding is None:
+        return store
+    from context_graph.ports.event_store import AdmissionBindable
+    from context_graph.tenancy import Principal, TenantAuthorizationError
+
+    principal = request.scope.get("engram.principal")
+    if not isinstance(principal, Principal):
+        raise HTTPException(status_code=401, detail="Tenant authentication required")
+    try:
+        context = binding.admission_context(principal)
+    except TenantAuthorizationError as exc:
+        raise HTTPException(status_code=403, detail="Tenant admission is not authorized") from exc
+    if not isinstance(store, AdmissionBindable):
+        raise HTTPException(status_code=503, detail="Tenant admission unavailable")
+    return store.admission_writer(context)
+
+
 def get_graph_store(request: Request) -> GraphStore:
     """Return the graph store from app state."""
     return request.app.state.graph_store  # type: ignore[no-any-return]
@@ -53,6 +74,8 @@ def get_retrieval(request: Request) -> Retrieval:
     """
     retrieval = getattr(request.app.state, "retrieval", None)
     if retrieval is None:
+        if getattr(request.app.state, "tenant_binding", None) is not None:
+            raise HTTPException(status_code=503, detail="Tenant retrieval unavailable")
         return request.app.state.graph_store  # type: ignore[no-any-return]
     return retrieval  # type: ignore[no-any-return]
 
@@ -68,7 +91,21 @@ def get_graph_maintenance(request: Request) -> GraphMaintenance:
 
 
 def get_user_store(request: Request) -> UserStore:
-    """Return the user store from app state."""
+    """Ordinary user reads require the selected user schema."""
+    bundle = getattr(request.app.state, "bundle", None)
+    if bundle is None:
+        raise HTTPException(status_code=503, detail="Pack configuration unavailable")
+    if not any(name == "user" for name, _version in bundle.pack_identities):
+        raise HTTPException(status_code=404, detail="User capability is not enabled")
+    return get_user_privacy_store(request)
+
+
+def get_user_privacy_store(request: Request) -> UserStore:
+    """Retain export/erasure access to historical data when user reads are disabled.
+
+    Authentication and tenant authorization still apply; this only separates
+    privacy operations from the optional ordinary-read capability gate.
+    """
     return request.app.state.graph_store  # type: ignore[no-any-return]
 
 
@@ -101,6 +138,9 @@ async def require_api_key(request: Request) -> None:
     When ``CG_AUTH_API_KEY`` is not set (None), auth is disabled and all
     requests pass through.  When set, the Bearer token must match.
     """
+    if getattr(request.app.state, "tenant_binding", None) is not None:
+        _require_tenant_role(request, "api")
+        return
     settings: Settings = request.app.state.settings
     expected_key = settings.auth.api_key
     if expected_key is None:
@@ -119,6 +159,9 @@ async def require_admin_key(request: Request) -> None:
     admin-level key.  When ``CG_AUTH_ADMIN_KEY`` is not set, auth is
     disabled.
     """
+    if getattr(request.app.state, "tenant_binding", None) is not None:
+        _require_tenant_role(request, "admin")
+        return
     settings: Settings = request.app.state.settings
     expected_key = settings.auth.admin_key
     if expected_key is None:
@@ -128,3 +171,14 @@ async def require_admin_key(request: Request) -> None:
     if token is None or not hmac.compare_digest(token, expected_key):
         logger.warning("auth_failed", path=str(request.url.path), guard="admin_key")
         raise HTTPException(status_code=401, detail="Invalid or missing admin key")
+
+
+def _require_tenant_role(request: Request, role: str) -> None:
+    from context_graph.tenancy import Principal
+
+    principal = request.scope.get("engram.principal")
+    if not isinstance(principal, Principal):
+        raise HTTPException(status_code=401, detail="Tenant authentication required")
+    binding = request.app.state.tenant_binding
+    if principal.tenant_id != binding.tenant_id or role not in principal.roles:
+        raise HTTPException(status_code=403, detail="Tenant role is not authorized")

@@ -38,22 +38,26 @@ from context_graph.domain.models import (
     QueryCapacity,
     QueryMeta,
 )
+from context_graph.domain.pack_intents import UnsupportedIntentError
 from context_graph.domain.pagination import decode_cursor, encode_cursor
 from context_graph.domain.ppr import approximate_ppr
 from context_graph.domain.query_expansion import build_hyde_prompt, expand_query
 from context_graph.domain.reranking import reciprocal_rank_fusion
 from context_graph.domain.scoring import score_entity_node, score_node
 from context_graph.metrics import GRAPH_QUERY_DURATION
+from context_graph.ports.errors import RuntimeFencedError
 from context_graph.retrieval.atlas import build_adjacency, build_atlas_node
 from context_graph.settings import INTENT_WEIGHTS
 
 if TYPE_CHECKING:
     from context_graph.domain.models import LineageQuery, SubgraphQuery
+    from context_graph.domain.pack_bundle import ActiveBundle
     from context_graph.domain.pack_intents import RegistryIntents
     from context_graph.ports.embedding import EmbeddingService
     from context_graph.ports.graph_reads import GraphReads
     from context_graph.ports.intent import IntentClassifier
     from context_graph.ports.llm import LLMClient
+    from context_graph.ports.pack_graph import PackGraph
     from context_graph.ports.search import KeywordIndex, VectorIndex
     from context_graph.settings import DecaySettings, PPRSettings
 
@@ -96,6 +100,8 @@ class RetrievalEngine:
         hyde_hot_path_timeout: float = 2.0,
         provenance_source: str = "redis",
         intents: RegistryIntents | None = None,
+        bundle: ActiveBundle | None = None,
+        pack_graph: PackGraph | None = None,
     ) -> None:
         self._graph = graph
         self._keyword_index = keyword_index
@@ -111,6 +117,9 @@ class RetrievalEngine:
         self._provenance_source = provenance_source
         # The active packs' intents (ADR-0018); without them, today's fixed tables
         self._intents = intents
+        self._bundle = bundle
+        self._pack_graph = pack_graph
+        self._registry = bundle.registry if bundle is not None else None
 
     def _classify(self, query: str) -> dict[str, float]:
         if self._intents is not None:
@@ -123,6 +132,14 @@ class RetrievalEngine:
 
     async def get_subgraph(self, query: SubgraphQuery) -> AtlasResponse:
         """Execute an intent-aware subgraph query."""
+        if (
+            query.intent is not None
+            and self._intents is not None
+            and str(query.intent) not in self._intents.names
+        ):
+            raise UnsupportedIntentError(
+                f"Intent {query.intent!r} is not enabled by selected packs"
+            )
         start_ms = time.monotonic_ns()
 
         # HyDE query expansion (L6) — with configurable timeout
@@ -162,6 +179,17 @@ class RetrievalEngine:
         if query.intent is not None:
             inferred_intents = {str(query.intent): 1.0}
 
+        if self._intents is not None:
+            # An external classifier or explicit override cannot activate an
+            # intent absent from the selected packs.
+            inferred_intents = {
+                name: confidence
+                for name, confidence in inferred_intents.items()
+                if name in self._intents.names
+            }
+            if not inferred_intents:
+                inferred_intents = self._classify(query.query)
+
         # Get edge weights based on intents
         if self._intents is not None:
             edge_weights = self._intents.edge_weights(inferred_intents)
@@ -178,6 +206,19 @@ class RetrievalEngine:
 
         channel_results = await asyncio.gather(
             graph_task, vector_task, bm25_task, return_exceptions=True
+        )
+
+        for result in channel_results:
+            if isinstance(result, RuntimeFencedError):
+                raise result
+
+        # Preserve the channel's declared identity; an unresolved caller ID is
+        # not evidence that an Entity exists.
+        vector_result = channel_results[1]
+        entity_seed_ids = (
+            {sid for sid, _score in vector_result}
+            if not isinstance(vector_result, BaseException) and self._pack_graph is None
+            else set()
         )
 
         # Collect valid channel results, filtering out exceptions
@@ -208,11 +249,17 @@ class RetrievalEngine:
         seed_node_ids: list[str] = []
 
         # Batch-fetch properties for fused seed IDs (single roundtrip)
-        await self._fetch_seed_nodes(fused_seed_ids, nodes, seed_node_ids, query_embedding)
+        await self._fetch_seed_nodes(
+            fused_seed_ids,
+            nodes,
+            seed_node_ids,
+            query_embedding,
+            entity_seed_ids=entity_seed_ids,
+        )
 
         # Override with user-provided seed_nodes if specified
         if query.seed_nodes:
-            seed_node_ids = list(query.seed_nodes)
+            seed_node_ids = [sid for sid in query.seed_nodes if sid in nodes]
             user_seeds = [s for s in query.seed_nodes if s not in nodes]
             if user_seeds:
                 await self._fetch_seed_nodes(user_seeds, nodes, seed_node_ids, query_embedding)
@@ -498,6 +545,12 @@ class RetrievalEngine:
         seed_strategy: str,
     ) -> list[tuple[str, float]]:
         """Channel 1: Graph-based seed retrieval via intent-aware strategy."""
+        if (
+            self._bundle is not None
+            and seed_strategy == "user_profile"
+            and not any(name == "user" for name, _version in self._bundle.pack_identities)
+        ):
+            seed_strategy = "general"
         seed_records = await self._graph.seed_events(
             seed_strategy, query.session_id, seed_limit, timeout_s=self._query_timeout_s
         )
@@ -527,7 +580,45 @@ class RetrievalEngine:
             hits = await self._vector_index.nearest(
                 query_embedding, top_k=limit, threshold=VECTOR_SEED_THRESHOLD
             )
+            if self._pack_graph is not None:
+                # VectorIndex returns Entities. Resolve that typed identity,
+                # then seed its referencing Events; never fuse untyped Entity
+                # IDs with Event IDs or traverse an Entity as an Event.
+                from context_graph.ports.pack_graph import NodeRef
+
+                refs = [NodeRef("Entity", hit.id, "entity_id") for hit in hits]
+                found = await self._pack_graph.get_nodes(refs)
+                scores = {hit.id: hit.score for hit in hits}
+                valid = [
+                    ref for ref in refs if ref in found and found[ref].get("entity_id") == ref.key
+                ]
+                if not valid:
+                    return []
+                rows = []
+                # Bound each Entity separately so a lower-scoring Entity's
+                # earlier storage key cannot crowd out a higher-scoring hit.
+                for ref in valid:
+                    rows.extend(
+                        await self._pack_graph.neighbors([ref], ["REFERENCES"], "in", limit)
+                    )
+                events: dict[str, float] = {}
+                for row in rows:
+                    target = NodeRef("Entity", str(row.get("target_key", "")), "entity_id")
+                    props = row.get("node", {})
+                    eid = str(row.get("source_key", ""))
+                    if (
+                        row.get("edge_type") == "REFERENCES"
+                        and row.get("source_label") == row.get("node_label") == "Event"
+                        and row.get("target_label") == "Entity"
+                        and target in valid
+                        and props.get("event_id") == eid
+                        and row.get("properties", {}).get("link_status", "confirmed") != "rejected"
+                    ):
+                        events[eid] = max(events.get(eid, 0.0), scores[target.key])
+                return sorted(events.items(), key=lambda item: (-item[1], item[0]))[:limit]
             return [(hit.id, hit.score) for hit in hits]
+        except RuntimeFencedError:
+            raise
         except Exception:
             logger.warning("vector_seed_retrieval_failed")
             return []
@@ -544,6 +635,8 @@ class RetrievalEngine:
         try:
             hits = await self._keyword_index.search(query_text, session_id=session_id, limit=limit)
             return [(hit.id, hit.score) for hit in hits]
+        except RuntimeFencedError:
+            raise
         except Exception:
             logger.warning("bm25_seed_retrieval_failed")
             return []
@@ -602,6 +695,8 @@ class RetrievalEngine:
         nodes: dict[str, AtlasNode],
         seed_node_ids: list[str],
         query_embedding: list[float] | None,
+        *,
+        entity_seed_ids: set[str] | None = None,
     ) -> None:
         """Batch-fetch event nodes for seed IDs (single roundtrip)."""
         if not seed_ids:
@@ -615,7 +710,7 @@ class RetrievalEngine:
         found_ids: set[str] = set()
         for props in records:
             event_id = props.get("event_id", "")
-            if event_id:
+            if event_id and event_id in new_ids:
                 found_ids.add(event_id)
                 seed_node_ids.append(event_id)
                 scores = self._score_event(props, query_embedding)
@@ -623,7 +718,11 @@ class RetrievalEngine:
 
         # Seeds not found as events may be entity IDs from vector channel
         for sid in new_ids:
-            if sid not in found_ids and sid not in seed_node_ids:
+            if (
+                sid in (entity_seed_ids or set())
+                and sid not in found_ids
+                and sid not in seed_node_ids
+            ):
                 seed_node_ids.append(sid)
 
     async def _expand_cross_session(
@@ -675,9 +774,41 @@ class RetrievalEngine:
             rel_type = nrec.get("rel_type")
             if rel_type is None or seed_eid is None:
                 continue
+            if seed_eid not in seed_node_ids:
+                continue
+            if self._bundle is not None:
+                labels = nrec.get("neighbor_labels") or []
+                if (
+                    rel_type not in self._bundle.edge_types
+                    or len(labels) != 1
+                    or labels[0] not in self._bundle.node_types
+                ):
+                    continue
+                assert self._registry is not None
+                if not self._registry.allows(rel_type, "Event", labels[0]):
+                    continue
+                key_fields = {
+                    "Event": ("neighbor_event_id", "event_id"),
+                    "Entity": ("neighbor_entity_id", "entity_id"),
+                    "Summary": ("neighbor_summary_id", "summary_id"),
+                }
+                field = key_fields.get(labels[0])
+                props = nrec.get("neighbor_props") or {}
+                if field is None or not nrec.get(field[0]) or props.get(field[1]) != nrec[field[0]]:
+                    continue
 
-            neighbor_eid = nrec.get("neighbor_event_id")
-            neighbor_entity_id = nrec.get("neighbor_entity_id")
+            # A row can carry stale properties from another node type. Only
+            # the validated label determines identity; property presence cannot.
+            neighbor_eid = (
+                nrec.get("neighbor_event_id")
+                if self._bundle is None or labels[0] == "Event"
+                else None
+            )
+            neighbor_entity_id = (
+                nrec.get("neighbor_entity_id")
+                if self._bundle is None or labels[0] == "Entity"
+                else None
+            )
             neighbor_id = neighbor_eid or neighbor_entity_id or ""
             if not neighbor_id:
                 continue

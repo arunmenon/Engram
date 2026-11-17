@@ -1,0 +1,1855 @@
+{
+  "format_version": 1,
+  "id": "pdlc-paging-truncated",
+  "title": "Report a capped answer after scanning all requirements",
+  "story": "Report a capped answer after scanning all requirements. Run the saved questions against this isolated example graph. Expected answers are preserved from the existing tests. This verifies retrieval, not ingestion or extraction.",
+  "source_refs": [
+    "tests/unit/test_pdlc_retrieval_eval.py::TestReviewFindings.test_completeness_scans_every_subject_and_reports_the_cut"
+  ],
+  "pack_digest": "aa882fa31a865c3a6b2ffa1abc8d7ef7d609d244a50a2aa83100e99ea341d4cb",
+  "starting_state": {
+    "kind": "graph_fixture",
+    "nodes": [
+      {
+        "id": "Requirement:s|1|R000",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R000",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R000",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R001",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R001",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R001",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R002",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R002",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R002",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R003",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R003",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R003",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R004",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R004",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R004",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R005",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R005",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R005",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R006",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R006",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R006",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R007",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R007",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R007",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R008",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R008",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R008",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R009",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R009",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R009",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R010",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R010",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R010",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R011",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R011",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R011",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R012",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R012",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R012",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R013",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R013",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R013",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R014",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R014",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R014",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R015",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R015",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R015",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R016",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R016",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R016",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R017",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R017",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R017",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R018",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R018",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R018",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R019",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R019",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R019",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R020",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R020",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R020",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R021",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R021",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R021",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R022",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R022",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R022",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R023",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R023",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R023",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R024",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R024",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R024",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R025",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R025",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R025",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R026",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R026",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R026",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R027",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R027",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R027",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R028",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R028",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R028",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R029",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R029",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R029",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R030",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R030",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R030",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R031",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R031",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R031",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R032",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R032",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R032",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R033",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R033",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R033",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R034",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R034",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R034",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R035",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R035",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R035",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R036",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R036",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R036",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R037",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R037",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R037",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R038",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R038",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R038",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R039",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R039",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R039",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R040",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R040",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R040",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R041",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R041",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R041",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R042",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R042",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R042",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R043",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R043",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R043",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R044",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R044",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R044",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R045",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R045",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R045",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R046",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R046",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R046",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R047",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R047",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R047",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R048",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R048",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R048",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R049",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R049",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R049",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R050",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R050",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R050",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R051",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R051",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R051",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R052",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R052",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R052",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R053",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R053",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R053",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R054",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R054",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R054",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R055",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R055",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R055",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R056",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R056",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R056",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R057",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R057",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R057",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R058",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R058",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R058",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R059",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R059",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R059",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R060",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R060",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R060",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R061",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R061",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R061",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R062",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R062",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R062",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R063",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R063",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R063",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R064",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R064",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R064",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R065",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R065",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R065",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R066",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R066",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R066",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R067",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R067",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R067",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R068",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R068",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R068",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R069",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R069",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R069",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R070",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R070",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R070",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R071",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R071",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R071",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R072",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R072",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R072",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R073",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R073",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R073",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R074",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R074",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R074",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R075",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R075",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R075",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R076",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R076",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R076",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R077",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R077",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R077",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R078",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R078",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R078",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R079",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R079",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R079",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R080",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R080",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R080",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R081",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R081",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R081",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R082",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R082",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R082",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R083",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R083",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R083",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R084",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R084",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R084",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R085",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R085",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R085",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R086",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R086",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R086",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R087",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R087",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R087",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R088",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R088",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R088",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R089",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R089",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R089",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R090",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R090",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R090",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R091",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R091",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R091",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R092",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R092",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R092",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R093",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R093",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R093",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R094",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R094",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R094",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R095",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R095",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R095",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R096",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R096",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R096",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R097",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R097",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R097",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R098",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R098",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R098",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R099",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R099",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R099",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R100",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R100",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R100",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R101",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R101",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R101",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R102",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R102",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R102",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R103",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R103",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R103",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R104",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R104",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R104",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R105",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R105",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R105",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R106",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R106",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R106",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R107",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R107",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R107",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R108",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R108",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R108",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R109",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R109",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R109",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R110",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R110",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R110",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R111",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R111",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R111",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R112",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R112",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R112",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R113",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R113",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R113",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R114",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R114",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R114",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R115",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R115",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R115",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R116",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R116",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R116",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R117",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R117",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R117",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R118",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R118",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R118",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R119",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R119",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R119",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R120",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R120",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R120",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R121",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R121",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R121",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R122",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R122",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R122",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R123",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R123",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R123",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R124",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R124",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R124",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R125",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R125",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R125",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R126",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R126",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R126",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R127",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R127",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R127",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R128",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R128",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R128",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R129",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R129",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R129",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R130",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R130",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R130",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R131",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R131",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R131",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R132",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R132",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R132",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R133",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R133",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R133",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R134",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R134",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R134",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R135",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R135",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R135",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R136",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R136",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R136",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R137",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R137",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R137",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R138",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R138",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R138",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R139",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R139",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R139",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R140",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R140",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R140",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R141",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R141",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R141",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R142",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R142",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R142",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R143",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R143",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R143",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R144",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R144",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R144",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R145",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R145",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R145",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R146",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R146",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R146",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R147",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R147",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R147",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R148",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R148",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R148",
+          "statement": "x",
+          "status": "accepted"
+        }
+      },
+      {
+        "id": "Requirement:s|1|R149",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|R149",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "R149",
+          "statement": "x",
+          "status": "accepted"
+        }
+      }
+    ],
+    "edges": [],
+    "retrieval_limits": {
+      "default_max_depth": 3,
+      "seed_limit": 10,
+      "neighbor_limit": 200
+    }
+  },
+  "events": [],
+  "checks": [
+    {
+      "id": "query-1",
+      "description": "Which requirements have no tests?",
+      "source": "tests/unit/test_pdlc_retrieval_eval.py::TestReviewFindings.test_completeness_scans_every_subject_and_reports_the_cut",
+      "kind": "retrieval",
+      "after_step": null,
+      "expected": {
+        "text": "Which requirements have no tests?",
+        "seed": "",
+        "intent": null,
+        "required": [],
+        "forbidden": [],
+        "query_options": {
+          "max_nodes": 100,
+          "max_depth": null,
+          "include_untrusted": false
+        },
+        "node_count": 100,
+        "truncated": true,
+        "metadata_fields": {
+          "retrieval_channels": {
+            "completeness.VERIFIES.no_link": 150
+          }
+        }
+      }
+    }
+  ],
+  "trusted_producers": [
+    "webhook:github",
+    "webhook:jira"
+  ],
+  "expectations_reviewed": true
+}

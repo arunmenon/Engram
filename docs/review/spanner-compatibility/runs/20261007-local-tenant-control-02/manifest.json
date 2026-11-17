@@ -1,0 +1,18 @@
+{
+  "kind": "local_tenant_mutation_fence_integration",
+  "issues": [
+    34,
+    43
+  ],
+  "scope": "Optional transaction fences at ledger,graph,subscription mutation boundaries; production factory remains disabled; reads/envelopes/worker control handling pending",
+  "source_sha256": {
+    "src/context_graph/adapters/spanner/tenant_control.py": "b070e03151d4e8d8fe1e79a0f5b71acc25b3c996da28560f5fbfe0024032f430",
+    "src/context_graph/adapters/spanner/graph.py": "f1973ab3ffead2919330b03d72d1fea7544078260b4c045c168650c1dcca05e6",
+    "src/context_graph/adapters/spanner/log.py": "a4a819713ea80e350bd4f2fd9c20e843fd8c4a31595b96ce11f204e13dcf194d",
+    "src/context_graph/adapters/spanner/subscription.py": "e4a337aa6bcc1ba610cd351d11dfcde9ff2904732aa945394819779f5605dae6",
+    "tests/unit/test_spanner_tenant_control.py": "706ddb09cb5f99f48dce75f45d1218ba8de2bdb93c23ed3a9c80784b337eeea8"
+  },
+  "cloud_calls": false,
+  "command": "pytest -q tests/unit/test_spanner_tenant_control.py tests/unit/test_spanner_commits.py tests/unit/test_spanner_json_codec.py tests/unit/test_storage_registry.py tests/unit/test_projection_worker.py tests/unit/test_extraction_worker.py",
+  "run_id": "20261007-local-tenant-control-02"
+}

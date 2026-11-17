@@ -1,0 +1,59 @@
+2026-10-06 22:02:34 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 22:02:34 [info     ] llm_client_initialized
+2026-10-06 22:02:34 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 22:02:34 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 22:02:34 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 22:02:34 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 22:02:34 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 22:02:34 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 22:02:34 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 22:02:34 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 22:02:34 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 22:02:34 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 22:02:34 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 22:02:34 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 22:02:34 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 22:02:34 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 22:02:36 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 22:02:36 [info     ] consumer_started               consumer=pack-output-boundaries group=pack-extraction stream=Events
+2026-10-06 22:02:36 [info     ] event_ingested                 event_id=c913fd7a-597e-4228-933f-d2988da8374a event_type=observation.input global_position=2026-10-06T16:32:36.587727000Z/000000/c913fd7a-597e-4228-933f-d2988da8374a request_id=0f608d81-fdb7-44c2-961e-9607d168b136 status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 22:02:37 [info     ] pending_drain_completed        group=pack-extraction
+2026-10-06 22:02:38 [info     ] pack_extraction_applied        edges_written=0 event_id=c913fd7a-597e-4228-933f-d2988da8374a links=0 nodes=0 pack=pdlc rejected=['answer is not a JSON object']
+{"name": "pack_list-answer_refused_without_writes_ACK", "scenarios": ["PEXT-01"], "verdict": "passed", "observation": {"answer_shape": "list-answer", "model_calls": 1, "counts": {"nodes": {}, "edges": []}, "pending": {}}, "seconds": 2.62}
+2026-10-06 22:02:39 [info     ] event_ingested                 event_id=ed6dab60-da04-4ab7-94ea-c21ca4a3f1ae event_type=observation.input global_position=2026-10-06T16:32:39.193071000Z/000000/ed6dab60-da04-4ab7-94ea-c21ca4a3f1ae request_id=1bb38e7a-633f-4aaf-885e-3e2adebeed3d status=created
+2026-10-06 22:02:40 [info     ] pack_extraction_applied        edges_written=0 event_id=ed6dab60-da04-4ab7-94ea-c21ca4a3f1ae links=0 nodes=0 pack=pdlc rejected=['nodes is not a list', 'links is not a list']
+{"name": "pack_nonlist-nodes_refused_without_writes_ACK", "scenarios": ["PEXT-01"], "verdict": "passed", "observation": {"answer_shape": "nonlist-nodes", "model_calls": 1, "counts": {"nodes": {}, "edges": []}, "pending": {}}, "seconds": 1.98}
+2026-10-06 22:02:41 [info     ] event_ingested                 event_id=105de18d-b6d3-4539-be2d-a8ee7ba7a7f3 event_type=observation.input global_position=2026-10-06T16:32:41.179311000Z/000000/105de18d-b6d3-4539-be2d-a8ee7ba7a7f3 request_id=d0cbc1c2-554c-4a93-916d-334245675ca7 status=created
+2026-10-06 22:02:42 [debug    ] pack_plans_applied             edges=0 events=1 nodes=1 states=0
+2026-10-06 22:02:42 [info     ] pack_extraction_applied        edges_written=0 event_id=105de18d-b6d3-4539-be2d-a8ee7ba7a7f3 links=0 nodes=1 pack=pdlc rejected=['nodes[1]: confidence must be a number from 0 to 1', "nodes[2]: type 'Change' may not be proposed", 'nodes[3]: missing statement', "links[0]: link type 'SAME_AS' may not be proposed"]
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 203, in check
+    observation = await asyncio.wait_for(function(), timeout=timeout_seconds)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_completion.py", line 438, in invalid
+    assert receipt['model_calls']==1 and not counts['nodes'] and not counts['edges'] and not receipt['pending'],receipt
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'answer_shape': 'invalid-fields', 'model_calls': 1, 'counts': {'nodes': {'Decision': 1}, 'edges': []}, 'pending': {}}
+
+{"name": "pack_invalid-fields_refused_without_writes_ACK", "scenarios": ["PEXT-01"], "verdict": "failed", "error_type": "AssertionError", "error": "{'answer_shape': 'invalid-fields', 'model_calls': 1, 'counts': {'nodes': {'Decision': 1}, 'edges': []}, 'pending': {}}", "seconds": 2.01}
+2026-10-06 22:02:43 [info     ] consumer_stopped               consumer=pack-output-boundaries group=pack-extraction
+2026-10-06 22:02:43 [info     ] event_ingested                 event_id=594b66ee-1193-4dc9-b2bd-9e3ccf05c746 event_type=observation.input global_position=2026-10-06T16:32:43.383407000Z/000000/594b66ee-1193-4dc9-b2bd-9e3ccf05c746 request_id=1abe35ff-5bd5-42a7-a5bb-dbb6af536b5f status=created
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 203, in check
+    observation = await asyncio.wait_for(function(), timeout=timeout_seconds)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_completion.py", line 449, in no_answer
+    assert error=='ModelUnavailableError' and not receipt['graph']['nodes'],receipt
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'error_type': 'ModelUnavailableError', 'graph': {'nodes': {'Decision': 1}, 'edges': []}, 'scope': 'actual stored event public process_message rejects no-answer; full delivery live retry remains failed #14'}
+
+{"name": "pack_no_model_answer_raises_for_retry_without_writes", "scenarios": ["PEXT-01"], "verdict": "failed", "error_type": "AssertionError", "error": "{'error_type': 'ModelUnavailableError', 'graph': {'nodes': {'Decision': 1}, 'edges': []}, 'scope': 'actual stored event public process_message rejects no-answer; full delivery live retry remains failed #14'}", "seconds": 1.35}
+2026-10-06 22:02:44 [info     ] app_stopped

@@ -1,0 +1,24 @@
+{
+  "kind": "local_tenant_dispatch_substrate",
+  "issues": [
+    34,
+    43,
+    35,
+    42
+  ],
+  "scope": "recording-port authenticated routing/lifecycle plus pinned runtime factories; production factory refuses unfenced startup; no cloud or durable-isolation signoff",
+  "source_sha256": {
+    "src/context_graph/api/tenants.py": "04a536925889936aa9312b594cd8496754d24536658adba86dde0d97f1cfbd7c",
+    "src/context_graph/api/dependencies.py": "bf16e8424993aeebd8fbac0ead79648546f3811225e03492459a4de1854204a1",
+    "src/context_graph/api/app.py": "ff94fad61c51cb9ad400bf2d16b0a37b3b961ba000e4710a39d4d9565d40b36a",
+    "src/context_graph/adapters/registry.py": "64a7d03957c3112e658145b483f8bb700a669aff17fef74b8827b5f216ab68ee",
+    "src/context_graph/worker/__main__.py": "823193c29c8737f988c6252d6106484ec51604e9f1b8c50b4647b3d17567e274",
+    "src/context_graph/tenancy.py": "f577bea9e222a2a83d9e0aaac49652151e9de37ef7276b903a5b7dec701c950d",
+    "tests/unit/test_tenant_dispatch.py": "3247944580db09518ffa3951aad0d8b66e80ee3d625e0f7ddcc0ed563fb43568",
+    "tests/unit/test_tenant_catalog.py": "6f047fc77d31d23637288c4b837a5423b3c482d295317540f0c00270c56f2ae1",
+    "tests/unit/test_explicit_runtime_settings.py": "2e70069300bff5cc20bd7b8cd9df16d653a43bdfad82d51863d8e285c844c278"
+  },
+  "command": "pytest -q tests/unit/test_tenant_dispatch.py tests/unit/test_tenant_catalog.py tests/unit/test_explicit_runtime_settings.py tests/unit/test_pack_composition.py tests/unit/test_api_auth.py tests/unit/test_api_users.py",
+  "cloud_calls": false,
+  "run_id": "20261007-local-tenant-dispatch-01"
+}

@@ -1,0 +1,112 @@
+TC001 Move application import `context_graph.domain.source_trust.SourceTrustPolicy` into a type-checking block
+  --> src/context_graph/domain/pack_projection.py:48:47
+   |
+46 | from context_graph.domain.ontology import PROVENANCE_EDGE, EnumSpec, NodeRef, transition_key
+47 | from context_graph.domain.pack_expressions import Scope, compile_value, evaluate, is_expression
+48 | from context_graph.domain.source_trust import SourceTrustPolicy
+   |                                               ^^^^^^^^^^^^^^^^^
+49 | from context_graph.ports.errors import RuntimeFencedError
+50 | from context_graph.ports.pack_graph import EdgeWrite, NodeWrite, StateChange
+   |
+help: Move into type-checking block
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> src/context_graph/worker/__main__.py:96:13
+    |
+ 95 |           if consumer_type == "projection":
+ 96 | /             from context_graph.domain.pack_projection import PackProjector
+ 97 | |             from context_graph.ontology.versioning import reconcile
+ 98 | |             from context_graph.worker.projection import ProjectionConsumer
+ 99 | |
+100 | |             from context_graph.domain.source_trust import SourceTrustPolicy
+    | |___________________________________________________________________________^
+101 |
+102 |               projector = PackProjector(
+    |
+help: Organize imports
+    |
+96  |             from context_graph.domain.pack_projection import PackProjector
+97  +             from context_graph.domain.source_trust import SourceTrustPolicy
+98  |             from context_graph.ontology.versioning import reconcile
+99  |             from context_graph.worker.projection import ProjectionConsumer
+    -
+    -             from context_graph.domain.source_trust import SourceTrustPolicy
+100 |
+    |
+
+I001 [*] Import block is un-sorted or un-formatted
+   --> src/context_graph/worker/__main__.py:132:13
+    |
+131 |           if consumer_type == "pack_extraction":
+132 | /             from context_graph.adapters.llm.client import LLMExtractionClient
+133 | |             from context_graph.domain.pack_extraction import extraction_profiles
+134 | |             from context_graph.domain.pack_projection import PackProjector
+135 | |             from context_graph.worker.pack_extraction import PackExtractionConsumer
+136 | |
+137 | |             from context_graph.domain.source_trust import SourceTrustPolicy
+    | |___________________________________________________________________________^
+138 |
+139 |               projector = PackProjector(
+    |
+help: Organize imports
+    |
+134 |             from context_graph.domain.pack_projection import PackProjector
+    -             from context_graph.worker.pack_extraction import PackExtractionConsumer
+    -
+135 |             from context_graph.domain.source_trust import SourceTrustPolicy
+136 +             from context_graph.worker.pack_extraction import PackExtractionConsumer
+137 |
+    |
+
+F401 [*] `copy` imported but unused
+ --> tests/unit/test_authenticated_source_trust.py:3:8
+  |
+1 | """Authenticated trust through typed fenced reads; local evidence, no cloud claim."""
+2 |
+3 | import copy
+  |        ^^^^
+4 | from dataclasses import replace
+5 | from unittest.mock import AsyncMock, patch
+  |
+help: Remove unused import: `copy`
+  |
+2 |
+  - import copy
+3 | from dataclasses import replace
+  |
+
+F401 [*] `context_graph.domain.models.Event` imported but unused
+  --> tests/unit/test_authenticated_source_trust.py:12:41
+   |
+11 | from context_graph.domain.event_acceptance import stamp_acceptance
+12 | from context_graph.domain.models import Event
+   |                                         ^^^^^
+13 | from context_graph.domain.pack_projection import PackProjector
+14 | from context_graph.domain.source_trust import SourceTrustPolicy, VerifiedSourceProvenance
+   |
+help: Remove unused import: `context_graph.domain.models.Event`
+   |
+11 | from context_graph.domain.event_acceptance import stamp_acceptance
+   - from context_graph.domain.models import Event
+12 | from context_graph.domain.pack_projection import PackProjector
+   |
+
+E714 [*] Test for object identity should be `is not`
+   --> tests/unit/test_authenticated_source_trust.py:160:16
+    |
+158 |     with pytest.raises(RuntimeFencedError):
+159 |         projector(bound).source_trusted(item, records[0].document, records[0].provenance)
+160 |     assert not projector(bound).requires_provenance is False
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+161 |     assert len(db.rows) == 1
+    |
+help: Convert to `is not`
+    |
+159 |         projector(bound).source_trusted(item, records[0].document, records[0].provenance)
+    -     assert not projector(bound).requires_provenance is False
+160 +     assert projector(bound).requires_provenance is not False
+161 |     assert len(db.rows) == 1
+    |
+
+Found 6 errors.
+[*] 5 fixable with the `--fix` option (1 hidden fix can be enabled with the `--unsafe-fixes` option).

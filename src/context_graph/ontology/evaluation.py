@@ -15,11 +15,12 @@ the built-in packs). The questions are about that deployment's data:
         # optional: what the caller passes
         intent: completeness
         seed_node_ids: []
+        seed_mode: discover   # explicit requires every selected starting entity to resolve
 
 Each question runs through ``ArtifactRetriever`` on the graph under test.
 The answer is the response's node ids, narrowed by ``answer`` when given,
 and is scored by F1 against ``expected``. The set passes when the mean F1
-reaches ``min_f1``.
+reaches ``min_f1`` and no question has an execution error.
 
 Quote questions that contain ``#``: YAML reads `` #`` and what follows as a
 comment, so the loader refuses an unquoted one.
@@ -33,13 +34,13 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from context_graph.domain.ontology import OPEN_PACKS, OntologyError
 from context_graph.ontology.loader import find_eval_set, load_yaml
-from context_graph.retrieval.artifacts import ArtifactQuery
+from context_graph.retrieval.artifacts import ArtifactQuery, UnresolvedSeedsError
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -65,6 +66,7 @@ class EvalQuestion(BaseModel):
     answer: AnswerReading = Field(default_factory=AnswerReading)
     intent: str | None = None
     seed_node_ids: list[str] = Field(default_factory=list)
+    seed_mode: Literal["discover", "explicit"] = "discover"
 
 
 class EvalSet(BaseModel):
@@ -81,6 +83,7 @@ class QuestionResult:
     f1: float
     found: list[str]
     expected: list[str]
+    error: str | None = None
 
 
 @dataclass
@@ -93,7 +96,11 @@ class EvalReport:
 
     @property
     def passed(self) -> bool:
-        return self.problem is None and self.mean_f1 >= self.min_f1
+        return (
+            self.problem is None
+            and not any(result.error is not None for result in self.results)
+            and self.mean_f1 >= self.min_f1
+        )
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -103,7 +110,13 @@ class EvalReport:
             "min_f1": self.min_f1,
             "problem": self.problem,
             "questions": [
-                {"id": r.id, "f1": round(r.f1, 4), "found": r.found, "expected": r.expected}
+                {
+                    "id": r.id,
+                    "f1": round(r.f1, 4),
+                    "found": r.found,
+                    "expected": r.expected,
+                    "error": r.error,
+                }
                 for r in self.results
             ],
         }
@@ -162,14 +175,21 @@ async def run_eval_set(
 ) -> EvalReport:
     report = EvalReport(eval_set.pack, eval_set.min_f1)
     for question in eval_set.questions:
-        response = await retriever.retrieve(
-            ArtifactQuery(
-                question.query,
-                seed_node_ids=tuple(question.seed_node_ids),
-                intent=question.intent,
-                max_nodes=max_nodes,
+        try:
+            response = await retriever.retrieve(
+                ArtifactQuery(
+                    question.query,
+                    seed_node_ids=tuple(question.seed_node_ids),
+                    seed_mode=question.seed_mode,
+                    intent=question.intent,
+                    max_nodes=max_nodes,
+                )
             )
-        )
+        except UnresolvedSeedsError as exc:
+            report.results.append(
+                QuestionResult(question.id, 0.0, [], sorted(question.expected), error=str(exc))
+            )
+            continue
         found = _reading(response, question.answer)
         report.results.append(
             QuestionResult(

@@ -1,0 +1,22 @@
+{
+  "kind": "local_acceptance_cloud_harness_preflight",
+  "cloud_calls": false,
+  "issues": [
+    34,
+    37,
+    43,
+    41
+  ],
+  "source_sha256": {
+    "scripts/engram_spanner_tenant_control.py": "763856d95fab96569f7dec482f9ec4cb61ffaab662696fb33be96ca1129169b6",
+    "scripts/engram_spanner_acceptance_cases.py": "c968f589312c76be5970954df036a28999640a81f3a4794966f71a2cd971f8f8",
+    "tests/unit/test_tenant_control_harness_preflight.py": "e23b77e226295f22301c9c2ed7035bcd0208b66a893c4a05dced129ce1bbd7fa",
+    "src/context_graph/adapters/spanner/event_acceptance.py": "cb03180047da193abf9c10e839117c44ebc903f96c5cc575cbbc054fa9155e76"
+  },
+  "command": "pytest -q tests/unit/test_tenant_control_harness_preflight.py tests/unit/test_spanner_event_acceptance.py",
+  "additional_checks": [
+    "python compile harness",
+    "ruff harness tests"
+  ],
+  "run_id": "20261007-local-acceptance-harness-01"
+}

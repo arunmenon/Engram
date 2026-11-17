@@ -1,0 +1,88 @@
+{
+  "checks": [
+    {
+      "name": "pack_latest_lookup_exceeds_limit_out_of_occurrence_order",
+      "scenarios": [
+        "PROJ-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "limit": 2,
+        "candidate_count": 3,
+        "expected_latest": "Deployment:prod|app:1.2|2026-10-06T12:27:51.337161+00:00",
+        "edges": [
+          [
+            "Incident:INC-boundary",
+            "OCCURRED_ON",
+            "Deployment:prod|app:1.2|2026-10-06T12:27:51.337161+00:00"
+          ]
+        ]
+      },
+      "seconds": 4.68
+    },
+    {
+      "name": "pack_component_prefix_match_beyond_lookup_limit",
+      "scenarios": [
+        "PROJ-03"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "matching Component outside capped candidates silently omitted",
+      "seconds": 2.17
+    },
+    {
+      "name": "review_lifecycle_transition_has_direct_provenance",
+      "scenarios": [
+        "PROJ-04"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "review state changed without direct event evidence",
+      "seconds": 4.5
+    },
+    {
+      "name": "pack_extraction_first_preserves_source_evidence_after_projection",
+      "scenarios": [
+        "PEXT-02",
+        "EXT-03"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "pack extraction acknowledged before Event creation; evidence never repaired",
+      "seconds": 3.93
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 0
+    },
+    {
+      "table": "Events",
+      "rows": 2
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

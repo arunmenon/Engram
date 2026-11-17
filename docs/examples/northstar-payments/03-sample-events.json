@@ -1,0 +1,65 @@
+[
+  {
+    "event_type": "incident.opened",
+    "payload": {
+      "account": "us",
+      "id": "INC-1042",
+      "service": "checkout",
+      "title": "Payment authorization timeouts"
+    },
+    "producer_id": "northstar-monitor",
+    "occurred_at": "2026-10-30T10:00:00Z"
+  },
+  {
+    "event_type": "incident.opened",
+    "payload": {
+      "account": "eu",
+      "id": "INC-1042",
+      "service": "checkout",
+      "title": "Elevated card declines"
+    },
+    "producer_id": "northstar-monitor",
+    "occurred_at": "2026-10-30T10:01:00Z"
+  },
+  {
+    "event_type": "incident.opened",
+    "payload": {
+      "account": "us",
+      "id": "INC-1043",
+      "service": "checkout",
+      "title": "Slow checkout responses"
+    },
+    "producer_id": "northstar-monitor",
+    "occurred_at": "2026-10-30T10:02:00Z"
+  },
+  {
+    "event_type": "incident.resolved",
+    "payload": {
+      "account": "us",
+      "id": "INC-1042"
+    },
+    "producer_id": "northstar-monitor",
+    "occurred_at": "2026-10-30T10:03:00Z"
+  },
+  {
+    "event_type": "incident.comment",
+    "payload": {
+      "account": "us",
+      "id": "INC-1043",
+      "text": "Investigating upstream latency"
+    },
+    "producer_id": "northstar-monitor",
+    "occurred_at": "2026-10-30T10:04:00Z"
+  },
+  {
+    "event_type": "incident.opened",
+    "payload": {
+      "id": "INC-BAD",
+      "service": "checkout",
+      "title": "Missing account must be rejected"
+    },
+    "producer_id": "northstar-monitor",
+    "occurred_at": "2026-10-30T10:05:00Z",
+    "expect_admitted": false
+  }
+]

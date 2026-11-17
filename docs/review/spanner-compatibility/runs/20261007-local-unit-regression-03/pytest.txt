@@ -1,0 +1,19 @@
+..............................                                           [100%]
+=============================== warnings summary ===============================
+tests/unit/test_metrics.py:18
+  /Users/arunmenon/projects/Engram/tests/unit/test_metrics.py:18: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient
+
+tests/unit/test_api_import.py::test_imports_are_bounded
+tests/unit/test_metrics.py::TestRequestIDMiddleware::test_generates_request_id_when_missing
+tests/unit/test_metrics.py::TestRequestIDMiddleware::test_passes_through_existing_request_id
+tests/unit/test_metrics.py::TestRequestIDMiddleware::test_request_time_header_still_present
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+tests/unit/test_metrics.py::TestMetricsLabelCardinality::test_dynamic_route_uses_template_label
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await f(request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+30 passed, 6 warnings in 4.23s

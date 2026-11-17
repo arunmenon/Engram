@@ -28,10 +28,12 @@ from context_graph.domain.entity_resolution import (
     resolve_semantic_match,
 )
 from context_graph.domain.models import Event
+from context_graph.ports.errors import RuntimeFencedError
 from context_graph.worker.consumer import BaseConsumer
 
 if TYPE_CHECKING:
     from context_graph.adapters.llm.client import LLMExtractionClient
+    from context_graph.domain.pack_bundle import ActiveBundle
     from context_graph.ports.embedding import EmbeddingService
     from context_graph.ports.event_log import EventLog
     from context_graph.ports.graph_store import GraphStore
@@ -59,6 +61,7 @@ class ExtractionConsumer(BaseConsumer):
         embedding_service: EmbeddingService | None = None,
         graph_store: GraphStore | None = None,
         user_store: UserStore | None = None,
+        bundle: ActiveBundle | None = None,
     ) -> None:
         super().__init__(
             subscription,
@@ -72,7 +75,11 @@ class ExtractionConsumer(BaseConsumer):
         self._mid_session_interval: int = getattr(settings, "mid_session_extraction_interval", 50)
         self._embedding_service = embedding_service
         self._graph_store = graph_store
-        self._user_store = user_store
+        from context_graph.ontology.runtime import configured_bundle
+
+        if bundle is None:
+            bundle = configured_bundle(settings.ontology)
+        self._user_store = user_store if bundle.enables("user.extract.v1") else None
 
     async def _fetch_event_doc(self, event_id: str) -> dict[str, Any] | None:
         """Fetch the full event document from the event log."""
@@ -180,6 +187,8 @@ class ExtractionConsumer(BaseConsumer):
         # Read the session's own event ids (bounded to this session only)
         try:
             session_event_ids = await self._event_log.read_session_ids(session_id)
+        except RuntimeFencedError:
+            raise
         except Exception:
             log.warning(
                 "session_stream_read_failed",

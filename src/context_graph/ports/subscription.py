@@ -12,6 +12,10 @@ contract (ADR-0019 §1):
   another consumer of the same group.
 - Items delivered more than the retry limit are moved to a dead-letter
   destination and acknowledged.
+- Tenant-bound backends validate current processing authority and accepted
+  event content inside the ACK/DLQ transaction. Unavailable or incompatible
+  pending content must remain pending and raise RuntimeFencedError, including
+  after retry exhaustion. Repeated ACK without pending data is a fenced no-op.
 
 Uses typing.Protocol for structural subtyping (not ABCs).
 

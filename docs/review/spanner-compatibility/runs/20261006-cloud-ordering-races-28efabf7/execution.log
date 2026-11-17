@@ -1,0 +1,67 @@
+2026-10-06 19:43:48 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 19:43:48 [info     ] llm_client_initialized
+2026-10-06 19:43:48 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 19:43:48 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 19:43:48 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:43:48 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 19:43:48 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 19:43:48 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:43:48 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 19:43:48 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 19:43:48 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 19:43:48 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 19:43:48 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 19:43:48 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 19:43:48 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 19:43:48 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 19:43:50 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 19:43:54 [info     ] event_ingested                 event_id=0ce4f5e6-af35-4695-b809-b0c313b2afd9 event_type=observation.input global_position=2026-10-06T14:13:54.891551000Z/000000/0ce4f5e6-af35-4695-b809-b0c313b2afd9 request_id=fc8a95e1-bfac-45b0-a069-9b8b1f04002e status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 19:43:55 [info     ] consumer_started               consumer=races-enrichment group=enrichment stream=Events
+2026-10-06 19:43:55 [info     ] pending_drain_completed        group=enrichment
+2026-10-06 19:43:56 [debug    ] event_enriched                 event_id=0ce4f5e6-af35-4695-b809-b0c313b2afd9 importance_score=7 keywords=['observation', 'input', 'race-tool']
+2026-10-06 19:43:56 [debug    ] event_embedding_stored         event_id=0ce4f5e6-af35-4695-b809-b0c313b2afd9
+2026-10-06 19:43:56 [info     ] consumer_stopped               consumer=races-enrichment group=enrichment
+2026-10-06 19:43:57 [info     ] consumer_started               consumer=races-projection group=graph-projection stream=Events
+2026-10-06 19:43:58 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:43:58 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T14:13:54.891551000Z/000000/0ce4f5e6-af35-4695-b809-b0c313b2afd9 event_id=0ce4f5e6-af35-4695-b809-b0c313b2afd9 session_id=enrichment-first
+2026-10-06 19:43:59 [info     ] consumer_stopped               consumer=races-projection group=graph-projection
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 191, in check
+    observation = await asyncio.wait_for(function(), timeout=timeout_seconds)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_pack_cases.py", line 772, in enrich_first
+    assert node['keywords']==receipt['expected_keywords'] and len(node['embedding'])==384,receipt
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: {'event_id': '0ce4f5e6-af35-4695-b809-b0c313b2afd9', 'node': {'access_count': 0, 'agent_id': 'compat-resume', 'event_id': '0ce4f5e6-af35-4695-b809-b0c313b2afd9', 'event_type': 'observation.input', 'global_position': '2026-10-06T14:13:54.891551000Z/000000/0ce4f5e6-af35-4695-b809-b0c313b2afd9', 'importance_score': 7, 'keywords': [], 'occurred_at': '2026-10-06T14:13:54.603910+00:00', 'session_id': 'enrichment-first', 'tool_name': 'race-tool', 'trace_id': 'enrichment-first'}, 'enrichment_pending_before_projection': {}, 'expected_keywords': ['observation', 'input', 'race-tool'], 'expected_embedding_dims': 384, 'scope': 'actual enrichment consumes/ACKs before actual projection; no fake storage'}
+
+{"name": "enrichment_first_preserves_keywords_and_embedding_after_projection", "scenarios": ["ENR-01", "EXT-03"], "verdict": "failed", "error_type": "AssertionError", "error": "{'event_id': '0ce4f5e6-af35-4695-b809-b0c313b2afd9', 'node': {'access_count': 0, 'agent_id': 'compat-resume', 'event_id': '0ce4f5e6-af35-4695-b809-b0c313b2afd9', 'event_type': 'observation.input', 'global_position': '2026-10-06T14:13:54.891551000Z/000000/0ce4f5e6-af35-4695-b809-b0c313b2afd9', 'importance_score': 7, 'keywords': [], 'occurred_at': '2026-10-06T14:13:54.603910+00:00', 'session_id': 'enrichment-first', 'tool_name': 'race-tool', 'trace_id': 'enrichment-first'}, 'enrichment_pending_before_projection': {}, 'expected_keywords': ['observation', 'input', 'race-tool'], 'expected_embedding_dims': 384, 'scope': 'actual enrichment consumes/ACKs before actual projection; no fake storage'}", "seconds": 9.01}
+2026-10-06 19:44:03 [info     ] event_ingested                 event_id=e9dd9f80-0274-41fb-8754-37cee85f5761 event_type=observation.input global_position=2026-10-06T14:14:03.784175000Z/000000/e9dd9f80-0274-41fb-8754-37cee85f5761 request_id=ab1ba50d-0d46-4346-8e51-88c6695e1761 status=created
+2026-10-06 19:44:04 [info     ] consumer_started               consumer=races-projection group=graph-projection stream=Events
+2026-10-06 19:44:04 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:44:05 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T14:14:03.784175000Z/000000/e9dd9f80-0274-41fb-8754-37cee85f5761 event_id=e9dd9f80-0274-41fb-8754-37cee85f5761 session_id=parent-later
+2026-10-06 19:44:05 [info     ] consumer_stopped               consumer=races-projection group=graph-projection
+2026-10-06 19:44:06 [info     ] event_ingested                 event_id=c4259cbb-26f7-4976-9da2-5624a633de6f event_type=observation.input global_position=2026-10-06T14:14:06.410735000Z/000000/c4259cbb-26f7-4976-9da2-5624a633de6f request_id=ddba4a2e-7f51-4285-84fa-6aadae153c76 status=created
+2026-10-06 19:44:06 [info     ] consumer_started               consumer=races-projection group=graph-projection stream=Events
+2026-10-06 19:44:07 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 19:44:07 [debug    ] previous_event_from_ledger     event_id=c4259cbb-26f7-4976-9da2-5624a633de6f previous_event_id=e9dd9f80-0274-41fb-8754-37cee85f5761 session_id=parent-later
+2026-10-06 19:44:07 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T14:14:06.410735000Z/000000/c4259cbb-26f7-4976-9da2-5624a633de6f event_id=c4259cbb-26f7-4976-9da2-5624a633de6f session_id=parent-later
+2026-10-06 19:44:08 [info     ] consumer_stopped               consumer=races-projection group=graph-projection
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 191, in check
+    observation = await asyncio.wait_for(function(), timeout=timeout_seconds)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_pack_cases.py", line 787, in parent_later
+    assert expected in after['edges'],'late causal parent leaves acknowledged child permanently unlinked'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: late causal parent leaves acknowledged child permanently unlinked
+
+{"name": "late_causal_parent_repairs_acknowledged_child_edge", "scenarios": ["PROJ-01", "LED-02"], "verdict": "failed", "error_type": "AssertionError", "error": "late causal parent leaves acknowledged child permanently unlinked", "seconds": 9.78}
+2026-10-06 19:44:08 [info     ] app_stopped

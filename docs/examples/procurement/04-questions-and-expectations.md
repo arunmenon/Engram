@@ -1,0 +1,116 @@
+# Frozen procurement questions and retrieval contract
+These expectations were written before generating the pack or observing its output.
+The operator question form will select these same entities after model generation.
+All questions use explicit selected origins. The required artifact intents are:
+- procurement_invoices: INVOICES_ORDER, direction inbound, max_depth 1, answer ProcurementInvoice.
+- procurement_receipts: RECEIVES_LINE, direction inbound, max_depth 1, answer GoodsReceipt.
+- procurement_assessments: ASSESSES_INVOICE, direction inbound, max_depth 1, answer MatchAssessment.
+- procurement_orders: FULFILLS_REQUEST, direction inbound, max_depth 1, answer PurchaseOrder.
+- procurement_supplier_orders: ORDERED_FROM, direction inbound, max_depth 1, answer PurchaseOrder.
+Use the Pack schema's corresponding direction value for inbound traversal.
+These questions ask for records and evidence, not a narrative language-model answer or computed money.
+
+```json
+[
+  {
+    "id": "us-invoice",
+    "query": "Which invoice belongs to US order PO-100?",
+    "intent": "procurement_invoices",
+    "seed_node_ids": [
+      "PurchaseOrder:us|PO-100"
+    ],
+    "seed_mode": "explicit",
+    "node_type": "ProcurementInvoice",
+    "expected": [
+      "ProcurementInvoice:us|INV-100"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "eu-invoice",
+    "query": "Which invoice belongs to EU order PO-100?",
+    "intent": "procurement_invoices",
+    "seed_node_ids": [
+      "PurchaseOrder:eu|PO-100"
+    ],
+    "seed_mode": "explicit",
+    "node_type": "ProcurementInvoice",
+    "expected": [
+      "ProcurementInvoice:eu|INV-100"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "partial-receipts",
+    "query": "Which receipts record the deliveries against US PO-200 line 1?",
+    "intent": "procurement_receipts",
+    "seed_node_ids": [
+      "PurchaseOrderLine:us|PO-200|1"
+    ],
+    "seed_mode": "explicit",
+    "node_type": "GoodsReceipt",
+    "expected": [
+      "GoodsReceipt:us|GR-200A|1",
+      "GoodsReceipt:us|GR-200B|1"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "mismatch-evidence",
+    "query": "What source matching assessment explains US invoice INV-200?",
+    "intent": "procurement_assessments",
+    "seed_node_ids": [
+      "ProcurementInvoice:us|INV-200"
+    ],
+    "seed_mode": "explicit",
+    "node_type": "MatchAssessment",
+    "expected": [
+      "MatchAssessment:us|M-200"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "clean-evidence",
+    "query": "What source matching assessment supports US invoice INV-100?",
+    "intent": "procurement_assessments",
+    "seed_node_ids": [
+      "ProcurementInvoice:us|INV-100"
+    ],
+    "seed_mode": "explicit",
+    "node_type": "MatchAssessment",
+    "expected": [
+      "MatchAssessment:us|M-100"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "request-order",
+    "query": "Which order fulfils US purchase request PR-100?",
+    "intent": "procurement_orders",
+    "seed_node_ids": [
+      "PurchaseRequest:us|PR-100"
+    ],
+    "seed_mode": "explicit",
+    "node_type": "PurchaseOrder",
+    "expected": [
+      "PurchaseOrder:us|PO-100"
+    ],
+    "reviewed": false
+  },
+  {
+    "id": "supplier-orders",
+    "query": "Which US orders were placed with supplier VEN-1?",
+    "intent": "procurement_supplier_orders",
+    "seed_node_ids": [
+      "Supplier:us|VEN-1"
+    ],
+    "seed_mode": "explicit",
+    "node_type": "PurchaseOrder",
+    "expected": [
+      "PurchaseOrder:us|PO-100",
+      "PurchaseOrder:us|PO-200"
+    ],
+    "reviewed": false
+  }
+]
+```

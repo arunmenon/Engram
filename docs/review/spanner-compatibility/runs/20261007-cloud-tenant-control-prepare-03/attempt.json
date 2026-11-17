@@ -1,0 +1,8 @@
+{
+  "database": "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target",
+  "operation_id": "engram_control_fc2f04084b0b4829a2a4c475c6dde46c",
+  "statement": "CREATE TABLE TenantControl (\n    control_id STRING(16) NOT NULL,\n    tenant_id STRING(128) NOT NULL,\n    database_resource STRING(MAX) NOT NULL,\n    binding_id STRING(128) NOT NULL,\n    epoch INT64 NOT NULL,\n    bundle_digest STRING(80) NOT NULL,\n    serving_state STRING(16) NOT NULL\n) PRIMARY KEY (control_id)",
+  "sha256": "c6ca2f4e22ad041099a48c34585319bc8d3f27be00ad29e9ef71fc03579141a4",
+  "submitted": true,
+  "state": "verified"
+}

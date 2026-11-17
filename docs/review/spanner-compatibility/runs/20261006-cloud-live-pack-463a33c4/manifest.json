@@ -1,0 +1,38 @@
+{
+  "run_id": "20261006-cloud-live-pack-463a33c4",
+  "phase": "live-pack",
+  "backend": "real_spanner",
+  "commit": "6a30dcfd376d21b2732ffc36b8ed8847abb2a9de",
+  "harness_sha256": "9a3b607e46b0f608250804243fa27e82ad4e2c2b5d5232a05bde3a3b5aae647b",
+  "started_at": "2026-10-06T14:15:52.655631+00:00",
+  "target": {
+    "GOOGLE_CLOUD_PROJECT": "portiq-mvp",
+    "SPANNER_INSTANCE_ID": "engram-experiment",
+    "SPANNER_DATABASE_ID": "engram"
+  },
+  "authorization": "user explicitly confirmed existing engram DB disposable",
+  "auth": "explicit token SDK bootstrap; unmodified ADC startup not proved",
+  "credential_window_file_updated_at": "2026-10-06T13:30:10.327245+00:00",
+  "all_storage_ports": "spanner",
+  "fixture_reset": [
+    "GraphEdges",
+    "GraphNodes",
+    "ConsumerDeadLetters",
+    "ConsumerDeliveries",
+    "ConsumerCursors",
+    "ConsumerGroups",
+    "Events"
+  ],
+  "schema_changes": false,
+  "database_drop": false,
+  "provider_mode": "one bounded configured live LLM call",
+  "max_phase_seconds": 600,
+  "phase_limits": {
+    "events": 1,
+    "paid_calls_max": 1,
+    "max_output_tokens": 256,
+    "retries": 0,
+    "provider": "existing configured model, no substitution",
+    "timeout_seconds": 30
+  }
+}

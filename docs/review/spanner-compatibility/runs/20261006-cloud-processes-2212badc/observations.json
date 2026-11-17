@@ -1,0 +1,51 @@
+{
+  "checks": [
+    {
+      "name": "independent_API_and_five_worker_process_journey",
+      "scenarios": [
+        "BOOT-01",
+        "APP-01",
+        "EXT-01",
+        "ENR-01",
+        "OPS-02"
+      ],
+      "verdict": "failed",
+      "error_type": "ReadTimeout",
+      "error": "",
+      "seconds": 47.0
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 12
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 8
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 80
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 5
+    },
+    {
+      "table": "Events",
+      "rows": 3
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

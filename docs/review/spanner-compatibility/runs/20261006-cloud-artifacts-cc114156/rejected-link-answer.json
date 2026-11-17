@@ -1,0 +1,108 @@
+{
+  "nodes": {
+    "Deal:D-7": {
+      "node_id": "Deal:D-7",
+      "node_type": "Deal",
+      "attributes": {
+        "deal_id": "D-7",
+        "node_id": "Deal:D-7",
+        "node_type": "Deal",
+        "ontology_version": "sha256:163ac0d6e903ef6c",
+        "source_trust": "trusted",
+        "status": "won",
+        "status_changed_at": "2026-10-05T09:09:00+00:00",
+        "title": "Renewal",
+        "updated_at": "2026-10-05T09:09:00+00:00"
+      },
+      "provenance": {
+        "event_id": "9a67a112-e6eb-4c08-a6b5-b01b39db2639",
+        "global_position": "2026-10-06T11:12:21.283119000Z/000009/9a67a112-e6eb-4c08-a6b5-b01b39db2639",
+        "source": "spanner",
+        "occurred_at": "2026-10-05T09:09:00Z",
+        "session_id": "crm:import",
+        "agent_id": "importer:crm",
+        "trace_id": "crm-import"
+      },
+      "scores": {
+        "decay_score": 0.0,
+        "relevance_score": 1.0,
+        "importance_score": 0,
+        "ppr_score": 0.0
+      },
+      "retrieval_reason": "direct",
+      "proactive_signal": null
+    },
+    "Account:acme": {
+      "node_id": "Account:acme",
+      "node_type": "Account",
+      "attributes": {
+        "account_id": "acme",
+        "industry": "retail",
+        "name": "Acme",
+        "node_id": "Account:acme",
+        "node_type": "Account",
+        "ontology_version": "sha256:163ac0d6e903ef6c",
+        "source_trust": "trusted",
+        "updated_at": "2026-10-05T09:00:00+00:00"
+      },
+      "provenance": {
+        "event_id": "2b58c49b-d6db-4b29-8429-b404fa28f1fb",
+        "global_position": "2026-10-06T11:12:21.283119000Z/000000/2b58c49b-d6db-4b29-8429-b404fa28f1fb",
+        "source": "spanner",
+        "occurred_at": "2026-10-05T09:00:00Z",
+        "session_id": "crm:import",
+        "agent_id": "importer:crm",
+        "trace_id": "crm-import"
+      },
+      "scores": {
+        "decay_score": 0.0,
+        "relevance_score": 1.0,
+        "importance_score": 0,
+        "ppr_score": 0.0
+      },
+      "retrieval_reason": "proactive",
+      "proactive_signal": null
+    }
+  },
+  "edges": [
+    {
+      "source": "Deal:D-7",
+      "target": "Account:acme",
+      "edge_type": "BELONGS_TO",
+      "properties": {
+        "link_status": "rejected",
+        "source_trust": "trusted"
+      }
+    }
+  ],
+  "pagination": {
+    "cursor": null,
+    "has_more": false
+  },
+  "meta": {
+    "query_ms": 1803,
+    "nodes_returned": 2,
+    "truncated": false,
+    "inferred_intents": {
+      "pipeline": 1.0
+    },
+    "intent_override": "pipeline",
+    "seed_nodes": [
+      "Deal:D-7"
+    ],
+    "seed_strategy": "artifact_seeds",
+    "proactive_nodes_count": 0,
+    "scoring_weights": {
+      "recency": 1.0,
+      "importance": 1.0,
+      "relevance": 1.0
+    },
+    "retrieval_channels": {},
+    "capacity": {
+      "max_nodes": 100,
+      "used_nodes": 2,
+      "max_depth": 3
+    },
+    "eval_pending": []
+  }
+}

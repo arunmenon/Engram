@@ -99,6 +99,7 @@ async def test_history_is_appended_in_occurrence_order(monkeypatch: pytest.Monke
             "duplicate": 0,
             "rejected": 0,
             "failed": 0,
+            "conflict": 0,
         }
     }
     # Streamed in append order, each with its input index

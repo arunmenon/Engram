@@ -1,0 +1,13 @@
+src/context_graph/adapters/redis/trimmer.py:198: error: Item "None" of "str | None" has no attribute "split"  [union-attr]
+src/context_graph/api/routes/simulate.py:65: error: Function is missing a return type annotation  [no-untyped-def]
+src/context_graph/api/routes/simulate.py:139: error: Missing type arguments for generic type "dict"  [type-arg]
+src/context_graph/api/routes/simulate.py:141: error: Missing type arguments for generic type "dict"  [type-arg]
+src/context_graph/api/routes/simulate.py:167: error: Missing type arguments for generic type "dict"  [type-arg]
+src/context_graph/api/routes/simulate.py:172: error: Missing type arguments for generic type "dict"  [type-arg]
+src/context_graph/adapters/spanner/ddl_upgrade.py:111: error: Library stubs not installed for "google.protobuf.empty_pb2"  [import-untyped]
+src/context_graph/adapters/spanner/ddl_upgrade.py:111: note: Hint: "python3 -m pip install types-protobuf"
+src/context_graph/adapters/spanner/ddl_upgrade.py:111: note: (or run "mypy --install-types" to install all missing stub packages)
+src/context_graph/adapters/spanner/ddl_upgrade.py:111: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+src/context_graph/adapters/redis/store.py:186: error: Unused "type: ignore" comment  [unused-ignore]
+src/context_graph/adapters/redis/store.py:228: error: Unused "type: ignore" comment  [unused-ignore]
+Found 9 errors in 4 files (checked 155 source files)

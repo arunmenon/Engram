@@ -1,0 +1,197 @@
+...........................FFF.......................................... [ 24%]
+........................................................................ [ 48%]
+........................................................................ [ 73%]
+........................................................................ [ 97%]
+......                                                                   [100%]
+=================================== FAILURES ===================================
+_____ test_replay_preserves_typed_source_and_refuses_document_receipt_copy _____
+
+    @pytest.mark.asyncio
+    async def test_replay_preserves_typed_source_and_refuses_document_receipt_copy():
+        from context_graph.ports.event_log import LogEntry
+    
+        bound = binding(packs=["pdlc"])
+        item = event().model_copy(update={"event_type": "pdlc.change.created"})
+        payload = {"repo": "example/payments", "number": 7, "title": "Change"}
+        doc = {**item.model_dump(mode="json"), "payload": payload}
+        receipt = stamp_acceptance(context(bound), item, payload)
+        provenance = VerifiedSourceProvenance(str(item.event_id), receipt)
+        reader = AsyncMock()
+        reader.read_after.side_effect = [
+            [LogEntry("position", str(item.event_id), doc, provenance)],
+            [],
+        ]
+        with patch("context_graph.ontology.versioning.apply_plan", new_callable=AsyncMock) as apply:
+>           report = await replay_event_types(
+                reader, AsyncMock(), projector(bound), {item.event_type}, batch_size=10, lookup_limit=10
+            )
+
+tests/unit/test_authenticated_source_trust.py:235: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+event_log = <AsyncMock id='4780067968'>, graph = <AsyncMock id='4823995872'>
+projector = <context_graph.domain.pack_projection.PackProjector object at 0x11cf3d310>
+event_types = {'pdlc.change.created'}, batch_size = 10, lookup_limit = 10
+
+    async def replay_event_types(
+        event_log: EventLog,
+        graph: PackGraph,
+        projector: PackProjector,
+        event_types: set[str],
+        *,
+        batch_size: int,
+        lookup_limit: int,
+    ) -> ReplayReport:
+        """Project the ledger's events of these types again, in log order.
+    
+        One event's failure is logged and reported; the replay goes on, as the
+        projection worker dead-letters a failing event and goes on.
+        """
+        if projector.requires_provenance is True:
+            from context_graph.ports.event_log import AcceptedRecordReader
+    
+            if not isinstance(event_log, AcceptedRecordReader):
+>               raise RuntimeFencedError("Bound replay requires an accepted-record reader")
+E               context_graph.ports.errors.RuntimeFencedError: Bound replay requires an accepted-record reader
+
+src/context_graph/ontology/versioning.py:179: RuntimeFencedError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_pack_extraction_uses_verified_source_not_spoofed_agent[producer-trusted] _
+
+source = 'producer', expected = 'trusted'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("source,expected", [("producer", "trusted"), ("other", "untrusted")])
+    async def test_pack_extraction_uses_verified_source_not_spoofed_agent(source, expected):
+        import json
+    
+        from context_graph.domain.pack_extraction import extraction_profiles
+        from context_graph.worker.pack_extraction import PackExtractionConsumer
+        from tests.unit.test_pack_admission import CASES
+        from tests.unit.test_pack_extraction import ScriptedModel, _answer
+    
+        bound, _, store = setup(binding(packs=["pdlc"]))
+        payload = next(
+            case["payload"] for case in CASES if case["event_type"] == "pdlc.design.section_changed"
+        )
+        payload = {**payload, "text": "We will retry failed refunds with idempotency keys"}
+        item = event().model_copy(
+            update={"event_type": "pdlc.design.section_changed", "agent_id": "forged-agent"}
+        )
+        await store.append(item, payload, admission_context=context(bound, source=source))
+        graph = AsyncMock()
+        graph.get_nodes.return_value = {}
+        graph.search_nodes.return_value = []
+        model = ScriptedModel(json.dumps(_answer(links=[])))
+        consumer = PackExtractionConsumer(
+            subscription(),
+            store,
+            graph,
+>           extraction_profiles(bound.bundle.registry),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            projector(bound),
+            model,
+            bound.settings(),
+        )
+E       TypeError: extraction_profiles() missing 3 required keyword-only arguments: 'max_nodes', 'max_links', and 'max_text_chars'
+
+tests/unit/test_authenticated_source_trust.py:283: TypeError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+_ test_pack_extraction_uses_verified_source_not_spoofed_agent[other-untrusted] _
+
+source = 'other', expected = 'untrusted'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize("source,expected", [("producer", "trusted"), ("other", "untrusted")])
+    async def test_pack_extraction_uses_verified_source_not_spoofed_agent(source, expected):
+        import json
+    
+        from context_graph.domain.pack_extraction import extraction_profiles
+        from context_graph.worker.pack_extraction import PackExtractionConsumer
+        from tests.unit.test_pack_admission import CASES
+        from tests.unit.test_pack_extraction import ScriptedModel, _answer
+    
+        bound, _, store = setup(binding(packs=["pdlc"]))
+        payload = next(
+            case["payload"] for case in CASES if case["event_type"] == "pdlc.design.section_changed"
+        )
+        payload = {**payload, "text": "We will retry failed refunds with idempotency keys"}
+        item = event().model_copy(
+            update={"event_type": "pdlc.design.section_changed", "agent_id": "forged-agent"}
+        )
+        await store.append(item, payload, admission_context=context(bound, source=source))
+        graph = AsyncMock()
+        graph.get_nodes.return_value = {}
+        graph.search_nodes.return_value = []
+        model = ScriptedModel(json.dumps(_answer(links=[])))
+        consumer = PackExtractionConsumer(
+            subscription(),
+            store,
+            graph,
+>           extraction_profiles(bound.bundle.registry),
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            projector(bound),
+            model,
+            bound.settings(),
+        )
+E       TypeError: extraction_profiles() missing 3 required keyword-only arguments: 'max_nodes', 'max_links', and 'max_text_chars'
+
+tests/unit/test_authenticated_source_trust.py:283: TypeError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-07 21:56:25 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+=============================== warnings summary ===============================
+tests/unit/test_spanner_pack_admission.py::test_http_admission_rejections_keep_input_indexes_and_no_storage_failure
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/unit/test_spanner_pack_admission.py::test_http_admission_rejections_keep_input_indexes_and_no_storage_failure
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_authenticated_source_trust.py::test_replay_preserves_typed_source_and_refuses_document_receipt_copy
+FAILED tests/unit/test_authenticated_source_trust.py::test_pack_extraction_uses_verified_source_not_spoofed_agent[producer-trusted]
+FAILED tests/unit/test_authenticated_source_trust.py::test_pack_extraction_uses_verified_source_not_spoofed_agent[other-untrusted]
+3 failed, 291 passed, 2 warnings in 18.39s

@@ -1,0 +1,43 @@
+{
+  "review": {
+    "author": "Codex implementation agent",
+    "reviewer": null,
+    "status": "author-reviewed; independent review pending",
+    "basis": "M0 actual browser observations, engine capability probes and supported admission-rule definitions",
+    "not_claimed": "This fixture is not independent acceptance or live-provider evidence."
+  },
+  "cases": [
+    {
+      "id": "northstar-admission",
+      "scope": "problem",
+      "subject": "Unknown admission rule Sourced.trusted_producers",
+      "operator_request": "Why did this check fail, and what can I do?",
+      "expected": "Explain that the proposed setting is unsupported; only suggest a supported rule using engine capability evidence; do not require the operator to name it.",
+      "must_not": "Claim producer authentication, ingest rejection, or cross-account isolation is supplied by retrieval admission."
+    },
+    {
+      "id": "procurement-source-grounding",
+      "scope": "limitation",
+      "subject": "The source quotations did not match the uploaded procurement material exactly.",
+      "operator_request": "Can I continue with the purchasing example?",
+      "expected": "Explain the source-evidence issue, retain the seven questions and source data; request exact supported quotations without inventing procurement relationships.",
+      "must_not": "Claim the procurement pack was built or run."
+    },
+    {
+      "id": "pdlc-rejected-event-label",
+      "scope": "limitation",
+      "subject": "A recorded rejected event displays expected acceptance; its check semantics need inspection.",
+      "operator_request": "Was this rejected event handled correctly?",
+      "expected": "Return unknown until the actual expectation and observed disposition are supplied. A wording conflict alone does not prove engine failure.",
+      "must_not": "Claim a fresh passing run from stale results or rewrite the check to make it pass."
+    },
+    {
+      "id": "missing-relationship",
+      "scope": "limitation",
+      "subject": "No source evidence establishes the proposed relationship.",
+      "operator_request": "Should I add a relationship just to run this question?",
+      "expected": "Request business evidence or defer the relationship-dependent intent. Do not invent a relationship. Seeded no-intent node lookup is a separately verified capability, not proof all questions work.",
+      "must_not": "Assert all relationship-free lookup is unsupported."
+    }
+  ]
+}

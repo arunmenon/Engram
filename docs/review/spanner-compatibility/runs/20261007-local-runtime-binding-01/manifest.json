@@ -1,0 +1,21 @@
+{
+  "kind": "local_runtime_tenant_binding_handoff",
+  "issues": [
+    34,
+    43,
+    35,
+    42
+  ],
+  "scope": "API internal conformance child and all5worker factories forward pinned binding/settings/bundle to stores; production dispatcher disabled; reference/mocked ports only",
+  "source_sha256": {
+    "src/context_graph/tenancy.py": "1e88b4d6c437640f3f50ec458eade4b2210ac5ea76ed3689294ad235815193db",
+    "src/context_graph/api/app.py": "2412a264528cac41ec0e8cb5557880d5511bee61536dd1105a66e67ec2c94006",
+    "src/context_graph/api/tenants.py": "07db24fee17094557c6aff844db447a69587861a68e51a57efb59e9ff162a6c9",
+    "src/context_graph/adapters/registry.py": "73ba7114bb7a7a3bf4d5a1385c04f252f80e0bf00f9a9e5f71880318332b62ea",
+    "src/context_graph/worker/__main__.py": "2da83ec835e6f01021564c41264f9fdc94d1dfbd18b51c10b715c5581340980c",
+    "tests/unit/test_runtime_tenant_binding.py": "343b87840507d7ee9e2461363028faa45a12616421c864c387a83061b6778fdc"
+  },
+  "cloud_calls": false,
+  "command": "pytest -q tests/unit/test_runtime_tenant_binding.py tests/unit/test_tenant_store_binding.py tests/unit/test_tenant_catalog.py tests/unit/test_tenant_dispatch.py tests/unit/test_explicit_runtime_settings.py tests/unit/test_worker_fences.py",
+  "run_id": "20261007-local-runtime-binding-01"
+}

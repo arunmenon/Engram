@@ -1,0 +1,192 @@
+..................................................................F..... [  2%]
+........................................................................ [  5%]
+...................................s.................................... [  8%]
+........................................................................ [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 17%]
+........................................................................ [ 20%]
+........................................................................ [ 23%]
+........................................................................ [ 26%]
+........................................................................ [ 29%]
+........................................................................ [ 32%]
+........................................................................ [ 35%]
+........................................................................ [ 38%]
+........................................................................ [ 41%]
+........................................................................ [ 44%]
+...............................................................F........ [ 47%]
+........................................................................ [ 50%]
+........................................................................ [ 53%]
+........................................................................ [ 56%]
+........................................................................ [ 58%]
+........................................................................ [ 61%]
+...................................................ss................... [ 64%]
+.......................ss............................................... [ 67%]
+........................................................................ [ 70%]
+........................................................................ [ 73%]
+........................................................................ [ 76%]
+...........................................................ssssssssss... [ 79%]
+........................................................................ [ 82%]
+........................................................................ [ 85%]
+........................................................................ [ 88%]
+........................................................................ [ 91%]
+........................................................................ [ 94%]
+........................................................................ [ 97%]
+.................................................................        [100%]
+=================================== FAILURES ===================================
+_________________ test_history_is_appended_in_occurrence_order _________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x142253d40>
+
+    async def test_history_is_appended_in_occurrence_order(monkeypatch: pytest.MonkeyPatch) -> None:
+        app = _app(monkeypatch)
+        late, early, middle = _event(30), _event(10), _event(20)
+        status, lines = await _import(app, [late, early, middle], gzipped=True)
+        assert status == 200
+        *outcomes, summary = lines
+>       assert summary == {
+            "summary": {
+                "received": 3,
+                "order": "occurred_at",
+                "created": 3,
+                "duplicate": 0,
+                "rejected": 0,
+                "failed": 0,
+            }
+        }
+E       AssertionError: assert {'summary': {...ate': 0, ...}} == {'summary': {...ate': 0, ...}}
+E         
+E         Differing items:
+E         {'summary': {'received': 3, 'order': 'occurred_at', 'created': 3, 'duplicate': 0, ...}} != {'summary': {'received': 3, 'order': 'occurred_at', 'created': 3, 'duplicate': 0, ...}}
+E         Use -v to get more diff
+
+tests/unit/test_api_import.py:94: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 22:16:13 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-07 22:16:13 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-07 22:16:13 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-07 22:16:13 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-07 22:16:13 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-07 22:16:13 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-07 22:16:13 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-07 22:16:13 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-07 22:16:13 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-07 22:16:13 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-07 22:16:13 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-07 22:16:13 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-07 22:16:13 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-07 22:16:13 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-07 22:16:13 [info     ] events_imported                conflict=0 created=3 duplicate=0 failed=0 order=occurred_at received=3 rejected=0 request_id=8e3b5e7f-3047-43de-a70c-84c9ac002e17
+______ TestMetricsLabelCardinality.test_dynamic_route_uses_template_label ______
+
+self = <tests.unit.test_metrics.TestMetricsLabelCardinality object at 0x141963c80>
+test_client = <starlette.testclient.TestClient object at 0x142a39b80>
+
+    def test_dynamic_route_uses_template_label(self, test_client: TestClient) -> None:
+        """Hit /v1/context/{session_id} with a unique ID and verify the
+        Prometheus label uses the template path, not the resolved one."""
+        unique_id = "cardinality-test-sess-xyz"
+        resolved_path = f"/v1/context/{unique_id}"
+    
+        test_client.get(resolved_path)
+    
+        # The resolved path should NOT appear as a metric label
+        resolved_value = REGISTRY.get_sample_value(
+            "engram_http_requests_total",
+            {"method": "GET", "endpoint": resolved_path, "status": "200"},
+        )
+        assert resolved_value is None or resolved_value == 0.0
+    
+        # The template path should be used instead
+        template_value = REGISTRY.get_sample_value(
+            "engram_http_requests_total",
+            {"method": "GET", "endpoint": "/v1/context/{session_id}", "status": "200"},
+        )
+>       assert template_value is not None and template_value >= 1.0
+E       assert (None is not None)
+
+tests/unit/test_metrics.py:211: AssertionError
+=============================== warnings summary ===============================
+tests/unit/test_metrics.py:18
+  /Users/arunmenon/projects/Engram/tests/unit/test_metrics.py:18: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient
+
+tests/unit/test_admin_pruning_scores.py: 2 warnings
+tests/unit/test_api_admin.py: 13 warnings
+tests/unit/test_api_auth.py: 5 warnings
+tests/unit/test_api_events.py: 16 warnings
+tests/unit/test_api_health.py: 14 warnings
+tests/unit/test_api_import.py: 1 warning
+tests/unit/test_api_ingest.py: 6 warnings
+tests/unit/test_api_users.py: 15 warnings
+tests/unit/test_artifact_route.py: 3 warnings
+tests/unit/test_backend_end_to_end.py: 2 warnings
+tests/unit/test_event_input_contract.py: 20 warnings
+tests/unit/test_explicit_runtime_settings.py: 1 warning
+tests/unit/test_feedback.py: 3 warnings
+tests/unit/test_metrics.py: 3 warnings
+tests/unit/test_pack_toy_end_to_end.py: 2 warnings
+tests/unit/test_pdlc_end_to_end.py: 1 warning
+tests/unit/test_pdlc_opendal_eval.py: 1 warning
+tests/unit/test_spanner_event_acceptance.py: 1 warning
+tests/unit/test_spanner_pack_admission.py: 1 warning
+tests/unit/test_webhooks.py: 13 warnings
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return await dependant.call(**values)
+
+tests/unit/test_api_events.py::TestIngestEvent::test_ingest_self_referential_parent
+tests/unit/test_api_events.py::TestIngestEvent::test_ingest_ended_at_before_occurred_at
+tests/unit/test_pdlc_end_to_end.py::test_webhooks_build_a_pdlc_graph[memory]
+tests/unit/test_storage_unavailable_http.py::test_transient_storage_error_returns_safe_503[UnavailableError]
+tests/unit/test_storage_unavailable_http.py::test_transient_storage_error_returns_safe_503[StorageTimeoutError]
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/_exception_handler.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await handler(conn, exc)  # type: ignore[arg-type]
+
+tests/unit/test_api_ingest.py::TestBodies::test_a_body_that_is_not_an_object_is_a_client_error
+tests/unit/test_api_ingest.py::TestBodies::test_unknown_encodings_are_refused
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/events.py:200: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _body_error(exc)
+
+tests/unit/test_api_ingest.py::TestBodies::test_size_is_bounded_before_and_after_decompression
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/events.py:281: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _body_error(exc)
+
+tests/unit/test_api_ingest.py::TestEventQuota::test_batches_are_charged_per_event
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/events.py:302: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    if checked.events and (limited := _quota_exceeded(request, len(checked.events))) is not None:
+
+tests/unit/test_api_query.py: 14 warnings
+tests/unit/test_backend_end_to_end.py: 2 warnings
+tests/unit/test_metrics.py: 1 warning
+tests/unit/test_middleware_rate_limit.py: 6 warnings
+tests/unit/test_tenant_responses.py: 1 warning
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await f(request)
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body0]
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/artifacts.py:53: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid("query is empty")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body2]
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/artifacts.py:55: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"query is at most {ontology.retrieval_max_query_length} characters")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body3]
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/artifacts.py:57: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"seed_node_ids has at most {ontology.retrieval_max_seed_ids} ids")
+
+tests/unit/test_artifact_route.py::test_invalid_requests_are_422[body4]
+tests/unit/test_pdlc_end_to_end.py::test_webhooks_build_a_pdlc_graph[memory]
+  /Users/arunmenon/projects/Engram/src/context_graph/api/routes/artifacts.py:59: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    return _invalid(f"intent must be one of {sorted(retriever.intents)}")
+
+tests/unit/test_middleware_rate_limit.py::TestRateLimitMiddleware::test_standard_endpoint_returns_429_after_exceeding_limit
+tests/unit/test_middleware_rate_limit.py::TestRateLimitMiddleware::test_429_response_has_proper_headers
+tests/unit/test_middleware_rate_limit.py::TestRateLimitMiddleware::test_admin_endpoint_has_separate_limit
+  /private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/middleware/base.py:197: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+    response = await self.dispatch_func(request, call_next)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/unit/test_api_import.py::test_history_is_appended_in_occurrence_order
+FAILED tests/unit/test_metrics.py::TestMetricsLabelCardinality::test_dynamic_route_uses_template_label
+2 failed, 2424 passed, 15 skipped, 165 warnings in 52.67s

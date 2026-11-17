@@ -1,0 +1,75 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> scripts/engram_spanner_empty_activation.py:7:1
+   |
+ 5 |   """
+ 6 |
+ 7 | / from __future__ import annotations
+ 8 | |
+ 9 | | from google.cloud.spanner_v1 import KeySet
+10 | |
+11 | | from engram_spanner_tenant_control_cases import COLUMNS
+   | |_______________________________________________________^
+12 |
+13 |   RESOURCE = "projects/portiq-mvp/instances/engram-experiment/databases/engram-compat-target"
+   |
+help: Organize imports
+   |
+8  |
+   - from google.cloud.spanner_v1 import KeySet
+   -
+9  | from engram_spanner_tenant_control_cases import COLUMNS
+10 + from google.cloud.spanner_v1 import KeySet
+11 |
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> scripts/engram_spanner_empty_activation.py:77:5
+   |
+75 |   def activate_empty_target(database, expected, target_binding):
+76 |       validate_target(database, expected)
+77 | /     from dataclasses import replace
+78 | |     from context_graph.adapters.spanner.tenant_control import TenantFence
+   | |_________________________________________________________________________^
+79 |
+80 |       checked = replace(target_binding)
+   |
+help: Organize imports
+   |
+77 |     from dataclasses import replace
+78 +
+79 |     from context_graph.adapters.spanner.tenant_control import TenantFence
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/unit/test_empty_target_activation.py:3:1
+   |
+ 1 |   """Transaction-local empty-target admission and exact cleanup, no cloud."""
+ 2 |
+ 3 | / import copy
+ 4 | | from dataclasses import replace
+ 5 | |
+ 6 | | import pytest
+ 7 | |
+ 8 | | from scripts.engram_spanner_empty_activation import (
+ 9 | |     KEYS,
+10 | |     RESOURCE,
+11 | |     ActivationRefusedError,
+12 | |     activate_empty_target,
+13 | |     clean_registered_target,
+14 | |     freeze_target,
+15 | | )
+16 | | from tests.unit.test_tenant_catalog import bind, configuration
+   | |______________________________________________________________^
+help: Organize imports
+   |
+6  | import pytest
+   -
+7  | from scripts.engram_spanner_empty_activation import (
+--------------------------------------------------------------------------------
+14 | )
+15 +
+16 | from tests.unit.test_tenant_catalog import bind, configuration
+   |
+
+Found 3 errors.
+[*] 3 fixable with the `--fix` option.

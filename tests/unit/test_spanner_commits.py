@@ -77,9 +77,16 @@ class TestExpectedSchema:
         expected = expected_schema(384)
         assert "search_text" in expected["table:Events"]
         assert "text_tokens" in expected["table:Events"]
-        node_columns = {"label", "node_id", "props", "session_id", "embedding"}
+        node_columns = {
+            "label",
+            "node_id",
+            "props",
+            "session_id",
+            "embedding",
+            "entity_embedding_member",
+        }
         assert expected["table:GraphNodes"] == node_columns
-        assert "GraphNodesByEmbedding" in expected["indexes"]
+        assert "GraphEntitiesByEmbeddingV1" in expected["indexes"]
         assert "EventsText" in expected["indexes"]
         assert expected["graphs"] == {"EngramGraph"}
 
@@ -337,8 +344,9 @@ class TestJsonFloats:
         }
         cell = json_param(value)
         assert f'"{FLOAT_TAG}"' in cell.serialize()
-        assert '"whole":2.0' in cell.serialize()  # integral floats stay numbers
         decoded = json_value(cell)
+        assert type(decoded["whole"]) is float
+        assert type(decoded["count"]) is int
         assert decoded["scores"] == self.REFUSED
         assert decoded["nested"]["x"] == 0.1
         assert math.isinf(decoded["nested"]["inf"])

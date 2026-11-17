@@ -1,0 +1,71 @@
+{
+  "requested_at": "2026-10-07T11:01:06.497377+00:00",
+  "status": "complete",
+  "reviewer": "gpt-6-astra",
+  "reasoning_effort": "medium",
+  "agent": "/root/astra_pack_optionality_review",
+  "scope": [
+    "core,memory,user,pdlc schema composition",
+    "specialized worker and generic projector dependencies",
+    "retrieval, maintenance, Spanner storage coupling",
+    "deployment selection versus tenant-scoped activation and isolation",
+    "minimal required foundation and optional capabilities",
+    "ticket changes under #34 and acceptance under #41"
+  ],
+  "report_path": "docs/review/spanner-compatibility/2026-10-07-astra-pack-optionality-review.md",
+  "constraints": [
+    "no runtime edits",
+    "no cloud tests",
+    "no Redis/Neo4j runners",
+    "schema probes are not runtime support"
+  ],
+  "parent_probe": {
+    "load_registry": {
+      "empty": [
+        "core",
+        "memory",
+        "user"
+      ],
+      "pdlc": [
+        "core",
+        "memory",
+        "user",
+        "pdlc"
+      ],
+      "core": [
+        "core",
+        "memory",
+        "user"
+      ],
+      "memory": [
+        "core",
+        "memory",
+        "user"
+      ],
+      "user": [
+        "core",
+        "memory",
+        "user"
+      ]
+    },
+    "direct_schema_composition": {
+      "pdlc_only": "rejected: missing core and interfaces",
+      "core+pdlc": "composes: 20 node types",
+      "core+memory": "composes: 6 node types",
+      "core+user": "composes: 8 node types"
+    },
+    "interpretation": "Local schema feasibility only; does not establish optional runtime behavior, tenant isolation or Spanner compatibility."
+  },
+  "completed_at": "2026-10-07T11:04:29.604994+00:00",
+  "report_sha256": "166c931ea16bac16a4f897b6bb63fd0bdc4d07012ed7b93f12db50c69cfacea8",
+  "new_native_subissues": [
+    42,
+    43
+  ],
+  "updated_issues": [
+    34,
+    35,
+    41
+  ],
+  "verification": "Both new issues verified as native children of #34. Local schema probes only; no API/worker/cloud acceptance run."
+}

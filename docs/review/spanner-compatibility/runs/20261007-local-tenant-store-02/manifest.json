@@ -1,0 +1,16 @@
+{
+  "kind": "local_tenant_store_binding",
+  "issues": [
+    34,
+    43
+  ],
+  "scope": "Explicit binding pins store bundle/settings, verifies protected schema and owner before adapters, shares mutation fence, cleans failed startup; production tenant factory still disabled; recheck Astra P2 caller mutation during async DB opening using private binding snapshot and barrier regression",
+  "source_sha256": {
+    "src/context_graph/adapters/registry.py": "56c966c4b5ea1c26bc9d935167e8d51ec12e343455a20fb9046ddbcd9e52416c",
+    "src/context_graph/adapters/spanner/tenant_control.py": "801d7977adbb08195620cad1a810a938e2b5253aa698c92a6a30fe41017c7cd4",
+    "tests/unit/test_tenant_store_binding.py": "7754ac0a4febc62cebd89d89a83aeacad0f34ceea3812aadcdb963b53b242eeb"
+  },
+  "cloud_calls": false,
+  "command": "pytest -q tests/unit/test_tenant_store_binding.py tests/unit/test_storage_registry.py tests/unit/test_spanner_tenant_control.py tests/unit/test_worker_fences.py tests/unit/test_explicit_runtime_settings.py tests/unit/test_tenant_dispatch.py",
+  "run_id": "20261007-local-tenant-store-02"
+}

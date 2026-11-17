@@ -1,0 +1,21 @@
+{
+  "kind": "local_tenant_snapshot_reads",
+  "cloud_calls": false,
+  "issues": [
+    34,
+    43,
+    41
+  ],
+  "scope": "Seven actual Spanner snapshot helpers verify control before application reads; API default read vs worker processing drain; no API response guard claim",
+  "source_sha256": {
+    "src/context_graph/adapters/spanner/tenant_control.py": "d594917f50a43fce597548c344f14fdc25b0848ee5789bcefe17f21b093995cf",
+    "src/context_graph/adapters/spanner/graph.py": "c9e6eed8e9f384241e0aa7ede68fb87bdb733ba471d1853dff8952f6ad658867",
+    "src/context_graph/adapters/spanner/log.py": "1749a7aa70a9fb80a575e7384f9aa5876e6fce458314beec9c4c91f81b52a4bf",
+    "src/context_graph/adapters/spanner/subscription.py": "ae22cf0d349e95d2c5727e9bb62fcbf84970474a0ddfde094e88462584e2af2c",
+    "src/context_graph/adapters/registry.py": "f1ed3cb33c004fc7c830c0088f99f0e158ecb8e01f2d265f1e506c654a5b26b7",
+    "src/context_graph/worker/__main__.py": "483a77f54eb2a045e75300036da3f63b067851b67bcaf75f10782f4ba491b5da",
+    "tests/unit/test_spanner_tenant_reads.py": "3c711066c3db2519f6d0ba164941f9be67d99273f19bbbb2a234f7d6eeb85d5d"
+  },
+  "command": "pytest -q tests/unit/test_spanner_tenant_reads.py tests/unit/test_spanner_tenant_control.py tests/unit/test_tenant_store_binding.py tests/unit/test_runtime_tenant_binding.py tests/unit/test_explicit_runtime_settings.py tests/unit/test_worker_fences.py",
+  "run_id": "20261007-local-tenant-read-snapshots-01"
+}

@@ -26,6 +26,8 @@ from context_graph.settings import Settings
 
 if TYPE_CHECKING:
     from context_graph.adapters.registry import Stores
+    from context_graph.domain.pack_bundle import ActiveBundle
+    from context_graph.tenancy import TenantBinding
     from context_graph.worker.consumer import BaseConsumer
 
 log = structlog.get_logger(__name__)
@@ -58,7 +60,13 @@ def _open_embedding_service(settings: Settings, unavailable_event: str, hint: st
         return None
 
 
-async def _build_consumer(consumer_type: str, settings: Settings) -> tuple[BaseConsumer, Stores]:
+async def _build_consumer(
+    consumer_type: str,
+    settings: Settings,
+    *,
+    bundle: ActiveBundle | None = None,
+    tenant_binding: TenantBinding | None = None,
+) -> tuple[BaseConsumer, Stores]:
     """Open the stores the consumer needs and build it.
 
     Stores come from the registry (ADR-0019); this module never imports a
@@ -68,20 +76,39 @@ async def _build_consumer(consumer_type: str, settings: Settings) -> tuple[BaseC
         msg = f"Unknown consumer type: {consumer_type}"
         raise ValueError(msg)
 
-    group_field, consumer_name = CONSUMER_SUBSCRIPTIONS[consumer_type]
-    group_name: str = getattr(settings.consumer, group_field)
+    from context_graph.ontology.runtime import configured_bundle
 
-    if consumer_type == "projection":
-        from context_graph.ontology.runtime import configured_projector
-        from context_graph.ontology.versioning import reconcile
-        from context_graph.worker.projection import ProjectionConsumer
+    if tenant_binding is not None:
+        settings, bundle = tenant_binding.runtime_configuration(settings, bundle)
+    if bundle is None:
+        bundle = configured_bundle(settings.ontology)
+    store_options: dict[str, Any] = {"bundle": bundle}
+    if tenant_binding is not None:
+        store_options["tenant_binding"] = tenant_binding
+        store_options["tenant_read_operation"] = "processing"
 
-        projector = configured_projector(settings.ontology)
-        stores = await open_stores(settings)
-        await stores.graph.ensure_pack_schema(projector.registry, settings.embedding.dimensions)
-        log.info("ontology_loaded", **projector.registry.summary())
-        # Record the ontology version; replay changed rules; refuse breaking changes
-        try:
+    stores = None
+    try:
+        group_field, consumer_name = CONSUMER_SUBSCRIPTIONS[consumer_type]
+        group_name: str = getattr(settings.consumer, group_field)
+
+        if consumer_type == "projection":
+            from context_graph.domain.pack_projection import PackProjector
+            from context_graph.domain.source_trust import SourceTrustPolicy
+            from context_graph.ontology.versioning import reconcile
+            from context_graph.worker.projection import ProjectionConsumer
+
+            projector = PackProjector(
+                bundle.registry,
+                frozenset(settings.ontology.trusted_sources),
+                source_policy=SourceTrustPolicy.from_binding(tenant_binding)
+                if tenant_binding
+                else None,
+            )
+            stores = await open_stores(settings, **store_options)
+            await stores.graph.ensure_pack_schema(projector.registry, settings.embedding.dimensions)
+            log.info("ontology_loaded", **projector.registry.summary())
+            # Record the ontology version; replay changed rules; refuse breaking changes
             await reconcile(
                 stores.graph,
                 stores.event_log,
@@ -91,147 +118,167 @@ async def _build_consumer(consumer_type: str, settings: Settings) -> tuple[BaseC
                 batch_size=settings.ontology.replay_batch_size,
                 lookup_limit=settings.ontology.lookup_limit,
             )
-        except Exception:
-            await stores.close()
-            raise
-        return ProjectionConsumer(
-            subscription=stores.subscription(group_name, consumer_name),
-            event_log=stores.event_log,
-            graph_store=stores.graph,
-            settings=settings,
-            pack_projector=projector,
-            pack_lookup_limit=settings.ontology.lookup_limit,
-        ), stores
+            return ProjectionConsumer(
+                subscription=stores.subscription(group_name, consumer_name),
+                event_log=stores.event_log,
+                graph_store=stores.graph,
+                settings=settings,
+                pack_projector=projector,
+                pack_lookup_limit=settings.ontology.lookup_limit,
+            ), stores
 
-    if consumer_type == "pack_extraction":
-        from context_graph.adapters.llm.client import LLMExtractionClient
-        from context_graph.domain.pack_extraction import extraction_profiles
-        from context_graph.ontology.runtime import configured_projector
-        from context_graph.worker.pack_extraction import PackExtractionConsumer
+        if consumer_type == "pack_extraction":
+            from context_graph.adapters.llm.client import LLMExtractionClient
+            from context_graph.domain.pack_extraction import extraction_profiles
+            from context_graph.domain.pack_projection import PackProjector
+            from context_graph.domain.source_trust import SourceTrustPolicy
+            from context_graph.worker.pack_extraction import PackExtractionConsumer
 
-        projector = configured_projector(settings.ontology)
-        ontology = settings.ontology
-        profiles = extraction_profiles(
-            projector.registry,
-            max_nodes=ontology.extraction_max_nodes,
-            max_links=ontology.extraction_max_links,
-            max_text_chars=ontology.extraction_max_text_chars,
-            max_value_chars=ontology.extraction_max_value_chars,
-        )
-        log.info(
-            "pack_extraction_profiles",
-            packs=[p.pack_name for p in profiles],
-            sources=sorted({s for p in profiles for s in p.sources}),
-        )
-        stores = await open_stores(settings)
-        return PackExtractionConsumer(
-            subscription=stores.subscription(group_name, consumer_name),
-            event_log=stores.event_log,
-            graph=stores.graph,
-            profiles=profiles,
-            projector=projector,
-            model=LLMExtractionClient(
+            projector = PackProjector(
+                bundle.registry,
+                frozenset(settings.ontology.trusted_sources),
+                source_policy=SourceTrustPolicy.from_binding(tenant_binding)
+                if tenant_binding
+                else None,
+            )
+            ontology = settings.ontology
+            profiles = extraction_profiles(
+                projector.registry,
+                max_nodes=ontology.extraction_max_nodes,
+                max_links=ontology.extraction_max_links,
+                max_text_chars=ontology.extraction_max_text_chars,
+                max_value_chars=ontology.extraction_max_value_chars,
+            )
+            log.info(
+                "pack_extraction_profiles",
+                packs=[p.pack_name for p in profiles],
+                sources=sorted({s for p in profiles for s in p.sources}),
+            )
+            stores = await open_stores(settings, **store_options)
+            return PackExtractionConsumer(
+                subscription=stores.subscription(group_name, consumer_name),
+                event_log=stores.event_log,
+                graph=stores.graph,
+                profiles=profiles,
+                projector=projector,
+                model=LLMExtractionClient(
+                    model_id=settings.llm.model_id,
+                    temperature=settings.llm.temperature,
+                    max_tokens=settings.llm.max_tokens,
+                    timeout=settings.llm.timeout_seconds,
+                    max_retries=settings.llm.max_retries,
+                ),
+                settings=settings,
+            ), stores
+
+        if consumer_type == "enrichment":
+            from context_graph.worker.enrichment import EnrichmentConsumer
+
+            stores = await open_stores(settings, **store_options)
+
+            # Optional embedding service for event embeddings
+            embedding_service = _open_embedding_service(
+                settings,
+                "enrichment_embedding_service_unavailable",
+                "Install sentence-transformers for event embeddings",
+            )
+            if embedding_service is not None:
+                log.info(
+                    "enrichment_embedding_service_initialized", model=settings.embedding.model_name
+                )
+
+            return EnrichmentConsumer(
+                subscription=stores.subscription(group_name, consumer_name),
+                event_log=stores.event_log,
+                graph_store=stores.graph,
+                settings=settings,
+                embedding_service=embedding_service,
+            ), stores
+
+        if consumer_type == "extraction":
+            from context_graph.adapters.llm.client import LLMExtractionClient
+            from context_graph.worker.extraction import ExtractionConsumer
+
+            llm_client = LLMExtractionClient(
                 model_id=settings.llm.model_id,
                 temperature=settings.llm.temperature,
                 max_tokens=settings.llm.max_tokens,
                 timeout=settings.llm.timeout_seconds,
                 max_retries=settings.llm.max_retries,
-            ),
-            settings=settings,
-        ), stores
-
-    if consumer_type == "enrichment":
-        from context_graph.worker.enrichment import EnrichmentConsumer
-
-        stores = await open_stores(settings)
-
-        # Optional embedding service for event embeddings
-        embedding_service = _open_embedding_service(
-            settings,
-            "enrichment_embedding_service_unavailable",
-            "Install sentence-transformers for event embeddings",
-        )
-        if embedding_service is not None:
-            log.info(
-                "enrichment_embedding_service_initialized", model=settings.embedding.model_name
+                include_user=bundle.enables("user.extract.v1"),
             )
 
-        return EnrichmentConsumer(
+            # Tier 2b: Semantic entity matching via embedding service + graph vector index.
+            # The graph store needs no embedding service: it only used one for
+            # retrieval, which now lives in RetrievalEngine (ADR-0019 C3).
+            embedding_service = _open_embedding_service(
+                settings,
+                "embedding_service_unavailable",
+                "Install sentence-transformers: pip install context-graph[embedding]",
+            )
+            stores = await open_stores(settings, **store_options)
+            if embedding_service is not None:
+                log.info("embedding_service_initialized", model=settings.embedding.model_name)
+
+            # The graph store also satisfies the UserStore protocol
+            return ExtractionConsumer(
+                subscription=stores.subscription(group_name, consumer_name),
+                event_log=stores.event_log,
+                llm_client=llm_client,
+                settings=settings,
+                embedding_service=embedding_service,
+                graph_store=stores.graph,
+                user_store=stores.graph if bundle.enables("user.extract.v1") else None,
+                bundle=bundle,
+            ), stores
+
+        from context_graph.worker.consolidation import ConsolidationConsumer
+
+        # Archive store selected by CG_STORAGE_ARCHIVE / CG_ARCHIVE_* (ADR-0014)
+        stores = await open_stores(settings, with_archive=True, **store_options)
+
+        # Optional: LLM client for consolidation summaries
+        consolidation_llm_client: Any = None
+        try:
+            from context_graph.adapters.llm.client import LLMExtractionClient
+
+            consolidation_llm_client = LLMExtractionClient(
+                model_id=settings.llm.model_id,
+                temperature=settings.llm.temperature,
+                max_tokens=settings.llm.max_tokens,
+                timeout=settings.llm.timeout_seconds,
+            )
+            log.info("consolidation_llm_client_initialized")
+        except ImportError:
+            log.info("consolidation_llm_client_unavailable")
+
+        return ConsolidationConsumer(
             subscription=stores.subscription(group_name, consumer_name),
             event_log=stores.event_log,
-            graph_store=stores.graph,
+            graph_maintenance=stores.graph,
             settings=settings,
-            embedding_service=embedding_service,
+            archive_store=stores.archive,
+            llm_client=consolidation_llm_client,
         ), stores
 
-    if consumer_type == "extraction":
-        from context_graph.adapters.llm.client import LLMExtractionClient
-        from context_graph.worker.extraction import ExtractionConsumer
-
-        llm_client = LLMExtractionClient(
-            model_id=settings.llm.model_id,
-            temperature=settings.llm.temperature,
-            max_tokens=settings.llm.max_tokens,
-            timeout=settings.llm.timeout_seconds,
-            max_retries=settings.llm.max_retries,
-        )
-
-        # Tier 2b: Semantic entity matching via embedding service + graph vector index.
-        # The graph store needs no embedding service: it only used one for
-        # retrieval, which now lives in RetrievalEngine (ADR-0019 C3).
-        embedding_service = _open_embedding_service(
-            settings,
-            "embedding_service_unavailable",
-            "Install sentence-transformers: pip install context-graph[embedding]",
-        )
-        stores = await open_stores(settings)
-        if embedding_service is not None:
-            log.info("embedding_service_initialized", model=settings.embedding.model_name)
-
-        # The graph store also satisfies the UserStore protocol
-        return ExtractionConsumer(
-            subscription=stores.subscription(group_name, consumer_name),
-            event_log=stores.event_log,
-            llm_client=llm_client,
-            settings=settings,
-            embedding_service=embedding_service,
-            graph_store=stores.graph,
-            user_store=stores.graph,
-        ), stores
-
-    from context_graph.worker.consolidation import ConsolidationConsumer
-
-    # Archive store selected by CG_STORAGE_ARCHIVE / CG_ARCHIVE_* (ADR-0014)
-    stores = await open_stores(settings, with_archive=True)
-
-    # Optional: LLM client for consolidation summaries
-    consolidation_llm_client: Any = None
-    try:
-        from context_graph.adapters.llm.client import LLMExtractionClient
-
-        consolidation_llm_client = LLMExtractionClient(
-            model_id=settings.llm.model_id,
-            temperature=settings.llm.temperature,
-            max_tokens=settings.llm.max_tokens,
-            timeout=settings.llm.timeout_seconds,
-        )
-        log.info("consolidation_llm_client_initialized")
-    except ImportError:
-        log.info("consolidation_llm_client_unavailable")
-
-    return ConsolidationConsumer(
-        subscription=stores.subscription(group_name, consumer_name),
-        event_log=stores.event_log,
-        graph_maintenance=stores.graph,
-        settings=settings,
-        archive_store=stores.archive,
-        llm_client=consolidation_llm_client,
-    ), stores
+    except BaseException:
+        if stores is not None:
+            await stores.close()
+        raise
 
 
-async def run_worker(consumer_type: str) -> None:
+async def run_worker(
+    consumer_type: str,
+    *,
+    settings: Settings | None = None,
+    bundle: ActiveBundle | None = None,
+    tenant_binding: TenantBinding | None = None,
+) -> None:
     """Instantiate and run a consumer worker until shutdown signal."""
-    settings = Settings()
+    if tenant_binding is not None:
+        settings, bundle = tenant_binding.runtime_configuration(settings, bundle)
+    else:
+        settings = (settings if settings is not None else Settings()).model_copy(deep=True)
 
     log_level = logging.getLevelNamesMapping().get(settings.log_level.upper(), logging.INFO)
     structlog.configure(
@@ -246,7 +293,14 @@ async def run_worker(consumer_type: str) -> None:
         storage=settings.storage.model_dump(),
     )
 
-    consumer, stores = await _build_consumer(consumer_type, settings)
+    if tenant_binding is not None:
+        consumer, stores = await _build_consumer(
+            consumer_type, settings, bundle=bundle, tenant_binding=tenant_binding
+        )
+    elif bundle is None:
+        consumer, stores = await _build_consumer(consumer_type, settings)
+    else:
+        consumer, stores = await _build_consumer(consumer_type, settings, bundle=bundle)
 
     try:
         # Register SIGTERM/SIGINT handler for graceful shutdown

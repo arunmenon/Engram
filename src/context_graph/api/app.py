@@ -9,7 +9,7 @@ Source: ADR-0006
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import structlog
 from fastapi import Depends, FastAPI
@@ -35,7 +35,7 @@ from context_graph.api.routes.simulate import router as simulate_router
 from context_graph.api.routes.users import router as users_router
 from context_graph.api.routes.webhooks import router as webhooks_router
 from context_graph.domain.pack_intents import RegistryIntents
-from context_graph.ontology.runtime import configured_registry
+from context_graph.ontology.runtime import configured_bundle
 from context_graph.ontology.versioning import EvalPending
 from context_graph.retrieval import RetrievalEngine
 from context_graph.retrieval.artifacts import ArtifactRetriever
@@ -44,13 +44,25 @@ from context_graph.settings import Settings
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
+    from context_graph.domain.pack_bundle import ActiveBundle
+
 logger = structlog.get_logger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Manage storage connections across the app lifecycle."""
-    settings = Settings()
+    settings = getattr(app.state, "configured_settings", None)
+    if settings is None:
+        settings = Settings()
+    # Refuse incompatible pack selections before constructing providers/stores.
+    bundle = getattr(app.state, "configured_bundle", None)
+    tenant_binding = getattr(app.state, "tenant_binding", None)
+    if tenant_binding is not None:
+        settings, bundle = tenant_binding.runtime_configuration(settings, bundle)
+    if bundle is None:
+        bundle = configured_bundle(settings.ontology)
+    ontology = bundle.registry
 
     # Optional: embedding service for query-time relevance scoring
     embedding_service = None
@@ -94,73 +106,84 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     except ImportError:
         logger.info("llm_client_unavailable")
 
-    # -- Startup: the ontology (ADR-0018); an invalid pack fails start-up ---
-    ontology = configured_registry(settings.ontology)
-
     # -- Startup: open the configured stores (ADR-0019) -------------------
-    stores = await open_stores(settings, prepare_ingest=True)
-    await stores.graph.ensure_pack_schema(ontology, settings.embedding.dimensions)
+    store_options: dict[str, Any] = {"bundle": bundle}
+    if tenant_binding is not None:
+        store_options["tenant_binding"] = tenant_binding
+    stores = await open_stores(settings, prepare_ingest=True, **store_options)
+    try:
+        await stores.graph.ensure_pack_schema(ontology, settings.embedding.dimensions)
 
-    # Retrieval engine: composes the storage ports and owns its own
-    # dependencies (ADR-0019 C3)
-    retrieval = RetrievalEngine(
-        stores.graph_reads,
-        decay=settings.decay,
-        keyword_index=stores.keyword_index,
-        vector_index=stores.vector_index,
-        embedding_service=embedding_service,
-        intent_classifier=intent_classifier,
-        llm_client=llm_client,
-        ppr_settings=settings.ppr,
-        query_timeout_s=settings.query.default_timeout_ms / 1000.0,
-        neighbor_limit=settings.query.default_neighbor_limit,
-        provenance_source=settings.storage.event_log,
-        intents=RegistryIntents.for_events(ontology),
-    )
-    artifacts = ArtifactRetriever(
-        stores.graph,
-        ontology,
-        default_max_depth=settings.query.default_max_depth,
-        seed_limit=settings.ontology.retrieval_seed_limit,
-        neighbor_limit=settings.ontology.retrieval_neighbor_limit,
-        provenance_source=settings.storage.event_log,
-        seed_min_ratio=settings.ontology.retrieval_seed_min_ratio,
-        max_terms=settings.ontology.retrieval_max_terms,
-        max_graph_calls=settings.ontology.retrieval_max_graph_calls,
-        scan_limit=settings.ontology.retrieval_scan_limit,
-        word_scan_limit=settings.ontology.retrieval_word_scan_limit,
-    )
-
-    app.state.settings = settings
-    app.state.stores = stores
-    app.state.event_store = stores.event_log
-    app.state.graph_store = stores.graph
-    app.state.retrieval = retrieval
-    app.state.ontology = ontology
-    app.state.artifacts = artifacts
-    if settings.rate_limit.enabled and settings.ingest.events_per_minute > 0:
-        app.state.event_quota = EventQuota(
-            settings.ingest.events_per_minute, max_clients=settings.rate_limit.max_clients
+        # Retrieval engine: composes the storage ports and owns its own
+        # dependencies (ADR-0019 C3)
+        retrieval = RetrievalEngine(
+            stores.graph_reads,
+            decay=settings.decay,
+            keyword_index=stores.keyword_index,
+            vector_index=stores.vector_index,
+            embedding_service=embedding_service,
+            intent_classifier=intent_classifier,
+            llm_client=llm_client,
+            ppr_settings=settings.ppr,
+            query_timeout_s=settings.query.default_timeout_ms / 1000.0,
+            neighbor_limit=settings.query.default_neighbor_limit,
+            provenance_source=settings.storage.event_log,
+            intents=RegistryIntents.for_events(ontology),
+            bundle=bundle,
+            pack_graph=stores.pack_reads if stores.pack_reads is not None else stores.graph,
         )
-    app.state.eval_pending = EvalPending(stores.graph, ontology, settings.ontology.eval_state_ttl_s)
+        artifacts = ArtifactRetriever(
+            stores.pack_reads if stores.pack_reads is not None else stores.graph,
+            ontology,
+            default_max_depth=settings.query.default_max_depth,
+            seed_limit=settings.ontology.retrieval_seed_limit,
+            neighbor_limit=settings.ontology.retrieval_neighbor_limit,
+            provenance_source=settings.storage.event_log,
+            seed_min_ratio=settings.ontology.retrieval_seed_min_ratio,
+            max_terms=settings.ontology.retrieval_max_terms,
+            max_graph_calls=settings.ontology.retrieval_max_graph_calls,
+            scan_limit=settings.ontology.retrieval_scan_limit,
+            word_scan_limit=settings.ontology.retrieval_word_scan_limit,
+        )
 
-    logger.info(
-        "app_started",
-        redis_host=settings.redis.host,
-        neo4j_uri=settings.neo4j.uri,
-        ontology_version=ontology.version,
-        ontology_packs=[f"{p.name}@{p.version}" for p in ontology.packs],
-    )
+        app.state.settings = settings
+        app.state.stores = stores
+        app.state.event_store = stores.event_log
+        app.state.graph_store = stores.graph
+        app.state.retrieval = retrieval
+        app.state.ontology = ontology
+        app.state.bundle = bundle
+        app.state.artifacts = artifacts
+        if settings.rate_limit.enabled and settings.ingest.events_per_minute > 0:
+            app.state.event_quota = EventQuota(
+                settings.ingest.events_per_minute, max_clients=settings.rate_limit.max_clients
+            )
+        app.state.eval_pending = EvalPending(
+            stores.graph, ontology, settings.ontology.eval_state_ttl_s
+        )
 
-    yield
+        logger.info(
+            "app_started",
+            redis_host=settings.redis.host,
+            neo4j_uri=settings.neo4j.uri,
+            ontology_version=ontology.version,
+            ontology_packs=[f"{p.name}@{p.version}" for p in ontology.packs],
+        )
 
-    # -- Shutdown: release connections -------------------------------------
-    await stores.close()
-    logger.info("app_stopped")
+        yield
+
+    finally:
+        await stores.close()
+        logger.info("app_stopped")
 
 
-def create_app() -> FastAPI:
-    """Build and return the configured FastAPI application."""
+def create_app(settings: Settings | None = None, *, bundle: ActiveBundle | None = None) -> FastAPI:
+    """Build one application from a private settings snapshot.
+
+    This factory boundary does not provide tenant authentication or durable
+    database ownership fences. Those must precede production tenant routing.
+    """
+    configured = (settings if settings is not None else Settings()).model_copy(deep=True)
     app = FastAPI(
         title="Context Graph API",
         description="Traceability-first context graph for AI agents",
@@ -169,7 +192,9 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    register_middleware(app)
+    app.state.configured_settings = configured
+    app.state.configured_bundle = bundle
+    register_middleware(app, configured)
 
     # Standard endpoints: require API key (disabled when CG_AUTH_API_KEY unset)
     api_key_deps = [Depends(require_api_key)]

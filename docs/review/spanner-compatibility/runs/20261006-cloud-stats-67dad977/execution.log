@@ -1,0 +1,19 @@
+2026-10-06 16:48:54 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 16:48:54 [info     ] llm_client_initialized
+2026-10-06 16:48:55 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'crm@1.0.0'] ontology_version=sha256:163ac0d6e903ef6c redis_host=localhost
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 149, in check
+    observation = await asyncio.wait_for(function(), timeout=120)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 1793, in stats
+    assert body["graph"]["nodes"].get(label) == actual["nodes"].get(label), (
+           ~~~~^^^^^^^^^
+KeyError: 'graph'
+
+{"name": "admin_stats_count_pack_types", "scenarios": ["OPS-01"], "verdict": "failed", "error_type": "KeyError", "error": "'graph'", "seconds": 1.44}
+2026-10-06 16:48:57 [info     ] app_stopped

@@ -1,3 +1,4 @@
+<meta charset="utf-8" />
 <title>Engram Packs and Spanner</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -373,6 +374,8 @@
 <div class="wrap">
   <nav class="toc" aria-label="Sections">
     <span class="label">Overview</span>
+    <a href="#purpose">Why ontology packs?</a>
+    <a href="#foundation">Core, add-ons and domains</a>
     <a href="#glance">The big picture</a>
     <a href="#terms">Words used here</a>
     <span class="label">Ontology</span>
@@ -408,6 +411,60 @@
         <span>ADR-0019 · pluggable storage backends</span>
       </div>
     </header>
+
+    <aside class="callout" aria-label="Guide date and recording scope">
+      <p><strong>Guide scope.</strong> Originally written October 2026.
+      Selected architecture explanations were reconciled on November 3 for
+      the video rehearsal: optional packs, PDLC types and tenant-bound
+      admission. Historical benchmarks and operational results below remain
+      dated evidence, not current deployment claims. The workbench prepares
+      drafts and sandbox proof; it does not activate live tenants.</p>
+    </aside>
+
+    <section id="purpose">
+      <div class="kicker">Start here · domain-agnostic overview</div>
+      <h2>From scattered records to shared meaning</h2>
+      <p class="lede">Applications and agents need to know what records mean,
+        how they connect, and which evidence supports an answer.</p>
+      <div class="tablebox"><table>
+        <thead><tr><th>The question</th><th>What must be explicit</th></tr></thead>
+        <tbody>
+          <tr><td>Are these records about the same thing?</td><td>Identity and the scope in which an identifier is unique.</td></tr>
+          <tr><td>How are these things connected?</td><td>Relationship meaning, direction and supporting evidence.</td></tr>
+          <tr><td>What is true now?</td><td>States, allowed changes and the distinction between history and current context.</td></tr>
+          <tr><td>Why should we believe this answer?</td><td>Source trust, provenance and reviewed examples of correct behavior.</td></tr>
+        </tbody>
+      </table></div>
+      <p>An <strong>ontology</strong> defines the kinds of things and relationships
+        in the model. A <strong>pack</strong> makes supported parts executable:
+        types, identities, event contracts, mapping rules and retrieval configuration.</p>
+      <div class="callout"><p><strong>Explicit does not mean automatically correct.</strong>
+        Ground the model in specifications and examples, review its assumptions,
+        and evaluate the graph and answers it produces.</p></div>
+    </section>
+
+    <section id="foundation">
+      <div class="kicker">One engine · composed knowledge model</div>
+      <h2>Core, optional add-ons and domain extensions</h2>
+      <p>Choose the knowledge model a customer needs while reusing the same engine.</p>
+      <div class="tablebox"><table>
+        <thead><tr><th>Part</th><th>Purpose</th><th>Required?</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Core pack</strong></td><td>Shared concepts such as Event and Entity, relationships and reusable interfaces.</td><td>Yes</td></tr>
+          <tr><td><strong>Memory add-on</strong></td><td>Beliefs, goals and episodes.</td><td>Optional</td></tr>
+          <tr><td><strong>User add-on</strong></td><td>Profiles, preferences and related user concepts.</td><td>Optional</td></tr>
+          <tr><td><strong>Domain packs</strong></td><td>Business vocabulary, identity rules, event mappings and retrieval configuration.</td><td>Selected for the use case</td></tr>
+        </tbody>
+      </table></div>
+      <p>The <strong>engine</strong> provides processing, storage interfaces,
+        provenance, lifecycle, trust and retrieval mechanisms. Packs configure
+        the mechanisms they use. A new capability beyond those mechanisms needs engineering.</p>
+      <div class="callout"><p><strong>Composition is not tenant isolation.</strong>
+        Pack dependencies and names are validated together. Tenant authentication,
+        configuration binding and database boundaries are separate runtime controls.</p></div>
+      <p>Next: follow an event through the engine. Then examine two domain examples
+        and use the workbench to configure, author and test a customer model.</p>
+    </section>
 
     <section id="glance">
       <div class="kicker">Overview</div>
@@ -822,9 +879,9 @@
       <div class="kicker">Ontology</div>
       <h2>The common layer and domain packs</h2>
       <p>
-        The ontology has two layers. The common layer is always loaded and is
-        the same in every deployment. Domain packs sit on top and are chosen by
-        configuration.
+        The ontology has a mandatory core and configurable packs. Memory and
+        user are optional built-in packs; domain packs and their dependencies
+        are selected by configuration. Pack selection alone is not a tenant-isolation boundary.
       </p>
       <figure class="fig">
   <div class="figscroll">
@@ -853,7 +910,7 @@
       <rect x="20" y="34" width="230" height="50" rx="8" class="bx-new" />
       <text x="135" y="55" text-anchor="middle" class="t-title">pdlc</text>
       <text x="135" y="72" text-anchor="middle" class="t-sub">
-        WorkItem, Change, Deployment, +14
+        WorkItem, Change, Deployment, +15
       </text>
       <rect x="265" y="34" width="230" height="50" rx="8" class="bx" />
       <text x="380" y="55" text-anchor="middle" class="t-title">
@@ -888,7 +945,7 @@
       <text x="633" y="200" class="t-edge-new">inherits</text>
       <rect x="200" y="104" width="360" height="76" rx="8" class="grp" />
       <text x="380" y="127" text-anchor="middle" class="t-title">
-        Every domain pack inherits
+        Shared mechanisms, used by pack declarations
       </text>
       <text x="380" y="147" text-anchor="middle" class="t-sub">
         DERIVED_FROM provenance · source trust
@@ -913,7 +970,7 @@
         Profile, Preference, Skill, +2
       </text>
       <text x="20" y="298" class="t-label">
-        COMMON LAYER · ALWAYS LOADED · TODAY'S 11 NODE AND 20 EDGE TYPES
+        CORE REQUIRED · MEMORY AND USER OPTIONAL
       </text>
     </svg>
   </div>
@@ -927,8 +984,8 @@
       <h3>The common layer: core, memory and user</h3>
       <p>
         These three packs together are Engram's existing agent-memory schema: 11
-        node types and 20 edge types. They always load first, and a deployment
-        can't replace them.
+        node types and 20 edge types when all three are selected. Core always
+        loads; memory and user are defaults that can be explicitly omitted.
       </p>
       <ul>
         <li>
@@ -979,9 +1036,9 @@
             <tr>
               <td class="mono">Sourced</td>
               <td>
-                Every node and edge records <code>source_trust</code>: trusted
-                or untrusted, taken from an allowlist of sources and never from
-                the content.
+                Source trust is derived from the configured source policy, never
+                from a payload claiming to be trusted. Tenant-bound execution
+                ties this policy to authenticated source identities.
               </td>
             </tr>
             <tr>
@@ -1415,7 +1472,7 @@
   </figcaption>
 </figure>
 
-      <h3>17 node types in eight groups</h3>
+      <h3>18 node types in eight groups</h3>
       <p>
         Every node's ID is built from its key fields, for example
         <code>Change:acme/payments|7</code> or
@@ -1434,10 +1491,10 @@
           <tbody>
             <tr>
               <td>Intake</td>
-              <td class="mono">Request, Spec, Requirement, DesignElement</td>
+              <td class="mono">Request, Spec, Requirement, DesignElement, DesignApproval</td>
               <td>
                 The ask, the current contract, single requirement statements,
-                HLD and LLD sections
+                HLD and LLD sections, and approval of a specific design revision
               </td>
             </tr>
             <tr>
@@ -1557,7 +1614,7 @@
       <h3>Three rules that shape every answer</h3>
       <ul>
         <li>
-          <strong>Trace links are proposed or confirmed.</strong> Eight edges
+          <strong>Trace links are proposed or confirmed.</strong> Trace edges
           carry a confidence and a status. A link a tool declared, such as
           "Fixes PAY-341" in a change description, starts confirmed. An inferred
           link starts proposed. Nothing is thrown away on write; the confidence
@@ -1919,6 +1976,11 @@
       </ul>
 
       <h3>2. Checks</h3>
+      <p><strong>Current tenant-bound admission:</strong> the active bundle
+        supplies payload contracts, event handling and enabled processing
+        bindings. A declared domain event without a payload contract is
+        unsupported. Ledger-only handling is explicit; declaring an event
+        does not by itself make it processable.</p>
       <ul>
         <li>
           A domain pack owns its event namespace. An undeclared
@@ -2541,7 +2603,7 @@
         <li>
           <strong>Seeds.</strong> Exact references first: ticket keys like
           <code>PAY-341</code>, file paths, version tokens, <code>#7</code>, and
-          the pack's ID patterns. Rare words are used only when no ID matches.
+          the pack's ID patterns. In default discovery mode, supplied seeds can be combined with discovered references; rare words are used when precise discovery finds no match. With <code>seed_mode: explicit</code>, artifact queries resolve only the selected IDs and fail if those selections cannot be resolved. This restricts starting points, not traversal reach or tenant authorization.
         </li>
         <li>
           <strong>Walk.</strong> Only edges between pack types are followed, in

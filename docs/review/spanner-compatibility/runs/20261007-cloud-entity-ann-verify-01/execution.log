@@ -1,0 +1,18 @@
+{"event": "start", "run_id": "20261007-cloud-entity-ann-verify-01", "at": "2026-10-07T13:20:43.777747+00:00", "record": "docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-verify-01"}
+2026-10-07 18:50:51 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-07 18:50:51 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-07 18:50:51 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-07 18:50:51 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-07 18:50:51 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-07 18:50:51 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-07 18:50:51 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-07 18:50:51 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-07 18:50:51 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-07 18:50:51 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-07 18:50:51 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-07 18:50:51 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-07 18:50:51 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-07 18:50:51 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+{"event": "finish", "run_id": "20261007-cloud-entity-ann-verify-01", "at": "2026-10-07T13:20:58.077970+00:00", "record": "docs/review/spanner-compatibility/runs/20261007-cloud-entity-ann-verify-01"}
+{"run_id": "20261007-cloud-entity-ann-verify-01", "checks": [{"name": "native ANN excludes 65 embedded non-Entity rows before top-k", "passed": true, "scenarios": []}, {"name": "Engram vector Entity hits resolve to correct evidence Events", "passed": true, "scenarios": []}, {"name": "reconstructed adapter reads the filtered index", "passed": true, "scenarios": []}, {"name": "embedding update and removal affect native results", "passed": true, "scenarios": []}, {"name": "run-owned ANN nodes and edges removed", "passed": true, "scenarios": []}, {"name": "graph properties and embeddings unchanged", "passed": true, "scenarios": []}]}
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

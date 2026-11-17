@@ -319,6 +319,15 @@ def _compare_packs(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePla
             plan.eval_required.add(name)
     for name in sorted(set(old_packs) & set(new_packs)):
         before, after = old_packs[name], new_packs[name]
+        if before.processing != after.processing:
+            removed = set(before.processing.enabled) - set(after.processing.enabled) or set(
+                before.processing.requires
+            ) - set(after.processing.requires)
+            plan.note(
+                "breaking" if removed else "additive",
+                f"pack {name}: processing changed; activation/catch-up needs explicit policy",
+                name,
+            )
         for section in ("extraction", "lifecycle", "retrieval", "interfaces", "mappings"):
             if _section(before, section) != _section(after, section):
                 plan.note("additive", f"pack {name}: {section} changed", name)

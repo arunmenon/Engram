@@ -11,13 +11,13 @@ differences for completeness questions. Responses use the Atlas pattern.
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from fastapi import APIRouter, Request
 from fastapi.responses import ORJSONResponse
 from pydantic import BaseModel, ConfigDict, Field
 
-from context_graph.retrieval.artifacts import ArtifactQuery
+from context_graph.retrieval.artifacts import ArtifactQuery, UnresolvedSeedsError
 
 if TYPE_CHECKING:
     from context_graph.retrieval.artifacts import ArtifactRetriever
@@ -31,6 +31,7 @@ class ArtifactQueryRequest(BaseModel):
 
     query: str = Field(min_length=1)
     seed_node_ids: list[str] = Field(default_factory=list)
+    seed_mode: Literal["discover", "explicit"] = "discover"
     intent: str | None = None
     max_depth: int | None = Field(default=None, ge=1)
     max_nodes: int | None = Field(default=None, ge=1)
@@ -48,6 +49,16 @@ async def query_artifacts(body: ArtifactQueryRequest, request: Request) -> ORJSO
     settings: Settings = request.app.state.settings
     limits = settings.query
     ontology = settings.ontology
+    if body.seed_mode == "explicit" and not body.seed_node_ids:
+        error = UnresolvedSeedsError([], "empty")
+        return ORJSONResponse(
+            status_code=422,
+            content={
+                "detail": str(error),
+                "reason": error.reason,
+                "unresolved_seed_ids": [],
+            },
+        )
     query = body.query.strip()
     if not query:
         return _invalid("query is empty")
@@ -81,6 +92,7 @@ async def query_artifacts(body: ArtifactQueryRequest, request: Request) -> ORJSO
                 ArtifactQuery(
                     query=query,
                     seed_node_ids=tuple(body.seed_node_ids),
+                    seed_mode=body.seed_mode,
                     intent=body.intent,
                     max_depth=body.max_depth,
                     max_nodes=body.max_nodes or limits.default_max_nodes,
@@ -89,6 +101,15 @@ async def query_artifacts(body: ArtifactQueryRequest, request: Request) -> ORJSO
                 )
             ),
             timeout=limits.default_timeout_ms / 1000.0,
+        )
+    except UnresolvedSeedsError as exc:
+        return ORJSONResponse(
+            status_code=422,
+            content={
+                "detail": str(exc),
+                "reason": exc.reason,
+                "unresolved_seed_ids": exc.unresolved,
+            },
         )
     except TimeoutError:
         return ORJSONResponse(

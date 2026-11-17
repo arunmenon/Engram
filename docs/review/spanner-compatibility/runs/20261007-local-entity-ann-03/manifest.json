@@ -1,0 +1,22 @@
+{
+  "kind": "local_entity_ann_upgrade",
+  "cloud_calls": false,
+  "issues": [
+    44,
+    41,
+    23,
+    42,
+    34
+  ],
+  "source_sha256": {
+    "src/context_graph/adapters/spanner/entity_index.py": "847cd83586fa5a08076f34e720f07733782e4c6c55109527f5491f957d858ad3",
+    "src/context_graph/adapters/spanner/schema.py": "2379029e6b25637bef68612bc1e1c30b14ea6db7f440cc8d24a2fddee7cd984d",
+    "src/context_graph/adapters/spanner/graph.py": "24a850d5a38ee0c45ccccdae4f3fcd957418c417338cc8efde40a217a76f331a",
+    "src/context_graph/adapters/spanner/commits.py": "c09da09c1eb2dbc0616efefe2392d82a542a27eb53065a7ff09af04ee4ef11ca",
+    "tests/unit/test_spanner_entity_index.py": "e05750c554dd6815cca2f34d1fa823873c2d5cd5a152fc43ba5994878382673a",
+    "tests/unit/test_spanner_schema_handshake.py": "94cae0bc041bc33a049eef019371cbbc6dda67d7a68c5322eea8c7dc94828b70",
+    "tests/unit/test_spanner_commits.py": "a453fb394a9a3222576febb6a7adb3f9e0bed14096433cd8c15a7811b14cf84e"
+  },
+  "scope": "Mocked physical schema, explicit additive upgrade, native query and identity, coexistence estimates. Not real-Spanner acceptance. Real SDK Operation fixture; prior physical embedding byte budgets; local Spanner lifecycle/storage regression.",
+  "run_id": "20261007-local-entity-ann-03"
+}

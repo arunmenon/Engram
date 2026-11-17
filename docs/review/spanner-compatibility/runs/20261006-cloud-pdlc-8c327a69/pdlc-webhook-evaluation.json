@@ -1,0 +1,125 @@
+[
+  {
+    "pack": "pdlc",
+    "passed": true,
+    "mean_f1": 1.0,
+    "min_f1": 0.95,
+    "problem": null,
+    "questions": [
+      {
+        "id": "deployed-where",
+        "f1": 1.0,
+        "found": [
+          "Deployment:production|def456|2026-10-02T09:00:00+00:00"
+        ],
+        "expected": [
+          "Deployment:production|def456|2026-10-02T09:00:00+00:00"
+        ]
+      },
+      {
+        "id": "implemented-by",
+        "f1": 1.0,
+        "found": [
+          "Change:acme/payments|7"
+        ],
+        "expected": [
+          "Change:acme/payments|7"
+        ]
+      },
+      {
+        "id": "pr-implements",
+        "f1": 1.0,
+        "found": [
+          "WorkItem:jira|PAY-341"
+        ],
+        "expected": [
+          "WorkItem:jira|PAY-341"
+        ]
+      },
+      {
+        "id": "release-contents",
+        "f1": 1.0,
+        "found": [
+          "Change:acme/payments|7",
+          "Change:acme/payments|8"
+        ],
+        "expected": [
+          "Change:acme/payments|7",
+          "Change:acme/payments|8"
+        ]
+      },
+      {
+        "id": "runs-against-pr",
+        "f1": 1.0,
+        "found": [
+          "TestRun:555"
+        ],
+        "expected": [
+          "TestRun:555"
+        ]
+      },
+      {
+        "id": "untested-tickets",
+        "f1": 1.0,
+        "found": [
+          "WorkItem:jira|PAY-300",
+          "WorkItem:jira|PAY-341"
+        ],
+        "expected": [
+          "WorkItem:jira|PAY-300",
+          "WorkItem:jira|PAY-341"
+        ]
+      },
+      {
+        "id": "untested-under-epic",
+        "f1": 1.0,
+        "found": [
+          "WorkItem:jira|PAY-341"
+        ],
+        "expected": [
+          "WorkItem:jira|PAY-341"
+        ]
+      },
+      {
+        "id": "unreviewed-prs",
+        "f1": 1.0,
+        "found": [
+          "Change:acme/payments|8"
+        ],
+        "expected": [
+          "Change:acme/payments|8"
+        ]
+      },
+      {
+        "id": "changes-without-ticket",
+        "f1": 1.0,
+        "found": [
+          "Change:acme/payments|8"
+        ],
+        "expected": [
+          "Change:acme/payments|8"
+        ]
+      },
+      {
+        "id": "merged-untested",
+        "f1": 1.0,
+        "found": [
+          "Change:acme/payments|7"
+        ],
+        "expected": [
+          "Change:acme/payments|7"
+        ]
+      },
+      {
+        "id": "before-editing-pr",
+        "f1": 1.0,
+        "found": [
+          "TestRun:555"
+        ],
+        "expected": [
+          "TestRun:555"
+        ]
+      }
+    ]
+  }
+]

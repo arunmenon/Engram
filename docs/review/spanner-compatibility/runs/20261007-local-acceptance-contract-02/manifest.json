@@ -1,0 +1,31 @@
+{
+  "kind": "local_acceptance_contract_and_source_identity",
+  "cloud_calls": false,
+  "issues": [
+    34,
+    4,
+    5,
+    35,
+    37,
+    43,
+    41
+  ],
+  "scope": "Pure immutable acceptance/canonicalrequest primitives,explicittenantproduceridentity, normalizedHTTPinputchecks; notpersisted/notatomicappend/notworkervalidation",
+  "source_sha256": {
+    "src/context_graph/api/ingest.py": "06224ae933b3b910b5ff4b2308aec05abb3368e15fda8c7c0d1d0508cb86226f",
+    "src/context_graph/api/routes/events.py": "d2020a3d896620e5696f270e3d3dda71ca4ce9a2ce0043e8876b9e125ab3da33",
+    "src/context_graph/domain/event_acceptance.py": "9a2abda0d52fffa9ae3931c6a08c4ea9edbfc3ba4accc96932b7d33b728af540",
+    "src/context_graph/tenancy.py": "bd0c9cdc3bf43fd8edbaf980d7eef8341d17e009da991c6004245b56baf67502",
+    "tests/unit/test_api_events.py": "5222434ba2903769dc9eddeff86caf108dea7442eca4c47537a7d10ab8f1a8bf",
+    "tests/unit/test_event_acceptance.py": "1c3ac3f52deb283ee49db8775dd69ea495f3d9ee6c0282b45d60a65222b46b5d",
+    "tests/unit/test_event_input_contract.py": "660f5bd603c3380e6d0e327980f7963c3aeb9991d8919efdc124205d3fbd6dbe",
+    "tests/unit/test_tenant_catalog.py": "f02915afb4873b2a644c926399aa4fe14a6aa8b606326244d52dbf81d69a85e0"
+  },
+  "command": "pytest -q tests/unit/test_event_acceptance.py tests/unit/test_event_input_contract.py tests/unit/test_tenant_catalog.py tests/unit/test_tenant_dispatch.py tests/unit/test_tenant_responses.py tests/unit/test_tenant_store_binding.py tests/unit/test_runtime_tenant_binding.py tests/unit/test_api_ingest.py tests/unit/test_api_events.py",
+  "run_id": "20261007-local-acceptance-contract-02",
+  "pre_execution_note": "Corrected misplaced test assertion before any test execution.",
+  "additional_checks": [
+    "ruff check selected foundation files",
+    "mypy src/context_graph/ (full current worktree; baseline errors distinguished)"
+  ]
+}

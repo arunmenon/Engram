@@ -1,0 +1,312 @@
+{
+  "description": "Normalized SYNTHETIC adapter output, not SAP-native API schemas. Paths are payload-relative. Null and missing required fields are invalid.",
+  "events": {
+    "procurement.supplier.recorded": {
+      "handling": "processed",
+      "payload_contract": {
+        "version": 1,
+        "additional_fields": "preserve",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "required": true
+          },
+          "supplier_id": {
+            "type": "string",
+            "required": true
+          },
+          "name": {
+            "type": "string",
+            "required": true
+          }
+        }
+      }
+    },
+    "procurement.request.submitted": {
+      "handling": "processed",
+      "payload_contract": {
+        "version": 1,
+        "additional_fields": "preserve",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "required": true
+          },
+          "request_id": {
+            "type": "string",
+            "required": true
+          },
+          "description": {
+            "type": "string",
+            "required": true
+          },
+          "requester_id": {
+            "type": "string",
+            "required": true
+          },
+          "amount_minor": {
+            "type": "integer",
+            "required": true
+          },
+          "currency": {
+            "type": "string",
+            "required": true
+          }
+        }
+      }
+    },
+    "procurement.request.approved": {
+      "handling": "processed",
+      "payload_contract": {
+        "version": 1,
+        "additional_fields": "preserve",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "required": true
+          },
+          "request_id": {
+            "type": "string",
+            "required": true
+          },
+          "approver_id": {
+            "type": "string",
+            "required": true
+          },
+          "decision_id": {
+            "type": "string",
+            "required": true
+          }
+        }
+      }
+    },
+    "procurement.request.rejected": {
+      "handling": "processed",
+      "payload_contract": {
+        "version": 1,
+        "additional_fields": "preserve",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "required": true
+          },
+          "request_id": {
+            "type": "string",
+            "required": true
+          },
+          "rejected_by": {
+            "type": "string",
+            "required": true
+          },
+          "decision_id": {
+            "type": "string",
+            "required": true
+          },
+          "reason": {
+            "type": "string",
+            "required": true
+          }
+        }
+      }
+    },
+    "procurement.order.issued": {
+      "handling": "processed",
+      "payload_contract": {
+        "version": 1,
+        "additional_fields": "preserve",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "required": true
+          },
+          "order_id": {
+            "type": "string",
+            "required": true
+          },
+          "request_id": {
+            "type": "string",
+            "required": true
+          },
+          "supplier_id": {
+            "type": "string",
+            "required": true
+          },
+          "currency": {
+            "type": "string",
+            "required": true
+          }
+        }
+      }
+    },
+    "procurement.order_line.recorded": {
+      "handling": "processed",
+      "payload_contract": {
+        "version": 1,
+        "additional_fields": "preserve",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "required": true
+          },
+          "order_id": {
+            "type": "string",
+            "required": true
+          },
+          "line_id": {
+            "type": "string",
+            "required": true
+          },
+          "description": {
+            "type": "string",
+            "required": true
+          },
+          "quantity": {
+            "type": "integer",
+            "required": true
+          },
+          "unit_price_minor": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      }
+    },
+    "procurement.receipt.recorded": {
+      "handling": "processed",
+      "payload_contract": {
+        "version": 1,
+        "additional_fields": "preserve",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "required": true
+          },
+          "receipt_id": {
+            "type": "string",
+            "required": true
+          },
+          "order_id": {
+            "type": "string",
+            "required": true
+          },
+          "line_id": {
+            "type": "string",
+            "required": true
+          },
+          "received_quantity": {
+            "type": "integer",
+            "required": true
+          }
+        }
+      }
+    },
+    "procurement.invoice.received": {
+      "handling": "processed",
+      "payload_contract": {
+        "version": 1,
+        "additional_fields": "preserve",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "required": true
+          },
+          "invoice_id": {
+            "type": "string",
+            "required": true
+          },
+          "order_id": {
+            "type": "string",
+            "required": true
+          },
+          "line_id": {
+            "type": "string",
+            "required": true
+          },
+          "supplier_id": {
+            "type": "string",
+            "required": true
+          },
+          "quantity": {
+            "type": "integer",
+            "required": true
+          },
+          "amount_minor": {
+            "type": "integer",
+            "required": true
+          },
+          "currency": {
+            "type": "string",
+            "required": true
+          }
+        }
+      }
+    },
+    "procurement.match.assessed": {
+      "handling": "processed",
+      "payload_contract": {
+        "version": 1,
+        "additional_fields": "preserve",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "required": true
+          },
+          "assessment_id": {
+            "type": "string",
+            "required": true
+          },
+          "invoice_id": {
+            "type": "string",
+            "required": true
+          },
+          "verdict": {
+            "type": "string",
+            "required": true,
+            "enum": [
+              "matched",
+              "quantity_mismatch",
+              "missing_receipt"
+            ]
+          },
+          "ordered_quantity": {
+            "type": "integer",
+            "required": true
+          },
+          "received_quantity": {
+            "type": "integer",
+            "required": true
+          },
+          "invoiced_quantity": {
+            "type": "integer",
+            "required": true
+          },
+          "reason": {
+            "type": "string",
+            "required": true
+          }
+        }
+      }
+    },
+    "procurement.note.added": {
+      "handling": "ledger_only",
+      "payload_contract": {
+        "version": 1,
+        "additional_fields": "preserve",
+        "properties": {
+          "company_id": {
+            "type": "string",
+            "required": true
+          },
+          "order_id": {
+            "type": "string",
+            "required": true
+          },
+          "text": {
+            "type": "string",
+            "required": true
+          }
+        }
+      }
+    }
+  }
+}

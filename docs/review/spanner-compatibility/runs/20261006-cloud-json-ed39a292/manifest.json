@@ -1,0 +1,37 @@
+{
+  "run_id": "20261006-cloud-json-ed39a292",
+  "phase": "json",
+  "backend": "real_spanner",
+  "commit": "6a30dcfd376d21b2732ffc36b8ed8847abb2a9de",
+  "harness_sha256": "061949883d159795ba70535f1e3512cd6e203644c6c7031f488acac5baad7b26",
+  "companion_sha256": {
+    "engram_spanner_compat_remaining.py": "f089ed5154b92aed8603b509db668bd2895927aab94b2369428fab9653f1cdbb",
+    "engram_spanner_compat_pack_cases.py": "2c187c58b9c9fe4b8dda94db1d93228e92017b8ef9aac3cdc27f4946713aba79",
+    "engram_spanner_process_bootstrap.py": "377c4b2e4d57ef3a96feecd16cb7214a7b3d01d5dce6e2647f092f71df0b9bab",
+    "engram_spanner_compat_completion.py": "387d4c0ae9e2ff2c940441d35950c97f2cd4ff0e969c0605c86d4b2f16cdbf57"
+  },
+  "started_at": "2026-10-06T17:06:26.220191+00:00",
+  "target": {
+    "GOOGLE_CLOUD_PROJECT": "portiq-mvp",
+    "SPANNER_INSTANCE_ID": "engram-experiment",
+    "SPANNER_DATABASE_ID": "engram"
+  },
+  "authorization": "user explicitly confirmed existing engram DB disposable",
+  "auth": "explicit token SDK bootstrap; unmodified ADC startup not proved",
+  "credential_window_file_updated_at": "2026-10-06T16:22:36.500059+00:00",
+  "all_storage_ports": "spanner",
+  "fixture_reset": [
+    "GraphEdges",
+    "GraphNodes",
+    "ConsumerDeadLetters",
+    "ConsumerDeliveries",
+    "ConsumerCursors",
+    "ConsumerGroups",
+    "Events"
+  ],
+  "schema_changes": false,
+  "database_drop": false,
+  "provider_mode": "scripted LLM; local embedding if installed; no paid provider calls",
+  "max_phase_seconds": 600,
+  "phase_limits": {}
+}

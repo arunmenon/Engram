@@ -128,7 +128,15 @@ def _edges(lookup: EdgeLookup, matched: list[dict[str, Any]]) -> list[EdgeWrite]
             continue
         found = GraphRef(lookup.label, str(key), lookup.key_property)
         source, target = (found, lookup.known) if lookup.reverse else (lookup.known, found)
-        edges.append(EdgeWrite(lookup.edge_type, source, target, lookup.properties))
+        edges.append(
+            EdgeWrite(
+                lookup.edge_type,
+                source,
+                target,
+                lookup.properties,
+                remove_properties=lookup.remove_properties,
+            )
+        )
     return edges
 
 

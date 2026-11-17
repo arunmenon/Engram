@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1120" viewBox="0 0 900 1120" role="img" aria-label="PDLC ontology pack loading and event processing flow">
+<rect width="900" height="1120" fill="#f5f7fb"/>
+<g font-family="Arial, sans-serif" fill="#18243b">
+<text x="450" y="45" text-anchor="middle" font-size="26" font-weight="bold">PDLC ontology pack: from YAML to graph</text>
+<text x="80" y="85" font-size="17" font-weight="bold" fill="#496080">1. STARTUP — load the instructions</text>
+<rect x="80" y="105" width="740" height="120" rx="14" fill="#e4edff" stroke="#517bcc" stroke-width="2"/>
+<text x="105" y="137" font-size="20" font-weight="bold">PDLC pack: pdlc.pack.yaml</text>
+<text x="105" y="168" font-size="17">Declares Change, pdlc.change.created, and the mapping rule.</text>
+<text x="105" y="196" font-size="17">Rule: repo + number identify a Change; title becomes a property.</text>
+<path d="M450 225 v35" stroke="#61738c" stroke-width="3"/><path d="M442 251 l8 12 8 -12" fill="none" stroke="#61738c" stroke-width="3"/>
+<rect x="80" y="265" width="740" height="100" rx="14" fill="#ffffff" stroke="#9baac0" stroke-width="2"/>
+<text x="105" y="297" font-size="20" font-weight="bold">Loader + shared Python models</text>
+<text x="105" y="326" font-size="17">ontology/loader.py reads YAML; domain/ontology.py defines its allowed shape.</text>
+<text x="105" y="350" font-size="15">The same pack models are used for PDLC and other packs.</text>
+<path d="M450 365 v35" stroke="#61738c" stroke-width="3"/><path d="M442 391 l8 12 8 -12" fill="none" stroke="#61738c" stroke-width="3"/>
+<rect x="80" y="405" width="740" height="88" rx="14" fill="#ffffff" stroke="#9baac0" stroke-width="2"/>
+<text x="105" y="437" font-size="20" font-weight="bold">OntologyRegistry</text>
+<text x="105" y="468" font-size="17">Composes and checks active packs; makes event rules available.</text>
+<text x="80" y="545" font-size="17" font-weight="bold" fill="#496080">2. RUNTIME — process an event</text>
+<rect x="80" y="565" width="740" height="100" rx="14" fill="#e6f5ed" stroke="#4b9674" stroke-width="2"/>
+<text x="105" y="598" font-size="20" font-weight="bold">Event arrives and is stored in the ledger</text>
+<text x="105" y="631" font-size="17">Example: pdlc.change.created, repo = acme/app, number = 7</text>
+<path d="M450 665 v35" stroke="#61738c" stroke-width="3"/><path d="M442 691 l8 12 8 -12" fill="none" stroke="#61738c" stroke-width="3"/>
+<rect x="80" y="705" width="740" height="115" rx="14" fill="#ffffff" stroke="#9baac0" stroke-width="2"/>
+<text x="105" y="737" font-size="20" font-weight="bold">Projection worker + PackProjector</text>
+<text x="105" y="768" font-size="17">worker/projection.py reads the event; domain/pack_projection.py</text>
+<text x="105" y="795" font-size="17">gets its rule from the registry and builds a graph-write plan.</text>
+<path d="M450 820 v35" stroke="#61738c" stroke-width="3"/><path d="M442 846 l8 12 8 -12" fill="none" stroke="#61738c" stroke-width="3"/>
+<rect x="80" y="860" width="740" height="110" rx="14" fill="#fff2db" stroke="#bd8a36" stroke-width="2"/>
+<text x="105" y="892" font-size="20" font-weight="bold">Graph backend applies the plan</text>
+<text x="105" y="923" font-size="17">Create or update the Change for acme/app #7.</text>
+<text x="105" y="949" font-size="17">If work items are supplied, create IMPLEMENTS links to them.</text>
+<text x="80" y="1020" font-size="15">Conditions: PDLC must be active; event admission and processing must succeed.</text>
+<text x="80" y="1045" font-size="15">Payload-contract enforcement differs between bound and legacy ingestion paths.</text>
+</g></svg>

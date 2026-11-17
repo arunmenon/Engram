@@ -1,0 +1,112 @@
+2026-10-06 15:39:41 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 15:39:41 [info     ] llm_client_initialized
+2026-10-06 15:39:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 15:39:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 15:39:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 15:39:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 15:39:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 15:39:41 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 15:39:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 15:39:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 15:39:41 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 15:39:41 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 15:39:41 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 15:39:41 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 15:39:41 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 15:39:41 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 15:39:42 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 15:39:42 [info     ] event_ingested                 event_id=9d0736fe-2b4f-4d1d-a792-9c8e59d3027b event_type=tool.execute global_position=2026-10-06T10:09:42.923695000Z/000000/9d0736fe-2b4f-4d1d-a792-9c8e59d3027b request_id=15714ac3-0975-4ea0-91b4-a4c27cc07637 status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 15:39:43 [info     ] event_ingested                 event_id=892d4db4-2ff9-4c36-8c65-8e3e20b96662 event_type=system.session_end global_position=2026-10-06T10:09:42.995119000Z/000000/892d4db4-2ff9-4c36-8c65-8e3e20b96662 request_id=d4165b38-c57e-4d6b-af75-f763486fa259 status=created
+2026-10-06 15:39:43 [info     ] event_ingested                 event_id=310826d1-abbc-4d4a-8528-2c40dab70198 event_type=tool.execute global_position=2026-10-06T10:09:43.081903000Z/000000/310826d1-abbc-4d4a-8528-2c40dab70198 request_id=d8f5c0f0-b2c2-4f38-8caa-c103ba512af8 status=created
+2026-10-06 15:39:43 [info     ] event_ingested                 event_id=422292b6-d358-49e4-92ac-fdf1ba9506bb event_type=system.session_end global_position=2026-10-06T10:09:43.150927000Z/000000/422292b6-d358-49e4-92ac-fdf1ba9506bb request_id=483ed996-af54-4687-8e87-a726171de2db status=created
+2026-10-06 15:39:43 [info     ] consumer_started               consumer=knowledge-projection group=graph-projection stream=Events
+2026-10-06 15:39:43 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 15:39:43 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T10:09:42.923695000Z/000000/9d0736fe-2b4f-4d1d-a792-9c8e59d3027b event_id=9d0736fe-2b4f-4d1d-a792-9c8e59d3027b session_id=compat-a
+2026-10-06 15:39:44 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:09:42.995119000Z/000000/892d4db4-2ff9-4c36-8c65-8e3e20b96662 event_id=892d4db4-2ff9-4c36-8c65-8e3e20b96662 session_id=compat-a
+2026-10-06 15:39:44 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T10:09:43.081903000Z/000000/310826d1-abbc-4d4a-8528-2c40dab70198 event_id=310826d1-abbc-4d4a-8528-2c40dab70198 session_id=compat-b
+2026-10-06 15:39:44 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T10:09:43.150927000Z/000000/422292b6-d358-49e4-92ac-fdf1ba9506bb event_id=422292b6-d358-49e4-92ac-fdf1ba9506bb session_id=compat-b
+2026-10-06 15:39:45 [info     ] consumer_stopped               consumer=knowledge-projection group=graph-projection
+2026-10-06 15:39:45 [info     ] consumer_started               consumer=knowledge-extraction group=session-extraction stream=Events
+2026-10-06 15:39:45 [info     ] pending_drain_completed        group=session-extraction
+2026-10-06 15:39:45 [info     ] extraction_triggered           agent_id=compat-a entry_id=2026-10-06T10:09:42.995119000Z/000000/892d4db4-2ff9-4c36-8c65-8e3e20b96662 session_id=compat-a
+2026-10-06 15:39:45 [debug    ] session_events_collected       event_count=2 session_id=compat-a
+2026-10-06 15:39:46 [info     ] extraction_wrote_user_profile  persona_name=compat-a persona_role=engineer session_id=compat-a user_entity_id=user:compat-a
+2026-10-06 15:39:46 [debug    ] entity_created                 entity_id=entity:Spanner name=Spanner
+2026-10-06 15:39:48 [error    ] message_processing_failed      consumer=knowledge-extraction entry_id=2026-10-06T10:09:42.995119000Z/000000/892d4db4-2ff9-4c36-8c65-8e3e20b96662 group=session-extraction
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/worker/consumer.py", line 272, in run
+    await self.process_message(entry_id, delivery.fields)
+  File "/Users/arunmenon/projects/Engram/src/context_graph/worker/extraction.py", line 158, in process_message
+    await self._write_extraction_results(session_id, agent_id, result, source_event_ids)
+  File "/Users/arunmenon/projects/Engram/src/context_graph/worker/extraction.py", line 410, in _write_extraction_results
+    await us.write_derived_from_edge(
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/errors.py", line 30, in wrapper
+    return await method(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/graph_ops.py", line 1294, in write_derived_from_edge
+    raise ValueError(msg)
+ValueError: Unknown source_id_field: 'entity_id'. Allowed: ['pattern_id', 'preference_id', 'skill_id', 'workflow_id']
+2026-10-06 15:39:48 [info     ] extraction_triggered           agent_id=compat-b entry_id=2026-10-06T10:09:43.150927000Z/000000/422292b6-d358-49e4-92ac-fdf1ba9506bb session_id=compat-b
+2026-10-06 15:39:48 [debug    ] session_events_collected       event_count=2 session_id=compat-b
+2026-10-06 15:39:49 [info     ] extraction_wrote_user_profile  persona_name=compat-b persona_role=engineer session_id=compat-b user_entity_id=user:compat-b
+2026-10-06 15:39:49 [debug    ] entity_resolved_merge          canonical=spanner name=Spanner
+2026-10-06 15:39:51 [error    ] message_processing_failed      consumer=knowledge-extraction entry_id=2026-10-06T10:09:43.150927000Z/000000/422292b6-d358-49e4-92ac-fdf1ba9506bb group=session-extraction
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/src/context_graph/worker/consumer.py", line 272, in run
+    await self.process_message(entry_id, delivery.fields)
+  File "/Users/arunmenon/projects/Engram/src/context_graph/worker/extraction.py", line 158, in process_message
+    await self._write_extraction_results(session_id, agent_id, result, source_event_ids)
+  File "/Users/arunmenon/projects/Engram/src/context_graph/worker/extraction.py", line 410, in _write_extraction_results
+    await us.write_derived_from_edge(
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/errors.py", line 30, in wrapper
+    return await method(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/graph_ops.py", line 1294, in write_derived_from_edge
+    raise ValueError(msg)
+ValueError: Unknown source_id_field: 'entity_id'. Allowed: ['pattern_id', 'preference_id', 'skill_id', 'workflow_id']
+2026-10-06 15:40:45 [info     ] consumer_stopped               consumer=knowledge-extraction group=session-extraction
+Traceback (most recent call last):
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 137, in check
+    observation = await asyncio.wait_for(function(), timeout=120)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/tasks.py", line 520, in wait_for
+    return await fut
+           ^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 666, in extract
+    await drain(
+  File "/Users/arunmenon/projects/Engram/scripts/engram_spanner_compat.py", line 623, in drain
+    raise TimeoutError("worker drain deadline")
+TimeoutError: worker drain deadline
+
+{"name": "entity_user_extraction_read_export", "scenarios": ["EXT-01", "EXT-02", "USER-01", "APP-01"], "verdict": "failed", "error_type": "TimeoutError", "error": "worker drain deadline", "seconds": 62.78}
+2026-10-06 15:40:45 [info     ] feedback_submitted             bumped=1 decremented=1 global_position=2026-10-06T10:10:45.514943000Z/000000/2d477c6e-0136-4d38-bc6a-1a93c4ac4c83 helpful=2 irrelevant=1 query_id=compat-feedback request_id=42e4c958-d726-4529-9714-3ee5b09e141f session_id=compat-a
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 15:40:46 [info     ] feedback_submitted             bumped=1 decremented=1 global_position=2026-10-06T10:10:46.033231000Z/000000/cce14dbd-e146-4511-861f-829edb783cd1 helpful=2 irrelevant=1 query_id=compat-feedback request_id=bb5e5008-1b56-45ef-a2e0-84c76a7957bf session_id=compat-a
+{"name": "feedback_audit_and_missing_node_resubmission", "scenarios": ["FB-01"], "verdict": "passed", "observation": {"responses": [{"query_id": "compat-feedback", "global_position": "2026-10-06T10:10:45.514943000Z/000000/2d477c6e-0136-4d38-bc6a-1a93c4ac4c83", "bumped": 1, "decremented": 1}, {"query_id": "compat-feedback", "global_position": "2026-10-06T10:10:46.033231000Z/000000/cce14dbd-e146-4511-861f-829edb783cd1", "bumped": 1, "decremented": 1}], "resubmission": "two audit events, two adjustments; not idempotent"}, "seconds": 1.09}
+2026-10-06 15:40:46 [info     ] reconsolidation_complete       events_processed=2 request_id=e0edad99-13b9-4244-a67e-77d1fd69dc77 sessions_processed=1 summaries_created=1
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 15:40:46 [info     ] consolidation_timer_started    interval_hours=0.0003
+2026-10-06 15:40:46 [info     ] consumer_started               consumer=knowledge-consolidation group=consolidation stream=Events
+2026-10-06 15:40:47 [info     ] pending_drain_completed        group=consolidation
+2026-10-06 15:40:47 [info     ] consolidation_timer_fired
+2026-10-06 15:40:47 [info     ] consolidation_cycle_started    source=timer
+2026-10-06 15:40:48 [info     ] sessions_qualifying_for_consolidation count=2 threshold=1
+2026-10-06 15:40:48 [info     ] consolidating_session          event_count=2 session_id=compat-b
+2026-10-06 15:40:48 [info     ] episodes_grouped               episode_count=1 session_id=compat-b
+2026-10-06 15:40:48 [info     ] session_consolidated           episode_summaries=1 session_id=compat-b
+2026-10-06 15:40:48 [info     ] consolidating_session          event_count=2 session_id=compat-a
+2026-10-06 15:40:48 [info     ] episodes_grouped               episode_count=1 session_id=compat-a
+2026-10-06 15:40:49 [info     ] session_consolidated           episode_summaries=1 session_id=compat-a
+2026-10-06 15:40:49 [info     ] consumer_stopped               consumer=knowledge-consolidation group=consolidation
+{"name": "admin_and_timer_consolidation", "scenarios": ["CONS-01", "CONS-02"], "verdict": "passed", "observation": {"admin": {"sessions_processed": 1, "summaries_created": 1, "events_processed": 2}, "graph": {"nodes": {"Event": 4, "Entity": 3, "Summary": 4, "UserProfile": 2, "Preference": 2, "Skill": 1, "Workflow": 0, "BehavioralPattern": 0}, "edges": {"FOLLOWS": 2, "CAUSED_BY": 0, "SIMILAR_TO": 0, "REFERENCES": 2, "SUMMARIZES": 8, "SAME_AS": 0, "RELATED_TO": 0}, "total_nodes": 16, "total_edges": 12}, "timer": "session and agent summaries observed; cycle error log checked separately"}, "seconds": 3.62}
+2026-10-06 15:40:50 [info     ] user_data_erased               deleted_count=1 request_id=311974f9-91cb-4839-83e7-5390660630ab user_id=user:compat-a
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:151: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  response = await f(request)
+{"name": "user_delete_shared_resource_preservation", "scenarios": ["USER-02"], "verdict": "passed", "observation": {"deletion": {"deleted_count": 1, "status": "erased"}, "other_user_shared_skill_entity_and_ledger": "preserved", "user_entity": "redacted tombstone per implementation"}, "seconds": 1.21}
+2026-10-06 15:40:51 [info     ] app_stopped

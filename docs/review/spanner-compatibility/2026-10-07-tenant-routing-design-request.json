@@ -1,0 +1,37 @@
+{
+  "status": "proposed_for_Astra_medium_review_not_implemented",
+  "issues": [
+    34,
+    43,
+    35,
+    42,
+    39,
+    41
+  ],
+  "requirement": "Mandatory core; optional packs; authenticated database-per-tenant routing across all API/worker/read/admin/maintenance paths. Shared instance and API service allowed. No default fallback.",
+  "current_evidence": [
+    "api/app.py lifespan creates Settings() and process-local app.state stores, bundle, retrieval and artifact retriever",
+    "api/dependencies.py resolves request.app.state (already avoids global settings singleton)",
+    "worker/__main__.py run_worker creates Settings(); subscriptions and stores share its configured database",
+    "ontology/runtime.py caches immutable ActiveBundle by pack settings and reconstructs registry snapshots",
+    "ontology/versioning.py persists OntologyState:active graph node per database, not tenant ownership or atomic admission/version fence"
+  ],
+  "candidate": [
+    "Immutable server-side tenant catalog maps tenant identity to unique authorized database resource, exact pack bundle and API/admin credential identity. Reject duplicated database bindings and ambiguous credentials. Never authorize from payload/agent_id/database/header alone.",
+    "Prefer reusing existing app.state boundary: configure a child FastAPI application/runtime per tenant within one authenticated dispatcher. create_app/lifespan accept explicit settings instead of mutating process environment. Dispatcher resolves credential to tenant before selecting child app; dependency/store/retrieval caches remain child-local. This is a candidate, compare against request-scoped runtime dependency injection.",
+    "Webhooks need explicit server-resolved source/tenant binding plus tenant-specific verified signature; a tenant path selects candidates but is not authentication. No unsigned webhook can append, and shared signing secrets must not silently authorize multiple tenants.",
+    "Worker and admin CLI use the same catalog plus explicit authorized tenant target and exact interpretation revision. Worker processes may be pinned per tenant; shared service does not require shared worker state. Every consumer group/checkpoint/retention operation uses that database and runtime, no default.",
+    "Persist an explicit tenant/database/bundle binding and verify it before serving or processing. Determine minimal atomic fencing of accepted event interpretation and worker writes during activation; startup checks alone cannot prove no stale acceptance. Reuse OntologyState where safe; add dedicated state only when required, and distinguish transport envelope from pack payload.",
+    "Historical visibility follows active scoped reads; disable/re-enable/catch-up and replay retain pinned original contracts. Explicitly authorized same-tenant rebuild targets must not permit another tenant database or switch the ledger by accident.",
+    "No new orchestration service, per-combination branches, Redis/Neo4j runner or automatic adapter framework."
+  ],
+  "review_dimensions": [
+    "Choose the smallest complete routing architecture grounded in current factories/dependencies; enumerate every route/background/CLI cache bypass.",
+    "Authentication and admin/webhook authorization, catalog validation and unique bindings, credential rotation and failure isolation.",
+    "Pack/version pinning, durable admission/worker fences, stale runtimes and recovery, historical reads and activation policy.",
+    "Resource lifecycle and bounded pools/cache reuse; preserve specialized processing and disabled capability gates.",
+    "Adversarial two-database colliding-ID acceptance for events/sessions/users/entities/artifacts/cursors/evaluation/replay/deletion/retention; real Engram Spanner assertions and forbidden effects.",
+    "Concrete implementation slices/dependencies and what must be settled now versus safe explicit later limits; identify any true product decision rather than guessing."
+  ],
+  "deliverable": "Verdict plus prioritized gaps with source evidence, recommended concrete minimal contract and slice sequence, exact required acceptance. Read-only source review; write review report only. No tests/cloud/runtime changes."
+}

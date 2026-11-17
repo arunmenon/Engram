@@ -1,0 +1,7 @@
+# Test-only subscriber. Its rules share the triggering event's plan budget.
+pack: {name: expansion_observer, version: 0.1.0, requires: [expansion>=0.1]}
+projection:
+  - event: expansion:expansion.recorded
+    upsert:
+      - type: expansion:ExpansionRecord
+        key: {group: observer, item: '$.items[*]'}

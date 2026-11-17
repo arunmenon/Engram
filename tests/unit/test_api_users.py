@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+import pytest
+
 from tests.unit.conftest import StubGraphStore
 
 if TYPE_CHECKING:
@@ -73,6 +75,7 @@ def _make_users_client(**kwargs: Any) -> TestClient:
 
     from context_graph.api.middleware import register_middleware
     from context_graph.api.routes.users import router as users_router
+    from context_graph.ontology.runtime import configured_bundle
     from context_graph.settings import Settings
 
     app = FastAPI(default_response_class=ORJSONResponse)
@@ -80,6 +83,7 @@ def _make_users_client(**kwargs: Any) -> TestClient:
     app.include_router(users_router, prefix="/v1")
 
     app.state.settings = Settings()
+    app.state.bundle = configured_bundle(app.state.settings.ontology)
     app.state.graph_store = _UsersGraphStore(**kwargs)
 
     return _TestClient(app)
@@ -88,6 +92,61 @@ def _make_users_client(**kwargs: Any) -> TestClient:
 # ---------------------------------------------------------------------------
 # GET /v1/users/{user_id}/profile
 # ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("endpoint", ["profile", "preferences", "skills", "patterns", "interests"])
+def test_disabled_user_pack_hides_historical_ordinary_reads(endpoint: str) -> None:
+    from unittest.mock import AsyncMock
+
+    from context_graph.ontology.runtime import configured_bundle
+    from context_graph.settings import OntologySettings
+
+    client = _make_users_client()
+    client.app.state.bundle = configured_bundle(OntologySettings(packs=["pdlc"], builtin_packs=[]))
+    store = AsyncMock()
+    client.app.state.graph_store = store
+    response = client.get(f"/v1/users/u1/{endpoint}")
+    assert response.status_code == 404
+    assert store.mock_calls == []
+
+
+def test_missing_bundle_refuses_ordinary_user_read() -> None:
+    client = _make_users_client(profile={"user_id": "u1"})
+    del client.app.state.bundle
+    assert client.get("/v1/users/u1/profile").status_code == 503
+
+
+def test_foreign_user_profile_type_does_not_enable_builtin_user_reads() -> None:
+    from unittest.mock import AsyncMock
+
+    from context_graph.domain.ontology import OntologyRegistry
+    from context_graph.domain.pack_bundle import resolve_bundle
+    from context_graph.ontology.loader import load_registry, parse_pack
+
+    core = load_registry([], builtin_packs=[]).pack("core")
+    lab = parse_pack(
+        "pack: {name: lab, version: 1.0.0, requires: [core>=1.0]}\n"
+        "types: {nodes: {UserProfile: {key: [id], properties: {id: string}}}}\n"
+    )
+    client = _make_users_client()
+    client.app.state.bundle = resolve_bundle(OntologyRegistry([core, lab]))
+    store = AsyncMock()
+    client.app.state.graph_store = store
+    assert client.get("/v1/users/u1/profile").status_code == 404
+    assert store.mock_calls == []
+
+
+def test_disabling_user_pack_preserves_historical_export_and_erasure() -> None:
+    from context_graph.ontology.runtime import configured_bundle
+    from context_graph.settings import OntologySettings
+
+    client = _make_users_client(export_data={"historical": ["preference"]}, delete_count=3)
+    client.app.state.bundle = configured_bundle(OntologySettings(packs=[], builtin_packs=[]))
+    exported = client.get("/v1/users/u1/data-export")
+    assert exported.status_code == 200
+    assert exported.json() == {"historical": ["preference"]}
+    erased = client.delete("/v1/users/u1")
+    assert erased.status_code == 200 and erased.json()["deleted_count"] == 3
 
 
 class TestGetUserProfile:

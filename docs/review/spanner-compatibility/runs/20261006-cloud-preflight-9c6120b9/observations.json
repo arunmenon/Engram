@@ -1,0 +1,20 @@
+{
+  "api_or_worker_process_started": false,
+  "resource_changes": [],
+  "auth_bootstrap": true,
+  "open_stores": "passed",
+  "backends": {
+    "event_log": "spanner",
+    "subscription": "spanner",
+    "graph": "spanner",
+    "keyword_index": "spanner",
+    "vector_index": "spanner",
+    "archive": "fs"
+  },
+  "log_adapter": "SpannerEventLog",
+  "graph_adapter": "SpannerGraphStore",
+  "schema_check": "passed",
+  "event_log_health": true,
+  "graph_health": true,
+  "database_discovery_error": "PermissionDenied"
+}

@@ -1,0 +1,17 @@
+{
+  "checks": [
+    {
+      "name": "store_mutation_fences_and_regression",
+      "passed": true,
+      "scenarios": [],
+      "tests_passed": 116,
+      "tests_skipped": 10
+    }
+  ],
+  "runtime_source_unchanged_during_run": true,
+  "limitations": [
+    "Optional mutation hooks only; production tenant service disabled",
+    "Read epochs, durable envelope stamping, worker stop behavior, schema installation and cloud tests pending",
+    "Partitioned graph clear refuses tenant mode pending fenced rebuild"
+  ]
+}

@@ -1,0 +1,916 @@
+.wb {
+  --ink: #19352f;
+  --muted: #63746e;
+  --line: #dce4df;
+  --accent: #1a6550;
+  background: #f4f6f2;
+  color: var(--ink);
+  font:
+    14px/1.55 Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  min-height: 100vh;
+  overflow: auto;
+}
+.wb * {
+  box-sizing: border-box;
+}
+.wb h1,
+.wb h2,
+.wb h3,
+.wb p {
+  margin: 0;
+}
+.wb h1 {
+  font-size: 30px;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -1px;
+}
+.wb h2 {
+  font-size: 18px;
+  font-weight: 600;
+}
+.wb h3 {
+  font-size: 14px;
+  font-weight: 650;
+  margin: 18px 0 8px;
+}
+.wb p {
+  color: var(--muted);
+  margin: 9px 0 15px;
+}
+.wb button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--accent);
+  color: #fff;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  padding: 10px 14px;
+  font: inherit;
+  font-weight: 550;
+  cursor: pointer;
+}
+.wb button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.wb button:hover:not(:disabled) {
+  filter: brightness(0.94);
+}
+.wb button:focus-visible,
+.wb input:focus-visible,
+.wb textarea:focus-visible,
+.wb select:focus-visible,
+.wb summary:focus-visible,
+.wb a:focus-visible {
+  outline: 3px solid #b79237;
+  outline-offset: 3px;
+}
+.wb .wb-secondary {
+  background: #fff;
+  border-color: var(--line);
+  color: var(--ink);
+}
+.wb .wb-text {
+  background: none;
+  color: var(--accent);
+  padding: 4px 8px;
+}
+.wb label {
+  display: block;
+  font-size: 13px;
+  font-weight: 550;
+  margin: 14px 0;
+}
+.wb label small {
+  display: block;
+  font-weight: 400;
+  color: var(--muted);
+  margin: 5px 0;
+}
+.wb input:not([type="checkbox"]),
+.wb textarea,
+.wb select {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #c8d4cc;
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+  margin-top: 7px;
+}
+.wb textarea {
+  resize: vertical;
+  min-height: 65px;
+}
+.wb input[type="checkbox"] {
+  accent-color: var(--accent);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.wb .wb-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  font-weight: 400;
+}
+.wb .wb-checkbox input {
+  margin-top: 3px;
+}
+.wb pre {
+  font:
+    12px/1.65 ui-monospace,
+    SFMono-Regular,
+    monospace;
+  background: #f5f7f4;
+  border: 1px solid var(--line);
+  padding: 14px;
+  border-radius: 6px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 420px;
+  overflow: auto;
+  margin: 10px 0;
+}
+.wb code {
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+.wb details summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-weight: 550;
+}
+.wb details summary:before {
+  content: "›";
+  color: var(--muted);
+}
+.wb details[open] > summary:before {
+  content: "⌄";
+}
+.wb details ul {
+  padding-left: 20px;
+  margin: 12px 0;
+  color: var(--muted);
+}
+.wb table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 12px;
+}
+.wb th {
+  color: var(--muted);
+  font-weight: 550;
+  background: #f5f7f4;
+}
+.wb td,
+.wb th {
+  padding: 10px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+.wb-top {
+  height: 70px;
+  background: #fff;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+}
+.wb-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 2px;
+  font-size: 13px;
+  font-weight: 750;
+  color: var(--ink);
+  text-decoration: none;
+}
+.wb-brand span {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  font-weight: 500;
+  border-left: 1px solid var(--line);
+  padding-left: 12px;
+  color: var(--muted);
+}
+.wb-shell {
+  display: flex;
+  min-height: calc(100vh - 70px);
+  align-items: stretch;
+}
+.wb-nav {
+  width: 225px;
+  flex-shrink: 0;
+  background: #eef2ed;
+  border-right: 1px solid var(--line);
+  padding: 25px 16px;
+  position: relative;
+}
+.wb .wb-back {
+  background: none;
+  color: var(--muted);
+  padding: 4px 0;
+  margin: 0 8px 28px;
+  font-size: 12px;
+}
+.wb-nav-label {
+  font-size: 12px;
+  font-weight: 650;
+  margin: 0 8px 7px;
+  overflow-wrap: anywhere;
+}
+.wb-env {
+  font-size: 11px;
+  background: #e3eae3;
+  color: #476252;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+.wb-nav > .wb-env {
+  margin-left: 8px;
+}
+.wb-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 28px;
+}
+.wb .wb-steps button {
+  background: transparent;
+  color: var(--muted);
+  text-align: left;
+  justify-content: flex-start;
+  font-size: 12px;
+  padding: 10px 7px;
+  font-weight: 500;
+}
+.wb .wb-steps button[aria-current] {
+  background: #fff;
+  color: var(--accent);
+  box-shadow: 0 1px 4px #19352f0a;
+}
+.wb-steps button span {
+  width: 21px;
+  height: 21px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px solid #bdcbc2;
+  border-radius: 50%;
+  font-size: 10px;
+  flex-shrink: 0;
+}
+.wb-nav-footer {
+  margin: 75px 8px 0;
+  font-size: 11px;
+  color: var(--muted);
+}
+.wb-nav-footer strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--ink);
+  font-weight: 550;
+}
+.wb-main {
+  flex: 1;
+  min-width: 0;
+  max-width: 1250px;
+  padding: 34px 35px 60px;
+}
+.wb-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 22px;
+  margin-bottom: 20px;
+}
+.wb-heading p {
+  font-size: 13px;
+}
+.wb .wb-eyebrow {
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 1.7px;
+  color: var(--accent);
+  margin: 0 0 10px;
+  text-transform: uppercase;
+}
+.wb-heading button {
+  flex-shrink: 0;
+  font-size: 12px;
+}
+.wb-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 3px #19352f03;
+}
+.wb-card-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.wb-card-title > svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.wb-card-title > h2 {
+  flex: 1;
+}
+.wb-card > button + button {
+  margin-left: 10px;
+}
+.wb-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+.wb-inline {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+.wb .wb-muted {
+  font-size: 12px;
+  color: var(--muted);
+}
+.wb-readiness {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 25px;
+  align-items: start;
+}
+.wb-readiness details {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 12px;
+  font-size: 11px;
+}
+.wb-readiness summary {
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+.wb-readiness summary:before {
+  display: none;
+}
+.wb-readiness summary > span:last-child {
+  font-size: 10px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-left: auto;
+}
+.wb-check {
+  background: #e4f1e8;
+  color: var(--accent);
+  border-radius: 50%;
+  display: flex;
+  padding: 3px;
+}
+.wb-pending {
+  color: #8a7040;
+}
+.wb-agent {
+  width: 290px;
+  flex-shrink: 0;
+  padding: 30px 22px;
+  background: #fff;
+  border-left: 1px solid var(--line);
+}
+.wb-agent h2 {
+  font-size: 14px;
+}
+.wb-agent p {
+  font-size: 12px;
+}
+.wb-agent button {
+  font-size: 12px;
+  width: 100%;
+  margin-bottom: 8px;
+}
+.wb-agent-state {
+  padding: 17px;
+  background: #f3f6f1;
+  border-radius: 8px;
+  margin: 25px 0;
+}
+.wb-agent-state p {
+  margin-bottom: 0;
+}
+.wb-agent-footnote {
+  display: flex;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  margin-top: 30px;
+  padding-top: 16px;
+}
+.wb-agent-footnote svg {
+  flex-shrink: 0;
+  margin-top: 12px;
+}
+.wb-pill {
+  display: inline-block;
+  background: #eef2ed;
+  color: #526b5d;
+  border-radius: 4px;
+  padding: 3px 7px;
+  font-size: 10px;
+  font-weight: 500;
+}
+.wb-source {
+  border-top: 1px solid var(--line);
+  padding: 14px 0;
+}
+.wb-source summary .wb-pill {
+  margin-left: auto;
+}
+.wb-fact {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+.wb-fact > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.wb blockquote {
+  border-left: 2px solid #bbcfc0;
+  padding-left: 13px;
+  margin: 12px 0;
+  font-size: 12px;
+  color: #50675c;
+}
+.wb cite {
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 6px;
+}
+.wb-question {
+  border-top: 1px solid var(--line);
+  padding: 10px 0;
+}
+.wb-model {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 14px 0;
+}
+.wb-model article {
+  border: 1px solid #cedccf;
+  background: #f8faf7;
+  border-radius: 8px;
+  padding: 16px;
+  min-width: 0;
+}
+.wb-model strong {
+  display: block;
+  overflow-wrap: anywhere;
+  margin-top: 6px;
+}
+.wb-model p,
+.wb-model small {
+  font-size: 11px;
+}
+.wb-model dl {
+  font-size: 10px;
+  margin-top: 12px;
+}
+.wb-model dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--line);
+}
+.wb-model dt {
+  color: var(--muted);
+}
+.wb-model dd {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.wb-flow-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+}
+.wb-flow-footer span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.wb-error,
+.wb-warning,
+.wb-notice,
+.wb-success {
+  border-radius: 7px;
+  padding: 12px 15px;
+  margin-bottom: 18px !important;
+  font-size: 12px !important;
+  overflow-wrap: anywhere;
+}
+.wb .wb-error {
+  background: #fff0ed;
+  border: 1px solid #e7b6a9;
+  color: #8f3626;
+}
+.wb .wb-warning {
+  background: #fff8e7;
+  color: #806327;
+  border: 1px solid #eddfb9;
+}
+.wb .wb-notice,
+.wb .wb-success {
+  background: #eaf5ed;
+  color: #275c3b;
+  border: 1px solid #c0dec8;
+}
+.wb-file {
+  font-size: 11px !important;
+  color: var(--muted);
+}
+.wb-file input {
+  font-size: 11px !important;
+  padding: 6px !important;
+}
+.wb-count {
+  font-size: 11px;
+  background: #eef2ed;
+  padding: 3px 8px;
+  border-radius: 10px;
+  margin-left: 8px;
+}
+.wb-table-scroll {
+  overflow-x: auto;
+  margin: 12px 0;
+}
+.wb-tenant-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+.wb .wb-tenant {
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  text-align: left;
+  display: block;
+  padding: 24px;
+}
+.wb-tenant > div {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 25px;
+}
+.wb-tenant p {
+  font-size: 12px;
+  font-weight: 400;
+  min-height: 45px;
+}
+.wb-tenant footer {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--line);
+  padding-top: 15px;
+  font-size: 11px;
+  color: var(--accent);
+}
+.wb-empty {
+  padding: 90px 20px;
+  text-align: center;
+  color: #68816f;
+}
+.wb-empty svg {
+  margin: 0 auto 20px;
+}
+.wb-empty p {
+  font-size: 13px;
+}
+.wb-login {
+  max-width: 550px;
+  margin: 0 auto;
+  padding: 100px 25px;
+}
+.wb-login h1 {
+  font-size: 44px;
+  margin: 55px 0 20px;
+}
+.wb-login form {
+  margin: 35px 0;
+}
+.wb-login button {
+  width: 100%;
+  margin-top: 10px;
+}
+.wb-local {
+  font-size: 11px;
+  color: var(--muted);
+  margin-right: 16px;
+}
+@media (min-width: 1600px) {
+  .wb-main {
+    padding-left: 55px;
+    padding-right: 55px;
+  }
+  .wb-agent {
+    width: 330px;
+  }
+}
+@media (max-width: 1150px) {
+  .wb-agent {
+    width: 240px;
+    padding: 25px 16px;
+  }
+  .wb-nav {
+    width: 190px;
+  }
+  .wb-main {
+    padding: 28px 22px;
+  }
+  .wb-readiness {
+    grid-template-columns: 1fr;
+  }
+  .wb-readiness details {
+    padding: 8px 12px;
+  }
+}
+@media (max-width: 850px) {
+  .wb-shell {
+    flex-wrap: wrap;
+  }
+  .wb-nav {
+    width: 100%;
+    padding: 15px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .wb-steps {
+    flex-direction: row;
+    overflow: auto;
+    margin-top: 15px;
+  }
+  .wb .wb-steps button {
+    white-space: nowrap;
+  }
+  .wb .wb-back {
+    margin: 0 0 12px;
+  }
+  .wb-nav-footer {
+    display: none;
+  }
+  .wb-main {
+    max-width: 100%;
+    padding: 25px 18px;
+    width: 100%;
+  }
+  .wb-agent {
+    width: 100%;
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding: 25px;
+  }
+  .wb-readiness {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .wb-heading {
+    flex-wrap: wrap;
+  }
+  .wb h1 {
+    font-size: 25px;
+  }
+  .wb-top {
+    padding: 0 18px;
+  }
+  .wb-local {
+    display: none;
+  }
+  .wb-grid {
+    grid-template-columns: 1fr;
+  }
+  .wb-card {
+    padding: 18px;
+  }
+  .wb-flow-footer span {
+    display: none;
+  }
+  .wb-readiness summary > span:last-child {
+    margin-left: 0;
+    width: 100%;
+  }
+  .wb-brand span {
+    font-size: 9px;
+  }
+  .wb-login h1 {
+    font-size: 36px;
+  }
+}
+
+.wb-fields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+
+.wb-graph {
+  margin: 20px 0;
+  background: #f7faf6;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 16px;
+}
+.wb-graph figcaption {
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.wb-graph figcaption span {
+  font-weight: 400;
+  color: var(--muted);
+}
+.wb-graph svg {
+  width: 100%;
+  min-width: 280px;
+  height: auto;
+}
+.wb-graph svg [role="button"] {
+  cursor: pointer;
+}
+.wb-graph svg [role="button"]:focus {
+  outline: 2px solid #b79237;
+}
+.wb-graph-detail pre {
+  max-height: 200px;
+}
+
+.wb-entity-picker {
+  border: 1px solid #dbe5df;
+  border-radius: 10px;
+  padding: 14px;
+  margin: 16px 0;
+  min-width: 0;
+}
+.wb-entity-picker legend {
+  font-weight: 650;
+  padding: 0 6px;
+}
+.wb-entity-options {
+  max-height: 240px;
+  overflow: auto;
+  display: grid;
+  gap: 9px;
+  margin-top: 12px;
+}
+
+/* Operator task flow: one work area, contextual assistant, optional detail. */
+.wb-main {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.wb-next {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border-left: 4px solid var(--green, #336b55);
+  background: #edf4ef;
+  border-radius: 8px;
+  padding: 18px 22px;
+  margin: 16px 0;
+}
+.wb-next h2 {
+  font-size: 19px;
+  margin: 5px 0;
+}
+.wb-next p {
+  margin: 5px 0 0;
+  max-width: 760px;
+}
+.wb-next button {
+  flex-shrink: 0;
+}
+.wb-readiness-details {
+  margin: 12px 0 22px;
+}
+.wb-readiness-details > summary,
+.wb-technical > summary {
+  font-weight: 600;
+  padding: 12px 0;
+}
+.wb-technical {
+  margin-bottom: 24px;
+}
+.wb-author-context {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 16px;
+}
+.wb-author-session {
+  border-top: 3px solid #48755e;
+}
+.wb-author-session button {
+  margin: 10px 0;
+}
+.wb-author-session details {
+  margin-top: 16px;
+}
+.wb-message {
+  border-left: 2px solid #c9d9cf;
+  padding: 10px 15px;
+  margin: 12px 0;
+}
+.wb-message p {
+  white-space: pre-wrap;
+}
+.wb-job {
+  background: #edf4ef;
+  padding: 16px;
+  border-radius: 8px;
+}
+.wb-model-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+}
+.wb-model-cards article {
+  background: #f6f8f5;
+  padding: 14px;
+  border-radius: 8px;
+}
+.wb-model-accept {
+  margin-top: 22px;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.wb-question {
+  counter-increment: question;
+}
+@media (max-width: 850px) {
+  .wb-next {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .wb-flow-footer {
+    flex-wrap: wrap;
+  }
+}
+.wb-assistant-container {
+  margin: 20px 0;
+  border: 1px solid #d3dfd7;
+  border-radius: 10px;
+  padding: 12px 18px;
+  background: #fff;
+}
+.wb-assistant-container > summary {
+  font-weight: 650;
+  padding: 8px 0;
+}
+.wb-assistant-container .wb-author-session {
+  box-shadow: none;
+  border: 0;
+  padding: 16px 0 0;
+  margin: 0;
+}
+.wb-model-checks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+  margin: 18px 0;
+}
+.wb-warning details summary {
+  font-weight: 500;
+}
+
+/* Read-only guidance stays visually separate from pack acceptance controls. */
+.wb-explain { margin: 12px 0; padding: 12px 16px; border-left: 3px solid #267568; background: #f5faf8; }
+.wb-explain blockquote { margin: 12px 0; padding-left: 12px; border-left: 2px solid #b9d4cc; }
+.wb-explain [tabindex="-1"]:focus { outline: 2px solid #267568; outline-offset: 4px; }

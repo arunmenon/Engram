@@ -1,0 +1,28 @@
+{"event": "start", "run_id": "20261007-cloud-authenticated-source-trust-01", "at": "2026-10-07T16:40:11.327913+00:00", "record": "docs/review/spanner-compatibility/runs/20261007-cloud-authenticated-source-trust-01"}
+2026-10-07 22:10:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-07 22:10:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-07 22:10:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-07 22:10:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-07 22:10:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-07 22:10:14 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-07 22:10:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-07 22:10:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-07 22:10:14 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-07 22:10:14 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-07 22:10:14 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-07 22:10:14 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-07 22:10:14 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-07 22:10:14 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-07 22:10:17 [debug    ] event_projected                edge_count=0 entry_id=2026-10-07T16:40:16.088431000Z/000000/d3344bcc-40b8-5621-98fd-476db327a6a4 event_id=d3344bcc-40b8-5621-98fd-476db327a6a4 session_id=d3344bcc-40b8-5621-98fd-476db327a6a4
+2026-10-07 22:10:18 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=1
+2026-10-07 22:10:18 [debug    ] event_projected                edge_count=0 entry_id=2026-10-07T16:40:16.284239000Z/000000/060e8ce4-04bc-5905-95c6-311ffd4681f5 event_id=060e8ce4-04bc-5905-95c6-311ffd4681f5 session_id=060e8ce4-04bc-5905-95c6-311ffd4681f5
+2026-10-07 22:10:19 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=1
+2026-10-07 22:10:19 [debug    ] event_projected                edge_count=0 entry_id=2026-10-07T16:40:16.456655000Z/000000/2f06db2c-0223-5c47-9538-78fcd0c4b755 event_id=2f06db2c-0223-5c47-9538-78fcd0c4b755 session_id=2f06db2c-0223-5c47-9538-78fcd0c4b755
+2026-10-07 22:10:20 [debug    ] event_projected                edge_count=0 entry_id=2026-10-07T16:40:16.624495000Z/000000/afd02d20-7ee9-51ca-a80a-39ae0f07fbf3 event_id=afd02d20-7ee9-51ca-a80a-39ae0f07fbf3 session_id=afd02d20-7ee9-51ca-a80a-39ae0f07fbf3
+2026-10-07 22:10:23 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-07 22:10:23 [info     ] pack_extraction_applied        edges_written=1 event_id=2f06db2c-0223-5c47-9538-78fcd0c4b755 links=0 nodes=1 pack=pdlc rejected=[]
+2026-10-07 22:10:25 [debug    ] pack_plans_applied             edges=1 events=1 nodes=1 states=0
+2026-10-07 22:10:25 [info     ] pack_extraction_applied        edges_written=1 event_id=afd02d20-7ee9-51ca-a80a-39ae0f07fbf3 links=0 nodes=1 pack=pdlc rejected=[]
+{"event": "finish", "run_id": "20261007-cloud-authenticated-source-trust-01", "at": "2026-10-07T16:40:29.561022+00:00", "record": "docs/review/spanner-compatibility/runs/20261007-cloud-authenticated-source-trust-01"}
+{"run_id": "20261007-cloud-authenticated-source-trust-01", "checks": [{"name": "existing_control_schema_handshake", "passed": true, "scenarios": []}, {"name": "authenticated_admission_of_four_normalized_pdlc_events", "passed": true, "scenarios": []}, {"name": "real_fenced_records_keep_authenticated_producer_separate_from_payload", "passed": true, "scenarios": []}, {"name": "another_events_provenance_refused_before_planning", "passed": true, "scenarios": []}, {"name": "actual_projection_consumer_builds_common_and_pdlc_graph_on_spanner", "passed": true, "scenarios": []}, {"name": "actual_pack_extraction_consumer_writes_two_decisions_stubbed_model", "passed": true, "scenarios": []}, {"name": "stored_change_and_extracted_decision_trust_matches_receipts_not_spoofing", "passed": true, "scenarios": []}, {"name": "exact_four_derived_from_edges_reference_original_accepted_events", "passed": true, "scenarios": []}, {"name": "exact_fixture_cleanup_and_monotonic_core_configuration_restoration", "passed": true, "scenarios": []}, {"name": "existing_schema_preserved", "passed": true, "scenarios": []}, {"name": "all_application_rows_preserved", "passed": true, "scenarios": []}, {"name": "runtime_source_unchanged", "passed": true, "scenarios": []}]}
+Failed to export metrics to Cloud Monitoring: 403 Permission monitoring.timeSeries.create denied (or the resource may not exist).

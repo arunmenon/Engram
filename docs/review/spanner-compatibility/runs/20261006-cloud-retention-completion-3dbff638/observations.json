@@ -1,0 +1,91 @@
+{
+  "checks": [
+    {
+      "name": "warm_API_dry_and_live_counts_follow_actual_edge_scores",
+      "scenarios": [
+        "LIFE-03"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "admin warm prune returned HTTP error for valid Events with missing node similarity score",
+      "seconds": 9.32
+    },
+    {
+      "name": "native_worker_nonzero_archive_graph_deletion_and_low_similarity_edges",
+      "scenarios": [
+        "CONS-02",
+        "LIFE-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "archive_deletion_calls": [
+          {
+            "ids": [
+              "ad134352-9491-4739-920b-0f5cbb3dc9bf"
+            ],
+            "count": 1
+          }
+        ],
+        "remaining_event_ids": [
+          "da53dcd3-e1a7-41ce-b244-0cbb58805393",
+          "b1e6c56a-e301-4972-b932-0a6f862cfc84",
+          "6b7378c2-7c3a-4ac1-8016-273bdbaacb3f",
+          "9749f75b-24ea-40f9-8504-31e3cb7b6745",
+          "03f5b529-f2e9-4351-8bf0-84ef105ff0df"
+        ],
+        "similarity_edges": [
+          [
+            "9749f75b-24ea-40f9-8504-31e3cb7b6745",
+            "SIMILAR_TO",
+            "6b7378c2-7c3a-4ac1-8016-273bdbaacb3f"
+          ]
+        ]
+      },
+      "seconds": 0.0
+    },
+    {
+      "name": "actual_worker_nonzero_archive_graph_deletion_then_API_cold_dry_live",
+      "scenarios": [
+        "LIFE-03",
+        "CONS-02"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "admin cold prune returned HTTP error for valid Events with missing node similarity score",
+      "seconds": 10.77
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 5
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 5
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 6
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

@@ -1,0 +1,187 @@
+2026-10-06 19:07:53 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 19:07:53 [info     ] llm_client_initialized
+2026-10-06 19:07:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 19:07:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 19:07:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:07:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 19:07:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 19:07:53 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 19:07:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 19:07:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 19:07:53 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 19:07:53 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 19:07:53 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 19:07:53 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 19:07:53 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 19:07:53 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+ERROR:    Traceback (most recent call last):
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/google/api_core/grpc_helpers.py", line 76, in error_remapped_callable
+    return callable_(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/grpc/_interceptor.py", line 276, in __call__
+    response, ignored_call = self._with_call(
+                             ^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/grpc/_interceptor.py", line 331, in _with_call
+    return call.result(), call
+           ^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/grpc/_channel.py", line 447, in result
+    raise self
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/grpc/_interceptor.py", line 314, in continuation
+    response, call = self._thunk(new_method).with_call(
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/grpc/_channel.py", line 1182, in with_call
+    return _end_unary_response_blocking(state, call, True, None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/grpc/_channel.py", line 999, in _end_unary_response_blocking
+    raise _InactiveRpcError(state)  # pytype: disable=not-instantiable
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+grpc._channel._InactiveRpcError: <_InactiveRpcError of RPC that terminated with:
+	status = StatusCode.UNAUTHENTICATED
+	details = "Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project."
+	debug_error_string = "UNAUTHENTICATED:Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project."
+>
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/starlette/routing.py", line 654, in lifespan
+    async with self.lifespan_context(app) as maybe_state:
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 247, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 247, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 247, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 247, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 247, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 247, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 247, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 247, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 247, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 247, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 247, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 247, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 247, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py", line 247, in merged_lifespan
+    async with original_context(app) as maybe_original_state:
+               ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/api/app.py", line 101, in lifespan
+    stores = await open_stores(settings, prepare_ingest=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/registry.py", line 138, in open_stores
+    spanner_database = await asyncio.to_thread(open_database, settings.spanner)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/threads.py", line 25, in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/concurrent/futures/thread.py", line 58, in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/arunmenon/projects/Engram/src/context_graph/adapters/spanner/schema.py", line 233, in open_database
+    if not database.exists():
+           ^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/google/cloud/spanner_v1/database.py", line 605, in exists
+    api.get_database_ddl(
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/google/cloud/spanner_admin_database_v1/services/database_admin/client.py", line 1713, in get_database_ddl
+    response = rpc(
+               ^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/google/api_core/gapic_v1/method.py", line 373, in __call__
+    result = wrapped_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/google/api_core/retry/retry_unary.py", line 295, in retry_wrapped_func
+    return retry_target(
+           ^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/google/api_core/retry/retry_unary.py", line 157, in retry_target
+    next_sleep = _retry_error_helper(
+                 ^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/google/api_core/retry/retry_base.py", line 215, in _retry_error_helper
+    raise final_exc from source_exc
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/google/api_core/retry/retry_unary.py", line 148, in retry_target
+    result = target()
+             ^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/google/api_core/timeout.py", line 130, in func_with_timeout
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/google/api_core/grpc_helpers.py", line 78, in error_remapped_callable
+    raise exceptions.from_grpc_error(exc) from exc
+google.api_core.exceptions.Unauthenticated: 401 Request had invalid authentication credentials. Expected OAuth 2 access token, login cookie or other valid authentication credential. See https://developers.google.com/identity/sign-in/web/devconsole-project. [reason: "CREDENTIALS_MISSING"
+metadata {
+  key: "service"
+  value: "spanner.googleapis.com"
+}
+metadata {
+  key: "method"
+  value: "google.spanner.admin.database.v1.DatabaseAdmin.GetDatabaseDdl"
+}
+]
+
+ERROR:    Application startup failed. Exiting.

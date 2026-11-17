@@ -1,0 +1,37 @@
+F....................................................................... [ 75%]
+........................                                                 [100%]
+=================================== FAILURES ===================================
+______ test_actual_pack_missing_preserves_and_null_clears_with_other_sets ______
+
+    @pytest.mark.asyncio
+    async def test_actual_pack_missing_preserves_and_null_clears_with_other_sets():
+        graph = MemoryGraphStore()
+        identity = {"facility": "west", "sample_id": "S-7"}
+        ref = NodeRef("Sample", "Sample:west|S-7")
+        await apply_plan(
+            graph, plan({**identity, "description": "old", "reading": 1, "names": ["one", "two"]}), 100
+        )
+        await apply_plan(graph, plan({**identity, "reading": 2}), 100)
+        stored = (await graph.get_nodes([ref]))[ref]
+        assert stored["description"] == "old" and stored["reading"] == 2
+        assert stored["names"] == ["one", "two"]
+        clearing = plan({**identity, "description": None, "names": None, "reading": 3})
+        assert clearing.nodes[0].remove_properties == ("description", "names")
+        await apply_plan(graph, clearing, 100)
+        stored = (await graph.get_nodes([ref]))[ref]
+        assert "description" not in stored and "names" not in stored and stored["reading"] == 3
+        assert stored["sample_id"] == "S-7"
+>       assert len(graph.edges) == 3  # each accepted observation keeps its evidence
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       assert 0 == 3
+E        +  where 0 = len({})
+E        +    where {} = <context_graph.adapters.memory.graph.MemoryGraphStore object at 0x10720aff0>.edges
+
+tests/unit/test_strict_pack_properties.py:69: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-08 07:28:00 [debug    ] pack_plans_applied             edges=0 events=1 nodes=1 states=0
+2026-10-08 07:28:00 [debug    ] pack_plans_applied             edges=0 events=1 nodes=1 states=0
+2026-10-08 07:28:00 [debug    ] pack_plans_applied             edges=0 events=1 nodes=1 states=0
+=========================== short test summary info ============================
+FAILED tests/unit/test_strict_pack_properties.py::test_actual_pack_missing_preserves_and_null_clears_with_other_sets
+1 failed, 95 passed in 1.71s

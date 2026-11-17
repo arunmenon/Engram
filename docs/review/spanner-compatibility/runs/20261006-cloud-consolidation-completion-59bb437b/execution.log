@@ -1,0 +1,332 @@
+2026-10-06 21:57:49 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-06 21:57:49 [info     ] llm_client_initialized
+2026-10-06 21:57:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-06 21:57:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-06 21:57:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-06 21:57:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-06 21:57:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-06 21:57:49 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-06 21:57:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-06 21:57:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-06 21:57:49 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-06 21:57:49 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-06 21:57:49 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-06 21:57:49 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-06 21:57:49 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-06 21:57:49 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-06 21:57:51 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'memory@1.0.0', 'user@1.0.0', 'pdlc@1.7.0'] ontology_version=sha256:3a7c761cd2848649 redis_host=localhost
+2026-10-06 21:57:51 [info     ] event_ingested                 event_id=28d8e2ec-66d7-4e27-829d-56a442579049 event_type=observation.input global_position=2026-10-06T16:27:51.529167000Z/000000/28d8e2ec-66d7-4e27-829d-56a442579049 request_id=65a62c44-1de6-44d7-ae43-74850bac432e status=created
+/private/tmp/engram-ontology-review-venv/lib/python3.12/site-packages/fastapi/routing.py:360: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-06 21:57:51 [info     ] event_ingested                 event_id=84a12f17-3de8-4804-9826-881a6972f9cf event_type=observation.input global_position=2026-10-06T16:27:51.784191000Z/000000/84a12f17-3de8-4804-9826-881a6972f9cf request_id=06df06c5-aedd-497e-8245-4ba0fa825c16 status=created
+2026-10-06 21:57:51 [info     ] event_ingested                 event_id=16a15669-a409-4acc-9b31-f8f628d175e1 event_type=observation.input global_position=2026-10-06T16:27:51.964255000Z/000000/16a15669-a409-4acc-9b31-f8f628d175e1 request_id=106b6910-00c9-47b4-9349-3e7463b6d0ea status=created
+2026-10-06 21:57:52 [info     ] consumer_started               consumer=cons-projection group=graph-projection stream=Events
+2026-10-06 21:57:52 [info     ] pending_drain_completed        group=graph-projection
+2026-10-06 21:57:53 [debug    ] event_projected                edge_count=0 entry_id=2026-10-06T16:27:51.529167000Z/000000/28d8e2ec-66d7-4e27-829d-56a442579049 event_id=28d8e2ec-66d7-4e27-829d-56a442579049 session_id=cons-completion
+2026-10-06 21:57:53 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T16:27:51.784191000Z/000000/84a12f17-3de8-4804-9826-881a6972f9cf event_id=84a12f17-3de8-4804-9826-881a6972f9cf session_id=cons-completion
+2026-10-06 21:57:54 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T16:27:51.964255000Z/000000/16a15669-a409-4acc-9b31-f8f628d175e1 event_id=16a15669-a409-4acc-9b31-f8f628d175e1 session_id=cons-completion
+2026-10-06 21:57:55 [info     ] consolidation_cycle_started    source=below-threshold
+2026-10-06 21:57:56 [info     ] importance_recomputed_from_centrality updated_count=2
+2026-10-06 21:57:57 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-06 21:57:58 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-06 21:57:58 [info     ] consolidation_cycle_completed  source=below-threshold
+2026-10-06 21:57:59 [info     ] event_ingested                 event_id=d7e4d26f-c738-40e5-8181-65569731164c event_type=observation.input global_position=2026-10-06T16:27:58.961199000Z/000000/d7e4d26f-c738-40e5-8181-65569731164c request_id=53c97bd5-dd3e-43d5-8f4c-2c51f70d3ee3 status=created
+2026-10-06 21:57:59 [debug    ] event_projected                edge_count=1 entry_id=2026-10-06T16:27:58.961199000Z/000000/d7e4d26f-c738-40e5-8181-65569731164c event_id=d7e4d26f-c738-40e5-8181-65569731164c session_id=cons-completion
+2026-10-06 21:57:59 [info     ] consolidation_trigger_received entry_id=manual-fixture
+2026-10-06 21:57:59 [info     ] consolidation_cycle_started    source=stream
+2026-10-06 21:58:00 [info     ] sessions_qualifying_for_consolidation count=1 threshold=20
+2026-10-06 21:58:00 [info     ] consolidating_session          event_count=4 session_id=cons-completion
+2026-10-06 21:58:00 [info     ] episodes_grouped               episode_count=2 session_id=cons-completion
+2026-10-06 21:58:01 [info     ] session_consolidated           episode_summaries=2 session_id=cons-completion
+2026-10-06 21:58:02 [info     ] agent_summary_created          agent_id=compat-resume sessions=1
+2026-10-06 21:58:02 [info     ] importance_recomputed_from_centrality updated_count=4
+2026-10-06 21:58:04 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-06 21:58:05 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-06 21:58:05 [info     ] consolidation_cycle_completed  source=stream
+2026-10-06 21:58:05 [info     ] consolidation_cycle_started    source=repeat
+2026-10-06 21:58:05 [info     ] sessions_qualifying_for_consolidation count=1 threshold=20
+2026-10-06 21:58:05 [info     ] consolidating_session          event_count=4 session_id=cons-completion
+2026-10-06 21:58:05 [info     ] episodes_grouped               episode_count=2 session_id=cons-completion
+2026-10-06 21:58:07 [info     ] session_consolidated           episode_summaries=2 session_id=cons-completion
+2026-10-06 21:58:07 [info     ] agent_summary_created          agent_id=compat-resume sessions=1
+2026-10-06 21:58:08 [info     ] importance_recomputed_from_centrality updated_count=4
+2026-10-06 21:58:09 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-06 21:58:10 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-06 21:58:10 [info     ] consolidation_cycle_completed  source=repeat
+{"name": "consolidation_threshold_manual_trigger_episodes_repeated_ids_and_evidence", "scenarios": ["CONS-01"], "verdict": "passed", "observation": {"below": {"nodes": {"Event": 3}, "edges": [["16a15669-a409-4acc-9b31-f8f628d175e1", "FOLLOWS", "84a12f17-3de8-4804-9826-881a6972f9cf"], ["84a12f17-3de8-4804-9826-881a6972f9cf", "FOLLOWS", "28d8e2ec-66d7-4e27-829d-56a442579049"]]}, "first": {"nodes": {"Event": 4, "Summary": 4}, "edges": [["16a15669-a409-4acc-9b31-f8f628d175e1", "FOLLOWS", "84a12f17-3de8-4804-9826-881a6972f9cf"], ["84a12f17-3de8-4804-9826-881a6972f9cf", "FOLLOWS", "28d8e2ec-66d7-4e27-829d-56a442579049"], ["d7e4d26f-c738-40e5-8181-65569731164c", "FOLLOWS", "16a15669-a409-4acc-9b31-f8f628d175e1"], ["summary-compat-resume-52eefb2bf77b", "SUMMARIZES", "16a15669-a409-4acc-9b31-f8f628d175e1"], ["summary-compat-resume-52eefb2bf77b", "SUMMARIZES", "28d8e2ec-66d7-4e27-829d-56a442579049"], ["summary-compat-resume-52eefb2bf77b", "SUMMARIZES", "84a12f17-3de8-4804-9826-881a6972f9cf"], ["summary-compat-resume-52eefb2bf77b", "SUMMARIZES", "d7e4d26f-c738-40e5-8181-65569731164c"], ["summary-cons-completion-52eefb2bf77b", "SUMMARIZES", "16a15669-a409-4acc-9b31-f8f628d175e1"], ["summary-cons-completion-52eefb2bf77b", "SUMMARIZES", "28d8e2ec-66d7-4e27-829d-56a442579049"], ["summary-cons-completion-52eefb2bf77b", "SUMMARIZES", "84a12f17-3de8-4804-9826-881a6972f9cf"], ["summary-cons-completion-52eefb2bf77b", "SUMMARIZES", "d7e4d26f-c738-40e5-8181-65569731164c"], ["summary-cons-completion-ep0-3ac6d26b654d", "SUMMARIZES", "28d8e2ec-66d7-4e27-829d-56a442579049"], ["summary-cons-completion-ep0-3ac6d26b654d", "SUMMARIZES", "84a12f17-3de8-4804-9826-881a6972f9cf"], ["summary-cons-completion-ep1-c2de02fb6798", "SUMMARIZES", "16a15669-a409-4acc-9b31-f8f628d175e1"], ["summary-cons-completion-ep1-c2de02fb6798", "SUMMARIZES", "d7e4d26f-c738-40e5-8181-65569731164c"]]}, "second": {"nodes": {"Event": 4, "Summary": 4}, "edges": [["16a15669-a409-4acc-9b31-f8f628d175e1", "FOLLOWS", "84a12f17-3de8-4804-9826-881a6972f9cf"], ["84a12f17-3de8-4804-9826-881a6972f9cf", "FOLLOWS", "28d8e2ec-66d7-4e27-829d-56a442579049"], ["d7e4d26f-c738-40e5-8181-65569731164c", "FOLLOWS", "16a15669-a409-4acc-9b31-f8f628d175e1"], ["summary-compat-resume-52eefb2bf77b", "SUMMARIZES", "16a15669-a409-4acc-9b31-f8f628d175e1"], ["summary-compat-resume-52eefb2bf77b", "SUMMARIZES", "28d8e2ec-66d7-4e27-829d-56a442579049"], ["summary-compat-resume-52eefb2bf77b", "SUMMARIZES", "84a12f17-3de8-4804-9826-881a6972f9cf"], ["summary-compat-resume-52eefb2bf77b", "SUMMARIZES", "d7e4d26f-c738-40e5-8181-65569731164c"], ["summary-cons-completion-52eefb2bf77b", "SUMMARIZES", "16a15669-a409-4acc-9b31-f8f628d175e1"], ["summary-cons-completion-52eefb2bf77b", "SUMMARIZES", "28d8e2ec-66d7-4e27-829d-56a442579049"], ["summary-cons-completion-52eefb2bf77b", "SUMMARIZES", "84a12f17-3de8-4804-9826-881a6972f9cf"], ["summary-cons-completion-52eefb2bf77b", "SUMMARIZES", "d7e4d26f-c738-40e5-8181-65569731164c"], ["summary-cons-completion-ep0-3ac6d26b654d", "SUMMARIZES", "28d8e2ec-66d7-4e27-829d-56a442579049"], ["summary-cons-completion-ep0-3ac6d26b654d", "SUMMARIZES", "84a12f17-3de8-4804-9826-881a6972f9cf"], ["summary-cons-completion-ep1-c2de02fb6798", "SUMMARIZES", "16a15669-a409-4acc-9b31-f8f628d175e1"], ["summary-cons-completion-ep1-c2de02fb6798", "SUMMARIZES", "d7e4d26f-c738-40e5-8181-65569731164c"]]}, "summary_evidence_edges": [["summary-compat-resume-52eefb2bf77b", "SUMMARIZES", "16a15669-a409-4acc-9b31-f8f628d175e1"], ["summary-compat-resume-52eefb2bf77b", "SUMMARIZES", "28d8e2ec-66d7-4e27-829d-56a442579049"], ["summary-compat-resume-52eefb2bf77b", "SUMMARIZES", "84a12f17-3de8-4804-9826-881a6972f9cf"], ["summary-compat-resume-52eefb2bf77b", "SUMMARIZES", "d7e4d26f-c738-40e5-8181-65569731164c"], ["summary-cons-completion-52eefb2bf77b", "SUMMARIZES", "16a15669-a409-4acc-9b31-f8f628d175e1"], ["summary-cons-completion-52eefb2bf77b", "SUMMARIZES", "28d8e2ec-66d7-4e27-829d-56a442579049"], ["summary-cons-completion-52eefb2bf77b", "SUMMARIZES", "84a12f17-3de8-4804-9826-881a6972f9cf"], ["summary-cons-completion-52eefb2bf77b", "SUMMARIZES", "d7e4d26f-c738-40e5-8181-65569731164c"], ["summary-cons-completion-ep0-3ac6d26b654d", "SUMMARIZES", "28d8e2ec-66d7-4e27-829d-56a442579049"], ["summary-cons-completion-ep0-3ac6d26b654d", "SUMMARIZES", "84a12f17-3de8-4804-9826-881a6972f9cf"], ["summary-cons-completion-ep1-c2de02fb6798", "SUMMARIZES", "16a15669-a409-4acc-9b31-f8f628d175e1"], ["summary-cons-completion-ep1-c2de02fb6798", "SUMMARIZES", "d7e4d26f-c738-40e5-8181-65569731164c"]], "trigger": "actual public process_message; timer already separately covered"}, "seconds": 14.79}
+2026-10-06 21:58:10 [info     ] consolidation_cycle_started    source=overlap-first
+2026-10-06 21:58:10 [warning  ] consolidation_cycle_skipped_already_running source=overlap-second
+2026-10-06 21:58:10 [info     ] sessions_qualifying_for_consolidation count=1 threshold=20
+2026-10-06 21:58:10 [info     ] consolidating_session          event_count=4 session_id=cons-completion
+2026-10-06 21:58:10 [info     ] episodes_grouped               episode_count=2 session_id=cons-completion
+2026-10-06 21:58:12 [info     ] session_consolidated           episode_summaries=2 session_id=cons-completion
+2026-10-06 21:58:13 [info     ] agent_summary_created          agent_id=compat-resume sessions=1
+2026-10-06 21:58:13 [info     ] importance_recomputed_from_centrality updated_count=4
+2026-10-06 21:58:14 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-06 21:58:15 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-06 21:58:15 [info     ] consolidation_cycle_completed  source=overlap-first
+{"name": "consolidation_same_worker_overlap_guard", "scenarios": ["CONS-01"], "verdict": "passed", "observation": {"actual_cycles": 1, "locked_after": false, "scope": "one worker lock; no distributed lock guarantee"}, "seconds": 5.22}
+2026-10-06 21:58:15 [info     ] consolidation_cycle_started    source=provider-failure
+2026-10-06 21:58:16 [info     ] sessions_qualifying_for_consolidation count=1 threshold=20
+2026-10-06 21:58:16 [info     ] consolidating_session          event_count=4 session_id=cons-completion
+2026-10-06 21:58:16 [info     ] episodes_grouped               episode_count=2 session_id=cons-completion
+2026-10-06 21:58:16 [error    ] consolidation_cycle_failed     source=provider-failure
+╭───────────────────── Traceback (most recent call last) ──────────────────────╮
+│ /Users/arunmenon/projects/Engram/src/context_graph/worker/consolidation.py:1 │
+│ 31 in _run_consolidation_cycle_guarded                                       │
+│                                                                              │
+│   128 │   │   async with self._consolidation_lock:                           │
+│   129 │   │   │   log.info("consolidation_cycle_started", source=source)     │
+│   130 │   │   │   try:                                                       │
+│ ❱ 131 │   │   │   │   await self._run_consolidation_cycle()                  │
+│   132 │   │   │   except Exception:                                          │
+│   133 │   │   │   │   log.exception("consolidation_cycle_failed", source=sou │
+│   134 │   │   │   else:                                                      │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │   self = <context_graph.worker.consolidation.ConsolidationConsumer       │ │
+│ │          object at 0x12b3b6db0>                                          │ │
+│ │ source = 'provider-failure'                                              │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram/src/context_graph/worker/consolidation.py:1 │
+│ 61 in _run_consolidation_cycle                                               │
+│                                                                              │
+│   158 │   │                                                                  │
+│   159 │   │   # Step 2: Consolidate qualifying sessions                      │
+│   160 │   │   for session_id, event_count in sessions_to_consolidate.items() │
+│ ❱ 161 │   │   │   await self._consolidate_session(session_id, event_count)   │
+│   162 │   │                                                                  │
+│   163 │   │   # Step 2b: Create agent-level summaries                        │
+│   164 │   │   agent_sessions: dict[str, list[str]] = {}                      │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │             event_count = 4                                              │ │
+│ │                      gm = <context_graph.adapters.spanner.graph.Spanner… │ │
+│ │                           object at 0x12b364c50>                         │ │
+│ │                    self = <context_graph.worker.consolidation.Consolida… │ │
+│ │                           object at 0x12b3b6db0>                         │ │
+│ │          session_counts = {'cons-completion': 4}                         │ │
+│ │              session_id = 'cons-completion'                              │ │
+│ │ sessions_to_consolidate = {'cons-completion': 4}                         │ │
+│ │               threshold = 20                                             │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram/src/context_graph/worker/consolidation.py:2 │
+│ 34 in _consolidate_session                                                   │
+│                                                                              │
+│   231 │   │   │   llm_summary_text: str | None = None                        │
+│   232 │   │   │   if self._llm_client is not None:                           │
+│   233 │   │   │   │   prompt = build_summary_prompt(episode)                 │
+│ ❱ 234 │   │   │   │   llm_summary_text = await self._llm_client.generate_tex │
+│   235 │   │   │                                                              │
+│   236 │   │   │   summary = create_summary_from_events(                      │
+│   237 │   │   │   │   events=episode,                                        │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │          episode = [                                                     │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'access_count': 0,                            │ │
+│ │                    │   │   'agent_id': 'compat-resume',                  │ │
+│ │                    │   │   'event_id':                                   │ │
+│ │                    '28d8e2ec-66d7-4e27-829d-56a442579049',               │ │
+│ │                    │   │   'event_type': 'observation.input',            │ │
+│ │                    │   │   'global_position':                            │ │
+│ │                    '2026-10-06T16:27:51.529167000Z/000000/28d8e2ec-66d7… │ │
+│ │                    │   │   'importance_score': 6,                        │ │
+│ │                    │   │   'keywords': [],                               │ │
+│ │                    │   │   'occurred_at':                                │ │
+│ │                    '2026-10-06T14:27:51.301317+00:00',                   │ │
+│ │                    │   │   'session_id': 'cons-completion',              │ │
+│ │                    │   │   'trace_id': 'cons-completion'                 │ │
+│ │                    │   },                                                │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'access_count': 0,                            │ │
+│ │                    │   │   'agent_id': 'compat-resume',                  │ │
+│ │                    │   │   'event_id':                                   │ │
+│ │                    '84a12f17-3de8-4804-9826-881a6972f9cf',               │ │
+│ │                    │   │   'event_type': 'observation.input',            │ │
+│ │                    │   │   'global_position':                            │ │
+│ │                    '2026-10-06T16:27:51.784191000Z/000000/84a12f17-3de8… │ │
+│ │                    │   │   'importance_score': 6,                        │ │
+│ │                    │   │   'keywords': [],                               │ │
+│ │                    │   │   'occurred_at':                                │ │
+│ │                    '2026-10-06T14:28:51.301317+00:00',                   │ │
+│ │                    │   │   'session_id': 'cons-completion',              │ │
+│ │                    │   │   'trace_id': 'cons-completion'                 │ │
+│ │                    │   }                                                 │ │
+│ │                    ]                                                     │ │
+│ │         episodes = [                                                     │ │
+│ │                    │   [                                                 │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'access_count': 0,                        │ │
+│ │                    │   │   │   'agent_id': 'compat-resume',              │ │
+│ │                    │   │   │   'event_id':                               │ │
+│ │                    '28d8e2ec-66d7-4e27-829d-56a442579049',               │ │
+│ │                    │   │   │   'event_type': 'observation.input',        │ │
+│ │                    │   │   │   'global_position':                        │ │
+│ │                    '2026-10-06T16:27:51.529167000Z/000000/28d8e2ec-66d7… │ │
+│ │                    │   │   │   'importance_score': 6,                    │ │
+│ │                    │   │   │   'keywords': [],                           │ │
+│ │                    │   │   │   'occurred_at':                            │ │
+│ │                    '2026-10-06T14:27:51.301317+00:00',                   │ │
+│ │                    │   │   │   'session_id': 'cons-completion',          │ │
+│ │                    │   │   │   'trace_id': 'cons-completion'             │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'access_count': 0,                        │ │
+│ │                    │   │   │   'agent_id': 'compat-resume',              │ │
+│ │                    │   │   │   'event_id':                               │ │
+│ │                    '84a12f17-3de8-4804-9826-881a6972f9cf',               │ │
+│ │                    │   │   │   'event_type': 'observation.input',        │ │
+│ │                    │   │   │   'global_position':                        │ │
+│ │                    '2026-10-06T16:27:51.784191000Z/000000/84a12f17-3de8… │ │
+│ │                    │   │   │   'importance_score': 6,                    │ │
+│ │                    │   │   │   'keywords': [],                           │ │
+│ │                    │   │   │   'occurred_at':                            │ │
+│ │                    '2026-10-06T14:28:51.301317+00:00',                   │ │
+│ │                    │   │   │   'session_id': 'cons-completion',          │ │
+│ │                    │   │   │   'trace_id': 'cons-completion'             │ │
+│ │                    │   │   }                                             │ │
+│ │                    │   ],                                                │ │
+│ │                    │   [                                                 │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'access_count': 0,                        │ │
+│ │                    │   │   │   'agent_id': 'compat-resume',              │ │
+│ │                    │   │   │   'event_id':                               │ │
+│ │                    '16a15669-a409-4acc-9b31-f8f628d175e1',               │ │
+│ │                    │   │   │   'event_type': 'observation.input',        │ │
+│ │                    │   │   │   'global_position':                        │ │
+│ │                    '2026-10-06T16:27:51.964255000Z/000000/16a15669-a409… │ │
+│ │                    │   │   │   'importance_score': 6,                    │ │
+│ │                    │   │   │   'keywords': [],                           │ │
+│ │                    │   │   │   'occurred_at':                            │ │
+│ │                    '2026-10-06T15:07:51.301317+00:00',                   │ │
+│ │                    │   │   │   'session_id': 'cons-completion',          │ │
+│ │                    │   │   │   'trace_id': 'cons-completion'             │ │
+│ │                    │   │   },                                            │ │
+│ │                    │   │   {                                             │ │
+│ │                    │   │   │   'access_count': 0,                        │ │
+│ │                    │   │   │   'agent_id': 'compat-resume',              │ │
+│ │                    │   │   │   'event_id':                               │ │
+│ │                    'd7e4d26f-c738-40e5-8181-65569731164c',               │ │
+│ │                    │   │   │   'event_type': 'observation.input',        │ │
+│ │                    │   │   │   'global_position':                        │ │
+│ │                    '2026-10-06T16:27:58.961199000Z/000000/d7e4d26f-c738… │ │
+│ │                    │   │   │   'importance_score': 6,                    │ │
+│ │                    │   │   │   'keywords': [],                           │ │
+│ │                    │   │   │   'occurred_at':                            │ │
+│ │                    '2026-10-06T15:08:51.301317+00:00',                   │ │
+│ │                    │   │   │   'session_id': 'cons-completion',          │ │
+│ │                    │   │   │   'trace_id': 'cons-completion'             │ │
+│ │                    │   │   }                                             │ │
+│ │                    │   ]                                                 │ │
+│ │                    ]                                                     │ │
+│ │      event_count = 4                                                     │ │
+│ │           events = [                                                     │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'access_count': 0,                            │ │
+│ │                    │   │   'agent_id': 'compat-resume',                  │ │
+│ │                    │   │   'event_id':                                   │ │
+│ │                    '28d8e2ec-66d7-4e27-829d-56a442579049',               │ │
+│ │                    │   │   'event_type': 'observation.input',            │ │
+│ │                    │   │   'global_position':                            │ │
+│ │                    '2026-10-06T16:27:51.529167000Z/000000/28d8e2ec-66d7… │ │
+│ │                    │   │   'importance_score': 6,                        │ │
+│ │                    │   │   'keywords': [],                               │ │
+│ │                    │   │   'occurred_at':                                │ │
+│ │                    '2026-10-06T14:27:51.301317+00:00',                   │ │
+│ │                    │   │   'session_id': 'cons-completion',              │ │
+│ │                    │   │   'trace_id': 'cons-completion'                 │ │
+│ │                    │   },                                                │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'access_count': 0,                            │ │
+│ │                    │   │   'agent_id': 'compat-resume',                  │ │
+│ │                    │   │   'event_id':                                   │ │
+│ │                    '84a12f17-3de8-4804-9826-881a6972f9cf',               │ │
+│ │                    │   │   'event_type': 'observation.input',            │ │
+│ │                    │   │   'global_position':                            │ │
+│ │                    '2026-10-06T16:27:51.784191000Z/000000/84a12f17-3de8… │ │
+│ │                    │   │   'importance_score': 6,                        │ │
+│ │                    │   │   'keywords': [],                               │ │
+│ │                    │   │   'occurred_at':                                │ │
+│ │                    '2026-10-06T14:28:51.301317+00:00',                   │ │
+│ │                    │   │   'session_id': 'cons-completion',              │ │
+│ │                    │   │   'trace_id': 'cons-completion'                 │ │
+│ │                    │   },                                                │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'access_count': 0,                            │ │
+│ │                    │   │   'agent_id': 'compat-resume',                  │ │
+│ │                    │   │   'event_id':                                   │ │
+│ │                    '16a15669-a409-4acc-9b31-f8f628d175e1',               │ │
+│ │                    │   │   'event_type': 'observation.input',            │ │
+│ │                    │   │   'global_position':                            │ │
+│ │                    '2026-10-06T16:27:51.964255000Z/000000/16a15669-a409… │ │
+│ │                    │   │   'importance_score': 6,                        │ │
+│ │                    │   │   'keywords': [],                               │ │
+│ │                    │   │   'occurred_at':                                │ │
+│ │                    '2026-10-06T15:07:51.301317+00:00',                   │ │
+│ │                    │   │   'session_id': 'cons-completion',              │ │
+│ │                    │   │   'trace_id': 'cons-completion'                 │ │
+│ │                    │   },                                                │ │
+│ │                    │   {                                                 │ │
+│ │                    │   │   'access_count': 0,                            │ │
+│ │                    │   │   'agent_id': 'compat-resume',                  │ │
+│ │                    │   │   'event_id':                                   │ │
+│ │                    'd7e4d26f-c738-40e5-8181-65569731164c',               │ │
+│ │                    │   │   'event_type': 'observation.input',            │ │
+│ │                    │   │   'global_position':                            │ │
+│ │                    '2026-10-06T16:27:58.961199000Z/000000/d7e4d26f-c738… │ │
+│ │                    │   │   'importance_score': 6,                        │ │
+│ │                    │   │   'keywords': [],                               │ │
+│ │                    │   │   'occurred_at':                                │ │
+│ │                    '2026-10-06T15:08:51.301317+00:00',                   │ │
+│ │                    │   │   'session_id': 'cons-completion',              │ │
+│ │                    │   │   'trace_id': 'cons-completion'                 │ │
+│ │                    │   }                                                 │ │
+│ │                    ]                                                     │ │
+│ │               gm = <context_graph.adapters.spanner.graph.SpannerGraphSt… │ │
+│ │                    object at 0x12b364c50>                                │ │
+│ │              idx = 0                                                     │ │
+│ │ llm_summary_text = None                                                  │ │
+│ │           prompt = 'Summarize the following sequence of agent events     │ │
+│ │                    into a concise episode descript'+221                  │ │
+│ │             self = <context_graph.worker.consolidation.ConsolidationCon… │ │
+│ │                    object at 0x12b3b6db0>                                │ │
+│ │       session_id = 'cons-completion'                                     │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+│                                                                              │
+│ /Users/arunmenon/projects/Engram/scripts/engram_spanner_compat_completion.py │
+│ :228 in generate_text                                                        │
+│                                                                              │
+│   225 │   │   │   │   │   calls=0                                            │
+│   226 │   │   │   │   │   async def generate_text(self,prompt):              │
+│   227 │   │   │   │   │   │   self.calls+=1                                  │
+│ ❱ 228 │   │   │   │   │   │   raise RuntimeError('synthetic summarization pr │
+│   229 │   │   │   │                                                          │
+│       provider=Provider();cons._llm_client=provider;writes=[];original=store │
+│   230 │   │   │   │   async def observe(**kwargs):                           │
+│   231 │   │   │   │   │   writes.append(kwargs['summary_id']);return await o │
+│                                                                              │
+│ ╭───────────────────────────────── locals ─────────────────────────────────╮ │
+│ │ prompt = 'Summarize the following sequence of agent events into a        │ │
+│ │          concise episode descript'+221                                   │ │
+│ │   self = <engram_spanner_compat_completion.consolidation_cases.<locals>… │ │
+│ │          object at 0x12b36c290>                                          │ │
+│ ╰──────────────────────────────────────────────────────────────────────────╯ │
+╰──────────────────────────────────────────────────────────────────────────────╯
+RuntimeError: synthetic summarization provider outage
+
+2026-10-06 21:58:16 [info     ] consolidation_cycle_started    source=next-cycle-recovery
+2026-10-06 21:58:16 [info     ] sessions_qualifying_for_consolidation count=1 threshold=20
+2026-10-06 21:58:16 [info     ] consolidating_session          event_count=4 session_id=cons-completion
+2026-10-06 21:58:16 [info     ] episodes_grouped               episode_count=2 session_id=cons-completion
+2026-10-06 21:58:18 [info     ] session_consolidated           episode_summaries=2 session_id=cons-completion
+2026-10-06 21:58:18 [info     ] agent_summary_created          agent_id=compat-resume sessions=1
+2026-10-06 21:58:19 [info     ] importance_recomputed_from_centrality updated_count=4
+2026-10-06 21:58:20 [info     ] forgetting_completed           deleted_archive_events=0 deleted_cold_events=0 deleted_edges=0 orphan_counts={'Entity': 0, 'Preference': 0, 'Skill': 0, 'Workflow': 0, 'BehavioralPattern': 0}
+2026-10-06 21:58:21 [info     ] redis_trimmed                  dedup_entries_removed=0 events_archived=0 expired_docs_deleted=0 session_streams_deleted=0 stream_entries_trimmed=0
+2026-10-06 21:58:21 [info     ] consolidation_cycle_completed  source=next-cycle-recovery
+{"name": "consolidation_provider_failure_releases_lock_and_next_cycle_recovers", "scenarios": ["CONS-01"], "verdict": "passed", "observation": {"provider_calls": 1, "writes_during_failure": [], "writes_next_cycle": ["summary-cons-completion-ep0-3ac6d26b654d", "summary-cons-completion-ep1-c2de02fb6798", "summary-cons-completion-52eefb2bf77b", "summary-compat-resume-52eefb2bf77b"], "lock_released_after_failure": true, "scope": "failure is logged, no provider fallback; later actual cycle recovers; no new delivery-retry guarantee"}, "seconds": 5.25}
+2026-10-06 21:58:21 [info     ] consumer_stopped               consumer=cons-projection group=graph-projection
+2026-10-06 21:58:21 [info     ] app_stopped

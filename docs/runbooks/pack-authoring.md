@@ -6,14 +6,14 @@ The worked example is `tests/fixtures/packs/crm/`: a small CRM pack (`crm.pack.y
 
 ## 0. What you get for free, and what you must not redeclare
 
-Core (`core.pack.yaml`) always loads, together with `memory` and `user`. These three base packs describe the schema the code itself writes. They always load from the built-in directory: a pack directory holding a file with one of their names is refused.
+Core (`core.pack.yaml`) always loads. `memory` and `user` are optional roots selected by `CG_ONTOLOGY_BUILTIN_PACKS` (both are the legacy default; an explicit empty list omits them). Dependencies may require additional packs. These built-in packs describe shared schema and specialized capabilities; they always load from the built-in directory, and shadowing files are refused. Selection must gate processing and retrieval; schema loading alone does not establish capability readiness.
 
 Core provides:
 
 | Thing | What the engine does with it |
 |---|---|
 | `Lifecycled` interface | The projector writes `status` (the lifecycle's initial state on creation) and `status_changed_at`; transitions move `status`. **A type with a `lifecycle` must use it.** |
-| `Sourced` interface | The projector sets `source_trust` to `trusted` or `untrusted` from `CG_ONTOLOGY_TRUSTED_SOURCES`, never from content. The `untrusted_uncorroborated` admission rule reads it. |
+| `Sourced` interface | In tenant-bound processing the projector resolves `source_trust` from the authenticated receipt source ID and pinned `trusted_source_ids` policy, never from payload or agent name. Unbound legacy processing still uses `CG_ONTOLOGY_TRUSTED_SOURCES`; it is not authenticated producer identity. The `untrusted_uncorroborated` admission rule reads the result. |
 | `Claim`, `Anchored`, `Versioned` | Shared property shapes: confidence and method; source URI and hash; version. |
 | `DERIVED_FROM` | Every node a rule upserts gets an edge to the Event that wrote it (provenance), without declaring anything. |
 | `SUPERSEDES`, `CONTRADICTS` | Declared with no endpoints. Add yours under `extends_core_edges`, as the crm pack does for `SUPERSEDES: {from: [Deal], to: [Deal]}`. |
@@ -33,7 +33,7 @@ Create `<name>.pack.yaml` in a directory of your own. Its sections, in the order
 3. **`types.edges`**: `from` and `to` type lists. Add `requires: [confidence, method, link_status]` for links that may be inferred (the PDLC link policy).
 4. **`events`**: every event type the pack accepts, dot-namespaced under one prefix of its own (`crm.*`).
    - The pack owns that namespace: undeclared `crm.*` events are rejected at ingest (422), and no other pack may declare events in it.
-   - Payloads are not schema-checked. A value that does not fit a property's type is dropped when it is written.
+   - Tenant-bound admission requires a `payload_contract` for domain events and supported enabled handling. Strict observational validation preserves the original payload; missing/invalid fields reject new events before insertion. Explicit `handling: ledger_only` permits contracted storage without domain processing. No mapping and no explicit ledger-only declaration means unsupported. Unbound legacy ingestion does not yet enforce these contracts.
 5. **`projection`**: one rule per event type, which can:
    - `upsert` nodes by key;
    - make a `transition` to a state, guarded by `only_from`;
@@ -63,7 +63,9 @@ Every problem is reported at once: an unknown type, a rule for an undeclared eve
 ## 3. Get events in
 
 - **Generic ingest**: `POST /v1/events` or `POST /v1/events/batch` (up to 1,000 events) with your declared event types and the payload your rules read. The crm test ingests this way.
-- **Trust**: add the agent id your importer uses to `CG_ONTOLOGY_TRUSTED_SOURCES` (comma-separated). Events from other agents produce `untrusted` nodes. Agent ids starting with `webhook:` are reserved for the signed webhook routes and refused on generic ingest.
+- **Tenant-bound trust**: authenticate a producer through the server-owned credential/source grant, then explicitly configure its stable source ID in the tenant's `ontology.trusted_source_ids` (`CG_ONTOLOGY_TRUSTED_SOURCE_IDS` in a single configuration). Empty means untrusted. IDs use letters, digits, dot, underscore and hyphen; legacy `webhook:github` agent names are not aliases. Workers consume typed provenance from the fenced ledger, never a receipt supplied inside payload JSON. A trust-policy change changes the binding digest; old receipts require an explicit compatibility policy before reinterpretation.
+- **Legacy unbound trust**: `CG_ONTOLOGY_TRUSTED_SOURCES` still names descriptive agent IDs for compatibility. This legacy behavior is not authenticated-source isolation. Generic ingest reserves `webhook:` IDs, but that guard alone does not establish trust.
+- **Tenant-bound availability**: imports and signed webhook paths remain disabled until their authenticated source contracts are implemented. The private tenant factory is not production-enabled. Current trust implementation has local evidence; see the compatibility ledger for real-Spanner verification status.
 - **Webhooks**: only GitHub and Jira have routes (`/v1/webhooks/{github,jira}`). A new tool needs an adapter in `sources/` and the route.
 
 ## 4. Write the evaluation set
@@ -109,3 +111,87 @@ python -m context_graph.ontology rebuild --target CG_KEY=VALUE ...
 ```
 
 A change to a pack's `retrieval` section puts it back to pending until `evaluate --record` passes again.
+
+### Payload contracts (bound writer enforcement; rollout incomplete)
+
+Event declarations may carry a `payload_contract`. Bound Spanner writers validate
+new events against their pinned active pack policy inside the fenced append
+transaction, after duplicate/conflict checks. Legacy unbound ingestion does not
+provide this guarantee. The public tenant dispatcher remains disabled, and bound
+streaming imports/webhooks are not enabled. Existing packs without contracts can
+load but cannot thereby promise supported bound domain processing. New domain
+activation and historical compatibility remain separate unfinished work.
+
+```yaml
+events:
+  lab.sample.received:
+    payload_contract:
+      version: 1
+      additional_fields: preserve
+      properties:
+        facility: {type: string, required: true, min_length: 1}
+        sample_id: {type: string, required: true, min_length: 1}
+        description: {type: string, nullable: true}
+        instruments:
+          type: array
+          max_length: 20
+          items: {type: string}
+```
+
+Supported prototype types are `string`, `integer`, `number`, `boolean`, `object`
+and `array`. Objects declare `properties`; arrays require `items`. Objects may
+preserve extra fields (default) or forbid them with `additional_fields: forbid`.
+Strings and arrays support nonnegative `min_length`/`max_length`. Strings may
+declare a nonempty `enum`; integer/number fields may declare finite `minimum`
+and `maximum`. Projection payload paths, including list traversal and paths
+inside expressions, must be declared in the owning event contract. This checks
+field existence/shape, not expression result types or graph cardinality. Definitions
+are limited to 16 field levels and 256 declarations, including list item specs.
+Unknown keywords, remote references, regex, defaults and executable validators
+are unsupported. An integer does not accept booleans or numeric strings; number
+values must be finite. Use explicit source normalization for provider-specific
+identifier representations. This syntax is provisional pending full-pack and
+mapping acceptance, not a permanently frozen compatibility format.
+
+Required and nullable are independent: a required nullable field must be present
+but may contain null. Optional non-nullable fields may be absent but cannot be
+explicitly null. Validation does not rewrite the original payload, insert absent
+fields, or decide graph updates. Missing/null preservation and clearing behavior
+in projection must be defined under #36; list typing does not select graph
+zip/product behavior. Do not infer required fields from every projection read.
+
+`EventDef.payload_contract.validate_payload(payload)` raises Pydantic validation
+errors. API integration must sanitize these errors before returning them: never
+expose raw `input` values, schema object contexts or complete source payloads.
+PDLC has 23 declared contracts, with 17 processing-eligible types and six missing
+mappings explicitly refused for bound processing. CRM contract gaps, whole-pack
+journeys, activation, remaining producer paths, worker version agreement and full
+Spanner acceptance remain pending under #34. Loading all declarations is not
+evidence that all journeys work.
+
+### Deterministic projection expansion (#36; bounded correction)
+
+Key expressions that return lists zip only when all key-list lengths agree;
+scalars broadcast. All-empty lists intentionally create no domain output. Unequal
+lengths, including an empty list paired with a nonempty list, refuse the whole
+event's domain plan rather than truncate it. Equal-length fanned edge endpoints
+pair by original index, preserving gaps from invalid keys; other endpoint lengths
+retain the existing Cartesian pairing convention.
+
+The projector limits one event to 10,000 planned operations across every rule and
+subscriber, counting node upserts, endpoint stubs, provenance edges, lifecycle
+changes and lookup instructions. Candidate key/reference/prefix lists and edge
+products are checked before their projector-owned expansion. This is not a cap
+on actual lookup results, a whole worker flush, input payload size or all expression
+memory. A deterministic `ProjectionExpansionError` contains a stable reason and
+no payload values. The worker retains the common Event, dead-letters the failed
+domain projection, and can process valid siblings; no partial domain plan from
+that planning failure is applied.
+
+Local run `20261007-local-projection-expansion-05` passed 162 scoped tests, with
+typing/lint clean and Astra medium design/low implementation review. Real Spanner
+acceptance for this correction is pending. It requires an explicitly pinned new
+engine interpretation and reviewed activation, not adoption of an old owner or
+reinterpretation of old receipts. Null/clear semantics, property-list alignment,
+ordering, competing writers and transactional application failures remain open
+under #36.

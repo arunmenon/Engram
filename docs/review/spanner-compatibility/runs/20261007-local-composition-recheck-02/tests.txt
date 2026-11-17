@@ -1,0 +1,65 @@
+...................F...                                                  [100%]
+=================================== FAILURES ===================================
+______________ test_core_handlers_reject_foreign_owned_core_types ______________
+
+text = 'pack: {name: lab, version: 1.0.0, requires: [core>=1.0]}\ntypes: {nodes: {Event: {}, Entity: {}, Summary: {}}}\n'
+source = '<pack>'
+
+    def parse_pack(text: str, source: str = "<pack>") -> Pack:
+        """Parse and check one pack's YAML text."""
+        data = load_yaml(text, source)
+        if not isinstance(data, dict):
+            raise OntologyError([f"{source}: a pack must be a mapping"])
+        try:
+>           return Pack.model_validate(data)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+E           pydantic_core._pydantic_core.ValidationError: 3 validation errors for Pack
+E           types.nodes.Event.key
+E             Field required [type=missing, input_value={}, input_type=dict]
+E               For further information visit https://errors.pydantic.dev/2.13/v/missing
+E           types.nodes.Entity.key
+E             Field required [type=missing, input_value={}, input_type=dict]
+E               For further information visit https://errors.pydantic.dev/2.13/v/missing
+E           types.nodes.Summary.key
+E             Field required [type=missing, input_value={}, input_type=dict]
+E               For further information visit https://errors.pydantic.dev/2.13/v/missing
+
+src/context_graph/ontology/loader.py:153: ValidationError
+
+The above exception was the direct cause of the following exception:
+
+    def test_core_handlers_reject_foreign_owned_core_types() -> None:
+        core = parse_pack("pack: {name: core, version: 1.0.0}\n")
+>       lab = parse_pack(
+            "pack: {name: lab, version: 1.0.0, requires: [core>=1.0]}\n"
+            "types: {nodes: {Event: {}, Entity: {}, Summary: {}}}\n"
+        )
+
+tests/unit/test_pack_composition.py:186: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+text = 'pack: {name: lab, version: 1.0.0, requires: [core>=1.0]}\ntypes: {nodes: {Event: {}, Entity: {}, Summary: {}}}\n'
+source = '<pack>'
+
+    def parse_pack(text: str, source: str = "<pack>") -> Pack:
+        """Parse and check one pack's YAML text."""
+        data = load_yaml(text, source)
+        if not isinstance(data, dict):
+            raise OntologyError([f"{source}: a pack must be a mapping"])
+        try:
+            return Pack.model_validate(data)
+        except ValidationError as exc:
+            problems = [
+                f"{source}: {'.'.join(str(p) for p in error['loc'])}: {error['msg']}"
+                for error in exc.errors()
+            ]
+>           raise OntologyError(problems) from exc
+E           context_graph.domain.ontology.OntologyError: Invalid ontology:
+E             - <pack>: types.nodes.Event.key: Field required
+E             - <pack>: types.nodes.Entity.key: Field required
+E             - <pack>: types.nodes.Summary.key: Field required
+
+src/context_graph/ontology/loader.py:159: OntologyError
+=========================== short test summary info ============================
+FAILED tests/unit/test_pack_composition.py::test_core_handlers_reject_foreign_owned_core_types
+1 failed, 22 passed in 1.22s

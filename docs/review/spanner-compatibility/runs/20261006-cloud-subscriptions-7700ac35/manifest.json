@@ -1,0 +1,38 @@
+{
+  "run_id": "20261006-cloud-subscriptions-7700ac35",
+  "phase": "subscriptions",
+  "backend": "real_spanner",
+  "commit": "6a30dcfd376d21b2732ffc36b8ed8847abb2a9de",
+  "harness_sha256": "f5508400df2fa96e70bff7b14bb1f99091cb503e0f9a68e855837c3b843a2aa6",
+  "started_at": "2026-10-06T14:07:33.995390+00:00",
+  "target": {
+    "GOOGLE_CLOUD_PROJECT": "portiq-mvp",
+    "SPANNER_INSTANCE_ID": "engram-experiment",
+    "SPANNER_DATABASE_ID": "engram"
+  },
+  "authorization": "user explicitly confirmed existing engram DB disposable",
+  "auth": "explicit token SDK bootstrap; unmodified ADC startup not proved",
+  "credential_window_file_updated_at": "2026-10-06T13:30:10.327245+00:00",
+  "all_storage_ports": "spanner",
+  "fixture_reset": [
+    "GraphEdges",
+    "GraphNodes",
+    "ConsumerDeadLetters",
+    "ConsumerDeliveries",
+    "ConsumerCursors",
+    "ConsumerGroups",
+    "Events"
+  ],
+  "schema_changes": false,
+  "database_drop": false,
+  "provider_mode": "scripted LLM; local embedding if installed; no paid provider calls",
+  "max_phase_seconds": 600,
+  "phase_limits": {
+    "events": 18,
+    "shards": 16,
+    "worker_loops_at_once": 2,
+    "block_ms": 3000,
+    "pending_page_size": 3,
+    "synthetic_lost_commit_response": true
+  }
+}

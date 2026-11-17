@@ -1,0 +1,76 @@
+..................................F.....................ssssssssss...... [ 57%]
+......................................................                   [100%]
+=================================== FAILURES ===================================
+_ test_store_mutations_refuse_stale_epoch_before_application_access[graph_clear] _
+
+action = 'graph_clear'
+
+    @pytest.mark.asyncio
+    @pytest.mark.parametrize(
+        "action",
+        [
+            "append",
+            "graph_clear",
+            "graph_upsert",
+            "ensure_group",
+            "read_new",
+            "ack",
+            "dead_letter",
+            "claim",
+            "document_update",
+            "retention",
+            "dml",
+        ],
+    )
+    async def test_store_mutations_refuse_stale_epoch_before_application_access(action):
+        from datetime import UTC, datetime
+    
+        from context_graph.adapters.spanner.graph import SpannerGraphStore
+        from context_graph.adapters.spanner.log import SpannerEventLog, format_position
+        from context_graph.adapters.spanner.subscription import SpannerSubscription
+        from context_graph.ports.subscription import Delivery
+    
+        row = owner()
+        row[3] = 2
+        database = Database(Transaction(row))
+        graph = SpannerGraphStore(database, tenant_fence=FENCE)
+        ledger = SpannerEventLog(database, tenant_fence=FENCE)
+        subscription = SpannerSubscription(database, "g", "c", tenant_fence=FENCE)
+        position = format_position(datetime.now(UTC), 0, "event-1")
+        actions = {
+            "append": lambda: ledger.append_entry("event-1", "session-1"),
+            "graph_clear": graph._clear,
+            "graph_upsert": lambda: graph._upsert_nodes([(("Event", "event-1"), {})]),
+            "ensure_group": subscription.ensure_group,
+            "read_new": lambda: subscription.read_new(1, 0),
+            "ack": lambda: subscription.ack(position),
+            "dead_letter": lambda: subscription.dead_letter(Delivery(position, {}), 1),
+            "claim": subscription.claim_orphaned,
+            "document_update": lambda: ledger.set_document_fields("event-1", summary="changed"),
+            "retention": ledger._purge,
+            "dml": lambda: ledger._execute_updates([("DELETE FROM Events", {}, {})]),
+        }
+        with pytest.raises(TenantFenceError):
+>           await actions[action]()
+
+tests/unit/test_spanner_tenant_control.py:209: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/context_graph/adapters/spanner/graph.py:656: in _clear
+    await asyncio.to_thread(clear)
+/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/threads.py:25: in to_thread
+    return await loop.run_in_executor(None, func_call)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/Cellar/python@3.12/3.12.7_1/Frameworks/Python.framework/Versions/3.12/lib/python3.12/concurrent/futures/thread.py:58: in run
+    result = self.fn(*self.args, **self.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+    def clear() -> None:
+>       self._database.execute_partitioned_dml("DELETE FROM GraphEdges WHERE TRUE")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AttributeError: 'Database' object has no attribute 'execute_partitioned_dml'
+
+src/context_graph/adapters/spanner/graph.py:653: AttributeError
+=========================== short test summary info ============================
+FAILED tests/unit/test_spanner_tenant_control.py::test_store_mutations_refuse_stale_epoch_before_application_access[graph_clear]
+1 failed, 115 passed, 10 skipped in 2.35s

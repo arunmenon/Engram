@@ -43,6 +43,7 @@ import structlog
 from context_graph.domain.ontology import OntologyError
 from context_graph.ontology.evaluation import EvalReport, check_eval_sets, run_gate
 from context_graph.ontology.versioning import read_state, record_state
+from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.subscription import Delivery
 from context_graph.retrieval.artifacts import ArtifactRetriever
 from context_graph.worker.projection import ProjectionConsumer
@@ -162,12 +163,16 @@ class _RebuildConsumer(ProjectionConsumer):
         batch = self._buffer[:]
         try:
             await super()._flush_buffer()
+        except RuntimeFencedError:
+            raise
         except Exception:
             log.exception("ontology_rebuild_batch_failed", events=len(batch))
             for entry in batch:
                 self._buffer = [entry]
                 try:
                     await super()._flush_buffer()
+                except RuntimeFencedError:
+                    raise
                 except Exception:
                     log.exception("ontology_rebuild_event_failed", position=entry[0])
                     await self._dead_letter_message(entry[0], entry[1], 1)

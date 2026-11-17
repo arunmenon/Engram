@@ -1,0 +1,28 @@
+{
+  "kind": "local_pure_composition_substrate",
+  "started_at": "2026-10-07T12:16:02.554888+00:00",
+  "issues": [
+    34,
+    35,
+    42,
+    39
+  ],
+  "cloud_calls": false,
+  "head": "e778b4adfdab811c52b2172de75a14f1dbbb6597",
+  "source_sha256": {
+    "src/context_graph/domain/pack_bundle.py": "535b2907bf46dd174170cc24b072b27515c40395cc5a7f616a2dbec0490f9e07",
+    "src/context_graph/domain/ontology.py": "1fb71a842cbb1efd261425504d1157a1872537bdf6fc8af75b09317cf9725a26",
+    "src/context_graph/domain/pack_versioning.py": "c9f843a81f46afd7d60c544c0c26140d2da638bc68ced78633ba4cc05adc554b",
+    "src/context_graph/ontology/loader.py": "081215979669619711c4ce0806641121f50a1e5600dbd76de9992a4d705dd378",
+    "src/context_graph/ontology/runtime.py": "13fd8c4422426c215780ac6c20a1d4e3486532bcde596a29a17c5b4e0dcc9c68",
+    "src/context_graph/ontology/packs/user.pack.yaml": "d56c74af6aa1e612f1e56c1f38a82b02a79013e773e2bb26833791b70067238d",
+    "src/context_graph/settings.py": "3ee5f8695ebcac45e7faeb23bd017d00dc9be4e51514f425c36f817949b4057c",
+    "tests/unit/test_pack_composition.py": "ddfd7a1f2561fd33ab8284d0dab28aecb1917f12bce25704ce00fe69e26f7f44"
+  },
+  "scope": "Explicit optional built-in loader selection, immutable bundle/provider validation, version classification and schema/runtime cache regressions. No worker/retrieval enforcement claim.",
+  "limitations": [
+    "No tenant routing, API/user read gates, worker prompt/output changes or cloud acceptance.",
+    "Historical baseline scenario statuses unchanged."
+  ],
+  "run_id": "20261007-local-composition-substrate-01"
+}

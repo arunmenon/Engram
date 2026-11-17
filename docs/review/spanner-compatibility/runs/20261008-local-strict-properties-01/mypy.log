@@ -1,0 +1,6 @@
+src/context_graph/domain/ontology.py:346: error: Returning Any from function declared to return "dict[str, Any]"  [no-any-return]
+src/context_graph/domain/pack_projection.py:413: error: Call to untyped function "_strict_property" of "PackProjector" in typed context  [no-untyped-call]
+src/context_graph/domain/pack_projection.py:427: error: Function is missing a type annotation  [no-untyped-def]
+src/context_graph/domain/pack_projection.py:555: error: Call to untyped function "_strict_property" of "PackProjector" in typed context  [no-untyped-call]
+pyproject.toml: note: unused section(s): module = ['context_graph.adapters.gcs.*', 'context_graph.adapters.spanner.*', 'google.api_core.*', 'litellm', 'litellm.*', 'neo4j.*', 'redis.*', 'sentence_transformers', 'sentence_transformers.*']
+Found 4 errors in 2 files (checked 5 source files)

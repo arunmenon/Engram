@@ -1,0 +1,365 @@
+{
+  "format_version": 1,
+  "id": "pdlc-rejected-refinement",
+  "title": "Rejected relationships stay out of the retrieved path",
+  "story": "Rejected relationships stay out of the retrieved path. Run the saved questions against this isolated example graph. Expected answers are preserved from the existing tests. This verifies retrieval, not ingestion or extraction.",
+  "source_refs": [
+    "tests/unit/test_planning_journey.py::test_connected_paths_keep_edges_without_expanding_to_siblings"
+  ],
+  "pack_digest": "aa882fa31a865c3a6b2ffa1abc8d7ef7d609d244a50a2aa83100e99ea341d4cb",
+  "starting_state": {
+    "kind": "graph_fixture",
+    "nodes": [
+      {
+        "id": "db802bae-da0c-59cd-bd3f-cdf9ba7442fc",
+        "type": "Event",
+        "properties": {
+          "event_id": "db802bae-da0c-59cd-bd3f-cdf9ba7442fc",
+          "event_type": "pdlc.spec.changed",
+          "occurred_at": "2026-09-01T09:00:00+00:00",
+          "session_id": "planning",
+          "agent_id": "publisher",
+          "trace_id": "t",
+          "global_position": "1-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Spec:s|1",
+        "type": "Spec",
+        "properties": {
+          "node_id": "Spec:s|1",
+          "status": "draft",
+          "status_changed_at": "2026-09-01T09:00:00+00:00",
+          "doc_id": "s",
+          "version": "1",
+          "title": "Spec",
+          "node_type": "Spec",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:00:00+00:00"
+        }
+      },
+      {
+        "id": "2c13c90e-a483-5e38-a6a2-24a24817218d",
+        "type": "Event",
+        "properties": {
+          "event_id": "2c13c90e-a483-5e38-a6a2-24a24817218d",
+          "event_type": "pdlc.requirement.changed",
+          "occurred_at": "2026-09-01T09:00:00+00:00",
+          "session_id": "planning",
+          "agent_id": "publisher",
+          "trace_id": "t",
+          "global_position": "1-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Requirement:s|1|expiry",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|expiry",
+          "status": "proposed",
+          "status_changed_at": "2026-09-01T09:00:00+00:00",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "expiry",
+          "statement": "expiry",
+          "node_type": "Requirement",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:00:00+00:00"
+        }
+      },
+      {
+        "id": "6276026a-2a35-52c9-a687-f83f296c9b97",
+        "type": "Event",
+        "properties": {
+          "event_id": "6276026a-2a35-52c9-a687-f83f296c9b97",
+          "event_type": "pdlc.requirement.changed",
+          "occurred_at": "2026-09-01T09:00:00+00:00",
+          "session_id": "planning",
+          "agent_id": "publisher",
+          "trace_id": "t",
+          "global_position": "1-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "Requirement:s|1|unrelated",
+        "type": "Requirement",
+        "properties": {
+          "node_id": "Requirement:s|1|unrelated",
+          "status": "proposed",
+          "status_changed_at": "2026-09-01T09:00:00+00:00",
+          "spec_id": "s",
+          "spec_version": "1",
+          "local_id": "unrelated",
+          "statement": "unrelated",
+          "node_type": "Requirement",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:00:00+00:00"
+        }
+      },
+      {
+        "id": "b7507df8-bd65-561a-bf70-7f6f87a36b78",
+        "type": "Event",
+        "properties": {
+          "event_id": "b7507df8-bd65-561a-bf70-7f6f87a36b78",
+          "event_type": "pdlc.design.section_changed",
+          "occurred_at": "2026-09-01T09:00:00+00:00",
+          "session_id": "planning",
+          "agent_id": "publisher",
+          "trace_id": "t",
+          "global_position": "1-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "DesignElement:hld|tokens|1",
+        "type": "DesignElement",
+        "properties": {
+          "node_id": "DesignElement:hld|tokens|1",
+          "status": "draft",
+          "status_changed_at": "2026-09-01T09:00:00+00:00",
+          "doc_id": "hld",
+          "section_path": "tokens",
+          "version": "1",
+          "kind": "hld",
+          "body": "Token architecture",
+          "node_type": "DesignElement",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:00:00+00:00"
+        }
+      },
+      {
+        "id": "5f1f56b0-71a5-53d8-81eb-678c9ffe4e60",
+        "type": "Event",
+        "properties": {
+          "event_id": "5f1f56b0-71a5-53d8-81eb-678c9ffe4e60",
+          "event_type": "pdlc.design.section_changed",
+          "occurred_at": "2026-09-01T09:00:00+00:00",
+          "session_id": "planning",
+          "agent_id": "publisher",
+          "trace_id": "t",
+          "global_position": "1-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "DesignElement:lld|storage|1",
+        "type": "DesignElement",
+        "properties": {
+          "node_id": "DesignElement:lld|storage|1",
+          "status": "draft",
+          "status_changed_at": "2026-09-01T09:00:00+00:00",
+          "doc_id": "lld",
+          "section_path": "storage",
+          "version": "1",
+          "kind": "lld",
+          "body": "Token storage",
+          "node_type": "DesignElement",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:00:00+00:00"
+        }
+      },
+      {
+        "id": "184e43ae-a5a1-56a3-a915-9c60c75f994b",
+        "type": "Event",
+        "properties": {
+          "event_id": "184e43ae-a5a1-56a3-a915-9c60c75f994b",
+          "event_type": "pdlc.design.section_changed",
+          "occurred_at": "2026-09-01T09:00:00+00:00",
+          "session_id": "planning",
+          "agent_id": "publisher",
+          "trace_id": "t",
+          "global_position": "1-0",
+          "keywords": [],
+          "access_count": 0
+        }
+      },
+      {
+        "id": "DesignElement:other|unrelated|1",
+        "type": "DesignElement",
+        "properties": {
+          "node_id": "DesignElement:other|unrelated|1",
+          "status": "draft",
+          "status_changed_at": "2026-09-01T09:00:00+00:00",
+          "doc_id": "other",
+          "section_path": "unrelated",
+          "version": "1",
+          "kind": "hld",
+          "body": "Other design",
+          "node_type": "DesignElement",
+          "ontology_version": "sha256:11d2d04ace5faaf8",
+          "source_trust": "trusted",
+          "updated_at": "2026-09-01T09:00:00+00:00"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "source": "Spec:s|1",
+        "target": "db802bae-da0c-59cd-bd3f-cdf9ba7442fc",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Requirement:s|1|expiry",
+        "target": "2c13c90e-a483-5e38-a6a2-24a24817218d",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Requirement:s|1|expiry",
+        "target": "Spec:s|1",
+        "type": "REFINES",
+        "properties": {
+          "confidence": 1.0,
+          "link_status": "confirmed",
+          "method": "declared",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "Requirement:s|1|unrelated",
+        "target": "6276026a-2a35-52c9-a687-f83f296c9b97",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "Requirement:s|1|unrelated",
+        "target": "Spec:s|1",
+        "type": "REFINES",
+        "properties": {
+          "confidence": 1.0,
+          "link_status": "confirmed",
+          "method": "declared",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "DesignElement:hld|tokens|1",
+        "target": "b7507df8-bd65-561a-bf70-7f6f87a36b78",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "DesignElement:hld|tokens|1",
+        "target": "Requirement:s|1|expiry",
+        "type": "REFINES",
+        "properties": {
+          "confidence": 1.0,
+          "link_status": "confirmed",
+          "method": "declared",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "DesignElement:lld|storage|1",
+        "target": "5f1f56b0-71a5-53d8-81eb-678c9ffe4e60",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "DesignElement:lld|storage|1",
+        "target": "Requirement:s|1|expiry",
+        "type": "REFINES",
+        "properties": {
+          "confidence": 1.0,
+          "link_status": "rejected",
+          "method": "declared",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "DesignElement:lld|storage|1",
+        "target": "Requirement:s|1|unrelated",
+        "type": "REFINES",
+        "properties": {
+          "confidence": 1.0,
+          "link_status": "confirmed",
+          "method": "declared",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "DesignElement:lld|storage|1",
+        "target": "DesignElement:hld|tokens|1",
+        "type": "REFINES",
+        "properties": {
+          "confidence": 1.0,
+          "link_status": "confirmed",
+          "method": "declared",
+          "source_trust": "trusted"
+        }
+      },
+      {
+        "source": "DesignElement:other|unrelated|1",
+        "target": "184e43ae-a5a1-56a3-a915-9c60c75f994b",
+        "type": "DERIVED_FROM",
+        "properties": {}
+      },
+      {
+        "source": "DesignElement:other|unrelated|1",
+        "target": "Requirement:s|1|expiry",
+        "type": "REFINES",
+        "properties": {
+          "confidence": 1.0,
+          "link_status": "confirmed",
+          "method": "declared",
+          "source_trust": "trusted"
+        }
+      }
+    ],
+    "retrieval_limits": {
+      "default_max_depth": 5,
+      "seed_limit": 20,
+      "neighbor_limit": 100
+    }
+  },
+  "events": [],
+  "checks": [
+    {
+      "id": "query-1",
+      "description": "trace DesignElement:hld|tokens|1",
+      "source": "tests/unit/test_planning_journey.py::test_connected_paths_keep_edges_without_expanding_to_siblings",
+      "kind": "retrieval",
+      "after_step": null,
+      "expected": {
+        "text": "trace DesignElement:hld|tokens|1",
+        "seed": "DesignElement:hld|tokens|1",
+        "intent": "trace",
+        "required": [
+          "DesignElement:lld|storage|1",
+          "Requirement:s|1|expiry"
+        ],
+        "forbidden": [],
+        "query_options": {
+          "max_nodes": 100,
+          "max_depth": null,
+          "include_untrusted": false
+        },
+        "forbidden_edges": [
+          [
+            "REFINES",
+            "DesignElement:lld|storage|1",
+            "Requirement:s|1|expiry"
+          ]
+        ]
+      }
+    }
+  ],
+  "trusted_producers": [
+    "publisher"
+  ],
+  "expectations_reviewed": true
+}

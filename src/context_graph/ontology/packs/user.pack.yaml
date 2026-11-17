@@ -8,10 +8,14 @@
 
 pack:
   name: user
-  version: 1.0.0
+  version: 1.1.0
   requires: [core>=1.0]
   owner: engram
   description: Persistent user profile, preferences, skills and behaviour.
+
+# Specialized engine implementation; declaration enables it only in this pack.
+processing:
+  enabled: [user.extract.v1]
 
 types:
   nodes:

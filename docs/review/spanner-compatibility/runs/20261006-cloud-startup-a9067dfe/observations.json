@@ -1,0 +1,62 @@
+{
+  "checks": [
+    {
+      "name": "startup_adc",
+      "scenarios": [
+        "BOOT-02",
+        "OPS-03"
+      ],
+      "verdict": "blocked",
+      "error_type": "RuntimeError",
+      "error": "ordinary ADC unavailable in this environment; token bootstrap distinct",
+      "seconds": 14.69
+    },
+    {
+      "name": "startup_invalid_token",
+      "scenarios": [
+        "BOOT-02",
+        "OPS-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "mode": "invalid_token",
+        "served_health": false,
+        "exit_code": 3,
+        "writes": 0,
+        "database_creation": false
+      },
+      "seconds": 5.66
+    },
+    {
+      "name": "startup_missing_database",
+      "scenarios": [
+        "BOOT-03",
+        "OPS-03"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "mode": "missing_database",
+        "served_health": false,
+        "exit_code": 3,
+        "writes": 0,
+        "database_creation": false
+      },
+      "seconds": 5.05
+    },
+    {
+      "name": "startup_dimension_mismatch",
+      "scenarios": [
+        "BOOT-03",
+        "OPS-03"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "dimension_mismatch was accepted and served healthy",
+      "seconds": 6.23
+    }
+  ],
+  "resets": [],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

@@ -30,18 +30,19 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Sequence
 
 # Mutations per row, from adapters/spanner/schema.py.
-# Events: 19 columns written; indexes EventsByShardPosition (3 + key 1),
+# Events: 20 columns written; indexes EventsByShardPosition (3 + key 1),
 # EventsBySession (3 + 1), EventsBySessionTag (2 + 1), and the EventsText
 # search index (tokens + key + stored session_tag).
-EVENT_ROW_MUTATIONS = 19 + 4 + 4 + 3 + 3
-# GraphNodes: 4 columns written; GraphNodesBySession (label, session_id,
-# node_id, props); GraphNodesByEmbedding (embedding + key).
-NODE_ROW_MUTATIONS = 4 + 4 + 3
+EVENT_ROW_MUTATIONS = 20 + 4 + 4 + 3 + 3
+# Conservative coexistence budget: base/generated values, session index,
+# retained legacy vector index, filtered Entity index with stored membership.
+# Allow removal and replacement of entries; this is not SDK-internal accounting.
+NODE_ROW_MUTATIONS = 2 * (6 + 4 + 3 + 4)
 # GraphEdges: 6 columns; GraphEdgesByTarget and GraphEdgesByType each hold
 # the 5 key columns and props.
 EDGE_ROW_MUTATIONS = 6 + 6 + 6
 # A deleted row: the row and one entry per index
-NODE_DELETE_MUTATIONS = 1 + 2
+NODE_DELETE_MUTATIONS = 1 + 3
 EDGE_DELETE_MUTATIONS = 1 + 2
 # Fixed per-row overhead for keys and column headers, in bytes
 ROW_OVERHEAD_BYTES = 256
@@ -69,17 +70,31 @@ def size_of(value: Any) -> int:
     return len(orjson.dumps(value, default=str))
 
 
-def event_row_cost(document: dict[str, Any] | None) -> tuple[int, int]:
+def event_row_cost(
+    document: dict[str, Any] | None, acceptance: dict[str, Any] | None = None
+) -> tuple[int, int]:
     """(mutations, bytes) of one Events row; the text columns are indexed again."""
     doc = document or {}
     text = sum(size_of(doc.get(name)) for name in ("summary", "keywords", "search_text"))
-    return EVENT_ROW_MUTATIONS, size_of(document) + 2 * text + ROW_OVERHEAD_BYTES
+    return EVENT_ROW_MUTATIONS, size_of(document) + size_of(
+        acceptance
+    ) + 2 * text + ROW_OVERHEAD_BYTES
 
 
 def node_row_cost(key: tuple[str, str], props: dict[str, Any], embedding: Any) -> tuple[int, int]:
     """(mutations, bytes) of one GraphNodes row; props are stored again by the session index."""
     keys = size_of(key[0]) + size_of(key[1])
-    return NODE_ROW_MUTATIONS, 2 * (keys + size_of(props) + size_of(embedding)) + ROW_OVERHEAD_BYTES
+    session = size_of(props.get("session_id"))
+    membership = 8
+    size = (
+        4 * keys
+        + 2 * size_of(props)
+        + 3 * size_of(embedding)
+        + 2 * session
+        + 2 * membership
+        + 4 * ROW_OVERHEAD_BYTES
+    )
+    return NODE_ROW_MUTATIONS, size
 
 
 def edge_row_cost(key: Any, props: dict[str, Any]) -> tuple[int, int]:

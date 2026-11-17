@@ -1,0 +1,28 @@
+{
+  "kind": "local_acceptance_cloud_harness_preflight",
+  "cloud_calls": false,
+  "issues": [
+    34,
+    37,
+    43,
+    41
+  ],
+  "source_sha256": {
+    "scripts/engram_spanner_acceptance_cases.py": "8aecd436093ded53bc1b0c352983ce7298e1461626e872e116f4d7259fc82957",
+    "scripts/engram_spanner_tenant_control.py": "f1d910b4436f8384f83dea52c4c6beb4f92f991e246f95c8ac23bf5aef7f0bef",
+    "scripts/engram_spanner_tenant_control_cases.py": "45435dbbbc669eb709584856de4fb9b264d960611632467c436b8c27e689513b",
+    "src/context_graph/adapters/spanner/event_acceptance.py": "cb03180047da193abf9c10e839117c44ebc903f96c5cc575cbbc054fa9155e76",
+    "tests/unit/test_tenant_control_harness_preflight.py": "1a8e0c2eff7ff49e96fddaa12a6788ae9f39910a97e8908ea402049e6da2268e"
+  },
+  "command": "pytest -q tests/unit/test_tenant_control_harness_preflight.py tests/unit/test_spanner_event_acceptance.py",
+  "additional_checks": [
+    "python compile harness",
+    "ruff harness tests"
+  ],
+  "review_fixes": [
+    "Validate expected owneridentity/allowedepoch before every transition includingcleanup",
+    "Join concurrentexceptions and shield casecancellation until SDKthreads+cleanupsettle",
+    "Existingfenceharness nowusesauthenticated immutable writer"
+  ],
+  "run_id": "20261007-local-acceptance-harness-02"
+}

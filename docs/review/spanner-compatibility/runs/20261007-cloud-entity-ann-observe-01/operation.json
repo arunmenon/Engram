@@ -1,0 +1,47 @@
+{
+  "name": "projects/portiq-mvp/instances/engram-experiment/databases/engram/operations/engram_ann_68b0c66ce3b944bdafbef6dbdd517a25",
+  "metadata": {
+    "@type": "type.googleapis.com/google.spanner.admin.database.v1.UpdateDatabaseDdlMetadata",
+    "database": "projects/portiq-mvp/instances/engram-experiment/databases/engram",
+    "statements": [
+      "ALTER TABLE GraphNodes ADD COLUMN entity_embedding_member BOOL AS (IF(label = 'Entity', TRUE, NULL)) HIDDEN",
+      "CREATE VECTOR INDEX GraphEntitiesByEmbeddingV1 ON GraphNodes(embedding) STORING (entity_embedding_member) WHERE embedding IS NOT NULL AND entity_embedding_member IS NOT NULL OPTIONS (\n  distance_type = 'COSINE'\n)"
+    ],
+    "commit_timestamps": [
+      "2026-10-07T13:08:39.290263Z",
+      "2026-10-07T13:09:06.885576Z"
+    ],
+    "progress": [
+      {
+        "progress_percent": 100,
+        "start_time": "2026-10-07T13:08:34.189251Z",
+        "end_time": "2026-10-07T13:08:39.290263Z"
+      },
+      {
+        "progress_percent": 100,
+        "start_time": "2026-10-07T13:08:39.290263Z",
+        "end_time": "2026-10-07T13:09:06.885576Z"
+      }
+    ],
+    "actions": [
+      {
+        "action": "ALTER",
+        "entity_type": "TABLE",
+        "entity_names": [
+          "GraphNodes"
+        ]
+      },
+      {
+        "action": "CREATE",
+        "entity_type": "VECTOR INDEX",
+        "entity_names": [
+          "GraphEntitiesByEmbeddingV1"
+        ]
+      }
+    ]
+  },
+  "done": true,
+  "response": {
+    "@type": "type.googleapis.com/google.protobuf.Empty"
+  }
+}

@@ -1,0 +1,64 @@
+# Test-only unfamiliar pack for generic expansion and worker disposition.
+pack: {name: expansion, version: 0.1.0, requires: [core>=1.1]}
+types:
+  nodes:
+    ExpansionRecord:
+      key: [group, item]
+      interfaces: [Sourced, Lifecycled]
+      properties: {group: string, item: string, paths: 'list<string>'}
+      lifecycle: {initial: new, states: [new, ready]}
+  edges:
+    EXPANSION_LINK: {from: [ExpansionRecord], to: [ExpansionRecord]}
+events:
+  expansion.recorded:
+    payload_contract:
+      version: 1
+      properties:
+        groups: {type: array, required: true, items: {type: string}}
+        items: {type: array, required: true, items: {type: string}}
+  expansion.linked:
+    payload_contract:
+      version: 1
+      properties: {sources: {type: array, required: true, items: {type: string}}, targets: {type: array, required: true, items: {type: string}}}
+  expansion.stubbed:
+    payload_contract:
+      version: 1
+      properties: {sources: {type: array, required: true, items: {type: string}}, targets: {type: array, required: true, items: {type: string}}}
+  expansion.looked_up:
+    payload_contract:
+      version: 1
+      properties:
+        items: {type: array, required: true, items: {type: string}}
+        target_group: {type: string, required: true}
+  expansion.prefixed:
+    payload_contract:
+      version: 1
+      properties:
+        items: {type: array, required: true, items: {type: string}}
+        prefixes: {type: array, required: true, items: {type: string}}
+projection:
+  - event: expansion.recorded
+    upsert:
+      - type: ExpansionRecord
+        key: {group: '$.groups[*]', item: '$.items[*]'}
+    transition: {type: ExpansionRecord, to: ready}
+  - event: expansion.linked
+    edges:
+      - type: EXPANSION_LINK
+        from: {node_id: '$.sources[*]'}
+        to: {node_id: '$.targets[*]'}
+  - event: expansion.stubbed
+    edges:
+      - type: EXPANSION_LINK
+        from: {type: ExpansionRecord, key: {group: left, item: '$.sources[*]'}}
+        to: {type: ExpansionRecord, key: {group: right, item: '$.targets[*]'}}
+  - event: expansion.looked_up
+    edges:
+      - type: EXPANSION_LINK
+        from: {type: ExpansionRecord, key: {group: left, item: '$.items[*]'}}
+        to: {type: ExpansionRecord, match: {group: $.target_group}}
+  - event: expansion.prefixed
+    edges:
+      - type: EXPANSION_LINK
+        from: {type: ExpansionRecord, key: {group: left, item: '$.items[*]'}}
+        to: {type: ExpansionRecord, match_any_prefix: {paths: '$.prefixes[*]'}}

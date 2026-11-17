@@ -1,0 +1,69 @@
+{
+  "checks": [
+    {
+      "name": "evaluation_pending_explicit409_auto_metadata_TTL_read_error_and_recovery",
+      "scenarios": [
+        "ART-05",
+        "ONT-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "intent": "trace",
+        "pending": [
+          "pdlc"
+        ],
+        "explicit_pending_status": 409,
+        "auto_status": 200,
+        "auto_pending_metadata": [
+          "pdlc"
+        ],
+        "stale_within_TTL": [
+          "pdlc"
+        ],
+        "clear_after_TTL": [],
+        "explicit_clear_status": 200,
+        "read_error_retains_last": [],
+        "first_read_error": "RuntimeError",
+        "synthetic_fault_calls": 2,
+        "recovered_pending": [
+          "pdlc"
+        ],
+        "scope": "fixture state transitions, real Spanner reads/writes; successful actual evaluation separately recorded"
+      },
+      "seconds": 4.74
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 15
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 8
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 4
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

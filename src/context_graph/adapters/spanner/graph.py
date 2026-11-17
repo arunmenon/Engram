@@ -26,7 +26,9 @@ Source: ADR-0009, ADR-0018, ADR-0019, spanner-design-brief.md D4/G8/G9/G10
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
+
+import structlog
 
 from context_graph.adapters.errors import translate_errors
 from context_graph.adapters.graph_ops import (
@@ -49,14 +51,20 @@ from context_graph.adapters.spanner.commits import (
     group_by_key,
     node_row_cost,
 )
+from context_graph.adapters.spanner.entity_index import ENTITY_VECTOR_INDEX
 from context_graph.adapters.spanner.errors import translate_spanner_error
 from context_graph.adapters.spanner.log import json_param, json_value
+from context_graph.adapters.spanner.tenant_control import tenant_snapshot
+from context_graph.ports.errors import RuntimeFencedError
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
+    from context_graph.adapters.spanner.tenant_control import TenantFence
     from context_graph.ports.pack_graph import StateChange
     from context_graph.settings import DecaySettings, PPRSettings
+
+log = structlog.get_logger(__name__)
 
 NODE_COLUMNS = ["label", "node_id", "props", "embedding"]
 EDGE_COLUMNS = ["src_label", "src_id", "edge_type", "dst_label", "dst_id", "props"]
@@ -148,6 +156,8 @@ class SpannerGraphStore(GraphOperations):
         decay_settings: DecaySettings | None = None,
         ppr_settings: PPRSettings | None = None,
         commit_budget: CommitBudget | None = None,
+        tenant_fence: TenantFence | None = None,
+        tenant_read_operation: Literal["read", "processing"] = "read",
     ) -> None:
         super().__init__(
             decay_settings=decay_settings,
@@ -155,6 +165,12 @@ class SpannerGraphStore(GraphOperations):
             provenance_source="spanner",
         )
         self._database = database
+        self._tenant_fence = tenant_fence
+        if tenant_read_operation not in ("read", "processing"):
+            raise ValueError("Unknown tenant read operation")
+        self._tenant_read_operation = tenant_read_operation
+        if tenant_fence is not None:
+            tenant_fence.check_database(database)
         self._dimensions = embedding_dimensions
         self._budget = commit_budget or CommitBudget()
         self._reads = SpannerGraphReads(self)
@@ -167,7 +183,9 @@ class SpannerGraphStore(GraphOperations):
         self, sql: str, params: dict[str, Any] | None = None, types: dict[str, Any] | None = None
     ) -> list[list[Any]]:
         def query() -> list[list[Any]]:
-            with self._database.snapshot() as snapshot:
+            with tenant_snapshot(
+                self._database, self._tenant_fence, operation=self._tenant_read_operation
+            ) as snapshot:
                 return [
                     list(row) for row in snapshot.execute_sql(sql, params=params, param_types=types)
                 ]
@@ -179,13 +197,19 @@ class SpannerGraphStore(GraphOperations):
         self, table: str, columns: list[str], keyset: Any, index: str = ""
     ) -> list[list[Any]]:
         def read() -> list[list[Any]]:
-            with self._database.snapshot() as snapshot:
+            with tenant_snapshot(
+                self._database, self._tenant_fence, operation=self._tenant_read_operation
+            ) as snapshot:
                 return [list(row) for row in snapshot.read(table, columns, keyset, index=index)]
 
         rows: list[list[Any]] = await asyncio.to_thread(read)
         return rows
 
     async def _transact(self, fn: Any) -> Any:
+        if self._tenant_fence is not None:
+            return await asyncio.to_thread(
+                self._tenant_fence.run, self._database, fn, operation="processing"
+            )
         return await asyncio.to_thread(self._database.run_in_transaction, fn)
 
     async def _write_in_commits(
@@ -214,7 +238,12 @@ class SpannerGraphStore(GraphOperations):
         return results
 
     def _node_rows(
-        self, nodes: dict[NodeKey, dict[str, Any]], keys: Any, enforce: bool
+        self,
+        nodes: dict[NodeKey, dict[str, Any]],
+        keys: Any,
+        enforce: bool,
+        previous: dict[NodeKey, dict[str, Any]] | None = None,
+        previous_embeddings: dict[NodeKey, list[float] | None] | None = None,
     ) -> list[list[Any]]:
         """GraphNodes rows for ``keys``; with ``enforce``, checked against the budget."""
         rows = []
@@ -223,7 +252,16 @@ class SpannerGraphStore(GraphOperations):
             props = nodes[(label, node_id)]
             embedding = self._embedding_column(label, props)
             rows.append([label, node_id, json_param(props), embedding])
-            costs.append(node_row_cost((label, node_id), props, embedding))
+            mutations, size = node_row_cost((label, node_id), props, embedding)
+            if previous and (old := previous.get((label, node_id))) is not None:
+                old_embedding = (
+                    previous_embeddings.get((label, node_id))
+                    if previous_embeddings is not None
+                    else old.get("embedding")
+                )
+                _, old_size = node_row_cost((label, node_id), old, old_embedding)
+                size += old_size
+            costs.append((mutations, size))
         if enforce:
             self._budget.check(costs)
         return rows
@@ -297,19 +335,27 @@ class SpannerGraphStore(GraphOperations):
         def write(run: list[tuple[NodeKey, dict[str, Any]]], enforce: bool) -> Any:
             def work(transaction: Any) -> None:
                 keys = sorted({key for key, _updates in run})
-                current = {
-                    (label, node_id): json_value(props)
-                    for label, node_id, props in transaction.read(
+                stored = list(
+                    transaction.read(
                         "GraphNodes",
-                        ["label", "node_id", "props"],
+                        ["label", "node_id", "props", "embedding"],
                         KeySet(keys=[list(key) for key in keys]),
                     )
+                )
+                current = {
+                    (label, node_id): json_value(props) for label, node_id, props, _ in stored
+                }
+                previous = {key: dict(props) for key, props in current.items()}
+                previous_embeddings = {
+                    (label, node_id): embedding for label, node_id, _, embedding in stored
                 }
                 for (label, node_id), updates in run:
                     props = current.setdefault((label, node_id), {key_property(label): node_id})
                     apply_set(props, updates)
                 transaction.insert_or_update(
-                    "GraphNodes", NODE_COLUMNS, self._node_rows(current, current, enforce)
+                    "GraphNodes",
+                    NODE_COLUMNS,
+                    self._node_rows(current, current, enforce, previous, previous_embeddings),
                 )
 
             return work
@@ -330,13 +376,19 @@ class SpannerGraphStore(GraphOperations):
         def write(run: list[tuple[NodeKey, dict[str, Any], dict[str, Any]]], enforce: bool) -> Any:
             def work(transaction: Any) -> None:
                 keys = sorted({key for key, _u, _d in run})
-                current = {
-                    (label, node_id): json_value(props)
-                    for label, node_id, props in transaction.read(
+                stored = list(
+                    transaction.read(
                         "GraphNodes",
-                        ["label", "node_id", "props"],
+                        ["label", "node_id", "props", "embedding"],
                         KeySet(keys=[list(key) for key in keys]),
                     )
+                )
+                current = {
+                    (label, node_id): json_value(props) for label, node_id, props, _ in stored
+                }
+                previous = {key: dict(props) for key, props in current.items()}
+                previous_embeddings = {
+                    (label, node_id): embedding for label, node_id, _, embedding in stored
                 }
                 for (label, node_id), updates, defaults in run:
                     props = current.get((label, node_id))
@@ -347,7 +399,9 @@ class SpannerGraphStore(GraphOperations):
                         }
                     apply_set(props, updates)
                 transaction.insert_or_update(
-                    "GraphNodes", NODE_COLUMNS, self._node_rows(current, current, enforce)
+                    "GraphNodes",
+                    NODE_COLUMNS,
+                    self._node_rows(current, current, enforce, previous, previous_embeddings),
                 )
 
             return work
@@ -370,13 +424,19 @@ class SpannerGraphStore(GraphOperations):
         def write(run: list[StateChange], enforce: bool) -> Any:
             def work(transaction: Any) -> int:
                 keys = sorted({(c.ref.label, c.ref.key) for c in run})
-                current = {
-                    (label, node_id): json_value(props)
-                    for label, node_id, props in transaction.read(
+                stored = list(
+                    transaction.read(
                         "GraphNodes",
-                        ["label", "node_id", "props"],
+                        ["label", "node_id", "props", "embedding"],
                         KeySet(keys=[list(key) for key in keys]),
                     )
+                )
+                current = {
+                    (label, node_id): json_value(props) for label, node_id, props, _ in stored
+                }
+                previous = {key: dict(props) for key, props in current.items()}
+                previous_embeddings = {
+                    (label, node_id): embedding for label, node_id, _, embedding in stored
                 }
                 changed: set[NodeKey] = set()
                 count = 0
@@ -391,7 +451,9 @@ class SpannerGraphStore(GraphOperations):
                     changed.add(key)
                     count += 1
                 if changed:
-                    rows = self._node_rows(current, sorted(changed), enforce)
+                    rows = self._node_rows(
+                        current, sorted(changed), enforce, previous, previous_embeddings
+                    )
                     transaction.update("GraphNodes", NODE_COLUMNS, rows)
                 return count
 
@@ -597,6 +659,13 @@ class SpannerGraphStore(GraphOperations):
         await self._delete_edge_rows([[s[0], s[1], t, d[0], d[1]] for s, t, d in keys])
 
     async def _clear(self) -> None:
+        if self._tenant_fence is not None:
+            from context_graph.adapters.spanner.tenant_control import TenantFenceError
+
+            # Partitioned DML cannot atomically read the ownership/epoch row.
+            # Require a bounded, fenced rebuild implementation before enabling it.
+            raise TenantFenceError("Tenant graph clear requires fenced rebuild support")
+
         def clear() -> None:
             self._database.execute_partitioned_dml("DELETE FROM GraphEdges WHERE TRUE")
             self._database.execute_partitioned_dml("DELETE FROM GraphNodes WHERE TRUE")
@@ -620,8 +689,9 @@ class SpannerGraphStore(GraphOperations):
         rows = await self._query(
             "SELECT node_id, props, APPROX_COSINE_DISTANCE(embedding, @query, "
             f"options => JSON '{VECTOR_SEARCH_OPTIONS}') AS distance "
-            "FROM GraphNodes@{FORCE_INDEX=GraphNodesByEmbedding} "
-            "WHERE embedding IS NOT NULL ORDER BY distance LIMIT @top_k",
+            f"FROM GraphNodes@{{FORCE_INDEX={ENTITY_VECTOR_INDEX}}} "
+            "WHERE embedding IS NOT NULL AND entity_embedding_member IS NOT NULL "
+            "ORDER BY distance LIMIT @top_k",
             {"query": [float(v) for v in query_embedding], "top_k": top_k},
             {"query": param_types.Array(param_types.FLOAT64), "top_k": param_types.INT64},
         )
@@ -631,6 +701,14 @@ class SpannerGraphStore(GraphOperations):
             if score < threshold:
                 continue
             values = json_value(props)
+            if (
+                not isinstance(values, dict)
+                or not isinstance(values.get("entity_id"), str)
+                or not values["entity_id"]
+                or values["entity_id"] != node_id
+            ):
+                log.warning("spanner_entity_ann_invalid_identity")
+                continue
             results.append(
                 {
                     "entity_id": node_id,
@@ -644,6 +722,8 @@ class SpannerGraphStore(GraphOperations):
     async def health_ping(self) -> bool:
         try:
             await self._query("SELECT 1")
+        except RuntimeFencedError:
+            raise
         except Exception:  # noqa: BLE001
             return False
         return True

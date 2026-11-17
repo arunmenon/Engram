@@ -1,0 +1,52 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> src/context_graph/adapters/spanner/log.py:25:1
+   |
+23 |   """
+24 |
+25 | / from __future__ import annotations
+26 | |
+27 | | import asyncio
+28 | | import copy
+29 | | import json
+30 | | import zlib
+31 | | from dataclasses import dataclass
+32 | | from datetime import UTC, datetime, timedelta
+33 | | from typing import TYPE_CHECKING, Any, Literal
+34 | |
+35 | | import orjson
+36 | | import structlog
+37 | |
+38 | | from context_graph.adapters.errors import translate_errors
+39 | | from context_graph.adapters.spanner.commits import CommitBudget, event_row_cost
+40 | | from context_graph.adapters.spanner.errors import translate_spanner_error
+41 | | from context_graph.adapters.spanner.tenant_control import tenant_snapshot
+42 | | from context_graph.domain.event_acceptance import (
+43 | |     EventInterpretation,
+44 | |     AdmissionContext,
+45 | |     EventAcceptance,
+46 | |     EventInterpretationError,
+47 | |     stamp_acceptance,
+48 | |     validate_accepted_document,
+49 | | )
+50 | | from context_graph.domain.keyword_search import event_search_text, query_terms
+51 | | from context_graph.domain.models import Event
+52 | | from context_graph.ports.errors import ConflictError, InvalidRequestError, RuntimeFencedError
+53 | | from context_graph.ports.event_log import ImportedEvent, LogEntry
+54 | | from context_graph.ports.event_store import AppendOutcome
+55 | | from context_graph.settings import KeywordSearchSettings
+   | |________________________________________________________^
+56 |
+57 |   if TYPE_CHECKING:
+   |
+help: Organize imports
+   |
+42 | from context_graph.domain.event_acceptance import (
+   -     EventInterpretation,
+43 |     AdmissionContext,
+44 |     EventAcceptance,
+45 +     EventInterpretation,
+46 |     EventInterpretationError,
+   |
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.

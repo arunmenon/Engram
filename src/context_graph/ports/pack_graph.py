@@ -40,11 +40,13 @@ class NodeWrite:
 
     ``defaults`` are set only when the node is created (a lifecycle's
     initial state). Properties whose value is None are not written.
+    Explicit remove_properties are applied after defaults and sets.
     """
 
     ref: NodeRef
     properties: dict[str, Any] = field(default_factory=dict)
     defaults: dict[str, Any] = field(default_factory=dict)
+    remove_properties: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -54,7 +56,7 @@ class EdgeWrite:
     Nothing is written when either endpoint does not exist. With
     ``create_only``, ``properties`` are set only when the edge is created:
     an existing edge (a link a tool declared, or a person rejected) is left
-    as it is.
+    as it is. Explicit removals cannot currently be combined with create_only.
     """
 
     edge_type: str
@@ -62,6 +64,7 @@ class EdgeWrite:
     target: NodeRef
     properties: dict[str, Any] = field(default_factory=dict)
     create_only: bool = False
+    remove_properties: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)

@@ -1,0 +1,132 @@
+{
+  "scenarios": [
+    {
+      "scenario_id": "HOOK-01",
+      "status": "passed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-webhook-handlers-53644154/observations.json",
+      "issue_numbers": "17"
+    },
+    {
+      "scenario_id": "HOOK-02",
+      "status": "passed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-webhook-handlers-53644154/observations.json",
+      "issue_numbers": "17"
+    },
+    {
+      "scenario_id": "SEARCH-01",
+      "status": "passed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-keyword-features-601ffec7/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "SUB-01",
+      "status": "passed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-subscriptions-7700ac35/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "USER-02",
+      "status": "passed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-user-delete-recheck-fb617e0d/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "FB-01",
+      "status": "passed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-user-feedback-09524f75/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "ING-04",
+      "status": "failed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-subscriptions-7700ac35/observations.json",
+      "issue_numbers": "28"
+    },
+    {
+      "scenario_id": "OPS-04",
+      "status": "failed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-subscriptions-7700ac35/observations.json",
+      "issue_numbers": "28"
+    },
+    {
+      "scenario_id": "OPS-03",
+      "status": "failed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-subscriptions-7700ac35/observations.json",
+      "issue_numbers": "14;28"
+    },
+    {
+      "scenario_id": "ENR-01",
+      "status": "failed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-ordering-races-28efabf7/observations.json",
+      "issue_numbers": "29"
+    },
+    {
+      "scenario_id": "ENR-02",
+      "status": "failed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-enrichment-cases-b8ea023e/observations.json",
+      "issue_numbers": "14"
+    },
+    {
+      "scenario_id": "EXT-03",
+      "status": "failed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-ordering-races-28efabf7/observations.json",
+      "issue_numbers": "10;29"
+    },
+    {
+      "scenario_id": "PROJ-01",
+      "status": "failed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-ordering-races-28efabf7/observations.json",
+      "issue_numbers": "18;30"
+    },
+    {
+      "scenario_id": "LED-02",
+      "status": "failed",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-ordering-races-28efabf7/observations.json",
+      "issue_numbers": "18;19;21;30"
+    },
+    {
+      "scenario_id": "USER-01",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-user-feedback-09524f75/observations.json",
+      "issue_numbers": "20"
+    },
+    {
+      "scenario_id": "MEM-04",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-keyword-features-601ffec7/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "CONS-01",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-maintenance-99735438/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "CONS-02",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-maintenance-99735438/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "LIFE-02",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-archive-restore-4eb8c0ac/observations.json",
+      "issue_numbers": "19"
+    },
+    {
+      "scenario_id": "APP-05",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-live-pack-463a33c4/observations.json",
+      "issue_numbers": ""
+    },
+    {
+      "scenario_id": "PEXT-01",
+      "status": "not_run",
+      "evidence": "docs/review/spanner-compatibility/runs/20261006-cloud-pack-policy-85dedd72/observations.json",
+      "issue_numbers": "5"
+    }
+  ],
+  "summary": "Verified cloud coverage checkpoint; no compatibility sign-off",
+  "cleanup": "No cloud calls; owned runner processes finished, databases/schema retained; SDK remote session cleanup remains unverified under #26"
+}

@@ -35,8 +35,19 @@ from dataclasses import dataclass, field
 from typing import Any, Literal
 
 import regex
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    field_validator,
+    model_serializer,
+    model_validator,
+)
 
+from context_graph.domain.pack_contracts import (
+    PayloadContract,  # noqa: TC001 - Pydantic runtime type
+)
 from context_graph.domain.pack_expressions import (
     Call,
     Concat,
@@ -46,6 +57,9 @@ from context_graph.domain.pack_expressions import (
     Path,
     compile_value,
     is_expression,
+)
+from context_graph.domain.pack_expressions import (
+    Literal as ExpressionLiteral,
 )
 
 WILDCARD = "*"
@@ -298,6 +312,8 @@ class TypesSection(_Strict):
 
 
 class EventDef(_Strict):
+    payload_contract: PayloadContract | None = None
+    handling: Literal["processed", "ledger_only", "unsupported"] | None = None
     aliases: dict[str, str] = Field(default_factory=dict)
     note: str | None = None
 
@@ -306,6 +322,31 @@ class EventDef(_Strict):
 
 # A value in a rule: a constant, or an expression string ($.x, $event.x, fn(...))
 RuleValue = str | int | float | bool
+
+
+class PropertyUpdateDef(_Strict):
+    """Opt-in property contract; the first engine supports literals/direct paths."""
+
+    value: RuleValue | None
+    on_missing: Literal["preserve", "refuse"] = "preserve"
+    on_null: Literal["preserve", "clear", "refuse"] = "preserve"
+    select: Literal["value", "zip"] = "value"
+
+    @model_validator(mode="after")
+    def _supported_expression(self) -> PropertyUpdateDef:
+        if not isinstance(compile_value(self.value), (ExpressionLiteral, Path)):
+            raise ValueError("Strict properties support only literals and direct paths")
+        return self
+
+    @model_serializer(mode="wrap")
+    def _required_value(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        data: dict[str, Any] = handler(self)
+        # Explicit null is a required instruction, not an absent optional field.
+        data["value"] = self.value
+        return data
+
+
+PropertyRuleValue = RuleValue | PropertyUpdateDef
 
 
 class NodeRef(_Strict):
@@ -331,7 +372,7 @@ class NodeRef(_Strict):
 class UpsertDef(_Strict):
     type: str
     key: dict[str, RuleValue]
-    set: dict[str, RuleValue] = Field(default_factory=dict)
+    set: dict[str, PropertyRuleValue] = Field(default_factory=dict)
 
 
 class TransitionDef(_Strict):
@@ -355,7 +396,7 @@ class EdgeRuleDef(_Strict):
     to: NodeRef | None = None
     to_each: NodeRef | None = None
     to_latest: NodeRef | None = None
-    set: dict[str, RuleValue] = Field(default_factory=dict)
+    set: dict[str, PropertyRuleValue] = Field(default_factory=dict)
     when: str | None = None
 
     @model_validator(mode="after")
@@ -466,11 +507,28 @@ class LifecycleSection(_Strict):
     terminal_states_reduce_importance: list[str] = Field(default_factory=list)
 
 
+class ProcessingSection(_Strict):
+    """Exact versioned engine handlers; requirements do not enable processing."""
+
+    requires: list[str] = Field(default_factory=list, max_length=64)
+    enabled: list[str] = Field(default_factory=list, max_length=64)
+
+    @field_validator("requires", "enabled")
+    @classmethod
+    def _handler_ids(cls, values: list[str]) -> list[str]:
+        for value in values:
+            if not re.fullmatch(r"[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)*\.v[1-9][0-9]*", value):
+                raise ValueError(f"processing handler {value!r} must be an exact versioned ID")
+        return sorted(set(values))
+
+
 class Pack(_Strict):
     pack: PackHeader
+    processing: ProcessingSection = Field(default_factory=ProcessingSection)
     interfaces: dict[str, InterfaceDef] = Field(default_factory=dict)
     types: TypesSection = Field(default_factory=TypesSection)
     events: dict[str, EventDef] = Field(default_factory=dict)
+    open_event_namespaces: list[str] = Field(default_factory=list)
     projection: list[ProjectionRule] = Field(default_factory=list)
     extraction: ExtractionSection = Field(default_factory=ExtractionSection)
     retrieval: RetrievalSection = Field(default_factory=RetrievalSection)
@@ -487,8 +545,15 @@ class Pack(_Strict):
 
     def canonical_json(self) -> str:
         """Stable serialisation used for the ontology version hash."""
+        data = self.model_dump(mode="json", by_alias=True, exclude_none=True)
+        # Adding an absent-equivalent optional section must not invalidate
+        # recorded legacy snapshots merely because the parser gained a field.
+        if not self.processing.requires and not self.processing.enabled:
+            data.pop("processing", None)
+        if not self.open_event_namespaces:
+            data.pop("open_event_namespaces", None)
         return json.dumps(
-            self.model_dump(mode="json", by_alias=True, exclude_none=True),
+            data,
             sort_keys=True,
             separators=(",", ":"),
         )
@@ -1051,7 +1116,12 @@ class OntologyRegistry:
         self, pack: str, where: str, values: dict[str, Any] | None, problems: list[str]
     ) -> None:
         for value in (values or {}).values():
-            self._check_expression(pack, where, value, problems)
+            self._check_expression(
+                pack,
+                where,
+                value.value if isinstance(value, PropertyUpdateDef) else value,
+                problems,
+            )
 
     def _check_expression(self, pack: str, where: str, value: Any, problems: list[str]) -> None:
         try:
@@ -1088,6 +1158,29 @@ class OntologyRegistry:
     def _validate_projection(self, pack: Pack, problems: list[str]) -> None:
         for index, rule in enumerate(pack.projection):
             where = f"projection[{index}] ({rule.event})"
+            event_name = self._resolve_event(pack.name, rule.event)
+            contract = (
+                self.event_types[event_name].definition.payload_contract if event_name else None
+            )
+            if contract is not None:
+                pending = list(rule.model_dump().values())
+                while pending:
+                    value = pending.pop()
+                    if isinstance(value, dict):
+                        pending.extend(value.values())
+                    elif isinstance(value, list):
+                        pending.extend(value)
+                    elif is_expression(value):
+                        try:
+                            paths = _paths(compile_value(value))
+                        except ExpressionError:
+                            continue  # The existing expression check reports malformed syntax.
+                        for path in paths:
+                            if path.root == "payload" and not contract.declares_path(path.steps):
+                                problems.append(
+                                    f"{pack.name}: {where} reads undeclared payload path "
+                                    f"{'.'.join(path.steps)!r}"
+                                )
             for upsert in rule.upsert:
                 resolved = self._check_ref(
                     pack.name, where, NodeRef(type=upsert.type, key=upsert.key), problems
@@ -1095,6 +1188,16 @@ class OntologyRegistry:
                 self._check_values(pack.name, where, upsert.set, problems)
                 if resolved:
                     self._check_fields(pack.name, where, resolved, upsert.set, problems)
+                    node = self.node_types[resolved]
+                    self._check_strict_properties(
+                        pack.name,
+                        where,
+                        upsert.set,
+                        node.pack,
+                        set(node.key) | {node.key_property, "status"},
+                        set(),
+                        problems,
+                    )
             if rule.transition is not None:
                 self._validate_transition(pack.name, where, rule, problems)
             for edge_rule in rule.edges:
@@ -1149,12 +1252,43 @@ class OntologyRegistry:
             return
         if source and target and not self.allows(edge.name, source, target):
             problems.append(f"{pack}: {where} draws {edge.name} from {source} to {target}")
+        self._check_strict_properties(
+            pack,
+            where,
+            edge_rule.set,
+            edge.pack,
+            set(),
+            set(edge.definition.requires),
+            problems,
+        )
         for prop in edge_rule.set:
             if prop not in edge.properties:
                 problems.append(f"{pack}: {where} sets unknown property {edge.name}.{prop}")
         for required_field in edge.definition.requires:
             if required_field not in edge_rule.set and required_field not in edge.link_defaults:
                 problems.append(f"{pack}: {where} must set {edge.name}.{required_field}")
+
+    def _check_strict_properties(
+        self,
+        pack: str,
+        where: str,
+        values: dict[str, PropertyRuleValue],
+        target_owner: str,
+        protected: set[str],
+        required: set[str],
+        problems: list[str],
+    ) -> None:
+        for name, value in values.items():
+            if not isinstance(value, PropertyUpdateDef):
+                continue
+            if "pack.properties.v1" not in self._packs[pack].processing.requires:
+                problems.append(f"{pack}: {where} requires pack.properties.v1")
+            if target_owner != pack:
+                problems.append(f"{pack}: {where} strict foreign property writes are unsupported")
+            if name in protected | SYSTEM_PROPERTIES | {"source_trust", "status_changed_at"}:
+                problems.append(f"{pack}: {where} strict write to protected property {name}")
+            if name in required and value.on_null == "clear":
+                problems.append(f"{pack}: {where} cannot clear required property {name}")
 
     def _validate_extraction(self, pack: Pack, problems: list[str]) -> None:
         extraction = pack.extraction

@@ -1,0 +1,96 @@
+{
+  "checks": [
+    {
+      "name": "two_replica_same_session_lineage",
+      "scenarios": [
+        "SUB-04",
+        "PROJ-01",
+        "LED-02"
+      ],
+      "verdict": "failed",
+      "error_type": "AssertionError",
+      "error": "same-session FOLLOWS skips another replica's predecessor",
+      "seconds": 10.01
+    },
+    {
+      "name": "orphan_recovery_multiple_pending_pages",
+      "scenarios": [
+        "SUB-01",
+        "SUB-03",
+        "PROJ-01"
+      ],
+      "verdict": "passed",
+      "observation": {
+        "prefilled_deliveries": 15,
+        "worker_batch_size": 3,
+        "setup": "API ingestion; public read_new seeds abandoned deliveries",
+        "node_count": 15,
+        "follows_count": 14,
+        "unread": 0,
+        "pending": 0
+      },
+      "seconds": 13.0
+    }
+  ],
+  "resets": [
+    {
+      "table": "GraphEdges",
+      "rows": 0
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 1
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 1
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 1
+    },
+    {
+      "table": "GraphEdges",
+      "rows": 4
+    },
+    {
+      "table": "GraphNodes",
+      "rows": 4
+    },
+    {
+      "table": "ConsumerDeadLetters",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerDeliveries",
+      "rows": 0
+    },
+    {
+      "table": "ConsumerCursors",
+      "rows": 16
+    },
+    {
+      "table": "ConsumerGroups",
+      "rows": 1
+    },
+    {
+      "table": "Events",
+      "rows": 3
+    }
+  ],
+  "summary": "Engram journeys against disposable real database; subcheck evidence recorded",
+  "scope": "subchecks; full scenario rows remain pending until all requirements proved",
+  "cleanup": "no database/schema deletion; final fixture retained for inspection"
+}

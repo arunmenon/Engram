@@ -31,6 +31,7 @@ from context_graph.domain.consolidation import (
     should_reconsolidate,
 )
 from context_graph.domain.forgetting import get_pruning_actions
+from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.event_store import (  # noqa: TCH001 — runtime: Depends
     EventStore,
     EventStoreAdmin,
@@ -201,6 +202,8 @@ async def stats(
     stream_length = 0
     try:
         stream_length = await event_admin.stream_length()
+    except RuntimeFencedError:
+        raise
     except Exception:
         logger.warning("stats_redis_stream_length_failed")
 
@@ -231,47 +234,45 @@ async def prune(
     retention = settings.retention
 
     prune_batch_limit = 10_000
-    event_dicts = await graph_maint.events_for_pruning(prune_batch_limit)
-
-    actions = get_pruning_actions(
-        events=event_dicts,
-        hot_hours=retention.hot_hours,
-        warm_hours=retention.warm_hours,
-        cold_hours=retention.cold_hours,
-        warm_min_similarity=retention.warm_min_similarity_score,
-        cold_min_importance=retention.cold_min_importance,
-        cold_min_access_count=retention.cold_min_access_count,
-    )
-
     pruned_edges = 0
     pruned_nodes = 0
+    truncated = False
     details: list[dict[str, Any]] = []
 
     if prune_req.tier == "warm":
-        edge_ids = actions.delete_edges
-        pruned_edges = len(edge_ids)
-        if edge_ids:
-            details.append({"action": "delete_similar_edges", "event_ids": edge_ids})
-        if not prune_req.dry_run and edge_ids:
-            pruned_edges = await graph_maint.delete_edges_by_type_and_age(
-                min_score=retention.warm_min_similarity_score,
-                max_age_hours=retention.hot_hours,
-            )
+        # Scores belong to SIMILAR_TO edges. Event-level properties cannot
+        # predict the number of edges removed (one source may have many).
+        operation = (
+            graph_maint.count_edges_by_type_and_age
+            if prune_req.dry_run
+            else graph_maint.delete_edges_by_type_and_age
+        )
+        pruned_edges = await operation(
+            min_score=retention.warm_min_similarity_score,
+            max_age_hours=retention.hot_hours,
+        )
+        if pruned_edges:
+            details.append({"action": "delete_similar_edges", "edge_count": pruned_edges})
     elif prune_req.tier == "cold":
+        event_dicts = await graph_maint.events_for_pruning(prune_batch_limit)
+        truncated = len(event_dicts) >= prune_batch_limit
+        actions = get_pruning_actions(
+            events=event_dicts,
+            hot_hours=retention.hot_hours,
+            warm_hours=retention.warm_hours,
+            cold_hours=retention.cold_hours,
+            warm_min_similarity=retention.warm_min_similarity_score,
+            cold_min_importance=retention.cold_min_importance,
+            cold_min_access_count=retention.cold_min_access_count,
+        )
         node_ids = actions.delete_nodes + actions.archive_event_ids
         pruned_nodes = len(node_ids)
         if node_ids:
             details.append({"action": "delete_cold_events", "event_ids": node_ids})
         if not prune_req.dry_run and node_ids:
-            deleted_cold = await graph_maint.delete_cold_events(
-                max_age_hours=retention.warm_hours,
-                min_importance=retention.cold_min_importance,
-                min_access_count=retention.cold_min_access_count,
-            )
-            deleted_archive = await graph_maint.delete_archive_events(
-                event_ids=actions.archive_event_ids,
-            )
-            pruned_nodes = deleted_cold + deleted_archive
+            # The existing ID-based detach-delete also handles cold candidates.
+            # Delete only the previewed bounded batch, never an unbounded rescan.
+            pruned_nodes = await graph_maint.delete_archive_events(event_ids=node_ids)
 
     logger.info(
         "prune_complete",
@@ -287,7 +288,7 @@ async def prune(
             "pruned_nodes": pruned_nodes,
             "dry_run": prune_req.dry_run,
             "details": details,
-            "truncated": len(event_dicts) >= prune_batch_limit,
+            "truncated": truncated,
         },
     )
 
@@ -386,12 +387,16 @@ async def health_detailed(
     try:
         redis_ok = await event_health.health_ping()
         stream_length = await event_admin.stream_length()
+    except RuntimeFencedError:
+        raise
     except Exception:
         logger.warning("detailed_health_redis_failed")
 
     try:
         graph_stats = await graph_maint.get_graph_stats()
         neo4j_ok = True
+    except RuntimeFencedError:
+        raise
     except Exception:
         logger.warning("detailed_health_neo4j_failed")
 

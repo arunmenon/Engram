@@ -1,0 +1,74 @@
+F....F..............................................                     [100%]
+=================================== FAILURES ===================================
+______ test_disabled_neighbors_and_invalid_endpoints_do_not_consume_limit ______
+
+    async def test_disabled_neighbors_and_invalid_endpoints_do_not_consume_limit():
+        graph = MemoryGraphStore()
+        await graph._upsert_nodes(
+            [
+                (("Event", "e"), {"event_id": "e"}),
+                (("Entity", "good"), {"entity_id": "good"}),
+                (("UserProfile", "hidden"), {"profile_id": "hidden"}),
+                (("Change", "wrong-endpoint"), {"node_id": "wrong-endpoint"}),
+            ]
+        )
+        await graph._upsert_edges(
+            [
+                ((("Event", "e"), "REFERENCES", ("UserProfile", "hidden")), {}),
+                ((("Event", "e"), "REFERENCES", ("Change", "wrong-endpoint")), {}),
+                ((("Event", "e"), "REFERENCES", ("Entity", "good")), {}),
+            ]
+        )
+        selected, _bundle = view(graph, ["pdlc"])
+        rows = await selected.reads.event_neighbors(["e"], 1)
+>       assert len(rows) == 1 and rows[0]["neighbor_entity_id"] == "good"
+E       AssertionError: assert (1 == 1 and None == 'good')
+E        +  where 1 = len([{'seed_event_id': 'e', 'rel_type': 'REFERENCES', 'rel_props': {}, 'neighbor_labels': ['Change'], ...}])
+
+tests/unit/test_composed_reads.py:43: AssertionError
+----------------------------- Captured stdout call -----------------------------
+2026-10-07 18:03:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-07 18:03:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-07 18:03:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-07 18:03:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-07 18:03:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-07 18:03:37 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-07 18:03:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-07 18:03:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-07 18:03:37 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-07 18:03:37 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-07 18:03:37 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-07 18:03:37 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-07 18:03:37 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-07 18:03:37 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+__________ test_explicit_unresolved_seed_is_not_assumed_to_be_entity ___________
+
+    async def test_explicit_unresolved_seed_is_not_assumed_to_be_entity():
+        graph = AsyncMock()
+        graph.seed_events.return_value = []
+        graph.get_event_nodes.return_value = []
+        graph.event_neighbors.return_value = []
+        graph.cross_session_entity_events.return_value = []
+        bundle = resolve_bundle(load_registry([], builtin_packs=[]))
+        engine = RetrievalEngine(
+            graph,
+            decay=DecaySettings(),
+            bundle=bundle,
+            intents=RegistryIntents.for_events(bundle.registry),
+        )
+        response = await engine.get_subgraph(
+>           SubgraphQuery(query="hello", seed_nodes=["UserProfile:past"])
+        )
+E       pydantic_core._pydantic_core.ValidationError: 2 validation errors for SubgraphQuery
+E       session_id
+E         Field required [type=missing, input_value={'query': 'hello', 'seed_...': ['UserProfile:past']}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.13/v/missing
+E       agent_id
+E         Field required [type=missing, input_value={'query': 'hello', 'seed_...': ['UserProfile:past']}, input_type=dict]
+E           For further information visit https://errors.pydantic.dev/2.13/v/missing
+
+tests/unit/test_composed_reads.py:144: ValidationError
+=========================== short test summary info ============================
+FAILED tests/unit/test_composed_reads.py::test_disabled_neighbors_and_invalid_endpoints_do_not_consume_limit
+FAILED tests/unit/test_composed_reads.py::test_explicit_unresolved_seed_is_not_assumed_to_be_entity
+2 failed, 50 passed in 1.37s

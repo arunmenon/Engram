@@ -12,9 +12,11 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Literal, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
+    from context_graph.domain.event_acceptance import AdmissionContext
     from context_graph.domain.models import Event, EventQuery
+    from context_graph.domain.pack_admission import PayloadProblem
 
-AppendStatus = Literal["created", "duplicate", "failed"]
+AppendStatus = Literal["created", "duplicate", "conflict", "rejected", "failed"]
 
 
 @dataclass(frozen=True)
@@ -25,11 +27,18 @@ class AppendOutcome:
     was already in the ledger; ``position`` is where, or None when the
     ledger no longer holds the position (an expired document). ``failed``:
     not written; ``error`` says why, and the same event can be sent again.
+    ``conflict``: ID reuse with a different authenticated producer or request;
+    not retryable as the same request. ``rejected``: a new event violates the
+    active pack contract or has no supported handling; ``reason`` and sanitized
+    ``problems`` explain the refusal. Neither status writes this event; other
+    valid events in the chunk may commit.
     """
 
     status: AppendStatus
     position: str | None = None
     error: str | None = None
+    reason: str | None = None
+    problems: tuple[PayloadProblem, ...] = ()
 
 
 class EventStore(Protocol):
@@ -72,7 +81,8 @@ class EventStore(Protocol):
         in transactions (Spanner) writes each commit-sized part whole, in
         order: when a later part fails, the events from it on are ``failed``,
         and when the first fails, nothing is written and the error is raised.
-        An event_id repeated within the batch is created once.
+        Contract-rejected and identity-conflicting inputs have individual outcomes;
+        valid siblings may commit. An event_id repeated within the batch is created once.
         """
         ...
 
@@ -124,3 +134,10 @@ class EventStoreAdmin(Protocol):
     async def stream_length(self) -> int:
         """Return the number of entries in the global event stream."""
         ...
+
+
+@runtime_checkable
+class AdmissionBindable(Protocol):
+    """Internal authenticated write view; source context is not client event data."""
+
+    def admission_writer(self, context: AdmissionContext) -> EventStore: ...

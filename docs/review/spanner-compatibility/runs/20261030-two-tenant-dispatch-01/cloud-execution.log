@@ -1,0 +1,29 @@
+2026-10-30 22:56:10 [warning  ] ontology_setting_not_implemented setting='pdlc: Request.embed_fields (no embeddings for pack types)'
+2026-10-30 22:56:10 [warning  ] ontology_setting_not_implemented setting='pdlc: Spec.embed_fields (no embeddings for pack types)'
+2026-10-30 22:56:10 [warning  ] ontology_setting_not_implemented setting='pdlc: Requirement.embed_fields (no embeddings for pack types)'
+2026-10-30 22:56:10 [warning  ] ontology_setting_not_implemented setting='pdlc: Decision.embed_fields (no embeddings for pack types)'
+2026-10-30 22:56:10 [warning  ] ontology_setting_not_implemented setting='pdlc: Constraint.embed_fields (no embeddings for pack types)'
+2026-10-30 22:56:10 [warning  ] ontology_setting_not_implemented setting='pdlc: DesignElement.embed_fields (no embeddings for pack types)'
+2026-10-30 22:56:10 [warning  ] ontology_setting_not_implemented setting='pdlc: Change.embed_fields (no embeddings for pack types)'
+2026-10-30 22:56:10 [warning  ] ontology_setting_not_implemented setting='pdlc: Incident.embed_fields (no embeddings for pack types)'
+2026-10-30 22:56:10 [warning  ] ontology_setting_not_implemented setting='pdlc: Lesson.embed_fields (no embeddings for pack types)'
+2026-10-30 22:56:10 [warning  ] ontology_setting_not_implemented setting='pdlc: link_policy completeness_reports, read_time_threshold, scoring_question, write_time_threshold'
+2026-10-30 22:56:10 [warning  ] ontology_setting_not_implemented setting='pdlc: extraction.derived_proposals'
+2026-10-30 22:56:10 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.decay'
+2026-10-30 22:56:10 [warning  ] ontology_setting_not_implemented setting='pdlc: lifecycle.terminal_states_reduce_importance'
+2026-10-30 22:56:10 [warning  ] ontology_setting_not_implemented setting='pdlc: mappings (vocabulary only)'
+2026-10-30 22:56:14 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-30 22:56:14 [info     ] llm_client_initialized
+2026-10-30 22:56:17 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'pdlc@3.0.0'] ontology_version=sha256:e7b20b2b67e4dcce redis_host=localhost
+2026-10-30 22:56:17 [info     ] embedding_service_initialized  model=all-MiniLM-L6-v2
+2026-10-30 22:56:17 [info     ] llm_client_initialized
+2026-10-30 22:56:20 [info     ] app_started                    neo4j_uri=bolt://localhost:7687 ontology_packs=['core@1.1.0', 'pdlc@3.0.0'] ontology_version=sha256:e7b20b2b67e4dcce redis_host=localhost
+/Users/arunmenon/projects/Engram/.venv/lib/python3.14/site-packages/fastapi/routing.py:352: FastAPIDeprecationWarning: ORJSONResponse is deprecated, FastAPI now serializes data directly to JSON bytes via Pydantic when a return type or response model is set, which is faster and doesn't need a custom response class. Read more in the FastAPI docs: https://fastapi.tiangolo.com/advanced/custom-response/#orjson-or-response-model and https://fastapi.tiangolo.com/tutorial/response-model/
+  return await dependant.call(**values)
+2026-10-30 22:56:25 [info     ] event_ingested                 event_id=32afeeb1-8c6e-5d86-b7b1-7bf715b02c61 event_type=pdlc.change.created global_position=2026-10-30T17:26:25.393151000Z/000000/32afeeb1-8c6e-5d86-b7b1-7bf715b02c61 request_id=62f89d18-4735-4445-84fe-1d6832bf45f6 status=created
+2026-10-30 22:56:26 [info     ] app_stopped
+2026-10-30 22:56:26 [info     ] app_stopped
+{"status": "passed", "checks": 7, "A_preserved": true}
+Failed to export metrics to Cloud Monitoring: 400 One or more TimeSeries could not be written: timeSeries[31] (metric.type="spanner.googleapis.com/internal/client/operation_latencies", metric.labels={"status": "", "client_name": "spanner-python/3.71.0", "client_uid": "05ea8cd4-e60a-4c6d-9495-74f75c9b115a@25637@Aruns-MacBook-Pro.local"}, resource.type="spanner_instance_client", resource.labels={"client_hash": "00011e", "location": "global", "instance_config": "unknown"}): the set of resource labels is incomplete, missing (instance_id); timeSeries[22] (metric.type="spanner.googleapis.com/internal/client/operation_count", metric.labels={"client_uid": "05ea8cd4-e60a-4c6d-9495-74f75c9b115a@25637@Aruns-MacBook-Pro.local", "client_name": "spanner-python/3.71.0", "status": ""}, resource.type="spanner_instance_client", resource.labels={"instance_config": "unknown", "client_hash": "00011e", "location": "global"}): the set of resource labels is incomplete, missing (instance_id); timeSeries[40] (metric.type="spanner.googleapis.com/internal/client/attempt_count", metric.labels={"client_uid": "05ea8cd4-e60a-4c6d-9495-74f75c9b115a@25637@Aruns-MacBook-Pro.local", "client_name": "spanner-python/3.71.0"}, resource.type="spanner_instance_client", resource.labels={"client_hash": "00011e", "location": "global", "instance_config": "unknown"}): the set of resource labels is incomplete, missing (instance_id) [type_url: "type.googleapis.com/google.monitoring.v3.CreateTimeSeriesSummary"
+value: "\0100\020-\032\006\n\002\010\003\020\003"
+]

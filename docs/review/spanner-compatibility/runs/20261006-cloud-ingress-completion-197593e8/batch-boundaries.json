@@ -1,0 +1,63 @@
+{
+  "configured_max_events": 3,
+  "empty_status": 422,
+  "over_max_status": 422,
+  "max_status": 201,
+  "max": {
+    "accepted": 3,
+    "rejected": 0,
+    "results": [
+      {
+        "event_id": "9338c4b8-aa53-460b-b02f-04a5c6ddbca8",
+        "global_position": "2026-10-06T16:24:31.636863000Z/000000/9338c4b8-aa53-460b-b02f-04a5c6ddbca8",
+        "status": "created"
+      },
+      {
+        "event_id": "9338c4b8-aa53-460b-b02f-04a5c6ddbca8",
+        "global_position": "2026-10-06T16:24:31.636863000Z/000000/9338c4b8-aa53-460b-b02f-04a5c6ddbca8",
+        "status": "duplicate"
+      },
+      {
+        "event_id": "289fea9b-34fc-4a5d-8794-d9765d2f58a1",
+        "global_position": "2026-10-06T16:24:31.636863000Z/000001/289fea9b-34fc-4a5d-8794-d9765d2f58a1",
+        "status": "created"
+      }
+    ],
+    "errors": []
+  },
+  "mixed": {
+    "accepted": 1,
+    "rejected": 2,
+    "results": [
+      {
+        "event_id": "58387e97-fb20-45ab-ac35-a2e7b0f30a8b",
+        "global_position": "2026-10-06T16:24:31.843775000Z/000000/58387e97-fb20-45ab-ac35-a2e7b0f30a8b",
+        "status": "created"
+      }
+    ],
+    "errors": [
+      {
+        "index": 1,
+        "event_id": "6aaf7c19-793c-43a6-99ee-64781ad59e68",
+        "errors": [
+          {
+            "field": "agent_id",
+            "message": "Field required"
+          }
+        ]
+      },
+      {
+        "index": 2,
+        "event_id": "not-a-uuid",
+        "errors": [
+          {
+            "field": "event_id",
+            "message": "Input should be a valid UUID, invalid character: found `n` at 1"
+          }
+        ]
+      }
+    ]
+  },
+  "first_payload_preserved": true,
+  "ledger_delta": 3
+}

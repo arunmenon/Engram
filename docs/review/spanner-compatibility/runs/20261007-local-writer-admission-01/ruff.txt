@@ -1,0 +1,33 @@
+I001 [*] Import block is un-sorted or un-formatted
+  --> tests/unit/test_spanner_pack_admission.py:3:1
+   |
+ 1 |   """Writer-bound admission using the transaction fake, never a cloud sign-off."""
+ 2 |
+ 3 | / import copy
+ 4 | | from uuid import uuid4
+ 5 | |
+ 6 | | import pytest
+ 7 | |
+ 8 | | from context_graph.adapters.spanner.log import SpannerEventLog, json_value
+ 9 | | from context_graph.adapters.spanner.tenant_control import TenantFence
+10 | | from context_graph.domain.pack_admission import compile_admission_policy
+11 | | from context_graph.domain.pack_bundle import resolve_bundle
+12 | | from context_graph.domain.ontology import OntologyRegistry
+13 | | from context_graph.ports.errors import InvalidRequestError, RuntimeFencedError
+14 | | from tests.unit.test_event_acceptance import context, event
+15 | | from tests.unit.test_pack_admission import CASES, core, unfamiliar
+16 | | from tests.unit.test_spanner_event_acceptance import Database, setup
+17 | | from tests.unit.test_tenant_catalog import bind, configuration
+   | |______________________________________________________________^
+help: Organize imports
+   |
+9  | from context_graph.adapters.spanner.tenant_control import TenantFence
+10 + from context_graph.domain.ontology import OntologyRegistry
+11 | from context_graph.domain.pack_admission import compile_admission_policy
+12 | from context_graph.domain.pack_bundle import resolve_bundle
+   - from context_graph.domain.ontology import OntologyRegistry
+13 | from context_graph.ports.errors import InvalidRequestError, RuntimeFencedError
+   |
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.
