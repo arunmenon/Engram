@@ -12,6 +12,13 @@ The Engram Pack Workbench gives an internal operator a place to turn a tenant’
 
 This email walks through the product from the beginning. You do not need to know the pack format or the engine’s terminology to follow it.
 
+Watch the accompanying videos:
+
+- [Engram team walkthrough — v3](https://drive.google.com/file/d/1CtLJ5vULWYCSNukULQMLkBGyjCtOokFI/view) (20:48): a narrated walkthrough of saved screens explaining the framework and operator workflow.
+- [Pack Workbench product-tour pilot — review draft](https://drive.google.com/file/d/1i-VlIAzktq66xG2_7J04TZUTZRkPg-P6/view) (4:44): a short product-tour pilot; pacing corrections are still pending.
+
+Both videos are public to anyone with the link, with Viewer access; no access request is needed. This sharing setting was verified on 18 November 2026. These recordings are orientation material, not acceptance evidence, and still require a human audio check.
+
 Engram connects records and events so that applications and agents can retrieve relevant context. Its context graph contains entities, their relationships and links back to the events that support them. But connecting data requires business decisions: which fields identify a person, whether an identifier is unique across business units, which state changes are permitted, and which sources should be trusted. A matching word or repeated number cannot settle those decisions by itself.
 
 An **ontology pack** makes those domain rules explicit. It describes the kinds of records and relationships, their identity and lifecycle, the incoming event contracts, how events create or update the graph, and how questions retrieve records. Evaluation questions specify the outcomes we expect from representative data. The shared engine loads and checks the configuration and executes supported behavior. The workbench helps people author and review it.
