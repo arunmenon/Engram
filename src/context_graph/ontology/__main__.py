@@ -200,6 +200,7 @@ async def evaluate_graph(
                 if passed and projection_ready
                 else sorted(p.name for p in registry.packs if p.name not in OPEN_PACKS),
                 "gate": [f"{r.pack}:{r.mean_f1:.3f}" for r in reports],
+                "evaluation_status": "passed" if passed else "failed",
                 **({"gate_skipped": False} if passed and projection_ready else {}),
             },
         )

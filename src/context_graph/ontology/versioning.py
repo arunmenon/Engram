@@ -85,6 +85,20 @@ class RecordedOntology:
         """A rebuild whose processing or evaluation failed, including diagnostic builds."""
         return self.properties.get("gate_passed") is False
 
+    @property
+    def incomplete_rebuild(self) -> bool:
+        return bool(
+            self.properties.get("rebuild_in_progress")
+            or self.properties.get("rebuild_complete") is False
+            or self.properties.get("missing_documents")
+            or self.properties.get("rebuild_failures")
+            or self.properties.get("rebuild_failure_count")
+            or (
+                self.properties.get("gate_skipped") is True
+                and self.properties.get("gate_passed") is False
+            )
+        )
+
 
 async def read_state(graph: PackGraph) -> RecordedOntology | None:
     found = await graph.get_nodes([STATE_REF])
@@ -155,7 +169,8 @@ class ReplayReport:
     missing_documents: int = 0
 
 
-def _check_replay_authority(event_log: EventLog, projector: PackProjector) -> None:
+def check_replay_authority(event_log: EventLog, projector: PackProjector) -> None:
+    """Reject known source-policy mismatches before recording any attempt."""
     if (
         getattr(event_log, "requires_source_provenance", False) is True
         and projector.requires_provenance is not True
@@ -182,7 +197,7 @@ async def replay_event_types(
     One event's failure is logged and reported; the replay goes on, as the
     projection worker dead-letters a failing event and goes on.
     """
-    _check_replay_authority(event_log, projector)
+    check_replay_authority(event_log, projector)
     report = ReplayReport(failed=[])
     cursor: str | None = None
     while True:
@@ -233,6 +248,13 @@ async def reconcile(
     """Bring the graph's recorded ontology to the projector's (see module docstring)."""
     registry = projector.registry
     state = await read_state(graph)
+    if state is not None and state.incomplete_rebuild:
+        raise OntologyChangeRefusedError(
+            plan_for_state(state, registry),
+            hint="rebuild incomplete: recover required source events or correct failed writes, "
+            "then rebuild a verified replacement. Evaluation and processing overrides "
+            "cannot repair missing data.",
+        )
     if state is not None and state.failed_gate and not allow_breaking:
         msg = (
             f"this graph was rebuilt for {state.version} "
@@ -289,7 +311,7 @@ async def reconcile(
     replay = ReplayReport(failed=[])
     if plan.replay_event_types:
         # Reject a known authority mismatch before recording any attempt.
-        _check_replay_authority(event_log, projector)
+        check_replay_authority(event_log, projector)
         # Persist the attempt before writes, so interruption or cancellation
         # cannot leave a partially updated graph looking like a clean old one.
         await graph.upsert_nodes(
@@ -382,6 +404,7 @@ def pending_for_state(state: RecordedOntology | None, registry: OntologyRegistry
             state is not None
             and (
                 state.failed_gate
+                or state.incomplete_rebuild
                 or state.properties.get("gate_skipped")
                 or state.properties.get("replay_incomplete")
                 or state.properties.get("replay_failures")
@@ -414,6 +437,12 @@ def status_for_state(
         reasons.append("The recorded projection does not match the configured packs.")
         actions.append("Complete the required pack update before using the new interpretation.")
     incomplete = bool(props.get("replay_incomplete") or props.get("replay_failures"))
+    incomplete_build = bool(state and state.incomplete_rebuild)
+    if incomplete_build:
+        reasons.append("The replacement graph is incomplete or still being built.")
+        actions.append(
+            "Recover required events or failed writes, then build a fresh replacement target."
+        )
     if incomplete:
         reasons.append("A pack update is unfinished or has recorded replay failures.")
         actions.append(
@@ -451,6 +480,7 @@ def status_for_state(
         and state.version == registry.version
         and plan.kind == "none"
         and not incomplete
+        and not incomplete_build
         and (not failed or allow_breaking)
     )
     return {
@@ -470,8 +500,19 @@ def status_for_state(
                     "replay_incomplete",
                     "replay_target_version",
                     "replay_failures",
+                    "rebuild_complete",
+                    "rebuild_in_progress",
+                    "rebuild_target_version",
+                    "rebuild_missing_positions",
+                    "rebuild_failures",
+                    "rebuild_failure_count",
+                    "rebuild_history_basis",
+                    "evaluation_status",
                 )
             },
+            "evaluation_passed": {"passed": True, "failed": False, "skipped": None}.get(
+                str(props.get("evaluation_status", ""))
+            ),
             "eval_pending": props.get("eval_pending", []),
         },
         "change": plan.as_dict(),
