@@ -21,6 +21,7 @@ from context_graph.ontology.evaluation import f1_score
 from context_graph.ontology.rebuild import RebuildRefusedError, rebuild
 from context_graph.ontology.versioning import (
     STATE_REF,
+    EvalPending,
     OntologyChangeRefusedError,
     read_state,
     reconcile,
@@ -315,6 +316,16 @@ def _settings() -> Settings:
 
 
 class TestRebuild:
+    async def test_failed_rebuild_is_not_evaluated_ready(self, tmp_path: Path) -> None:
+        registry = _registry(**DEMO_INTENTS)
+        log, graph = await _ledger(), MemoryGraphStore()
+        _eval_set(tmp_path, ["Ticket:t|2"])
+        report = await rebuild(
+            log, graph, PackProjector(registry, frozenset()), _settings(), eval_dirs=[tmp_path]
+        )
+        assert not report.passed
+        assert await EvalPending(graph, registry, ttl_s=0).packs() == frozenset({"demo"})
+
     async def test_build_gate_and_record(self, tmp_path: Path) -> None:
         registry = _registry(**DEMO_INTENTS)
         log, target = await _ledger(), MemoryGraphStore()
@@ -624,6 +635,7 @@ class TestReplayCompletion:
         assert state.properties["replay_failures"] == []
         assert state.properties["replay_incomplete"] is False
         assert state.properties["replayed_events"] == 3
+        assert state.properties["eval_pending"] == ["demo"]
         second = NodeRef("Ticket", "Ticket:t|2")
         assert (await graph.get_nodes([second]))[second]["title"] == "SB"
         assert (await graph.get_nodes([TICKET]))[TICKET]["status"] == "closed"

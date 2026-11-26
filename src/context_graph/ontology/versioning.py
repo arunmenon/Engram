@@ -82,12 +82,8 @@ class RecordedOntology:
 
     @property
     def failed_gate(self) -> bool:
-        """A rebuild whose evaluation gate ran and failed."""
-        return (
-            self.properties.get("applied") == "rebuild"
-            and self.properties.get("gate_passed") is False
-            and not self.properties.get("gate_skipped")
-        )
+        """A rebuild whose processing or evaluation failed, including diagnostic builds."""
+        return self.properties.get("gate_passed") is False
 
 
 async def read_state(graph: PackGraph) -> RecordedOntology | None:
@@ -239,7 +235,8 @@ async def reconcile(
     state = await read_state(graph)
     if state is not None and state.failed_gate and not allow_breaking:
         msg = (
-            f"this graph was rebuilt for {state.version} but its evaluation gate failed "
+            f"this graph was rebuilt for {state.version} "
+            "but its processing or evaluation gate failed "
             f"({state.properties.get('gate')}); fix the packs or the evaluation set and "
             "rebuild, or set CG_ONTOLOGY_ALLOW_BREAKING=true"
         )
@@ -358,10 +355,143 @@ async def reconcile(
             "replay_target_version": "",
             # Decision 10: these packs' weights wait on their evaluation sets
             # (python -m context_graph.ontology evaluate --record)
-            "eval_pending": sorted(plan.eval_required),
+            "eval_pending": sorted(
+                (plan.eval_required | set(state.properties.get("eval_pending") or []))
+                & {p.name for p in registry.packs if p.name not in OPEN_PACKS}
+                if state
+                else plan.eval_required
+            ),
         },
     )
     return plan
+
+
+def pending_for_state(state: RecordedOntology | None, registry: OntologyRegistry) -> frozenset[str]:
+    """Evaluation eligibility never overrides an unfinished or failed projection."""
+    active = {p.name for p in registry.packs if p.name not in OPEN_PACKS}
+    plan = plan_for_state(state, registry)
+    if state is not None:
+        try:
+            state.registry()
+        except (OntologyError, ValueError):
+            return frozenset(active)
+    if (
+        (state is not None and state.packs is None)
+        or (state is not None and state.version == registry.version and plan.kind != "none")
+        or (
+            state is not None
+            and (
+                state.failed_gate
+                or state.properties.get("gate_skipped")
+                or state.properties.get("replay_incomplete")
+                or state.properties.get("replay_failures")
+                or state.properties.get("missing_documents")
+            )
+        )
+    ):
+        return frozenset(active)
+    return frozenset(
+        ((set(state.properties.get("eval_pending") or []) if state else set()) | plan.eval_required)
+        & active
+    )
+
+
+def status_for_state(
+    state: RecordedOntology | None, registry: OntologyRegistry, *, allow_breaking: bool = False
+) -> dict[str, Any]:
+    """Recorded ontology readiness, not live worker health or proof of all history."""
+    plan = plan_for_state(state, registry)
+    props = state.properties if state else {}
+    reasons: list[str] = []
+    actions: list[str] = []
+    if state is None:
+        reasons.append("No completed ontology is recorded on this graph.")
+        actions.append("Start the configured projection worker before serving evaluated answers.")
+    elif state.packs is None:
+        reasons.append("The recorded pack definitions cannot be loaded.")
+        actions.append("Recover a verified projection with readable pack definitions.")
+    elif state.version != registry.version or plan.kind != "none":
+        reasons.append("The recorded projection does not match the configured packs.")
+        actions.append("Complete the required pack update before using the new interpretation.")
+    incomplete = bool(props.get("replay_incomplete") or props.get("replay_failures"))
+    if incomplete:
+        reasons.append("A pack update is unfinished or has recorded replay failures.")
+        actions.append(
+            "Inspect the unfinished update and its target; recover failed work before restarting."
+        )
+    if props.get("missing_documents"):
+        reasons.append("The rebuild recorded unavailable source event documents.")
+        actions.append(
+            "Recover and verify complete source history; passing questions cannot restore it."
+        )
+    failed = bool(state and state.failed_gate)
+    if failed:
+        reasons.append("The rebuilt projection failed its checks.")
+        actions.append(
+            "Correct the problem and rebuild; passing a later question set "
+            "does not clear this failure."
+        )
+    skipped = bool(props.get("gate_skipped"))
+    if skipped:
+        reasons.append("Evaluation was skipped for a diagnostic build.")
+        actions.append(
+            "Run and record the reviewed evaluation before trusting its answers "
+            "(python -m context_graph.ontology evaluate --record)."
+        )
+    pending = pending_for_state(state, registry)
+    if pending and not reasons:
+        reasons.append("Pack evaluation is still pending.")
+        actions.append(
+            "Run and record the reviewed pack evaluation "
+            "(python -m context_graph.ontology evaluate --record)."
+        )
+    processing_ready = bool(
+        state
+        and state.packs is not None
+        and state.version == registry.version
+        and plan.kind == "none"
+        and not incomplete
+        and (not failed or allow_breaking)
+    )
+    return {
+        "graph": None
+        if state is None
+        else {
+            "version": state.version,
+            "recorded_at": state.recorded_at,
+            **{
+                key: props.get(key)
+                for key in (
+                    "applied",
+                    "packs",
+                    "gate_passed",
+                    "gate_skipped",
+                    "missing_documents",
+                    "replay_incomplete",
+                    "replay_target_version",
+                    "replay_failures",
+                )
+            },
+            "eval_pending": props.get("eval_pending", []),
+        },
+        "change": plan.as_dict(),
+        "readiness": {
+            "processing_ready": processing_ready,
+            "evaluation_ready": processing_ready
+            and not failed
+            and not skipped
+            and not pending
+            and not props.get("missing_documents"),
+            "pending_packs": sorted(pending),
+            "diagnostic_only": skipped
+            or (failed and allow_breaking)
+            or bool(props.get("missing_documents")),
+            "recorded_history_incomplete": bool(props.get("missing_documents")),
+            "allow_breaking": allow_breaking,
+            "reasons": reasons,
+            "next_action": " ".join(actions) if actions else "No recorded ontology blocker.",
+        },
+    }
 
 
 class EvalPending:
@@ -379,6 +509,7 @@ class EvalPending:
         self._registry = registry
         self._ttl_s = ttl_s
         self._packs: frozenset[str] | None = None
+        self.readiness: dict[str, Any] | None = None
         self._read_at = 0.0
 
     async def packs(self) -> frozenset[str]:
@@ -394,9 +525,7 @@ class EvalPending:
                 raise
             log.warning("eval_pending_read_failed", exc_info=True)
             return self._packs
-        recorded = set(state.properties.get("eval_pending") or []) if state else set()
-        pending = recorded | plan_for_state(state, self._registry).eval_required
-        active = {p.name for p in self._registry.packs if p.name not in OPEN_PACKS}
-        self._packs = frozenset(pending & active)
+        self.readiness = status_for_state(state, self._registry)["readiness"]
+        self._packs = frozenset(self.readiness["pending_packs"])
         self._read_at = now
         return self._packs
