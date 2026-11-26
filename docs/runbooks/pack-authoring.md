@@ -4,6 +4,17 @@ A pack teaches Engram a new domain: its types, the events that describe them, ho
 
 The worked example is `tests/fixtures/packs/crm/`: a small CRM pack (`crm.pack.yaml`) and its evaluation set (`crm.eval.yaml`). `tests/unit/test_pack_toy_end_to_end.py` runs it end to end on every backend with no other domain pack active. Read the two files alongside this page. `src/context_graph/ontology/packs/pdlc.pack.yaml` is the large real example.
 
+The workbench catalog also contains `src/context_graph/workbench/packs/crm.pack.yaml`.
+Both CRM files identify themselves as `crm` version `1.0.0`, but they serve different
+purposes: the worked fixture has no payload contracts, while the workbench variant
+adds payload contracts and explicit `handling: processed` declarations for all six
+events. Record the file path/purpose and the composed
+registry content digest (`registry.version`) when identifying a run or exported
+artifact; the pack name/version alone does not distinguish these variants. The
+digest identifies the whole selected composition, so also record its selected packs.
+Keep these intentional fixture variants distinct from independently distributed
+pack releases, which should have versions reflecting their compatibility changes.
+
 ## 0. What you get for free, and what you must not redeclare
 
 Core (`core.pack.yaml`) always loads. `memory` and `user` are optional roots selected by `CG_ONTOLOGY_BUILTIN_PACKS` (both are the legacy default; an explicit empty list omits them). Dependencies may require additional packs. These built-in packs describe shared schema and specialized capabilities; they always load from the built-in directory, and shadowing files are refused. Selection must gate processing and retrieval; schema loading alone does not establish capability readiness.

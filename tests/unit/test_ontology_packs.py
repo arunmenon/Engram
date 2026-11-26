@@ -151,9 +151,27 @@ class TestPdlcPack:
     def test_loads_with_its_requirements(self) -> None:
         registry = load_registry(["pdlc"])
         assert [pack.name for pack in registry.packs] == ["core", "memory", "user", "pdlc"]
-        assert registry.pack("pdlc").version == "1.8.0"
-        # 16 in the design note; Release was added by the real-project mapping (v0.4)
-        assert len([t for t in registry.node_types.values() if t.pack == "pdlc"]) == 17
+        assert registry.pack("pdlc").version == "2.1.0"
+        assert {name for name, node in registry.node_types.items() if node.pack == "pdlc"} == {
+            "Change",
+            "Component",
+            "Constraint",
+            "Decision",
+            "Deployment",
+            "DesignApproval",
+            "DesignElement",
+            "Incident",
+            "Lesson",
+            "Release",
+            "Request",
+            "Requirement",
+            "Review",
+            "Spec",
+            "Team",
+            "TestCase",
+            "TestRun",
+            "WorkItem",
+        }
         assert set(registry.rules_for("pdlc.change.merged")[0][1].model_dump()) >= {"event"}
 
     def test_pdlc_types_are_identified_by_node_id(self) -> None:
