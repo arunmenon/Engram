@@ -23,11 +23,11 @@ All commands below ran locally in the isolated task worktree with PYTHONPATH=src
 - Ruff check and format check on the two changed test files pass; git diff --check passes.
 - CRM memory end-to-end control: pytest tests/unit/test_pack_toy_end_to_end.py -k memory -q --tb=short: 1 passed, 2 deselected, with two FastAPI deprecation warnings. The two external-backend parametrizations were not run.
 
-Only tests and documentation changed. No runtime source, pack, payload fixture, evaluation expected answers, dependency, cloud resource or model call changed. The original dirty integration worktree remains untouched. This slice does not fix replay completion, classification, runtime handoff, vectors or UI behavior.
+Only tests and documentation changed. No runtime source, pack, payload fixture, evaluation expected answers or dependency changed. No product-provider or cloud operation was performed; the two Fable review calls are separately recorded. The original dirty integration worktree remains untouched. This slice does not fix replay completion, classification, runtime handoff, vectors or UI behavior.
 
 ## Independent reviews
 
-User requested two feedback rounds: Codex implementation/checks → Fable round1 → Codex disposition/correction → Fable round2. Round 1 is complete with no material findings; its minor documentation corrections are applied. Round 2 remains pending. No product issue closure, merge or deployment is claimed.
+User requested two feedback rounds: Codex implementation/checks → Fable round1 → Codex disposition/correction → Fable round2. Round 1 is complete with no material findings; its minor documentation corrections are applied. Round 2 is complete and accepted within the stated local scope. No product issue closure, merge or deployment is claimed.
 
 ## First review and reconciliation
 
@@ -71,3 +71,9 @@ tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping
 tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.spec.changed]
 tests/unit/test_pack_admission.py::test_whole_pdlc_catalog_distinguishes_mapping_from_contract[pdlc.design.approval_recorded]
 ```
+
+## Final acceptance checkpoint
+
+[Fable round 2](slice89-fable-round2.md) accepts the slice with no material findings or new minor requests. It independently reran 65 changed-file tests, the 216-test affected selection, the CRM memory control (1 passed, 2 external cases deselected), Ruff and whitespace checks. Both requested feedback rounds are complete.
+
+The accepted code/runbook candidate is `1026719bd0908d227936c068c427c9c5fc8d084a`. Only reviewer reports and this status record were appended afterward. The three reviewed file hashes remain unchanged. This evidence supports the bounded test/documentation slice; it does not attest live backend behavior, Python 3.12 CI, a deployed fix or approval to merge. Issue 89 remains open until the agreed merge/closure process.
