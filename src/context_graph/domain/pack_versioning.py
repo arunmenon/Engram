@@ -13,7 +13,8 @@ how a graph built under ``old`` is brought to ``new``:
   the live graph (writes are idempotent upserts);
 - ``breaking``: a type or edge removed, a key, identity property or
   property type changed, an edge endpoint or lifecycle state removed, a
-  lifecycle's initial state changed, or a projection rule removed. Applied
+  lifecycle's initial state or effective link defaults changed, or a
+  projection rule removed. Applied
   by building a fresh projection from the ledger under the new version
   (blue/green), gated on the packs' evaluation sets, then switching.
 
@@ -223,6 +224,16 @@ def _compare_edges(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePla
             plan.note("breaking", f"edge type {name} removed", before.pack)
             continue
         pack = after.pack
+        if before.link_defaults != after.link_defaults:
+            # Replay merges writes and retains removed default properties.
+            # Treat all default edits conservatively rather than assume
+            # in-place convergence for every backend and projection rule.
+            plan.note(
+                "breaking",
+                f"edge type {name}: effective link defaults changed; "
+                "rebuild a fresh graph to reconcile existing relationships",
+                pack,
+            )
         old_from = _endpoints(old, before.from_types, before.from_packs)
         old_to = _endpoints(old, before.to_types, before.to_packs)
         new_from = _endpoints(new, after.from_types, after.from_packs)
