@@ -67,11 +67,21 @@ def policy(pack=None):
     )
 
 
+def test_pdlc_contract_fixtures_cover_the_declared_catalog():
+    registry = load_registry(["pdlc"])
+    checked = compile_admission_policy(resolve_bundle(registry))
+    declared = set(registry.pack("pdlc").events)
+    compiled = {rule.event_type for rule in checked.inventory if rule.owner == "pdlc"}
+    fixture_events = [case["event_type"] for case in CASES]
+    assert len(set(fixture_events)) == len(fixture_events), "Duplicate event contract fixtures"
+    assert declared == set(fixture_events)
+    assert compiled == declared
+
+
 @pytest.mark.parametrize("case", CASES, ids=lambda case: case["event_type"])
 def test_whole_pdlc_catalog_distinguishes_mapping_from_contract(case):
     checked = compile_admission_policy(resolve_bundle(load_registry(["pdlc"])))
     rules = {rule.event_type: rule for rule in checked.inventory if rule.owner == "pdlc"}
-    assert len(rules) == 23
     rule = rules[case["event_type"]]
     assert rule.contract_declared
     before = copy.deepcopy(case["payload"])
