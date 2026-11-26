@@ -34,6 +34,12 @@ a breaking change needs a new minor version and anything else a patch.
 ``eval_required`` lists packs whose retrieval section changed: decision 10
 says their weights are not trusted until their evaluation set passes.
 
+``admission_changes`` separately reports producer compatibility. Potentially
+restrictive payload or handling changes require the stronger version bump,
+but do not by themselves require a graph rebuild or replay. Graph operations
+remain in ``kind`` and ``pack_changes``. Proven validation relaxations are
+compatible; type changes and other unproven inclusions remain conservative.
+
 Pure Python; no framework imports.
 """
 
@@ -47,8 +53,10 @@ from context_graph.domain.ontology import OPEN_PACKS
 
 if TYPE_CHECKING:
     from context_graph.domain.ontology import OntologyRegistry, Pack
+    from context_graph.domain.pack_contracts import PayloadContract, PayloadField
 
 ChangeKind = Literal["none", "initial", "additive", "mapping", "breaking"]
+AdmissionChangeKind = Literal["additive", "breaking"]
 _ORDER: dict[str, int] = {"none": 0, "initial": 1, "additive": 2, "mapping": 3, "breaking": 4}
 
 
@@ -61,8 +69,10 @@ class ChangePlan:
     # Packs whose retrieval changed (their evaluation set must pass)
     eval_required: set[str] = field(default_factory=set)
     version_problems: list[str] = field(default_factory=list)
-    # Pack name -> kind of its own change
+    # Pack name -> graph-application kind (admission compatibility is separate)
     pack_changes: dict[str, ChangeKind] = field(default_factory=dict)
+    # Producer compatibility is independent of the graph operation above.
+    admission_changes: dict[str, AdmissionChangeKind] = field(default_factory=dict)
 
     def note(self, kind: ChangeKind, reason: str, pack: str | None = None) -> None:
         if _ORDER[kind] > _ORDER[self.kind]:
@@ -70,6 +80,11 @@ class ChangePlan:
         if pack is not None and _ORDER[kind] > _ORDER[self.pack_changes.get(pack, "none")]:
             self.pack_changes[pack] = kind
         self.reasons.append(reason)
+
+    def note_admission(self, kind: AdmissionChangeKind, reason: str, event: str, pack: str) -> None:
+        self.note("additive", reason, pack)
+        if _ORDER[kind] > _ORDER[self.admission_changes.get(event, "none")]:
+            self.admission_changes[event] = kind
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -79,6 +94,7 @@ class ChangePlan:
             "eval_required": sorted(self.eval_required),
             "version_problems": self.version_problems,
             "pack_changes": dict(sorted(self.pack_changes.items())),
+            "admission_changes": dict(sorted(self.admission_changes.items())),
         }
 
 
@@ -231,11 +247,235 @@ def _compare_edges(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePla
 
 
 def _compare_events(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePlan) -> None:
+    old_consumers, new_consumers = _processing_events(old), _processing_events(new)
+    old_open_namespaces = {
+        namespace
+        for pack in old.packs
+        if pack.name == "core"
+        for namespace in pack.open_event_namespaces
+    }
     for name, before in old.event_types.items():
-        if name not in new.event_types:
+        after = new.event_types.get(name)
+        if after is None:
             plan.note("breaking", f"event type {name} removed", before.pack)
+            continue
+        if before.pack != after.pack:
+            # Ownership changes alter core/domain admission defaults. Do not
+            # prove compatibility using the new owner's policy on both sides.
+            plan.note_admission(
+                "breaking",
+                f"event {name}: owner changed from {before.pack} to {after.pack}; "
+                "review producer compatibility before adoption.",
+                name,
+                after.pack,
+            )
+            continue
+        contract_changed = _spec(before.definition.payload_contract) != _spec(
+            after.definition.payload_contract
+        )
+        if contract_changed:
+            compatible = _contract_accepts(
+                before.definition.payload_contract, after.definition.payload_contract
+            )
+            if before.definition.payload_contract is None:
+                # Domain admission requires a declared contract; core events
+                # without one are unrestricted by payload validation.
+                compatible = after.pack != "core"
+            elif after.definition.payload_contract is None:
+                compatible = after.pack == "core"
+            equivalent = compatible and _contract_accepts(
+                after.definition.payload_contract, before.definition.payload_contract
+            )
+            if not equivalent:
+                effect = (
+                    "declared validation remains compatible with previously valid payloads. "
+                    if compatible
+                    else "new event submissions that passed previous validation may be rejected. "
+                )
+                if before.definition.payload_contract is None and after.pack != "core":
+                    effect = (
+                        "a contract is required for domain event admission; "
+                        "review newly eligible submissions. "
+                    )
+                elif after.definition.payload_contract is None and after.pack != "core":
+                    effect = "new domain submissions are rejected without a payload contract. "
+                summary = _contract_summary(
+                    before.definition.payload_contract, after.definition.payload_contract
+                )
+                plan.note_admission(
+                    "additive" if compatible else "breaking",
+                    f"event {name}: {summary}; {effect}"
+                    "Review producer compatibility before adoption.",
+                    name,
+                    after.pack,
+                )
+        old_handling = _event_handling(old, name, old_consumers)
+        new_handling = _event_handling(new, name, new_consumers)
+        if old_handling != new_handling and (
+            contract_changed or before.definition.handling != after.definition.handling
+        ):
+            compatible = old_handling == "unsupported" or (
+                old_handling == "ledger_only" and new_handling == "processed"
+            )
+            plan.note_admission(
+                "additive" if compatible else "breaking",
+                f"event {name}: handling changed from {old_handling} to {new_handling}; "
+                + (
+                    "new submissions will be rejected."
+                    if new_handling == "unsupported"
+                    else "review how new events are recorded and processed before adoption."
+                ),
+                name,
+                after.pack,
+            )
+        elif before.definition.handling != after.definition.handling:
+            plan.note(
+                "additive",
+                f"event {name}: handling declaration changed; effective handling remains "
+                f"{new_handling} under the current contract and processing declarations.",
+                after.pack,
+            )
     for name in sorted(set(new.event_types) - set(old.event_types)):
         plan.note("additive", f"event type {name} added", new.event_types[name].pack)
+        declaration = new.event_types[name]
+        if (
+            declaration.pack == "core"
+            and declaration.definition.payload_contract is not None
+            and name.partition(".")[0] in old_open_namespaces
+        ):
+            plan.note_admission(
+                "breaking",
+                f"event {name}: payload validation added for a previously open event; "
+                "new submissions previously accepted may be rejected. "
+                "Review producers before adoption.",
+                name,
+                declaration.pack,
+            )
+
+
+def _processing_events(registry: OntologyRegistry) -> set[str]:
+    return set(registry.projection_rules) | {
+        source.rpartition(":")[2]
+        for pack in registry.packs
+        if pack.extraction.propose
+        for source in pack.extraction.sources
+    }
+
+
+def _event_handling(registry: OntologyRegistry, name: str, consumers: set[str]) -> str:
+    """Declared processing fallback, matching the compiled admission inventory."""
+    declaration = registry.event_types[name]
+    has_consumers = declaration.pack == "core" or name in consumers
+    handling = declaration.definition.handling or ("processed" if has_consumers else "unsupported")
+    if declaration.pack != "core" and declaration.definition.payload_contract is None:
+        return "unsupported"
+    return "unsupported" if handling == "processed" and not has_consumers else handling
+
+
+def _contract_accepts(before: PayloadContract | None, after: PayloadContract | None) -> bool:
+    """Conservatively prove the new declaration accepts every old valid payload."""
+    if before is None or after is None:
+        return before is after
+    return _object_accepts(
+        before.properties, after.properties, before.additional_fields, after.additional_fields
+    )
+
+
+def _contract_summary(before: PayloadContract | None, after: PayloadContract | None) -> str:
+    if before is None:
+        return "payload validation added"
+    if after is None:
+        return "payload validation removed"
+    changes = []
+    if before.additional_fields != after.additional_fields:
+        changes.append(
+            "unexpected payload fields "
+            + ("now rejected" if after.additional_fields == "forbid" else "now allowed")
+        )
+    for name in sorted(before.properties.keys() | after.properties.keys()):
+        old, new = before.properties.get(name), after.properties.get(name)
+        if _spec(old) == _spec(new):
+            continue
+        detail = "validation changed"
+        if old is None:
+            detail = "validation added"
+        elif new is None:
+            detail = "validation removed"
+        elif old.required != new.required:
+            detail = "now required" if new.required else "no longer required"
+            if _spec(old.model_dump(exclude={"required"})) != _spec(
+                new.model_dump(exclude={"required"})
+            ):
+                detail += " and validation changed"
+        changes.append(f"payload field {name!r}: {detail}")
+    return "; ".join(changes[:5]) + (
+        f"; {len(changes) - 5} more changed fields" if len(changes) > 5 else ""
+    )
+
+
+def _object_accepts(
+    before: dict[str, PayloadField],
+    after: dict[str, PayloadField],
+    old_extra: str,
+    new_extra: str,
+) -> bool:
+    if old_extra == "preserve" and new_extra == "forbid":
+        return False
+    if new_extra == "forbid" and before.keys() - after.keys():
+        return False
+    for name, new in after.items():
+        old = before.get(name)
+        if old is None:
+            # An optional field restricts arbitrary old extras unless the old
+            # object forbade that field entirely.
+            if new.required or old_extra == "preserve":
+                return False
+        elif (new.required and not old.required) or not _field_accepts(old, new):
+            return False
+    return True
+
+
+def _range_accepts(
+    old_min: int | float | None,
+    old_max: int | float | None,
+    new_min: int | float | None,
+    new_max: int | float | None,
+) -> bool:
+    return (new_min is None or (old_min is not None and new_min <= old_min)) and (
+        new_max is None or (old_max is not None and new_max >= old_max)
+    )
+
+
+def _field_accepts(before: PayloadField, after: PayloadField) -> bool:
+    if before.type != after.type or (before.nullable and not after.nullable):
+        return False
+    if before.type == "object":
+        return _object_accepts(
+            before.properties, after.properties, before.additional_fields, after.additional_fields
+        )
+    if before.type == "string" and before.enum is not None:
+        # Enum order is not executable. Consider only old values that could
+        # actually pass its length bounds.
+        return all(
+            (after.enum is None or value in after.enum)
+            and (after.min_length is None or len(value) >= after.min_length)
+            and (after.max_length is None or len(value) <= after.max_length)
+            for value in before.enum
+            if (before.min_length is None or len(value) >= before.min_length)
+            and (before.max_length is None or len(value) <= before.max_length)
+        )
+    if after.enum is not None and before.enum is None:
+        return False
+    if before.type in {"string", "array"} and not _range_accepts(
+        before.min_length or 0, before.max_length, after.min_length or 0, after.max_length
+    ):
+        return False
+    if before.type == "array":
+        assert before.items is not None and after.items is not None
+        return _field_accepts(before.items, after.items)
+    if before.type in {"integer", "number"}:
+        return _range_accepts(before.minimum, before.maximum, after.minimum, after.maximum)
+    return True
 
 
 def _rules(registry: OntologyRegistry) -> dict[str, list[str]]:
@@ -346,6 +586,11 @@ def _section(pack: Pack, section: str) -> str:
 
 def _check_versions(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePlan) -> None:
     old_packs = {p.name: p for p in old.packs}
+    version_kinds = dict(plan.pack_changes)
+    for event, kind in plan.admission_changes.items():
+        pack_name = new.event_types[event].pack
+        if _ORDER[kind] > _ORDER[version_kinds.get(pack_name, "none")]:
+            version_kinds[pack_name] = kind
     for pack in new.packs:
         before = old_packs.get(pack.name)
         if before is None or before.canonical_json() == pack.canonical_json():
@@ -358,9 +603,10 @@ def _check_versions(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePl
                 f"than {before.version}"
             )
             continue
-        needed = _needed_bump(plan.pack_changes.get(pack.name, "additive"), old_version)
+        change_kind: ChangeKind = version_kinds.get(pack.name, "additive")
+        needed = _needed_bump(change_kind, old_version)
         if _RANK[bumped] < _RANK[needed]:
             plan.version_problems.append(
-                f"{pack.name}: a {plan.pack_changes.get(pack.name)} change needs a {needed} "
+                f"{pack.name}: a {change_kind} change needs a {needed} "
                 f"version, but {before.version} -> {pack.version} is a {bumped} one"
             )
