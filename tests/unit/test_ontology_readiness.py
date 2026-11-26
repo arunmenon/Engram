@@ -117,7 +117,7 @@ async def test_reevaluation_cannot_clear_failed_rebuild_but_can_finish_diagnosti
 
 
 @pytest.mark.parametrize("allow_breaking", [False, True])
-async def test_known_missing_history_is_disclosed_without_new_worker_policy(allow_breaking) -> None:
+async def test_known_missing_history_is_disclosed_and_blocks_worker_start(allow_breaking) -> None:
     from context_graph.ontology.versioning import EvalPending
 
     graph, settings = MemoryGraphStore(), Settings(ontology={"allow_breaking": allow_breaking})
@@ -131,17 +131,18 @@ async def test_known_missing_history_is_disclosed_without_new_worker_policy(allo
         transport=httpx.ASGITransport(app=app), base_url="http://test"
     ) as client:
         readiness = (await client.get("/v1/ontology")).json()["readiness"]
-    assert readiness["processing_ready"]
+    assert not readiness["processing_ready"]
     assert not readiness["evaluation_ready"]
     assert readiness["recorded_history_incomplete"]
     assert readiness["diagnostic_only"]
     assert await EvalPending(graph, BASE, ttl_s=0).packs() == frozenset({"demo"})
-    await reconcile(
-        graph,
-        await _ledger(),
-        PackProjector(BASE, frozenset()),
-        **(OPTIONS | {"allow_breaking": allow_breaking}),
-    )
+    with pytest.raises(OntologyChangeRefusedError, match="incomplete"):
+        await reconcile(
+            graph,
+            await _ledger(),
+            PackProjector(BASE, frozenset()),
+            **(OPTIONS | {"allow_breaking": allow_breaking}),
+        )
 
 
 async def test_recorded_passing_questions_do_not_report_failed_build_as_ready(

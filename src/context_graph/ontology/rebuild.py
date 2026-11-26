@@ -24,11 +24,15 @@ A breaking pack change is not applied to the live graph. Instead:
 
 The ledger is never changed. Refused targets: one that records another
 version, a live projection (a graph the workers reconciled), or one that
-holds data but records no ontology (``--force`` overrides these). Running
-the rebuild again into its own target re-projects it (idempotent).
+holds data but records no ontology (``--force`` overrides these). Completed
+targets may be rebuilt again. Incomplete or interrupted targets require a
+fresh replacement with recovered required source history.
 Evaluation sets are checked before the build. A batch that fails is
 retried one event at a time and failing events are reported; entries whose
 documents expired from the ledger are counted (``missing_documents``).
+Missing required documents or failed writes make the build incomplete even
+when questions pass or the evaluation is skipped. Completeness refers to
+retained ledger entries observed in this run, not already trimmed history.
 
 Backend-neutral: ``EventLog`` and ``GraphBackend`` from the registry.
 """
@@ -42,7 +46,7 @@ import structlog
 
 from context_graph.domain.ontology import OntologyError
 from context_graph.ontology.evaluation import EvalReport, check_eval_sets, run_gate
-from context_graph.ontology.versioning import read_state, record_state
+from context_graph.ontology.versioning import check_replay_authority, read_state, record_state
 from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.subscription import Delivery
 from context_graph.retrieval.artifacts import ArtifactRetriever
@@ -52,7 +56,9 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
 
+    from context_graph.domain.models import Event
     from context_graph.domain.pack_projection import PackProjector
+    from context_graph.domain.source_trust import VerifiedSourceProvenance
     from context_graph.ports.event_log import EventLog
     from context_graph.ports.graph_backend import GraphBackend
     from context_graph.settings import Settings
@@ -67,10 +73,10 @@ class RebuildRefusedError(RuntimeError):
 
 
 class LedgerReplay:
-    """A ``Subscription`` that reads the whole ledger once, in log order.
+    """A ``Subscription`` that reads retained ledger entries once, in log order.
 
     Nothing is acknowledged or redelivered: a rebuild that stops is run
-    again from the start (projection writes are idempotent). Items the
+    again from the start into a fresh target. Items the
     consumer dead-letters are kept in ``dead_lettered`` for the report.
     """
 
@@ -80,8 +86,12 @@ class LedgerReplay:
         self._cursor: str | None = None
         self.read = 0
         # Entries whose document has expired from the ledger (not projected)
-        self.missing_documents = 0
+        self.missing_positions: set[str] = set()
         self.dead_lettered: list[str] = []
+
+    @property
+    def missing_documents(self) -> int:
+        return len(self.missing_positions)
 
     @property
     def group_name(self) -> str:
@@ -112,7 +122,7 @@ class LedgerReplay:
         if entries:
             self._cursor = entries[-1].position
         self.read += len(entries)
-        self.missing_documents += sum(1 for e in entries if e.document is None)
+        self.missing_positions.update(e.position for e in entries if e.document is None)
         return [Delivery(e.position, {"event_id": e.event_id}) for e in entries]
 
     async def ack(self, *positions: str) -> None:
@@ -130,13 +140,31 @@ class RebuildReport:
     version: str
     events: int = 0
     missing_documents: int = 0
+    missing_positions: list[str] = field(default_factory=list)
     dead_lettered: list[str] = field(default_factory=list)
     gate: list[EvalReport] = field(default_factory=list)
     gate_skipped: bool = False
 
     @property
+    def projection_complete(self) -> bool:
+        """Every required entry observed in this ledger run was processed."""
+        return not self.missing_documents and not self.dead_lettered
+
+    @property
+    def evaluation_passed(self) -> bool | None:
+        return None if self.gate_skipped else all(report.passed for report in self.gate)
+
+    @property
+    def evaluation_status(self) -> str:
+        return "skipped" if self.gate_skipped else "passed" if self.evaluation_passed else "failed"
+
+    @property
+    def failed_events(self) -> int:
+        return len(set(self.dead_lettered))
+
+    @property
     def passed(self) -> bool:
-        return not self.dead_lettered and (
+        return self.projection_complete and (
             self.gate_skipped or all(report.passed for report in self.gate)
         )
 
@@ -144,8 +172,14 @@ class RebuildReport:
         return {
             "version": self.version,
             "passed": self.passed,
+            "projection_complete": self.projection_complete,
+            "evaluation_passed": self.evaluation_passed,
+            "evaluation_status": self.evaluation_status,
+            "failed_events": self.failed_events,
+            "history_basis": "retained-ledger",
             "events": self.events,
             "missing_documents": self.missing_documents,
+            "missing_positions": self.missing_positions[:100],
             "dead_lettered": self.dead_lettered[:100],
             "gate_skipped": self.gate_skipped,
             "gate": [report.as_dict() for report in self.gate],
@@ -158,6 +192,18 @@ class _RebuildConsumer(ProjectionConsumer):
     A failed batch is retried one event at a time; an event that still
     fails is dead-lettered into the report, as the live worker would.
     """
+
+    async def _fetch_batch(
+        self, batch: list[tuple[str, dict[str, str]]]
+    ) -> dict[str, tuple[Event, dict[str, Any], VerifiedSourceProvenance | None]]:
+        fetched = await super()._fetch_batch(batch)
+        assert isinstance(self._subscription, LedgerReplay)
+        # Retention can remove a document after read_after, before the worker
+        # actually fetches it. Count each missing position once across retries.
+        self._subscription.missing_positions.update(
+            position for position, _data in batch if position not in fetched
+        )
+        return fetched
 
     async def _flush_buffer(self) -> None:
         batch = self._buffer[:]
@@ -219,6 +265,11 @@ async def rebuild(
     """Build, gate and record a projection of the ledger in ``target`` (see module docstring)."""
     registry = projector.registry
     state = await read_state(target)
+    if state is not None and state.incomplete_rebuild:
+        raise RebuildRefusedError(
+            "this target has an incomplete build; use a fresh target with recovered required "
+            "source history. Reusing partial writes or --force cannot prove recovery."
+        )
     if not force:
         if state is not None and state.version != registry.version:
             msg = (
@@ -241,15 +292,28 @@ async def rebuild(
             check_eval_sets(registry, eval_dirs)
         except OntologyError as exc:
             raise RebuildRefusedError("; ".join(exc.problems)) from exc
+    check_replay_authority(event_log, projector)
     await target.ensure_constraints()
     await target.ensure_pack_schema(registry, settings.embedding.dimensions)
 
+    await record_state(
+        target,
+        registry,
+        applied="rebuild",
+        extra={
+            "rebuild_in_progress": True,
+            "rebuild_complete": False,
+            "rebuild_target_version": registry.version,
+            "rebuild_history_basis": "retained-ledger",
+        },
+    )
     report = RebuildReport(registry.version)
     replay = await project_ledger(
         event_log, target, projector, settings, batch_size=settings.ontology.replay_batch_size
     )
     report.events = replay.read
     report.missing_documents = replay.missing_documents
+    report.missing_positions = sorted(replay.missing_positions)[:100]
     report.dead_lettered = replay.dead_lettered
     log.info(
         "ontology_rebuild_projected", events=replay.read, dead_lettered=len(replay.dead_lettered)
@@ -282,6 +346,13 @@ async def rebuild(
         extra={
             "rebuild_events": report.events,
             "missing_documents": report.missing_documents,
+            "rebuild_missing_positions": report.missing_positions,
+            "rebuild_complete": report.projection_complete,
+            "rebuild_in_progress": False,
+            "rebuild_failures": report.dead_lettered[:100],
+            "rebuild_failure_count": report.failed_events,
+            "rebuild_history_basis": "retained-ledger",
+            "evaluation_status": report.evaluation_status,
             "gate_passed": report.passed,
             "gate_skipped": report.gate_skipped,
             "gate": [f"{r.pack}:{r.mean_f1:.3f}" for r in report.gate],
