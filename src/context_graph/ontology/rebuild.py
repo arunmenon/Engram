@@ -285,6 +285,11 @@ async def rebuild(
             "gate_passed": report.passed,
             "gate_skipped": report.gate_skipped,
             "gate": [f"{r.pack}:{r.mean_f1:.3f}" for r in report.gate],
+            **(
+                {"eval_pending": []}
+                if report.passed and not skip_gate and not report.missing_documents
+                else {}
+            ),
         },
     )
     return report

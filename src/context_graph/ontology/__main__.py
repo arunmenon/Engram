@@ -46,10 +46,11 @@ import orjson
 from pydantic_settings import BaseSettings
 
 from context_graph.adapters.registry import open_stores
+from context_graph.domain.ontology import OPEN_PACKS
 from context_graph.ontology.evaluation import run_gate
 from context_graph.ontology.rebuild import RebuildRefusedError, rebuild
 from context_graph.ontology.runtime import configured_projector
-from context_graph.ontology.versioning import plan_for_state, read_state, record_state
+from context_graph.ontology.versioning import read_state, record_state, status_for_state
 from context_graph.retrieval.artifacts import ArtifactRetriever
 from context_graph.settings import Settings
 
@@ -146,21 +147,12 @@ async def run_status(settings: Settings) -> int:
     stores = await open_stores(settings)
     try:
         state = await read_state(stores.graph)
-        plan = plan_for_state(state, projector.registry)
         _print(
             {
                 "loaded": projector.registry.summary(),
-                "graph": None
-                if state is None
-                else {
-                    "version": state.version,
-                    "recorded_at": state.recorded_at,
-                    "applied": state.properties.get("applied"),
-                    "packs": state.properties.get("packs"),
-                    "eval_pending": state.properties.get("eval_pending", []),
-                    "gate_passed": state.properties.get("gate_passed"),
-                },
-                "change": plan.as_dict(),
+                **status_for_state(
+                    state, projector.registry, allow_breaking=settings.ontology.allow_breaking
+                ),
             }
         )
         return 0
@@ -191,14 +183,24 @@ async def evaluate_graph(
     )
     passed = all(report.passed for report in reports)
     state = await read_state(graph)
-    if record and state is not None and state.version == registry.version:
+    projection_ready = status_for_state(state, registry)["readiness"]["processing_ready"]
+    if (
+        record
+        and state is not None
+        and state.version == registry.version
+        and projection_ready
+        and not state.properties.get("missing_documents")
+    ):
         await record_state(
             graph,
             registry,
             applied=str(state.properties.get("applied", "")),
             extra={
-                "eval_pending": [] if passed else sorted(r.pack for r in reports),
+                "eval_pending": []
+                if passed and projection_ready
+                else sorted(p.name for p in registry.packs if p.name not in OPEN_PACKS),
                 "gate": [f"{r.pack}:{r.mean_f1:.3f}" for r in reports],
+                **({"gate_skipped": False} if passed and projection_ready else {}),
             },
         )
     return reports
@@ -215,8 +217,18 @@ async def run_evaluate(settings: Settings, eval_dirs: list[str], *, record: bool
             _eval_dirs(settings, eval_dirs),
             record=record,
         )
-        _print([report.as_dict() for report in reports])
-        return 0 if all(report.passed for report in reports) else 1
+        readiness = status_for_state(await read_state(stores.graph), projector.registry)[
+            "readiness"
+        ]
+        _print([{**report.as_dict(), "readiness": readiness} for report in reports])
+        if not readiness["evaluation_ready"]:
+            print(readiness["next_action"], file=sys.stderr)  # noqa: T201 - CLI recovery
+        return (
+            0
+            if all(report.passed for report in reports)
+            and (not record or readiness["evaluation_ready"])
+            else 1
+        )
     finally:
         await stores.close()
 
@@ -249,8 +261,11 @@ async def run_rebuild(
         except RebuildRefusedError as exc:
             print(f"refused: {exc}", file=sys.stderr)  # noqa: T201 - CLI output
             return 2
-        _print(report.as_dict())
-        return 0 if report.passed else 1
+        readiness = status_for_state(await read_state(destination.graph), projector.registry)[
+            "readiness"
+        ]
+        _print({**report.as_dict(), "readiness": readiness})
+        return 0 if report.passed and readiness["processing_ready"] else 1
     finally:
         await source.close()
         await destination.close()

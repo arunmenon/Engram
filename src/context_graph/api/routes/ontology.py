@@ -18,7 +18,8 @@ from fastapi.responses import ORJSONResponse
 
 from context_graph.domain.ontology import EnumSpec
 from context_graph.domain.pack_extraction import extraction_profiles
-from context_graph.ontology.versioning import plan_for_state, read_state
+from context_graph.ontology.versioning import read_state, status_for_state
+from context_graph.ports.errors import RuntimeFencedError
 
 if TYPE_CHECKING:
     from context_graph.domain.ontology import OntologyRegistry, PropertySpec
@@ -104,22 +105,23 @@ async def get_ontology(request: Request) -> ORJSONResponse:
     body = describe(registry, settings)
     try:
         state = await read_state(graph)
-        plan = plan_for_state(state, registry)
+        status = status_for_state(state, registry, allow_breaking=settings.ontology.allow_breaking)
+    except RuntimeFencedError:
+        raise
     except Exception:
         log.exception("ontology_graph_state_unavailable")
         body["graph"] = {"error": "the graph's ontology state could not be read"}
-        return ORJSONResponse(content=body)
-    body["graph"] = (
-        None
-        if state is None
-        else {
-            "version": state.version,
-            "recorded_at": state.recorded_at,
-            "applied": state.properties.get("applied"),
-            "packs": state.properties.get("packs"),
-            "eval_pending": state.properties.get("eval_pending", []),
-            "gate_passed": state.properties.get("gate_passed"),
+        body["change"] = None
+        body["readiness"] = {
+            "processing_ready": False,
+            "evaluation_ready": False,
+            "pending_packs": None,
+            "diagnostic_only": None,
+            "recorded_history_incomplete": None,
+            "allow_breaking": settings.ontology.allow_breaking,
+            "reasons": ["Ontology state is unavailable; readiness is unknown."],
+            "next_action": "Restore access to the recorded state and check again.",
         }
-    )
-    body["change"] = plan.as_dict()
+        return ORJSONResponse(content=body)
+    body.update(status)
     return ORJSONResponse(content=body)

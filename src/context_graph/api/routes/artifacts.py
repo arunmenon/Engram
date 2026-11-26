@@ -74,12 +74,20 @@ async def query_artifacts(body: ArtifactQueryRequest, request: Request) -> ORJSO
         pending = await request.app.state.eval_pending.packs()
     if body.intent is not None and request.app.state.ontology.intents[body.intent].pack in pending:
         pack = request.app.state.ontology.intents[body.intent].pack
+        readiness = getattr(request.app.state.eval_pending, "readiness", None)
+        remedy = (
+            readiness["next_action"]
+            if readiness
+            else (
+                "run python -m context_graph.ontology evaluate --record "
+                "(or set CG_ONTOLOGY_SERVE_UNEVALUATED=true in development)"
+            )
+        )
         return ORJSONResponse(
             status_code=409,
             content={
                 "detail": f"intent {body.intent!r} belongs to pack {pack!r}, whose evaluation "
-                "set has not passed on this graph; run python -m context_graph.ontology "
-                "evaluate --record (or set CG_ONTOLOGY_SERVE_UNEVALUATED=true in development)"
+                f"set is not eligible on this graph; {remedy}"
             },
         )
     if body.max_depth is not None and body.max_depth > limits.max_max_depth:
