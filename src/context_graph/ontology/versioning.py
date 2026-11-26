@@ -156,6 +156,20 @@ async def plan_change(graph: PackGraph, registry: OntologyRegistry) -> ChangePla
 class ReplayReport:
     replayed: int = 0
     failed: list[str] | None = None
+    missing_documents: int = 0
+
+
+def _check_replay_authority(event_log: EventLog, projector: PackProjector) -> None:
+    if (
+        getattr(event_log, "requires_source_provenance", False) is True
+        and projector.requires_provenance is not True
+    ):
+        raise RuntimeFencedError("Bound ledger requires authenticated replay policy")
+    if projector.requires_provenance is True:
+        from context_graph.ports.event_log import AcceptedRecordReader
+
+        if not isinstance(event_log, AcceptedRecordReader):
+            raise RuntimeFencedError("Bound replay requires an accepted-record reader")
 
 
 async def replay_event_types(
@@ -172,16 +186,7 @@ async def replay_event_types(
     One event's failure is logged and reported; the replay goes on, as the
     projection worker dead-letters a failing event and goes on.
     """
-    if (
-        getattr(event_log, "requires_source_provenance", False) is True
-        and projector.requires_provenance is not True
-    ):
-        raise RuntimeFencedError("Bound ledger requires authenticated replay policy")
-    if projector.requires_provenance is True:
-        from context_graph.ports.event_log import AcceptedRecordReader
-
-        if not isinstance(event_log, AcceptedRecordReader):
-            raise RuntimeFencedError("Bound replay requires an accepted-record reader")
+    _check_replay_authority(event_log, projector)
     report = ReplayReport(failed=[])
     cursor: str | None = None
     while True:
@@ -191,7 +196,15 @@ async def replay_event_types(
         cursor = entries[-1].position
         for entry in entries:
             document = entry.document
-            if document is None or document.get("event_type") not in event_types:
+            if document is None:
+                # Without the document its event type cannot be checked either.
+                # Silently skipping it would falsely certify a complete replay.
+                assert report.failed is not None
+                report.failed.append(entry.position)
+                report.missing_documents += 1
+                log.warning("ontology_replay_document_missing", position=entry.position)
+                continue
+            if document.get("event_type") not in event_types:
                 continue
             try:
                 event = Event.model_validate(document, strict=False)
@@ -232,6 +245,38 @@ async def reconcile(
         )
         raise OntologyChangeRefusedError(ChangePlan(kind="breaking", reasons=[msg]))
     plan = plan_for_state(state, registry)
+    if (
+        state is not None
+        and state.properties.get("replay_failures")
+        and not state.properties.get("replay_incomplete")
+    ):
+        # Earlier releases stored the target packs even after a failed replay.
+        # There is no trustworthy prior snapshot here to retry automatically.
+        raise OntologyChangeRefusedError(
+            plan,
+            hint=(
+                "recorded replay failures: an earlier update was marked complete "
+                "despite failed work. Inspect the recorded failures and build a "
+                f"verified fresh projection ({REBUILD_HINT}); a no-op is unsafe."
+            ),
+        )
+    if (
+        state is not None
+        and state.properties.get("replay_incomplete")
+        and (
+            state.properties.get("replay_target_version") != registry.version
+            or not plan.replay_event_types
+        )
+    ):
+        raise OntologyChangeRefusedError(
+            plan,
+            hint=(
+                "replay incomplete: this graph may contain partial update writes. "
+                "Restart with the same recorded replay target packs to retry, "
+                f"or build a verified fresh projection ({REBUILD_HINT}). "
+                "Changing the configured packs alone is not a rollback."
+            ),
+        )
     if plan.kind == "none":
         return plan
     log.info("ontology_change", **plan.as_dict())
@@ -246,6 +291,18 @@ async def reconcile(
         raise OntologyChangeRefusedError(plan)
     replay = ReplayReport(failed=[])
     if plan.replay_event_types:
+        # Reject a known authority mismatch before recording any attempt.
+        _check_replay_authority(event_log, projector)
+        # Persist the attempt before writes, so interruption or cancellation
+        # cannot leave a partially updated graph looking like a clean old one.
+        await graph.upsert_nodes(
+            [
+                NodeWrite(
+                    STATE_REF,
+                    {"replay_incomplete": True, "replay_target_version": registry.version},
+                )
+            ]
+        )
         # Every event type with pack rules, in log order: replaying only the changed
         # types would apply their transitions over states later events set
         replay = await replay_event_types(
@@ -259,6 +316,37 @@ async def reconcile(
         log.info(
             "ontology_mapping_replayed", events=replay.replayed, failed=len(replay.failed or [])
         )
+        if replay.failed:
+            # Retain the last completed version/packs so a restart still sees
+            # the required mapping change rather than treating it as a no-op.
+            await graph.upsert_nodes(
+                [
+                    NodeWrite(
+                        STATE_REF,
+                        {
+                            "replay_incomplete": True,
+                            "replay_target_version": registry.version,
+                            "replay_failures": replay.failed[:100],
+                        },
+                    )
+                ]
+            )
+            raise OntologyChangeRefusedError(
+                plan,
+                hint=(
+                    f"replay incomplete: {len(replay.failed)} event(s) failed; "
+                    "the completed ontology version was not advanced. "
+                    + (
+                        f"{replay.missing_documents} unavailable event document(s). "
+                        "Retry cannot recover retention-expired history. Recover the "
+                        "original source history or use a separately verified fresh "
+                        "projection with complete history; rebuilding alone does not "
+                        "prove missing history was restored."
+                        if replay.missing_documents
+                        else "Resolve the failures and restart with the same target packs."
+                    )
+                ),
+            )
     await record_state(
         graph,
         registry,
@@ -266,6 +354,8 @@ async def reconcile(
         extra={
             "replayed_events": replay.replayed,
             "replay_failures": (replay.failed or [])[:100],
+            "replay_incomplete": False,
+            "replay_target_version": "",
             # Decision 10: these packs' weights wait on their evaluation sets
             # (python -m context_graph.ontology evaluate --record)
             "eval_pending": sorted(plan.eval_required),

@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import asyncio
+from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any
 from uuid import uuid4
@@ -24,6 +26,7 @@ from context_graph.ontology.versioning import (
     reconcile,
     record_state,
 )
+from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.pack_graph import NodeRef, NodeWrite
 from context_graph.settings import Settings
 
@@ -398,6 +401,236 @@ OPENED_UPSERT = (
 )
 TRANSITION = {OPENED_UPSERT: OPENED_UPSERT + "    transition: {type: Ticket, to: open}\n"}
 OPTIONS: dict[str, Any] = {"allow_breaking": False, "batch_size": 2, "lookup_limit": 100}
+
+
+class ReplayWriteFailure(MemoryGraphStore):
+    """A storage-boundary fault while the second ticket is being remapped."""
+
+    fail_replay = False
+    failure: type[Exception] = OSError
+
+    async def upsert_nodes(self, nodes: list[NodeWrite]) -> None:
+        if self.fail_replay and any(node.properties.get("title") == "SB" for node in nodes):
+            raise self.failure("injected replay write failure")
+        return await super().upsert_nodes(nodes)
+
+
+class TestReplayCompletion:
+    async def test_missing_document_cannot_count_as_completed_replay(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        log, graph = await _ledger(), MemoryGraphStore()
+        await _project_all(log, graph, BASE)
+        await record_state(graph, BASE, applied="initial")
+        mapped = _registry(
+            **{
+                "version: 1.0.0": "version: 1.1.0",
+                "set: {title: $.title}": "set: {title: $.summary}",
+            }
+        )
+        read_after = log.read_after
+
+        async def missing_read(position: str | None, limit: int):
+            entries = await read_after(position, limit)
+            return [replace(e, document=None) if i == 0 else e for i, e in enumerate(entries)]
+
+        monkeypatch.setattr(log, "read_after", missing_read)
+        with pytest.raises(OntologyChangeRefusedError, match="replay incomplete"):
+            await reconcile(graph, log, PackProjector(mapped, frozenset()), **OPTIONS)
+        state = await read_state(graph)
+        assert state is not None and state.version == BASE.version
+        assert state.properties["replay_failures"]
+        monkeypatch.setattr(log, "read_after", read_after)
+        await reconcile(graph, log, PackProjector(mapped, frozenset()), **OPTIONS)
+        assert (await read_state(graph)).version == mapped.version  # type: ignore[union-attr]
+
+    async def test_required_planning_failure_remains_incomplete(self) -> None:
+        log, graph = MemoryEventLog(), MemoryGraphStore()
+        event, payload = _event(
+            "demo.ticket.opened", {"tracker": "t", "number": 1, "title": "A"}, 1
+        )
+        await log.append(event, payload)
+        await _project_all(log, graph, BASE)
+        await record_state(graph, BASE, applied="initial")
+        mapped = _registry(
+            **{
+                "version: 1.0.0": "version: 1.1.0",
+                "types:": "processing: {requires: [pack.properties.v1]}\ntypes:",
+                "set: {title: $.title}": (
+                    "set: {title: {value: $.summary, on_missing: refuse, on_null: refuse}}"
+                ),
+            }
+        )
+        for _attempt in range(2):
+            with pytest.raises(OntologyChangeRefusedError, match="replay incomplete"):
+                await reconcile(graph, log, PackProjector(mapped, frozenset()), **OPTIONS)
+            state = await read_state(graph)
+            assert state is not None and state.version == BASE.version
+            assert state.properties["replay_failures"]
+            assert (await graph.get_nodes([TICKET]))[TICKET]["title"] == "A"
+
+    async def test_graph_authority_failure_propagates_without_completion(self) -> None:
+        log, graph = await _ledger(), ReplayWriteFailure()
+        await _project_all(log, graph, BASE)
+        await record_state(graph, BASE, applied="initial")
+        mapped = _registry(
+            **{
+                "version: 1.0.0": "version: 1.1.0",
+                "set: {title: $.title}": "set: {title: $.summary}",
+            }
+        )
+        graph.fail_replay = True
+        graph.failure = RuntimeFencedError
+        with pytest.raises(RuntimeFencedError, match="replay write failure"):
+            await reconcile(graph, log, PackProjector(mapped, frozenset()), **OPTIONS)
+        state = await read_state(graph)
+        assert state is not None and state.version == BASE.version
+        assert state.properties["replay_incomplete"] is True
+        assert not state.properties.get("replay_failures")
+
+    async def test_authority_precheck_leaves_recorded_state_untouched(
+        self, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        log, graph = await _ledger(), MemoryGraphStore()
+        await record_state(graph, BASE, applied="initial")
+        state = await read_state(graph)
+        mapped = _registry(
+            **{
+                "version: 1.0.0": "version: 1.1.0",
+                "set: {title: $.title}": "set: {title: $.summary}",
+            }
+        )
+        monkeypatch.setattr(log, "requires_source_provenance", True, raising=False)
+        with pytest.raises(RuntimeFencedError, match="authenticated replay policy"):
+            await reconcile(graph, log, PackProjector(mapped, frozenset()), **OPTIONS)
+        assert await read_state(graph) == state
+
+    async def test_retention_expired_documents_refuse_with_recovery_limit(self) -> None:
+        log, graph = await _ledger(), MemoryGraphStore()
+        await _project_all(log, graph, BASE)
+        await record_state(graph, BASE, applied="initial")
+        mapped = _registry(
+            **{
+                "version: 1.0.0": "version: 1.1.0",
+                "set: {title: $.title}": "set: {title: $.summary}",
+            }
+        )
+        _archived, deleted = await log.expire(max_age_days=0)
+        assert deleted == 3
+        for _attempt in range(2):
+            with pytest.raises(OntologyChangeRefusedError, match="unavailable event document"):
+                await reconcile(graph, log, PackProjector(mapped, frozenset()), **OPTIONS)
+            state = await read_state(graph)
+            assert state is not None and state.version == BASE.version
+            assert len(state.properties["replay_failures"]) == 3
+
+    async def test_another_replay_target_is_refused(self) -> None:
+        log, graph = await _ledger(), ReplayWriteFailure()
+        await _project_all(log, graph, BASE)
+        await record_state(graph, BASE, applied="initial")
+        mapped = _registry(
+            **{
+                "version: 1.0.0": "version: 1.1.0",
+                "set: {title: $.title}": "set: {title: $.summary}",
+            }
+        )
+        graph.fail_replay = True
+        with pytest.raises(OntologyChangeRefusedError, match="replay incomplete"):
+            await reconcile(graph, log, PackProjector(mapped, frozenset()), **OPTIONS)
+        another = _registry(
+            **{
+                "version: 1.0.0": "version: 1.2.0",
+                "set: {title: $.title}": "set: {title: $.other}",
+            }
+        )
+        with pytest.raises(OntologyChangeRefusedError, match="same recorded replay target"):
+            await reconcile(graph, log, PackProjector(another, frozenset()), **OPTIONS)
+
+    async def test_legacy_false_completion_requires_explicit_recovery(self) -> None:
+        log, graph = await _ledger(), MemoryGraphStore()
+        # Old code could publish a version together with replay failures.
+        await record_state(graph, BASE, applied="mapping", extra={"replay_failures": ["10-0"]})
+        state = await read_state(graph)
+        with pytest.raises(OntologyChangeRefusedError, match="recorded replay failures"):
+            await reconcile(graph, log, PackProjector(BASE, frozenset()), **OPTIONS)
+        assert await read_state(graph) == state
+
+    @pytest.mark.parametrize("failure", [OSError, asyncio.CancelledError, RuntimeFencedError])
+    async def test_interrupted_replay_is_not_hidden_by_reverting_configuration(
+        self, monkeypatch: pytest.MonkeyPatch, failure: type[BaseException]
+    ) -> None:
+        log, graph = await _ledger(), MemoryGraphStore()
+        await _project_all(log, graph, BASE)
+        await record_state(graph, BASE, applied="initial")
+        mapped = _registry(
+            **{
+                "version: 1.0.0": "version: 1.1.0",
+                "set: {title: $.title}": "set: {title: $.summary}",
+            }
+        )
+        read_after = log.read_after
+
+        async def interrupted_read(position: str | None, limit: int):
+            if position is not None:
+                raise failure("injected ledger read interruption")
+            return await read_after(position, limit)
+
+        monkeypatch.setattr(log, "read_after", interrupted_read)
+        with pytest.raises(failure, match="ledger read interruption"):
+            await reconcile(graph, log, PackProjector(mapped, frozenset()), **OPTIONS)
+        state = await read_state(graph)
+        assert state is not None and state.version == BASE.version
+        assert state.properties.get("replay_incomplete") is True
+        # Some writes already happened. Merely reverting the configuration is
+        # not a rollback and must not turn startup into a successful no-op.
+        with pytest.raises(OntologyChangeRefusedError, match="replay incomplete"):
+            await reconcile(graph, log, PackProjector(BASE, frozenset()), **OPTIONS)
+        monkeypatch.setattr(log, "read_after", read_after)
+        assert (
+            await reconcile(graph, log, PackProjector(mapped, frozenset()), **OPTIONS)
+        ).kind == "mapping"
+        assert (await read_state(graph)).version == mapped.version  # type: ignore[union-attr]
+
+    async def test_failed_replay_keeps_old_version_and_retries_after_recovery(self) -> None:
+        log, graph = await _ledger(), ReplayWriteFailure()
+        await _project_all(log, graph, BASE)
+        await record_state(graph, BASE, applied="initial", extra={"eval_pending": ["demo"]})
+        other_tenant = MemoryGraphStore()
+        await record_state(other_tenant, BASE, applied="initial")
+        other_state = await read_state(other_tenant)
+        mapped = _registry(
+            **{
+                "version: 1.0.0": "version: 1.1.0",
+                "set: {title: $.title}": "set: {title: $.summary}",
+            }
+        )
+        graph.fail_replay = True
+        for _attempt in range(2):
+            with pytest.raises(OntologyChangeRefusedError, match="replay incomplete"):
+                await reconcile(graph, log, PackProjector(mapped, frozenset()), **OPTIONS)
+            state = await read_state(graph)
+            assert state is not None and state.version == BASE.version
+            assert state.registry().version == BASE.version
+            assert state.properties["eval_pending"] == ["demo"]
+            assert state.properties["replay_failures"]
+            assert state.properties["replay_incomplete"] is True
+
+        graph.fail_replay = False
+        # A new projector and another reconciliation model worker restart/recovery.
+        plan = await reconcile(graph, log, PackProjector(mapped, frozenset()), **OPTIONS)
+        assert plan.kind == "mapping"
+        state = await read_state(graph)
+        assert state is not None and state.version == mapped.version
+        assert state.properties["replay_failures"] == []
+        assert state.properties["replay_incomplete"] is False
+        assert state.properties["replayed_events"] == 3
+        second = NodeRef("Ticket", "Ticket:t|2")
+        assert (await graph.get_nodes([second]))[second]["title"] == "SB"
+        assert (await graph.get_nodes([TICKET]))[TICKET]["status"] == "closed"
+        assert (
+            await reconcile(graph, log, PackProjector(mapped, frozenset()), **OPTIONS)
+        ).kind == ("none")
+        assert await read_state(other_tenant) == other_state
 
 
 class TestReviewFindings:
