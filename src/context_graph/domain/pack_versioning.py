@@ -14,14 +14,15 @@ how a graph built under ``old`` is brought to ``new``:
 - ``breaking``: a type or edge removed, a key, identity property or
   property type changed, an edge endpoint or lifecycle state removed, a
   lifecycle's initial state or effective link defaults changed, or a
-  projection rule removed. Applied
+  projection rule or property assignment removed. Applied
   by building a fresh projection from the ledger under the new version
   (blue/green), gated on the packs' evaluation sets, then switching.
 
 Each part of a rule (an upsert, its transition, an edge) keeps its identity
 when it writes the same type by the same key or match expressions. A part
 whose identity changed or that was removed is breaking (a replay would
-leave the old nodes behind as duplicates); added parts, and changed
+leave the old nodes behind as duplicates). Removed property assignments
+are also breaking: merge replay retains their old values. Added parts, and changed
 values, conditions or target states, are a mapping change. A widened
 enum is additive; a narrowed one is breaking. Endpoints are compared as the
 types they allow, so widening to a pack wildcard is additive.
@@ -47,6 +48,7 @@ Pure Python; no framework imports.
 from __future__ import annotations
 
 import json
+from collections import Counter
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -496,12 +498,13 @@ def _rules(registry: OntologyRegistry) -> dict[str, list[str]]:
     }
 
 
-def _parts(rule: Any) -> list[str]:
+def _parts(rule: Any, *, property_targets: bool = False) -> list[str]:
     """What a rule writes, one entry per upsert, transition and edge.
 
     Each part is identified by its type and key (or match) expressions, not by
     the values it sets. Parts are compared one by one, so adding an edge to a
-    rule keeps the identities of the parts it had.
+    rule keeps the identities of the parts it had. property_targets instead
+    expands each part into its assigned field names, without their values.
     """
     data = rule.model_dump(by_alias=True)
     ends = ("from", "to", "to_each", "to_latest")
@@ -513,21 +516,41 @@ def _parts(rule: Any) -> list[str]:
             return value
         return {k: (strip(v) if k in ends else v) for k, v in value.items() if k in keep and v}
 
-    parts = [_canonical({"upsert": strip(u)}) for u in data.get("upsert") or []]
+    def entries(kind: str, value: dict[str, Any]) -> list[str]:
+        identity = {kind: strip(value)}
+        if property_targets:
+            return [
+                _canonical(identity | {"property": prop})
+                for prop, assignment in (value.get("set") or {}).items()
+                if not (
+                    isinstance(assignment, dict)
+                    and assignment.get("value") is None
+                    and assignment.get("on_null") != "clear"
+                )
+            ]
+        return [_canonical(identity)]
+
+    parts = [part for u in data.get("upsert") or [] for part in entries("upsert", u)]
     transition = data.get("transition")
-    if transition is not None:
+    if transition is not None and not property_targets:
         parts.append(
             _canonical(
                 {"transition": {"type": transition.get("type"), "key": transition.get("key")}}
             )
         )
-    parts += [_canonical({"edge": strip(e)}) for e in data.get("edges") or []]
+    parts += [part for e in data.get("edges") or [] for part in entries("edge", e)]
     return parts
 
 
-def _identities(registry: OntologyRegistry) -> dict[str, list[str]]:
+def _identities(
+    registry: OntologyRegistry, *, property_targets: bool = False
+) -> dict[str, list[str]]:
     return {
-        event: sorted(part for _pack, rule in rules for part in _parts(rule))
+        event: sorted(
+            part
+            for _pack, rule in rules
+            for part in _parts(rule, property_targets=property_targets)
+        )
         for event, rules in registry.projection_rules.items()
     }
 
@@ -535,6 +558,8 @@ def _identities(registry: OntologyRegistry) -> dict[str, list[str]]:
 def _compare_rules(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePlan) -> None:
     before, after = _rules(old), _rules(new)
     old_ids, new_ids = _identities(old), _identities(new)
+    old_props = _identities(old, property_targets=True)
+    new_props = _identities(new, property_targets=True)
     for event in sorted(set(before) | set(after)):
         old_rules, new_rules = before.get(event, []), after.get(event, [])
         if old_rules == new_rules:
@@ -549,6 +574,18 @@ def _compare_rules(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePla
             # A replay would write nodes under new keys and leave the old ones behind
             plan.note(
                 "breaking", f"projection of {event}: a part's keys changed or it was removed", pack
+            )
+            continue
+        removed_props = Counter(old_props.get(event, [])) - Counter(new_props.get(event, []))
+        if removed_props:
+            names = ", ".join(sorted({json.loads(part)["property"] for part in removed_props}))
+            # Merge replay never retracts a property simply because its old
+            # assignment disappeared. A fresh projection can omit that value.
+            plan.note(
+                "breaking",
+                f"projection of {event}: property assignments removed ({names}); "
+                "rebuild a fresh graph to reconcile existing values",
+                pack,
             )
             continue
         if set(old_rules) - set(new_rules):
