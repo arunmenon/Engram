@@ -22,7 +22,8 @@ Conventions:
 - an edge endpoint named by type and key is created as a stub if missing,
   so a link can arrive before the artifact it points at;
 - values missing from the event are not written; a key with a missing
-  value produces no node;
+  value produces no node. Identity concatenation refuses a missing operand
+  instead of turning it into a nonempty partial key;
 - a list-valued key expression fans out: one node per element, zipped
   with equally sized key lists and broadcasting scalars; unequal key
   lengths refuse the whole event plan. A property list of the
@@ -53,7 +54,13 @@ from context_graph.domain.ontology import (
     PropertyUpdateDef,
     transition_key,
 )
-from context_graph.domain.pack_expressions import Scope, compile_value, evaluate, is_expression
+from context_graph.domain.pack_expressions import (
+    IdentityOperandError,
+    Scope,
+    compile_value,
+    evaluate,
+    is_expression,
+)
 from context_graph.domain.pack_properties import PropertyUpdateError, property_action
 from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.pack_graph import EdgeWrite, NodeWrite, StateChange
@@ -325,13 +332,13 @@ class PackProjector:
     def handles(self, event_type: str) -> bool:
         return bool(self._registry.rules_for(event_type))
 
-    def _eval(self, value: RuleValue, scope: Scope) -> Any:
+    def _eval(self, value: RuleValue, scope: Scope, *, identity: bool = False) -> Any:
         if not isinstance(value, str) or not is_expression(value):
             return value
         tree = self._compiled.get(value)
         if tree is None:
             tree = self._compiled[value] = compile_value(value)
-        return evaluate(tree, scope)
+        return evaluate(tree, scope, identity=identity)
 
     @property
     def requires_provenance(self) -> bool:
@@ -385,7 +392,12 @@ class PackProjector:
         self, node_type: NodeType, key: dict[str, RuleValue], scope: Scope
     ) -> list[_Keyed]:
         """The nodes a key names (several when a key value is a list)."""
-        values = {name: self._eval(expr, scope) for name, expr in key.items()}
+        values = {}
+        for name, expr in key.items():
+            try:
+                values[name] = self._eval(expr, scope, identity=True)
+            except IdentityOperandError as exc:
+                raise IdentityOperandError(f"{node_type.name}.{name}") from exc
         rows, fanned = _fan_out(values)
         refs = []
         for index, row in enumerate(rows):
@@ -521,7 +533,10 @@ class PackProjector:
     def _endpoint_refs(self, ref: NodeRef, context: _Context, plan: ProjectionPlan) -> list[_Keyed]:
         """The nodes an edge endpoint names, by key or node_id; keyed ones get stubs."""
         if ref.node_id is not None:
-            value = self._eval(ref.node_id, context.scope)
+            try:
+                value = self._eval(ref.node_id, context.scope, identity=True)
+            except IdentityOperandError as exc:
+                raise IdentityOperandError("node_id") from exc
             values = value if isinstance(value, list) else [value]
             _check_expansion_count(len(values))
             found = []
@@ -643,7 +658,11 @@ class PackProjector:
         prefix_field: str | None = None
         prefixes: tuple[str, ...] = ()
         for name, expr in (matched.match or matched.match_any_prefix or {}).items():
-            value = self._eval(expr, context.scope)
+            try:
+                value = self._eval(expr, context.scope, identity=True)
+            except IdentityOperandError:
+                plan.rejected.append(f"missing_lookup_identity_operand ({node_type.name}.{name})")
+                return
             if matched.match_any_prefix is not None and isinstance(value, list):
                 _check_expansion_count(len(value))
                 prefix_field, prefixes = name, tuple(str(v) for v in value if v is not None)

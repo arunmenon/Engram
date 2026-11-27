@@ -1113,9 +1113,25 @@ class OntologyRegistry:
                 problems.append(f"{pack}: {where} sets unknown property {type_name}.{field_name}")
 
     def _check_values(
-        self, pack: str, where: str, values: dict[str, Any] | None, problems: list[str]
+        self,
+        pack: str,
+        where: str,
+        values: dict[str, Any] | None,
+        problems: list[str],
+        *,
+        identity: bool = False,
     ) -> None:
         for value in (values or {}).values():
+            if (
+                identity
+                and isinstance(value, str)
+                and not is_expression(value)
+                and re.search(r"\$\.[A-Za-z_]|\$event(?:\.|\b)", value)
+            ):
+                problems.append(
+                    f"{pack}: {where}: unrecognized identity expression; "
+                    "start an expression with a path or supported function"
+                )
             self._check_expression(
                 pack,
                 where,
@@ -1135,9 +1151,9 @@ class OntologyRegistry:
 
     def _check_ref(self, pack: str, where: str, ref: NodeRef, problems: list[str]) -> str | None:
         for values in (ref.key, ref.match, ref.match_any_prefix):
-            self._check_values(pack, where, values, problems)
+            self._check_values(pack, where, values, problems, identity=True)
         if ref.node_id is not None:
-            self._check_expression(pack, where, ref.node_id, problems)
+            self._check_values(pack, where, {"node_id": ref.node_id}, problems, identity=True)
             return None
         assert ref.type is not None
         resolved = self._resolve_type(pack, ref.type, problems, where)
@@ -1209,7 +1225,7 @@ class OntologyRegistry:
         transition = rule.transition
         assert transition is not None
         self._check_expression(pack, where, transition.to, problems)
-        self._check_values(pack, where, transition.key, problems)
+        self._check_values(pack, where, transition.key, problems, identity=True)
         resolved = self._resolve_type(pack, transition.type, problems, where)
         if resolved is None:
             return
