@@ -17,6 +17,12 @@ expression over the triggering event:
 - ``'quoted'`` strings, with ``''`` for a quote, and bare words inside
   function arguments and map values.
 
+For identity construction, callers can request complete operands: concatenation
+and transforms cannot hide an absent source value. Pattern functions retain
+ordinary search-text semantics and return only their declared captures; optional
+text fragments are not automatically identity components. Ordinary property
+expressions keep the missing-as-empty behavior above.
+
 A value that is missing evaluates to None. Expressions are parsed once
 when a pack is loaded, so an invalid one fails validation, not projection.
 
@@ -50,6 +56,13 @@ MATCH_TIMEOUT_SECONDS = 0.25
 
 class ExpressionError(ValueError):
     """An expression does not parse."""
+
+
+class IdentityOperandError(ValueError):
+    """An identity transform would hide an absent source operand."""
+
+    def __init__(self, target: str = "") -> None:
+        super().__init__("missing_identity_operand" + (f" ({target})" if target else ""))
 
 
 class PatternTimeoutError(ValueError):
@@ -298,24 +311,50 @@ def _text(value: Any) -> str | None:
     return str(value)[:MAX_TEXT_LENGTH]
 
 
-def evaluate(node: Node, scope: Scope) -> Any:
+def _incomplete_identity(value: Any) -> bool:
+    return (
+        value is None
+        or value == ""
+        or (isinstance(value, list) and (not value or any(_incomplete_identity(v) for v in value)))
+    )
+
+
+def evaluate(node: Node, scope: Scope, *, identity: bool = False) -> Any:
     if isinstance(node, Literal):
         return node.value
     if isinstance(node, Path):
         return _walk(scope.payload if node.root == "payload" else scope.event, node.steps)
     if isinstance(node, Concat):
-        parts = [_text(evaluate(part, scope)) for part in node.parts]
+        values = [evaluate(part, scope, identity=identity) for part in node.parts]
+        if identity and any(
+            not isinstance(part, Literal) and _incomplete_identity(value)
+            for part, value in zip(node.parts, values, strict=True)
+        ):
+            raise IdentityOperandError()
+        parts = [_text(value) for value in values]
         if all(part is None for part in parts):
             return None
         return "".join(part or "" for part in parts)
     if isinstance(node, MapLiteral):
         return dict(node.entries)
-    return _call(node, scope)
+    return _call(node, scope, identity=identity)
 
 
-def _call(node: Call, scope: Scope) -> Any:
+def _call(node: Call, scope: Scope, *, identity: bool = False) -> Any:
     name = node.name
-    first = evaluate(node.args[0], scope)
+    # A pattern extracts an identifier from search text; optional text
+    # fragments are not themselves required identity components.
+    pattern_search = name in {"regex", "regex_all", "match"}
+    first = evaluate(node.args[0], scope, identity=identity and not pattern_search)
+    if (
+        identity
+        and name != "each"
+        and not isinstance(node.args[0], Literal)
+        and ((first is None or first == "") if pattern_search else _incomplete_identity(first))
+    ):
+        # Keep an absent optional match absent. A surrounding concat will
+        # refuse it; a direct key keeps the existing no-record behavior.
+        return [] if name == "regex_all" else None
     if name == "each":
         if first is None:
             return []
@@ -324,7 +363,7 @@ def _call(node: Call, scope: Scope) -> Any:
         text = _text(first)
         return None if text is None else hashlib.sha256(text.encode()).hexdigest()
     if name == "map":
-        table = evaluate(node.args[1], scope)
+        table = evaluate(node.args[1], scope, identity=identity)
         return None if first is None else table.get(str(first))
     pattern = node.args[1]
     assert isinstance(pattern, Literal)
