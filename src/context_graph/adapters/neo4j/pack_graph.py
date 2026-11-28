@@ -20,7 +20,10 @@ from context_graph.adapters.graph_ops import LABEL_KEYS
 from context_graph.adapters.neo4j.ontology_schema import schema_statements
 from context_graph.domain.ontology import EDGE_TYPE_NAME, NODE_TYPE_NAME, PROPERTY_NAME
 from context_graph.domain.pack_removals import validate_edge_removals, validate_node_removals
-from context_graph.domain.relationship_recovery import merge_relationship_intent
+from context_graph.domain.relationship_recovery import (
+    existing_relationship_patch,
+    merge_relationship_intent,
+)
 from context_graph.ports.errors import InvalidRequestError, RuntimeFencedError
 
 if TYPE_CHECKING:
@@ -454,10 +457,13 @@ class Neo4jPackGraph:
                         )
                     ).single()
                     props = locked["props"]
-                    missing = {k: v for k, v in edge.properties.items() if k not in props}
+                    updates, clears = existing_relationship_patch(
+                        record, edge.properties, edge.remove_properties, props
+                    )
+                    patch = {**_props(updates), **dict.fromkeys(clears)}
                     await tx.run(
                         match + "SET r += $props REMOVE r._engram_recovery_lock",
-                        {**parameters, "props": _props(missing)},
+                        {**parameters, "props": patch},
                     )
                 result = (
                     ("recovered" if written["created"] else "existing_relationship_kept")

@@ -228,10 +228,12 @@ async def apply_plans(
             *(edge for lookup in plan.lookups for edge in by_lookup.get(id(lookup), [])),
         ]
     ]
+    captured_writes = 0
     if recovery is not None:
-        suppressed = await recovery.capture(plans, by_lookup, truncated)
-        edges = [edge for edge in edges if id(edge) not in suppressed]
-    written = await graph.upsert_edges(edges) if edges else 0
+        captured = await recovery.capture(plans, by_lookup, truncated)
+        edges = [edge for edge in edges if id(edge) not in captured.suppressed]
+        captured_writes = captured.written
+    written = captured_writes + (await graph.upsert_edges(edges) if edges else 0)
     log.debug(
         "pack_plans_applied",
         events=len(plans),

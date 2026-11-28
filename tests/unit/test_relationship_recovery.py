@@ -3,6 +3,7 @@
 import asyncio
 import hashlib
 import json
+from contextlib import suppress
 from copy import deepcopy
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
@@ -1187,3 +1188,169 @@ async def test_nested_json_null_is_not_equivalent_to_a_missing_field_in_a_pinned
     assert (await RelationshipRecovery(graph, log, old).finish()).complete
     rows = await graph.neighbors([ref], ["WORKS_AT"], "out", 10)
     assert rows[0]["properties"]["data"] == {"x": None}
+
+
+async def recovery_patch_inputs(backend, *, count=3):
+    if backend == "memory":
+        graph = MemoryGraphStore()
+    else:
+        from tests.unit.test_relationship_recovery_spanner import setup
+
+        _database, graph = setup()
+    data = CRM.model_dump(by_alias=True)
+    data["types"]["edges"]["WORKS_AT"]["properties"] = {
+        "a": "string",
+        "b": "string",
+        "note": "string",
+    }
+    edge = data["projection"][1]["edges"][0]
+    edge.update(to={"node_id": "$.account_node_id"}, required=True, set={"a": "$.a", "b": "$.b"})
+    planner = PackProjector(OntologyRegistry([CORE, Pack.model_validate(data)]), frozenset())
+    log, plans = MemoryEventLog(), []
+    for values in [{"a": "one"}, {"a": "two"}, {"b": "three"}][:count]:
+        event, payload = _event(
+            "crm.contact.added",
+            {"email": "ann@example.test", "account_node_id": "Account:acme", **values},
+            1,
+        )
+        position = await log.append(event, payload)
+        document = (await log.get_documents([str(event.event_id)]))[0]
+        plans.append(planner.plan(event.model_copy(update={"global_position": position}), document))
+    return data, planner, log, graph, plans
+
+
+@pytest.mark.parametrize("backend", ["memory", "spanner_fake"])
+@pytest.mark.parametrize("target_first", [False, True])
+async def test_first_delivery_of_middle_order_field_replaces_its_older_winner(
+    backend, target_first
+):
+    _data, planner, log, graph, plans = await recovery_patch_inputs(backend)
+    recovery = RelationshipRecovery(graph, log, planner)
+    if target_first:
+        await graph.upsert_nodes([NodeWrite(NodeRef("Account", "Account:acme"))])
+    await apply_plan(graph, plans[0], 100, recovery=recovery)
+    await apply_plan(graph, plans[2], 100, recovery=recovery)
+    if not target_first:
+        await graph.upsert_nodes([NodeWrite(NodeRef("Account", "Account:acme"))])
+    assert (await recovery.finish()).complete
+    await apply_plan(graph, plans[1], 100, recovery=recovery)
+    assert (await recovery.finish()).complete
+    rows = await graph.neighbors(
+        [NodeRef("Contact", "Contact:ann@example.test")], ["WORKS_AT"], "out", 10
+    )
+    assert rows[0]["properties"]["a"] == "two"
+    assert rows[0]["properties"]["b"] == "three"
+
+
+@pytest.mark.parametrize("backend", ["memory", "spanner_fake"])
+@pytest.mark.parametrize("replay", [False, True])
+async def test_failure_after_capture_never_loses_the_tracked_patch_on_retry(backend, replay):
+    data, planner, log, graph, plans = await recovery_patch_inputs(
+        backend, count=1 if replay else 3
+    )
+    recovery = RelationshipRecovery(graph, log, planner)
+    await apply_plan(graph, plans[0], 100, recovery=recovery)
+    await graph.upsert_nodes([NodeWrite(NodeRef("Account", "Account:acme"))])
+    assert (await recovery.finish()).complete
+    original = graph.upsert_edges
+    failures = 1
+
+    async def unavailable_once(edges):
+        nonlocal failures
+        if failures:
+            failures -= 1
+            raise UnavailableError("injected old post-capture write failure")
+        return await original(edges)
+
+    graph.upsert_edges = unavailable_once
+    if replay:
+        data["pack"]["version"] = "1.1.0"
+        data["projection"][1]["edges"][0]["set"] = {"note": "new effect"}
+        updated = PackProjector(OntologyRegistry([CORE, Pack.model_validate(data)]), frozenset())
+        for _ in range(2):
+            await replay_event_types(
+                log, graph, updated, {"crm.contact.added"}, batch_size=1, lookup_limit=100
+            )
+        field, expected = "note", "new effect"
+    else:
+        for _ in range(2):
+            with suppress(UnavailableError):
+                await apply_plan(graph, plans[2], 100, recovery=recovery)
+        field, expected = "b", "three"
+    rows = await graph.neighbors(
+        [NodeRef("Contact", "Contact:ann@example.test")], ["WORKS_AT"], "out", 10
+    )
+    assert rows[0]["properties"].get(field) == expected
+    assert (
+        await RelationshipRecovery(graph, log, updated if replay else planner).finish()
+    ).complete
+
+
+@pytest.mark.parametrize("backend", ["memory", "spanner_fake"])
+@pytest.mark.parametrize("stage", ["before_commit", "lost_reply"])
+async def test_tracked_native_patch_and_completion_are_one_retriable_unit(backend, stage):
+    _data, planner, log, graph, plans = await recovery_patch_inputs(backend)
+    recovery = RelationshipRecovery(graph, log, planner)
+    await apply_plan(graph, plans[0], 100, recovery=recovery)
+    await graph.upsert_nodes([NodeWrite(NodeRef("Account", "Account:acme"))])
+    assert (await recovery.finish()).complete
+    original = graph.settle_relationship_intent
+    failed = False
+
+    async def stop_once(key, generation, status, edge=None):
+        nonlocal failed
+        if edge is not None and not failed:
+            failed = True
+            if stage == "before_commit":
+                raise UnavailableError("stop before native patch")
+            await original(key, generation, status, edge)
+            raise UnavailableError("committed patch reply lost")
+        return await original(key, generation, status, edge)
+
+    graph.settle_relationship_intent = stop_once
+    with pytest.raises(UnavailableError):
+        await apply_plan(graph, plans[2], 100, recovery=recovery)
+    if stage == "before_commit":
+        rows = await graph.relationship_intents(None, 100)
+        assert any(row["status"] not in {"recovered", "existing_relationship_kept"} for row in rows)
+    await apply_plan(graph, plans[2], 100, recovery=recovery)
+    assert (await recovery.finish()).complete
+    rows = await graph.neighbors(
+        [NodeRef("Contact", "Contact:ann@example.test")], ["WORKS_AT"], "out", 10
+    )
+    assert rows[0]["properties"]["a"] == "one" and rows[0]["properties"]["b"] == "three"
+
+
+async def test_spanner_buffered_patch_failure_rolls_back_both_edge_and_terminal_status():
+    _data, planner, log, graph, plans = await recovery_patch_inputs("spanner_fake")
+    recovery = RelationshipRecovery(graph, log, planner)
+    await apply_plan(graph, plans[0], 100, recovery=recovery)
+    await graph.upsert_nodes([NodeWrite(NodeRef("Account", "Account:acme"))])
+    assert (await recovery.finish()).complete
+    database = graph._database  # Native fake fault injection, not the behavior assertion seam.
+    original = database.run_in_transaction
+    failed = False
+
+    def fail_buffered(callback):
+        def fault(transaction):
+            nonlocal failed
+            result = callback(transaction)
+            if not failed and transaction.tables["GraphEdges"] != database.tables["GraphEdges"]:
+                failed = True
+                raise UnavailableError("transaction lost before commit")
+            return result
+
+        return original(fault)
+
+    database.run_in_transaction = fail_buffered
+    with pytest.raises(UnavailableError):
+        await apply_plan(graph, plans[2], 100, recovery=recovery)
+    ref = NodeRef("Contact", "Contact:ann@example.test")
+    assert "b" not in (await graph.neighbors([ref], ["WORKS_AT"], "out", 10))[0]["properties"]
+    assert not all(
+        row["status"] in {"recovered", "existing_relationship_kept"}
+        for row in await graph.relationship_intents(None, 100)
+    )
+    await apply_plan(graph, plans[2], 100, recovery=recovery)
+    assert (await recovery.finish()).complete
+    assert (await graph.neighbors([ref], ["WORKS_AT"], "out", 10))[0]["properties"]["b"] == "three"

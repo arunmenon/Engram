@@ -23,7 +23,10 @@ from context_graph.adapters.graph_ops import (
     apply_set,
     key_property,
 )
-from context_graph.domain.relationship_recovery import merge_relationship_intent
+from context_graph.domain.relationship_recovery import (
+    existing_relationship_patch,
+    merge_relationship_intent,
+)
 from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.relationship_recovery import RECOVERY_LABEL
 
@@ -168,9 +171,12 @@ class MemoryGraphStore(GraphOperations):
             elif (source, edge.edge_type, target) in self.edges:
                 if record.get("patch_existing"):
                     existing = self.edges[(source, edge.edge_type, target)]
-                    existing.update(
-                        deepcopy({k: v for k, v in edge.properties.items() if k not in existing})
+                    updates, clears = existing_relationship_patch(
+                        record, edge.properties, edge.remove_properties, existing
                     )
+                    existing.update(deepcopy(updates))
+                    for name in clears:
+                        existing.pop(name, None)
                 status = "existing_relationship_kept"
             else:
                 self.edges[(source, edge.edge_type, target)] = deepcopy(edge.properties)

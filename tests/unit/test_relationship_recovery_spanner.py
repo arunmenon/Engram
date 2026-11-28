@@ -185,6 +185,7 @@ async def test_native_late_disjoint_patch_is_atomic_and_keeps_existing_reviewed_
         **intent(generation="older", order="0001"),
         "event_id": "older-event",
         "writes": ["first"],
+        "apply_existing": True,
     }
     await graph.put_relationship_intent(older)
     pending = (await graph.get_relationship_intents(["a"]))["a"]

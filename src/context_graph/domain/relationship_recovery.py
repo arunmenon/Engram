@@ -28,15 +28,34 @@ def recovery_digest(value: Any) -> str:
 
 
 def intent_generation(record: dict[str, Any]) -> str:
-    return recovery_digest(
-        [
-            record["edge_type"],
-            record["source"],
-            record["target"],
-            record["required"],
-            record["effects"],
-        ]
-    )
+    parts = [
+        record["edge_type"],
+        record["source"],
+        record["target"],
+        record["required"],
+        record["effects"],
+    ]
+    if record.get("write_modes"):
+        parts.append(record["write_modes"])
+    return recovery_digest(parts)
+
+
+def existing_relationship_patch(
+    record: dict[str, Any],
+    properties: dict[str, Any],
+    removals: tuple[str, ...],
+    existing: dict[str, Any],
+) -> tuple[dict[str, Any], tuple[str, ...]]:
+    """Only explicitly journalled normal patches may replace existing fields."""
+    modes = record.get("write_modes", {})
+
+    def allowed(name: str) -> bool:
+        mode = modes.get(name, {}).get("mode")
+        return mode == "replace" or (mode == "fill_missing" and name not in existing)
+
+    updates = {name: value for name, value in properties.items() if allowed(name)}
+    clears = tuple(name for name in removals if allowed(name))
+    return updates, clears
 
 
 def merge_relationship_intent(
@@ -60,10 +79,16 @@ def merge_relationship_intent(
             for name in effect["writes"]:
                 field_winners[name] = max(field_winners.get(name, ""), effect["order_key"])
     prior_order = before["order_key"] if before else ""
+    old_winners = dict(field_winners)
+    modes = dict(before.get("write_modes", {})) if before else {}
     patch_existing = False
     if before and before.get("status") in {"recovered", "existing_relationship_kept"}:
         if incoming["order_key"] <= before["order_key"]:
-            uncovered = [name for name in incoming.get("writes", []) if name not in field_winners]
+            uncovered = [
+                name
+                for name in incoming.get("writes", [])
+                if field_winners.get(name, "") < incoming["order_key"]
+            ]
             if not uncovered:
                 return None
             incoming = {**incoming, "writes": uncovered}
@@ -89,10 +114,12 @@ def merge_relationship_intent(
     entry["writes"] = incoming.get("writes") or ["__edge__"]
     entry["event_generation"] = incoming["generation"]
     entries = list(before.get("effects", [])) if before else []
+    new_entry = True
     for prior in entries:
         if prior["order_key"] == entry["order_key"]:
             if prior != entry:
                 raise RuntimeFencedError("Conflicting deferred effects at one log position")
+            new_entry = False
             break
     else:
         entries.append(entry)
@@ -112,8 +139,25 @@ def merge_relationship_intent(
     for name in entry["writes"]:
         field_winners[name] = max(field_winners.get(name, ""), entry["order_key"])
     record["field_winners"] = field_winners
+    if new_entry:
+        for name in entry["writes"]:
+            if field_winners[name] != entry["order_key"]:
+                continue
+            modes.pop(name, None)
+            if incoming.get("apply_existing"):
+                replace_existing = incoming.get("normal_patch") or (
+                    name in old_winners and old_winners[name] < entry["order_key"]
+                )
+                modes[name] = {
+                    "order_key": entry["order_key"],
+                    "mode": "replace" if replace_existing else "fill_missing",
+                }
+    modes = {
+        name: mode for name, mode in modes.items() if field_winners.get(name) == mode["order_key"]
+    }
+    record["write_modes"] = modes
     record["order_key"] = max(prior_order, incoming["order_key"])
-    record["patch_existing"] = patch_existing or bool(before and before.get("patch_existing"))
+    record["patch_existing"] = bool(modes) or patch_existing
     record["required"] = bool(incoming["required"] or was_required)
     record["generation"] = intent_generation(record)
     if before and record["generation"] == before["generation"]:

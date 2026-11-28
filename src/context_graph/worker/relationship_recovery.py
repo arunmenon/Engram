@@ -63,6 +63,12 @@ class RecoveryReport:
         return self.complete_scan and self.blocking == 0
 
 
+@dataclass
+class CaptureReport:
+    suppressed: set[int]
+    written: int = 0
+
+
 class RelationshipRecovery:
     """One coordinator per consumer; state is in the tenant's graph, not this object."""
 
@@ -84,7 +90,7 @@ class RelationshipRecovery:
         plans: list[ProjectionPlan],
         resolved: dict[int, list[EdgeWrite]],
         truncated: set[int] | None = None,
-    ) -> set[int]:
+    ) -> CaptureReport:
         candidates: list[tuple[ProjectionPlan, EdgeWrite, str | None]] = [
             (plan, edge, None) for plan in plans for edge in plan.edges
         ]
@@ -140,6 +146,7 @@ class RelationshipRecovery:
             list({digest(edge_identity(edge)) for _plan, edge, _selector in candidates})
         )
         suppressed: set[int] = set()
+        written = 0
         ordinals: dict[int, int] = {}
         for plan, edge, selector in candidates:
             ordinal = ordinals.get(id(plan), 0)
@@ -155,8 +162,7 @@ class RelationshipRecovery:
                     "Relationship recovery requires a pinned source event and log position"
                 )
             order = f"{self.log.position_order_key(plan.event_position)}/{ordinal:010d}"
-            if missing or (prior is not None and order <= prior["order_key"] and not replacing):
-                suppressed.add(id(edge))
+            suppressed.add(id(edge))
             effect = effect_digest(edge, selector)
             await self.graph.put_relationship_intent(
                 {
@@ -181,15 +187,20 @@ class RelationshipRecovery:
                     "target": asdict(edge.target),
                     "required": edge.required,
                     "status": "endpoint_missing",
+                    "apply_existing": not missing,
+                    "normal_patch": bool(
+                        self.reinterpreting or (prior and order > prior["order_key"])
+                    ),
                 },
                 reinterpret=self.reinterpreting,
             )
             current = (await self.graph.get_relationship_intents([key]))[key]
             previous[key] = current
             if prior is not None and not missing and current["status"] not in TERMINAL:
-                # Fold older deferred partial fields before the normal later patch.
-                await self._recover(current)
-        return suppressed
+                # The tracked effect and terminal status commit in one native unit.
+                status = await self._recover(current)
+                written += int(status in TERMINAL)
+        return CaptureReport(suppressed, written)
 
     async def _recover(self, row: dict[str, Any]) -> str:
         if row["status"] in TERMINAL or row.get("kind") == "blocked_lookup":
@@ -201,6 +212,7 @@ class RelationshipRecovery:
                 row["node_id"], row["generation"], "invalid_intent"
             )
         properties: dict[str, Any] = {}
+        removals: set[str] = set()
         ids = sorted({pointer["event_id"] for pointer in row["effects"]})
         sources: dict[str, tuple[dict[str, Any] | None, VerifiedSourceProvenance | None]]
         if self.projector.requires_provenance:
@@ -231,6 +243,9 @@ class RelationshipRecovery:
                 return await self.graph.settle_relationship_intent(
                     row["node_id"], row["generation"], edge
                 )
+            for name, value in edge.properties.items():
+                if value is not None and name in pointer["writes"]:
+                    removals.discard(name)
             properties.update(
                 {
                     name: value
@@ -241,12 +256,14 @@ class RelationshipRecovery:
             for name in edge.remove_properties:
                 if name in pointer["writes"]:
                     properties.pop(name, None)
+                    removals.add(name)
         insert = EdgeWrite(
             row["edge_type"],
             NodeRef(**row["source"]),
             NodeRef(**row["target"]),
             properties,
-            create_only=True,
+            create_only=not bool(row.get("write_modes")),
+            remove_properties=tuple(sorted(removals)),
         )
         return await self.graph.settle_relationship_intent(
             row["node_id"], row["generation"], "waiting", insert

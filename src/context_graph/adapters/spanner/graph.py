@@ -56,7 +56,10 @@ from context_graph.adapters.spanner.entity_index import ENTITY_VECTOR_INDEX
 from context_graph.adapters.spanner.errors import translate_spanner_error
 from context_graph.adapters.spanner.log import json_param, json_value
 from context_graph.adapters.spanner.tenant_control import tenant_snapshot
-from context_graph.domain.relationship_recovery import merge_relationship_intent
+from context_graph.domain.relationship_recovery import (
+    existing_relationship_patch,
+    merge_relationship_intent,
+)
 from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.relationship_recovery import RECOVERY_LABEL
 
@@ -822,9 +825,12 @@ class SpannerGraphStore(GraphOperations):
                     if present:
                         if record.get("patch_existing"):
                             props = dict(json_value(present[0][0]))
-                            props.update(
-                                {k: v for k, v in edge.properties.items() if k not in props}
+                            updates, clears = existing_relationship_patch(
+                                record, edge.properties, edge.remove_properties, props
                             )
+                            props.update(updates)
+                            for name in clears:
+                                props.pop(name, None)
                             costs.append(edge_row_cost((source, edge.edge_type, target), props))
                             transaction.insert_or_update(
                                 "GraphEdges", EDGE_COLUMNS, [[*edge_key, json_param(props)]]
