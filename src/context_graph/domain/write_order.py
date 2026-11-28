@@ -9,7 +9,7 @@ from dataclasses import asdict
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
-from context_graph.domain.relationship_recovery import recovery_digest
+from context_graph.domain.relationship_recovery import recovery_digest, semantic_digest
 
 if TYPE_CHECKING:
     from context_graph.ports.pack_graph import (
@@ -189,7 +189,7 @@ def decide(
             raise ValueError("write_order_missing_authority")
         fields = meta["fields"]
         prior = fields.get(name)
-        new = {**asdict(token), "mutation": recovery_digest(value)}
+        new = {**asdict(token), "mutation": semantic_digest(value)}
         for observed in fields.values():
             if observed["value"] == token.value and (
                 observed["event_id"] != token.event_id

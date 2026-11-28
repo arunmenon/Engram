@@ -778,3 +778,44 @@ async def test_missing_optional_endpoint_does_not_record_a_completed_edge_receip
     assert await apply_plan(graph, planner.plan(event, document), 100) == 1
     rows = await graph.neighbors([NodeRef("Payment", "Payment:P1")], ["POSTED_TO"], "out", 10)
     assert rows[0]["properties"]["description"] == "newer"
+
+
+@pytest.mark.parametrize("backend", ["memory", "spanner_transaction_fake"])
+@pytest.mark.parametrize("location", ["record", "relationship"])
+async def test_explicit_replay_keeps_nested_json_null_distinct_from_omission(backend, location):
+    from context_graph.adapters.memory.log import MemoryEventLog
+    from context_graph.ontology.versioning import replay_event_types
+    from context_graph.ports.pack_graph import NodeWrite
+
+    if backend == "memory":
+        graph = MemoryGraphStore()
+    else:
+        from tests.unit.test_relationship_recovery_spanner import setup
+
+        _database, graph = setup()
+    data = deepcopy(PACK)
+    data["types"]["nodes"]["Payment"]["properties"]["data"] = "json"
+    data["types"]["edges"]["POSTED_TO"]["properties"]["data"] = "json"
+    data["projection"][0]["upsert"][0]["set"]["data"] = "$.one"
+    data["projection"][0]["edges"][0]["set"]["data"] = "$.one"
+    planner, log = projector(data), MemoryEventLog()
+    await graph.upsert_nodes([NodeWrite(NodeRef("Account", "Account:A1"))])
+    event, document = inputs()[1]
+    payload = {**document["payload"], "one": {"x": None}, "two": {}}
+    position = await log.append(event, payload)
+    event = event.model_copy(update={"global_position": position})
+    document = (await log.get_documents([str(event.event_id)]))[0]
+    await apply_plan(graph, planner.plan(event, document), 100)
+    data["pack"]["version"] = "1.1.0"
+    target = data["projection"][0]["upsert" if location == "record" else "edges"][0]
+    target["set"]["data"] = "$.two"
+    changed = projector(data)
+    report = await replay_event_types(
+        log, graph, changed, {"orderlab.payment.updated"}, batch_size=1, lookup_limit=100
+    )
+    assert not report.failed and report.relationships_complete
+    ref = NodeRef("Payment", "Payment:P1")
+    record = (await graph.get_nodes([ref]))[ref]
+    link = (await graph.neighbors([ref], ["POSTED_TO"], "out", 10))[0]["properties"]
+    assert record["data"] == ({} if location == "record" else {"x": None})
+    assert link["data"] == ({} if location == "relationship" else {"x": None})

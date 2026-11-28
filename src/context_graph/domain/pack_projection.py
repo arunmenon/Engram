@@ -439,7 +439,7 @@ class PackProjector:
     # -- rule parts --------------------------------------------------------------------
 
     def _stamp_write_order(self, plan: ProjectionPlan, scope: Scope, trusted: bool) -> None:
-        from context_graph.domain.relationship_recovery import recovery_digest
+        from context_graph.domain.relationship_recovery import recovery_digest, semantic_digest
         from context_graph.domain.write_order import ordering_value
         from context_graph.ports.pack_graph import WriteOrder
 
@@ -491,14 +491,14 @@ class PackProjector:
         for name in ("nodes", "states", "edges", "lookups"):
             semantic[name] = []
             for write in getattr(plan, name):
-                data = asdict(write)
+                data = {key: value for key, value in asdict(write).items() if value is not None}
                 data.pop("order", None)
                 data.pop("property_orders", None)
                 if name == "nodes":
                     data["properties"].pop("ontology_version", None)
                     data["defaults"].pop("ontology_version", None)
                 semantic[name].append(data)
-        effect = recovery_digest(semantic)
+        effect = semantic_digest(semantic)
         for name in ("nodes", "states", "edges", "lookups"):
             setattr(
                 plan,
