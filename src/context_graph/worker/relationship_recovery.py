@@ -7,7 +7,7 @@ from dataclasses import asdict, dataclass
 from typing import TYPE_CHECKING, Any
 
 from context_graph.domain.models import Event
-from context_graph.domain.relationship_recovery import intent_generation
+from context_graph.domain.relationship_recovery import intent_generation, semantic_digest
 from context_graph.domain.relationship_recovery import recovery_digest as digest
 from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.event_log import AcceptedRecordReader
@@ -27,15 +27,26 @@ def edge_identity(edge: EdgeWrite) -> list[Any]:
     return [edge.edge_type, asdict(edge.source), asdict(edge.target)]
 
 
+def effect_descriptor(write: Any) -> dict[str, Any]:
+    # Only optional descriptor fields / ignored top-level assignments are
+    # absent-equivalent. Nested business JSON nulls are meaningful values.
+    data = {name: value for name, value in asdict(write).items() if value is not None}
+    if "properties" in data:
+        data["properties"] = {
+            name: value for name, value in data["properties"].items() if value is not None
+        }
+    return data
+
+
 def effect_digest(edge: EdgeWrite, selector: str | None = None) -> str:
-    return digest([asdict(edge), selector])
+    return semantic_digest([effect_descriptor(edge), selector])
 
 
 def relationship_plan_digest(plan: ProjectionPlan) -> str:
-    return digest(
+    return semantic_digest(
         [
-            [asdict(edge) for edge in plan.edges],
-            [asdict(lookup) for lookup in plan.lookups],
+            [effect_descriptor(edge) for edge in plan.edges],
+            [effect_descriptor(lookup) for lookup in plan.lookups],
         ]
     )
 
@@ -78,7 +89,7 @@ class RelationshipRecovery:
             (plan, edge, None) for plan in plans for edge in plan.edges
         ]
         candidates += [
-            (plan, edge, digest(asdict(lookup)))
+            (plan, edge, semantic_digest(effect_descriptor(lookup)))
             for plan in plans
             for lookup in plan.lookups
             for edge in resolved.get(id(lookup), [])
@@ -87,7 +98,7 @@ class RelationshipRecovery:
             for lookup in plan.lookups:
                 if id(lookup) not in (truncated or set()):
                     continue
-                descriptor = digest(asdict(lookup))
+                descriptor = semantic_digest(effect_descriptor(lookup))
                 effect = digest(["truncated_lookup", descriptor])
                 key = digest([plan.event_id, "blocked_lookup"])
                 await self.graph.put_relationship_intent(
@@ -276,7 +287,7 @@ class RelationshipRecovery:
         from context_graph.worker.pack_projection import _edges
 
         for lookup in plan.lookups:
-            selector = digest(asdict(lookup))
+            selector = semantic_digest(effect_descriptor(lookup))
             if lookup.edge_type != row["edge_type"] or selector != pointer.get("selector_digest"):
                 continue
             known = row["target"] if lookup.reverse else row["source"]

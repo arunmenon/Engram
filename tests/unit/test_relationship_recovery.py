@@ -1151,3 +1151,39 @@ async def test_explicit_replay_respects_its_configured_recovery_deadline():
         recovery_page_size=1,
     )
     assert not result.relationships_complete and not result.relationship_scan_complete
+
+
+async def test_nested_json_null_is_not_equivalent_to_a_missing_field_in_a_pinned_effect():
+    data = CRM.model_dump(by_alias=True)
+    data["types"]["edges"]["WORKS_AT"]["properties"] = {"data": "json"}
+    edge = data["projection"][1]["edges"][0]
+    edge.update(to={"node_id": "$.account_node_id"}, required=True, set={"data": "$.one"})
+    reg = OntologyRegistry([CORE, Pack.model_validate(data)])
+    log, graph = MemoryEventLog(), MemoryGraphStore()
+    event, payload = _event(
+        "crm.contact.added",
+        {
+            "email": "ann@example.test",
+            "account_node_id": "Account:acme",
+            "one": {"x": None},
+            "two": {},
+        },
+        1,
+    )
+    position = await log.append(event, payload)
+    document = (await log.get_documents([str(event.event_id)]))[0]
+    event = event.model_copy(update={"global_position": position})
+    old = PackProjector(reg, frozenset())
+    await apply_plan(
+        graph, old.plan(event, document), 100, recovery=RelationshipRecovery(graph, log, old)
+    )
+    await graph.upsert_nodes([NodeWrite(NodeRef("Account", "Account:acme"))])
+    data["pack"]["version"] = "1.1.0"
+    data["projection"][1]["edges"][0]["set"] = {"data": "$.two"}
+    changed = PackProjector(OntologyRegistry([CORE, Pack.model_validate(data)]), frozenset())
+    assert not (await RelationshipRecovery(graph, log, changed).finish()).complete
+    ref = NodeRef("Contact", "Contact:ann@example.test")
+    assert await graph.neighbors([ref], ["WORKS_AT"], "out", 10) == []
+    assert (await RelationshipRecovery(graph, log, old).finish()).complete
+    rows = await graph.neighbors([ref], ["WORKS_AT"], "out", 10)
+    assert rows[0]["properties"]["data"] == {"x": None}

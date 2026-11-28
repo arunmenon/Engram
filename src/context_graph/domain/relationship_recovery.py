@@ -9,6 +9,12 @@ from typing import Any
 from context_graph.ports.errors import RuntimeFencedError
 
 
+def semantic_digest(value: Any) -> str:
+    """Business effect identity: retain explicit JSON nulls and value types."""
+    encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), allow_nan=False)
+    return hashlib.sha256(encoded.encode()).hexdigest()
+
+
 def recovery_digest(value: Any) -> str:
     def normalize(item: Any) -> Any:
         if isinstance(item, dict):
