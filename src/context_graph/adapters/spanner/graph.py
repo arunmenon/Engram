@@ -64,7 +64,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from context_graph.adapters.spanner.tenant_control import TenantFence
-    from context_graph.ports.pack_graph import EdgeWrite, StateChange
+    from context_graph.ports.pack_graph import EdgeWrite, NodeWrite, StateChange
     from context_graph.settings import DecaySettings, PPRSettings
 
 log = structlog.get_logger(__name__)
@@ -731,6 +731,77 @@ class SpannerGraphStore(GraphOperations):
             return False
         return True
 
+    async def apply_ordered_mutations(
+        self,
+        nodes: list[NodeWrite],
+        states: list[StateChange],
+        edges: list[EdgeWrite],
+        *,
+        reinterpret: bool = False,
+    ) -> dict[str, int]:
+        from google.cloud.spanner_v1 import KeySet
+
+        from context_graph.domain.pack_removals import (
+            validate_edge_removals,
+            validate_node_removals,
+        )
+        from context_graph.domain.write_order import decide, snapshot_keys
+
+        validate_node_removals(nodes)
+        validate_edge_removals(edges)
+        node_keys, edge_keys = snapshot_keys(nodes, states, edges)
+
+        def work(transaction: Any) -> dict[str, int]:
+            rows = list(
+                transaction.read(
+                    "GraphNodes",
+                    NODE_COLUMNS,
+                    KeySet(keys=[list(key) for key in sorted(node_keys)]),
+                )
+            )
+            current_nodes = {(r[0], r[1]): json_value(r[2]) for r in rows}
+            embeddings = {(r[0], r[1]): r[3] for r in rows}
+            keys = [
+                [key[0][0], key[0][1], key[1], key[2][0], key[2][1]] for key in sorted(edge_keys)
+            ]
+            edge_rows = (
+                list(transaction.read("GraphEdges", EDGE_COLUMNS, KeySet(keys=keys)))
+                if keys
+                else []
+            )
+            current_edges = {
+                ((r[0], r[1]), r[2], (r[3], r[4])): json_value(r[5]) for r in edge_rows
+            }
+            node_updates, edge_updates, report = decide(
+                nodes, states, edges, current_nodes, current_edges, reinterpret=reinterpret
+            )
+            self._budget.check(
+                [node_row_cost(k, v, embeddings.get(k)) for k, v in node_updates.items()]
+                + [edge_row_cost(k, v) for k, v in edge_updates.items()]
+            )
+            if node_updates:
+                transaction.insert_or_update(
+                    "GraphNodes",
+                    NODE_COLUMNS,
+                    [
+                        [*key, json_param(props), embeddings.get(key)]
+                        for key, props in node_updates.items()
+                    ],
+                )
+            if edge_updates:
+                transaction.insert_or_update(
+                    "GraphEdges",
+                    EDGE_COLUMNS,
+                    [
+                        [key[0][0], key[0][1], key[1], key[2][0], key[2][1], json_param(props)]
+                        for key, props in edge_updates.items()
+                    ],
+                )
+            return report
+
+        report: dict[str, int] = await self._transact(work)
+        return report
+
     async def get_relationship_intents(self, keys: list[str]) -> dict[str, dict[str, Any]]:
         found = await self._get_nodes([(RECOVERY_LABEL, key) for key in keys])
         return {key: props for (_label, key), props in found.items()}
@@ -774,6 +845,41 @@ class SpannerGraphStore(GraphOperations):
             {"label": param_types.STRING, "after": param_types.STRING, "limit": param_types.INT64},
         )
         return [json_value(row[0]) for row in rows]
+
+    def _ordered_recovery_edge(
+        self, transaction: Any, edge: EdgeWrite, existing: dict[str, Any] | None
+    ) -> list[Any]:
+        from google.cloud.spanner_v1 import KeySet
+
+        from context_graph.domain.write_order import clock_key, decide, edge_key
+
+        key = edge_key(edge)
+        ckey = clock_key("edge", key)
+        rows = list(transaction.read("GraphNodes", ["props"], KeySet(keys=[list(ckey)])))
+        stored_nodes: dict[tuple[str, str], dict[str, Any]] = {key[0]: {}, key[2]: {}}
+        if rows:
+            stored_nodes[ckey] = json_value(rows[0][0])
+        node_updates, edge_updates, _report = decide(
+            [], [], [edge], stored_nodes, {key: existing} if existing is not None else {}
+        )
+        costs = [node_row_cost(k, props, None) for k, props in node_updates.items()]
+        costs += [edge_row_cost(k, props) for k, props in edge_updates.items()]
+        if node_updates:
+            transaction.insert_or_update(
+                "GraphNodes",
+                NODE_COLUMNS,
+                [[*k, json_param(props), None] for k, props in node_updates.items()],
+            )
+        if edge_updates:
+            transaction.insert_or_update(
+                "GraphEdges",
+                EDGE_COLUMNS,
+                [
+                    [k[0][0], k[0][1], k[1], k[2][0], k[2][1], json_param(props)]
+                    for k, props in edge_updates.items()
+                ],
+            )
+        return costs
 
     async def settle_relationship_intent(
         self, key: str, generation: str, status: str, edge: EdgeWrite | None = None
@@ -822,22 +928,43 @@ class SpannerGraphStore(GraphOperations):
                     if present:
                         if record.get("patch_existing"):
                             props = dict(json_value(present[0][0]))
-                            props.update(
-                                {k: v for k, v in edge.properties.items() if k not in props}
-                            )
-                            costs.append(edge_row_cost((source, edge.edge_type, target), props))
-                            transaction.insert_or_update(
-                                "GraphEdges", EDGE_COLUMNS, [[*edge_key, json_param(props)]]
-                            )
+                            missing = {k: v for k, v in edge.properties.items() if k not in props}
+                            if edge.order is not None:
+                                from dataclasses import replace
+
+                                costs.extend(
+                                    self._ordered_recovery_edge(
+                                        transaction,
+                                        replace(
+                                            edge,
+                                            properties=missing,
+                                            remove_properties=tuple(
+                                                k for k in edge.remove_properties if k not in props
+                                            ),
+                                        ),
+                                        props,
+                                    )
+                                )
+                            else:
+                                props.update(missing)
+                                costs.append(edge_row_cost((source, edge.edge_type, target), props))
+                                transaction.insert_or_update(
+                                    "GraphEdges", EDGE_COLUMNS, [[*edge_key, json_param(props)]]
+                                )
                         result = "existing_relationship_kept"
                     else:
                         result = "recovered"
-                        costs.append(
-                            edge_row_cost((source, edge.edge_type, target), edge.properties)
-                        )
-                        transaction.insert(
-                            "GraphEdges", EDGE_COLUMNS, [[*edge_key, json_param(edge.properties)]]
-                        )
+                        if edge.order is not None:
+                            costs.extend(self._ordered_recovery_edge(transaction, edge, None))
+                        else:
+                            costs.append(
+                                edge_row_cost((source, edge.edge_type, target), edge.properties)
+                            )
+                            transaction.insert(
+                                "GraphEdges",
+                                EDGE_COLUMNS,
+                                [[*edge_key, json_param(edge.properties)]],
+                            )
             record["status"] = result
             costs.append(node_row_cost((RECOVERY_LABEL, key), record, None))
             self._budget.check(costs)

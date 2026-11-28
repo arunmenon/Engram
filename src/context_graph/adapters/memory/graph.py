@@ -28,7 +28,7 @@ from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.relationship_recovery import RECOVERY_LABEL
 
 if TYPE_CHECKING:
-    from context_graph.ports.pack_graph import EdgeWrite
+    from context_graph.ports.pack_graph import EdgeWrite, NodeWrite, StateChange
     from context_graph.settings import DecaySettings, PPRSettings
 
 
@@ -115,6 +115,46 @@ class MemoryGraphStore(GraphOperations):
         self.edges = {}
         self._recovery_keys = []
 
+    async def apply_ordered_mutations(
+        self,
+        nodes: list[NodeWrite],
+        states: list[StateChange],
+        edges: list[EdgeWrite],
+        *,
+        reinterpret: bool = False,
+    ) -> dict[str, int]:
+        return self._apply_ordered_mutations(nodes, states, edges, reinterpret=reinterpret)
+
+    def _apply_ordered_mutations(
+        self,
+        nodes: list[NodeWrite],
+        states: list[StateChange],
+        edges: list[EdgeWrite],
+        *,
+        reinterpret: bool = False,
+    ) -> dict[str, int]:
+        from context_graph.domain.pack_removals import (
+            validate_edge_removals,
+            validate_node_removals,
+        )
+        from context_graph.domain.write_order import decide, snapshot_keys
+
+        validate_node_removals(nodes)
+        validate_edge_removals(edges)
+        node_keys, edge_keys = snapshot_keys(nodes, states, edges)
+        changed_nodes, changed_edges, report = decide(
+            nodes,
+            states,
+            edges,
+            {key: self.nodes[key] for key in node_keys if key in self.nodes},
+            {key: self.edges[key] for key in edge_keys if key in self.edges},
+            reinterpret=reinterpret,
+        )
+        # No await between snapshot, decision and commit.
+        self.nodes.update(changed_nodes)
+        self.edges.update(changed_edges)
+        return report
+
     async def put_relationship_intent(
         self, record: dict[str, Any], *, reinterpret: bool = False
     ) -> None:
@@ -168,12 +208,31 @@ class MemoryGraphStore(GraphOperations):
             elif (source, edge.edge_type, target) in self.edges:
                 if record.get("patch_existing"):
                     existing = self.edges[(source, edge.edge_type, target)]
-                    existing.update(
-                        deepcopy({k: v for k, v in edge.properties.items() if k not in existing})
-                    )
+                    missing = {k: v for k, v in edge.properties.items() if k not in existing}
+                    if edge.order is not None:
+                        from dataclasses import replace
+
+                        self._apply_ordered_mutations(
+                            [],
+                            [],
+                            [
+                                replace(
+                                    edge,
+                                    properties=missing,
+                                    remove_properties=tuple(
+                                        k for k in edge.remove_properties if k not in existing
+                                    ),
+                                )
+                            ],
+                        )
+                    else:
+                        existing.update(deepcopy(missing))
                 status = "existing_relationship_kept"
             else:
-                self.edges[(source, edge.edge_type, target)] = deepcopy(edge.properties)
+                if edge.order is not None:
+                    self._apply_ordered_mutations([], [], [edge])
+                else:
+                    self.edges[(source, edge.edge_type, target)] = deepcopy(edge.properties)
                 status = "recovered"
         record["status"] = status
         return status

@@ -1,0 +1,41 @@
+# S3: Protect newer ontology records from delayed events
+
+Goal S3 / #36 / ARCH-2-001. Pillar2, supporting8. User approved explicitly declared trusted timestamp/sequence authority and reporting missing/conflicting authority. This candidate stacks on S2 draft146, whose separate independent acceptance is still open after its review cap. Nothing is merged or deployed. No provider product call, live migration or concrete backend run is authorized or performed.
+
+## Product flow and failing-before proof
+
+During ingestion or a rebuild, an older payment update can arrive after a newer one, or the original older event can be retried. The old implementation overwrote the newer description, lifecycle state and relationship description. The retained-event baseline at `output/implementation/ontology-v2/next-five-s3/late-effects.json` shows chronological A/B -> newer/succeeded, reversed B/A and A/B/A -> older/pending. The new declaration was initially rejected as unsupported; both witnesses are preserved separately. Original business fixtures and packs are unchanged.
+
+The intended outcome is narrower than automatic migration: explicitly ordered fields must not regress, a valid later update must still work, and an unsupported/conflicting update must be visible rather than guessed. Per-field clocks allow a late event to fill a field no later event wrote. A whole-record last-write-wins watermark would incorrectly lose that field.
+
+## Explicit contract
+
+An opted-in node type declares `ordering: {source: payments-producer, by: $.sequence, kind: sequence}` (or `kind: timestamp` with a declared source path). This is one owning producer per protected type, not cross-producer arbitration. Bound processing uses the authenticated acceptance receipt's source ID and the tenant trust policy; caller `agent_id` cannot grant trust. Unbound memory fixtures retain the existing explicit legacy-agent allowlist and are not evidence of authenticated production behavior.
+
+- Sequence authority is a nonnegative signed-int64 value, excluding booleans, strings and floats; zero is valid. Timestamp authority must name an explicit timezone, parse as an instant and have at most microsecond precision. It is normalized to UTC. No arrival clock, guessed field name or fallback authority is used.
+- The declaration must be an explicit field path. Missing/invalid authority or an untrusted/different producer refuses the whole event plan before its pack writes. The ordinary core event ledger/provenance path remains independent.
+- Each record property, lifecycle state and source-type-owned relationship property has its own winning order. Explicit clears have clocks too. Node/edge identities are unchanged. Earlier original effects within one event have stable ordinals; retries cannot undo the final effect. Lookup effects follow exact effects as in the existing writer.
+- A different event at an observed equal authority is a conflict. The same event with a contradictory fingerprint/effect is refused. Exact repeated effects are no-ops; lower authority is an observable stale-field no-op. Clocks contain source/event/configuration identity and mutation digests, not copies of source property values.
+- Lifecycle prerequisites remain enforced. A transition with an unavailable predecessor refuses the atomic node/state unit and remains a failed/unfinished projection for explicit retry; this slice does not invent a durable lifecycle queue. After the predecessor exists, retrying the original event succeeds. A distinct newer event already in its target state advances protection without falsely failing its guard or changing the original state-change time.
+- Keyed references to opted-in records create identity-only placeholders with internal placeholder metadata; they do not claim business recency or overwrite an existing authoritative record. The first real owner event establishes per-field clocks. Existing real records without trusted clock history require an explicit fresh rebuild; clocks are not guessed retroactively.
+- Adding, removing or changing the authority declaration is a breaking interpretation change in the existing classifier and requires an explicit fresh rebuild/version requirement. No rebuild, migration, cutover or graph rewrite starts automatically. A separately authorized mapping replay may reinterpret the same original event under a new bundle while still respecting newer source order.
+
+## Components and atomicity
+
+`domain/ontology.py` validates the opt-in declaration; `pack_projection.py` stamps immutable order tokens after the entire plan is validated. `domain/write_order.py` decides protected mutations over a transaction snapshot. The `PackGraph.apply_ordered_mutations` port requires native atomic comparison and mutation, with a fail-closed default for unsupported backends. It does not expose backend query text to the domain/worker.
+
+Internal reserved `ProjectionOrder` rows reuse tenant GraphNodes storage, with bounded per-record metadata (128KiB). Memory commits without an await inside the unit. Spanner reads clocks/domain rows and writes them in the existing fenced transaction, preserving stored embeddings and mutation budgets. Neo4j uses unique clock keys/row locks and commits metadata and property patches in the same transaction. Patches preserve unrelated properties. The Neo4j implementation is code-inspection evidence only until independently exercised; no concrete backend acceptance is claimed.
+
+The worker writes ordered node/state units before plain nodes, resolves lookups, then writes ordered edges. Failures between phases are retriable because committed field clocks survive a new consumer/planner. The existing dead-letter/rebuild report remains responsible for surfacing refused events; this is not an operator UI change.
+
+S2 relationship recovery now compacts ordered effects by the declared business order instead of arrival order. Recovery rederives each original field token, retains explicit clear clocks, and atomically commits a newly recovered edge and its clocks with terminal recovery status. Later valid normal updates must work after recovery. Existing reviewed relationships remain kept; late disjoint recovery fills missing fields rather than overwriting present values. This S2/S3 integration does not clear S2's independent review gate.
+
+## Verification before first review
+
+47 focused cases currently pass at the validated pack/planner/writer/stored-outcome seam. They cover chronological/reversed/A-B-A delivery, batch grouping, zero/invalid sequence values, normalized/invalid timestamps, partial fields and explicit clears, equal-authority conflicts, actual authenticated receipt identity versus claimed agent, guarded-state refusal/retry and newer same-state events, partial write/restart, independent records, policy-change classification, explicit mapping replay, multiple same-event effects, lookup precedence, required deferred links and subsequent updates, actual Spanner-adapter transaction-fake recovery/fencing, and atomic rollback of a multi-record conflict in memory and the transaction fake.
+
+Named failure logs: `red-declared-order.txt`, the earlier retained-event `late-effects.json`, `red-order-policy-change.txt`, `red-ordered-recovery.txt`, and `red-same-state-guard.txt`. Focused green evidence is `focused-working.txt`. Early selected regression passed1294 tests (2 external cases deselected) while incremental work was ongoing; only the final frozen manifest/log should be used as final source-bound proof. Mypy on12 affected runtime modules and Ruff pass. Final selected regression/conformance and source hashes are recorded before Fable's first review.
+
+## Remaining verification gates
+
+No Fable call has yet run for S3; up to two are allowed. No independent acceptance or draft S3 PR exists yet. Actual Neo4j/Spanner/Redis, CI Python3.12, live-agent reasoning, tenant cutover and real human operation are separate gates. Unconfigured packs keep their previous semantics; manual low-level graph writers are trusted internal callers, not authenticated event-projection entrypoints. Cross-producer precedence, automatic guarded-transition repair, historical graph versions and live data migration are not supplied by this opt-in contract. The all-five cumulative candidate is still required. #36 remains open.
