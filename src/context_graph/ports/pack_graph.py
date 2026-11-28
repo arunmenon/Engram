@@ -37,6 +37,17 @@ class NodeRef:
 
 
 @dataclass(frozen=True)
+class WriteOrder:
+    contract: str
+    source: str
+    value: str
+    event_id: str
+    source_digest: str
+    bundle: str
+    ordinal: int = 0
+
+
+@dataclass(frozen=True)
 class NodeWrite:
     """MERGE a node by its key, then set ``properties``.
 
@@ -49,6 +60,8 @@ class NodeWrite:
     properties: dict[str, Any] = field(default_factory=dict)
     defaults: dict[str, Any] = field(default_factory=dict)
     remove_properties: tuple[str, ...] = ()
+    order: WriteOrder | None = None
+    placeholder: bool = False
 
 
 @dataclass(frozen=True)
@@ -67,6 +80,8 @@ class EdgeWrite:
     properties: dict[str, Any] = field(default_factory=dict)
     create_only: bool = False
     remove_properties: tuple[str, ...] = ()
+    order: WriteOrder | None = None
+    property_orders: dict[str, WriteOrder] | None = None
     required: bool = False
 
 
@@ -82,10 +97,26 @@ class StateChange:
     to_state: str
     changed_at: str
     only_from: tuple[str, ...] = ()
+    order: WriteOrder | None = None
 
 
 class PackGraph(RelationshipRecoveryStore, Protocol):
     """Generic node, edge and lifecycle operations every graph backend provides."""
+
+    async def apply_ordered_mutations(
+        self,
+        nodes: list[NodeWrite],
+        states: list[StateChange],
+        edges: list[EdgeWrite],
+        *,
+        reinterpret: bool = False,
+    ) -> dict[str, int]:
+        """Atomically compare per-field clocks and commit protected mutations.
+
+        Conflicts/prerequisite failures leave this unit unchanged. Native
+        transactions must include domain records and internal clock rows.
+        """
+        ...
 
     async def ensure_pack_schema(
         self, registry: OntologyRegistry, embedding_dimensions: int

@@ -109,11 +109,142 @@ class Neo4jPackGraph:
         statements += [
             f"CREATE CONSTRAINT {label.lower()}_pk IF NOT EXISTS FOR (n:{label}) "
             "REQUIRE n.node_id IS UNIQUE"
-            for label in ("ProjectionRecovery", "ProjectionRecoveryCursor")
+            for label in ("ProjectionRecovery", "ProjectionRecoveryCursor", "ProjectionOrder")
         ]
         async with self._driver.session(database=self._database) as session:
             for statement in statements:
                 await session.run(statement)
+
+    async def apply_ordered_mutations(
+        self,
+        nodes: list[NodeWrite],
+        states: list[StateChange],
+        edges: list[EdgeWrite],
+        *,
+        reinterpret: bool = False,
+    ) -> dict[str, int]:
+        async def work(tx: Any) -> dict[str, int]:
+            return await self._ordered_tx(tx, nodes, states, edges, reinterpret=reinterpret)
+
+        async with self._driver.session(database=self._database) as session:
+            report: dict[str, int] = await session.execute_write(work)
+            return report
+
+    async def _ordered_tx(
+        self,
+        tx: Any,
+        nodes: list[NodeWrite],
+        states: list[StateChange],
+        edges: list[EdgeWrite],
+        *,
+        reinterpret: bool = False,
+        newly_created: set[Any] | None = None,
+    ) -> dict[str, int]:
+        from context_graph.domain.write_order import ORDER_LABEL, decide, snapshot_keys
+
+        validate_node_removals(nodes)
+        validate_edge_removals(edges)
+        node_keys, edge_keys = snapshot_keys(nodes, states, edges)
+        refs = {
+            (ref.label, ref.key): ref
+            for ref in [
+                *(write.ref for write in nodes),
+                *(state.ref for state in states),
+                *(ref for edge in edges for ref in (edge.source, edge.target)),
+            ]
+        }
+
+        current_nodes: dict[tuple[str, str], dict[str, Any]] = {}
+        current_edges: dict[tuple[tuple[str, str], str, tuple[str, str]], dict[str, Any]] = {}
+        # Clock rows serialize competing writers before any domain read.
+        for label, key in sorted(node_keys):
+            if label != ORDER_LABEL:
+                continue
+            row = await (
+                await tx.run(
+                    "MERGE (c:ProjectionOrder {node_id: $key}) "
+                    "SET c._write_lock = coalesce(c._write_lock, 0) + 1 "
+                    "RETURN c.record AS record",
+                    {"key": key},
+                )
+            ).single()
+            if row and row["record"]:
+                current_nodes[(label, key)] = orjson.loads(row["record"])
+        for label, key in sorted(node_keys):
+            if label == ORDER_LABEL:
+                continue
+            ref = refs[(label, key)]
+            row = await (
+                await tx.run(
+                    f"MATCH (n:{_label(label)} {{{_property(ref.key_property)}: $key}}) "
+                    "RETURN properties(n) AS props",
+                    {"key": key},
+                )
+            ).single()
+            if row:
+                current_nodes[(label, key)] = dict(row["props"])
+        for ekey in sorted(edge_keys):
+            source, edge_type, target = ekey
+            row = await (
+                await tx.run(
+                    f"MATCH (a:{_label(source[0])} "
+                    f"{{{_property(refs[source].key_property)}: $source}}) "
+                    f"MATCH (b:{_label(target[0])} "
+                    f"{{{_property(refs[target].key_property)}: $target}}) "
+                    f"MATCH (a)-[r:{_edge_type(edge_type)}]->(b) RETURN properties(r) AS props",
+                    {"source": source[1], "target": target[1]},
+                )
+            ).single()
+            if row:
+                current_edges[ekey] = dict(row["props"])
+        for ekey in newly_created or set():
+            current_edges.pop(ekey, None)
+        node_updates, edge_updates, report = decide(
+            nodes, states, edges, current_nodes, current_edges, reinterpret=reinterpret
+        )
+        for (label, key), props in node_updates.items():
+            if label == ORDER_LABEL:
+                await tx.run(
+                    "MATCH (c:ProjectionOrder {node_id: $key}) "
+                    "SET c.record = $record REMOVE c._write_lock",
+                    {"key": key, "record": orjson.dumps(props).decode()},
+                )
+            else:
+                ref = refs[(label, key)]
+                before = current_nodes.get((label, key), {})
+                patch = _props(
+                    {
+                        name: value
+                        for name, value in props.items()
+                        if name not in before or before[name] != value
+                    }
+                )
+                patch.update(dict.fromkeys(set(before) - set(props)))
+                await tx.run(
+                    f"MERGE (n:{_label(label)} "
+                    f"{{{_property(ref.key_property)}: $key}}) SET n += $props",
+                    {"key": key, "props": patch},
+                )
+        for ekey, props in edge_updates.items():
+            source, edge_type, target = ekey
+            before = current_edges.get(ekey, {})
+            patch = _props(
+                {
+                    name: value
+                    for name, value in props.items()
+                    if name not in before or before[name] != value
+                }
+            )
+            patch.update(dict.fromkeys(set(before) - set(props)))
+            await tx.run(
+                f"MATCH (a:{_label(source[0])} "
+                f"{{{_property(refs[source].key_property)}: $source}}) "
+                f"MATCH (b:{_label(target[0])} "
+                f"{{{_property(refs[target].key_property)}: $target}}) "
+                f"MERGE (a)-[r:{_edge_type(edge_type)}]->(b) SET r += $props",
+                {"source": source[1], "target": target[1], "props": patch},
+            )
+        return report
 
     async def upsert_nodes(self, writes: list[NodeWrite]) -> None:
         validate_node_removals(writes)
@@ -436,6 +567,18 @@ class Neo4jPackGraph:
                         },
                     )
                 ).single()
+                if written and written["created"] and edge.order is not None:
+                    from dataclasses import replace
+
+                    from context_graph.domain.write_order import edge_key
+
+                    await self._ordered_tx(
+                        tx,
+                        [],
+                        [],
+                        [replace(edge, create_only=False)],
+                        newly_created={edge_key(edge)},
+                    )
                 if written and not written["created"] and record.get("patch_existing"):
                     match = (
                         f"MATCH (a:{_label(edge.source.label)} "
@@ -455,10 +598,29 @@ class Neo4jPackGraph:
                     ).single()
                     props = locked["props"]
                     missing = {k: v for k, v in edge.properties.items() if k not in props}
-                    await tx.run(
-                        match + "SET r += $props REMOVE r._engram_recovery_lock",
-                        {**parameters, "props": _props(missing)},
-                    )
+                    if edge.order is not None:
+                        from dataclasses import replace
+
+                        await self._ordered_tx(
+                            tx,
+                            [],
+                            [],
+                            [
+                                replace(
+                                    edge,
+                                    properties=missing,
+                                    remove_properties=tuple(
+                                        k for k in edge.remove_properties if k not in props
+                                    ),
+                                )
+                            ],
+                        )
+                        await tx.run(match + "REMOVE r._engram_recovery_lock", parameters)
+                    else:
+                        await tx.run(
+                            match + "SET r += $props REMOVE r._engram_recovery_lock",
+                            {**parameters, "props": _props(missing)},
+                        )
                 result = (
                     ("recovered" if written["created"] else "existing_relationship_kept")
                     if written

@@ -154,7 +154,11 @@ class RelationshipRecovery:
                 raise ValueError(
                     "Relationship recovery requires a pinned source event and log position"
                 )
-            order = f"{self.log.position_order_key(plan.event_position)}/{ordinal:010d}"
+            order = (
+                f"business/{edge.order.contract}/{edge.order.source}/{edge.order.value}/{ordinal:010d}"
+                if edge.order is not None
+                else f"{self.log.position_order_key(plan.event_position)}/{ordinal:010d}"
+            )
             if missing or (prior is not None and order <= prior["order_key"] and not replacing):
                 suppressed.add(id(edge))
             effect = effect_digest(edge, selector)
@@ -201,6 +205,9 @@ class RelationshipRecovery:
                 row["node_id"], row["generation"], "invalid_intent"
             )
         properties: dict[str, Any] = {}
+        property_orders = {}
+        removals: set[str] = set()
+        last_order = None
         ids = sorted({pointer["event_id"] for pointer in row["effects"]})
         sources: dict[str, tuple[dict[str, Any] | None, VerifiedSourceProvenance | None]]
         if self.projector.requires_provenance:
@@ -231,22 +238,28 @@ class RelationshipRecovery:
                 return await self.graph.settle_relationship_intent(
                     row["node_id"], row["generation"], edge
                 )
-            properties.update(
-                {
-                    name: value
-                    for name, value in edge.properties.items()
-                    if value is not None and name in pointer["writes"]
-                }
-            )
+            last_order = edge.order
+            for name, value in edge.properties.items():
+                if value is not None and name in pointer["writes"]:
+                    properties[name] = value
+                    removals.discard(name)
+                    if edge.order is not None:
+                        property_orders[name] = edge.order
             for name in edge.remove_properties:
                 if name in pointer["writes"]:
                     properties.pop(name, None)
+                    removals.add(name)
+                    if edge.order is not None:
+                        property_orders[name] = edge.order
         insert = EdgeWrite(
             row["edge_type"],
             NodeRef(**row["source"]),
             NodeRef(**row["target"]),
             properties,
-            create_only=True,
+            create_only=last_order is None,
+            remove_properties=tuple(sorted(removals)) if last_order else (),
+            order=last_order,
+            property_orders=property_orders or None,
         )
         return await self.graph.settle_relationship_intent(
             row["node_id"], row["generation"], "waiting", insert

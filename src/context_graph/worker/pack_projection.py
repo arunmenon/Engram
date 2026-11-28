@@ -155,6 +155,7 @@ def _edges(lookup: EdgeLookup, matched: list[dict[str, Any]]) -> list[EdgeWrite]
                 target,
                 lookup.properties,
                 remove_properties=lookup.remove_properties,
+                order=lookup.order,
             )
         )
     return edges
@@ -212,10 +213,22 @@ async def apply_plans(
     nodes = [node for plan in plans for node in plan.nodes]
     states = [state for plan in plans for state in plan.states]
     lookups = [lookup for plan in plans for lookup in plan.lookups]
-    if nodes:
-        await graph.upsert_nodes(nodes)
-    if states:
-        await graph.change_states(states)
+    ordered_nodes = [node for node in nodes if node.order is not None]
+    ordered_states = [state for state in states if state.order is not None]
+    if ordered_nodes or ordered_states:
+        report = await graph.apply_ordered_mutations(
+            ordered_nodes,
+            ordered_states,
+            [],
+            reinterpret=bool(recovery and recovery.reinterpreting),
+        )
+        log.info("pack_ordered_write", **report)
+    plain_nodes = [node for node in nodes if node.order is None]
+    plain_states = [state for state in states if state.order is None]
+    if plain_nodes:
+        await graph.upsert_nodes(plain_nodes)
+    if plain_states:
+        await graph.change_states(plain_states)
     edges = [edge for plan in plans for edge in plan.edges]
     by_lookup: dict[int, list[EdgeWrite]] = {}
     truncated: set[int] = set()
@@ -231,7 +244,15 @@ async def apply_plans(
     if recovery is not None:
         suppressed = await recovery.capture(plans, by_lookup, truncated)
         edges = [edge for edge in edges if id(edge) not in suppressed]
-    written = await graph.upsert_edges(edges) if edges else 0
+    ordered_edges = [edge for edge in edges if edge.order is not None]
+    plain_edges = [edge for edge in edges if edge.order is None]
+    written = await graph.upsert_edges(plain_edges) if plain_edges else 0
+    if ordered_edges:
+        result = await graph.apply_ordered_mutations(
+            [], [], ordered_edges, reinterpret=bool(recovery and recovery.reinterpreting)
+        )
+        log.info("pack_ordered_write", **result)
+        written += result["edges"]
     log.debug(
         "pack_plans_applied",
         events=len(plans),
