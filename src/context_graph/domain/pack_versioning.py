@@ -42,6 +42,11 @@ but do not by themselves require a graph rebuild or replay. Graph operations
 remain in ``kind`` and ``pack_changes``. Proven validation relaxations are
 compatible; type changes and other unproven inclusions remain conservative.
 
+``contributor_changes`` checks each contributing pack's declaration contract
+independently of the composed graph operation. Another pack can still supply a
+withdrawn extension/rule, so a contributor's major version may be required even
+when no historical graph writes are needed. Version checks merge all axes.
+
 Pure Python; no framework imports.
 """
 
@@ -76,6 +81,9 @@ class ChangePlan:
     pack_changes: dict[str, ChangeKind] = field(default_factory=dict)
     # Producer compatibility is independent of the graph operation above.
     admission_changes: dict[str, AdmissionChangeKind] = field(default_factory=dict)
+    # Per-pack declaration compatibility may change without a graph rebuild,
+    # for example when a second pack still supplies a withdrawn extension.
+    contributor_changes: dict[str, ChangeKind] = field(default_factory=dict)
 
     def note(self, kind: ChangeKind, reason: str, pack: str | None = None) -> None:
         if _ORDER[kind] > _ORDER[self.kind]:
@@ -89,6 +97,11 @@ class ChangePlan:
         if _ORDER[kind] > _ORDER[self.admission_changes.get(event, "none")]:
             self.admission_changes[event] = kind
 
+    def note_contributor(self, kind: ChangeKind, reason: str, pack: str) -> None:
+        if _ORDER[kind] > _ORDER[self.contributor_changes.get(pack, "none")]:
+            self.contributor_changes[pack] = kind
+        self.reasons.append(reason)
+
     def as_dict(self) -> dict[str, Any]:
         return {
             "kind": self.kind,
@@ -98,6 +111,7 @@ class ChangePlan:
             "version_problems": self.version_problems,
             "pack_changes": dict(sorted(self.pack_changes.items())),
             "admission_changes": dict(sorted(self.admission_changes.items())),
+            "contributor_changes": dict(sorted(self.contributor_changes.items())),
         }
 
 
@@ -171,8 +185,12 @@ def classify_change(old: OntologyRegistry | None, new: OntologyRegistry) -> Chan
     _compare_rules(old, new, plan)
     _compare_packs(old, new, plan)
     if plan.kind == "none":
-        # Only descriptions, notes or mappings changed
-        plan.note("additive", "documentation or vocabulary changed")
+        plan.note(
+            "additive",
+            "pack contributions changed; effective graph declarations unchanged"
+            if plan.contributor_changes
+            else "documentation or vocabulary changed",
+        )
     _check_versions(old, new, plan)
     return plan
 
@@ -219,9 +237,81 @@ def _compare_nodes(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePla
         plan.note("additive", f"node type {name} added", new.node_types[name].pack)
 
 
+def _endpoint_contribution(
+    registry: OntologyRegistry, peer: OntologyRegistry, pack: Pack | None, edge_name: str
+) -> tuple[set[str], set[str]]:
+    if pack is None:
+        return set(), set()
+    definition = pack.types.edges.get(edge_name) or pack.types.extends_core_edges.get(edge_name)
+    own_types = {name for name, node in registry.node_types.items() if node.pack == pack.name}
+    edge = registry.edge_types.get(edge_name)
+    peer_edge = peer.edge_types.get(edge_name)
+
+    def endpoints(refs: list[str] | str) -> set[str]:
+        return own_types if refs == "*" else {ref.rpartition(":")[2] for ref in refs}
+
+    source = endpoints(definition.from_) if definition else set()
+    target = endpoints(definition.to) if definition else set()
+    # Includes the common provenance relationship's implicit contribution.
+    if (
+        edge is not None
+        and peer_edge is not None
+        and pack.name in edge.from_packs & peer_edge.from_packs
+    ):
+        source |= own_types
+    if (
+        edge is not None
+        and peer_edge is not None
+        and pack.name in edge.to_packs & peer_edge.to_packs
+    ):
+        target |= own_types
+    return source, target
+
+
+def _endpoint_contributors(
+    old: OntologyRegistry,
+    new: OntologyRegistry,
+    name: str,
+    source_delta: set[str],
+    target_delta: set[str],
+    *,
+    added: bool,
+) -> set[str]:
+    before, after = {p.name: p for p in old.packs}, {p.name: p for p in new.packs}
+    actors = set()
+    for pack in before.keys() | after.keys():
+        old_source, old_target = _endpoint_contribution(old, new, before.get(pack), name)
+        new_source, new_target = _endpoint_contribution(new, old, after.get(pack), name)
+        source = new_source - old_source if added else old_source - new_source
+        target = new_target - old_target if added else old_target - new_target
+        if source & source_delta or target & target_delta:
+            actors.add(pack)
+    return actors
+
+
 def _compare_edges(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePlan) -> None:
+    old_packs, new_packs = {p.name: p for p in old.packs}, {p.name: p for p in new.packs}
     for name, before in old.edge_types.items():
         after = new.edge_types.get(name)
+        for contributor in sorted(old_packs.keys() | new_packs.keys()):
+            old_source, old_target = _endpoint_contribution(
+                old, new, old_packs.get(contributor), name
+            )
+            new_source, new_target = _endpoint_contribution(
+                new, old, new_packs.get(contributor), name
+            )
+            if old_source - new_source or old_target - new_target:
+                plan.note_contributor(
+                    "breaking",
+                    f"edge type {name}: contribution withdrawn by {contributor}",
+                    contributor,
+                )
+            elif new_source - old_source or new_target - old_target:
+                plan.note_contributor(
+                    "additive",
+                    f"edge type {name}: contribution added by {contributor}",
+                    contributor,
+                )
         if after is None:
             plan.note("breaking", f"edge type {name} removed", before.pack)
             continue
@@ -242,7 +332,13 @@ def _compare_edges(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePla
         new_to = _endpoints(new, after.to_types, after.to_packs)
         dropped = sorted((old_from - new_from) | (old_to - new_to))
         if dropped:
-            plan.note("breaking", f"edge type {name}: endpoints removed: {dropped}", pack)
+            actors = _endpoint_contributors(
+                old, new, name, old_from - new_from, old_to - new_to, added=False
+            )
+            plan.note("breaking", f"edge type {name}: endpoints removed: {dropped}")
+            for actor in actors or {pack}:
+                if _ORDER["breaking"] > _ORDER[plan.pack_changes.get(actor, "none")]:
+                    plan.pack_changes[actor] = "breaking"
         widened = False
         for prop, spec in before.properties.items():
             if prop not in after.properties:
@@ -253,7 +349,15 @@ def _compare_edges(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePla
                 plan.note("breaking", f"edge type {name}: property {prop} changed type", pack)
             widened = widened or change == "additive"
         added = (new_from - old_from) | (new_to - old_to)
-        if added or widened or set(after.properties) - set(before.properties):
+        if added:
+            actors = _endpoint_contributors(
+                old, new, name, new_from - old_from, new_to - old_to, added=True
+            )
+            plan.note("additive", f"edge type {name}: endpoints or properties added")
+            for actor in actors or {pack}:
+                if _ORDER["additive"] > _ORDER[plan.pack_changes.get(actor, "none")]:
+                    plan.pack_changes[actor] = "additive"
+        if widened or set(after.properties) - set(before.properties):
             plan.note("additive", f"edge type {name}: endpoints or properties added", pack)
     for name in sorted(set(new.edge_types) - set(old.edge_types)):
         plan.note("additive", f"edge type {name} added", new.edge_types[name].pack)
@@ -491,11 +595,12 @@ def _field_accepts(before: PayloadField, after: PayloadField) -> bool:
     return True
 
 
-def _rules(registry: OntologyRegistry) -> dict[str, list[str]]:
-    return {
-        event: sorted(_canonical(rule.model_dump(by_alias=True)) for _pack, rule in rules)
-        for event, rules in registry.projection_rules.items()
-    }
+def _rules(registry: OntologyRegistry) -> dict[tuple[str, str], list[str]]:
+    result: dict[tuple[str, str], list[str]] = {}
+    for event, rules in registry.projection_rules.items():
+        for pack, rule in rules:
+            result.setdefault((event, pack), []).append(_canonical(rule.model_dump(by_alias=True)))
+    return result
 
 
 def _parts(rule: Any, *, property_targets: bool = False) -> list[str]:
@@ -544,15 +649,48 @@ def _parts(rule: Any, *, property_targets: bool = False) -> list[str]:
 
 def _identities(
     registry: OntologyRegistry, *, property_targets: bool = False
-) -> dict[str, list[str]]:
-    return {
-        event: sorted(
-            part
-            for _pack, rule in rules
-            for part in _parts(rule, property_targets=property_targets)
+) -> dict[tuple[str, str], list[str]]:
+    result: dict[tuple[str, str], list[str]] = {}
+    for event, rules in registry.projection_rules.items():
+        for pack, rule in rules:
+            result.setdefault((event, pack), []).extend(
+                _parts(rule, property_targets=property_targets)
+            )
+    return {key: sorted(values) for key, values in result.items()}
+
+
+def _rule_impact(
+    before: list[str],
+    after: list[str],
+    before_ids: list[str],
+    after_ids: list[str],
+    before_props: list[str],
+    after_props: list[str],
+) -> tuple[ChangeKind, str]:
+    if before == after:
+        return "none", ""
+    if not after:
+        return "breaking", " removed"
+    if any(part not in after_ids for part in before_ids):
+        return "breaking", ": a part's keys changed or it was removed"
+    removed = Counter(before_props) - Counter(after_props)
+    if removed:
+        names = ", ".join(sorted({json.loads(part)["property"] for part in removed}))
+        return (
+            "breaking",
+            f": property assignments removed ({names}); "
+            "rebuild a fresh graph to reconcile existing values",
         )
-        for event, rules in registry.projection_rules.items()
-    }
+    return "mapping", " changed" if set(before) - set(after) else " added"
+
+
+def _event_values(
+    values: dict[tuple[str, str], list[str]], *, preserve_order: bool = False
+) -> dict[str, list[str]]:
+    result: dict[str, list[str]] = {}
+    for (event, _pack), items in values.items():
+        result.setdefault(event, []).extend(items)
+    return result if preserve_order else {event: sorted(items) for event, items in result.items()}
 
 
 def _compare_rules(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePlan) -> None:
@@ -560,40 +698,47 @@ def _compare_rules(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePla
     old_ids, new_ids = _identities(old), _identities(new)
     old_props = _identities(old, property_targets=True)
     new_props = _identities(new, property_targets=True)
-    for event in sorted(set(before) | set(after)):
-        old_rules, new_rules = before.get(event, []), after.get(event, [])
-        if old_rules == new_rules:
+    changed: dict[str, dict[str, ChangeKind]] = {}
+    for key in sorted(before.keys() | after.keys()):
+        event, pack = key
+        kind, reason = _rule_impact(
+            before.get(key, []),
+            after.get(key, []),
+            old_ids.get(key, []),
+            new_ids.get(key, []),
+            old_props.get(key, []),
+            new_props.get(key, []),
+        )
+        if kind != "none":
+            changed.setdefault(event, {})[pack] = kind
+            plan.note_contributor(kind, f"projection of {event}{reason} (contributor {pack})", pack)
+
+    # The bundle's graph operation is separate from each contributor's API
+    # compatibility. Another contributor can still supply a removed effect.
+    before_all, after_all = (
+        _event_values(before, preserve_order=True),
+        _event_values(after, preserve_order=True),
+    )
+    old_ids_all, new_ids_all = _event_values(old_ids), _event_values(new_ids)
+    old_props_all, new_props_all = _event_values(old_props), _event_values(new_props)
+    for event in sorted(before_all.keys() | after_all.keys()):
+        kind, reason = _rule_impact(
+            before_all.get(event, []),
+            after_all.get(event, []),
+            old_ids_all.get(event, []),
+            new_ids_all.get(event, []),
+            old_props_all.get(event, []),
+            new_props_all.get(event, []),
+        )
+        if kind == "none":
             continue
-        owner = new.event_types.get(event) or old.event_types.get(event)
-        pack = owner.pack if owner is not None else None
-        if not new_rules:
-            plan.note("breaking", f"projection of {event} removed", pack)
-            continue
-        missing = [i for i in old_ids.get(event, []) if i not in new_ids.get(event, [])]
-        if missing:
-            # A replay would write nodes under new keys and leave the old ones behind
-            plan.note(
-                "breaking", f"projection of {event}: a part's keys changed or it was removed", pack
-            )
-            continue
-        removed_props = Counter(old_props.get(event, [])) - Counter(new_props.get(event, []))
-        if removed_props:
-            names = ", ".join(sorted({json.loads(part)["property"] for part in removed_props}))
-            # Merge replay never retracts a property simply because its old
-            # assignment disappeared. A fresh projection can omit that value.
-            plan.note(
-                "breaking",
-                f"projection of {event}: property assignments removed ({names}); "
-                "rebuild a fresh graph to reconcile existing values",
-                pack,
-            )
-            continue
-        if set(old_rules) - set(new_rules):
-            # A changed rule: what it wrote before may differ from what it writes now
-            plan.note("mapping", f"projection of {event} changed", pack)
-        else:
-            plan.note("mapping", f"projection of {event} added", pack)
-        plan.replay_event_types.add(event)
+        plan.note(kind, f"projection of {event}{reason}")
+        for pack, own_kind in changed.get(event, {}).items():
+            graph_kind = own_kind if _ORDER[own_kind] <= _ORDER[kind] else kind
+            if _ORDER[graph_kind] > _ORDER[plan.pack_changes.get(pack, "none")]:
+                plan.pack_changes[pack] = graph_kind
+        if kind == "mapping":
+            plan.replay_event_types.add(event)
 
 
 def _compare_packs(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePlan) -> None:
@@ -635,6 +780,9 @@ def _section(pack: Pack, section: str) -> str:
 def _check_versions(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePlan) -> None:
     old_packs = {p.name: p for p in old.packs}
     version_kinds = dict(plan.pack_changes)
+    for pack_name, change in plan.contributor_changes.items():
+        if _ORDER[change] > _ORDER[version_kinds.get(pack_name, "none")]:
+            version_kinds[pack_name] = change
     for event, kind in plan.admission_changes.items():
         pack_name = new.event_types[event].pack
         if _ORDER[kind] > _ORDER[version_kinds.get(pack_name, "none")]:
