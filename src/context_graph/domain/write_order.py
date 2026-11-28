@@ -32,7 +32,7 @@ def ordering_value(value: Any, kind: str) -> str:
         return f"{value:020d}"
     if not isinstance(value, str) or not re.search(r"(Z|[+-]\d\d:\d\d)$", value):
         raise ValueError("write_order_requires_explicit_timezone_timestamp")
-    fraction = re.search(r"\.(\d+)", value)
+    fraction = re.search(r"[.,](\d+)", value)
     if fraction and len(fraction[1]) > 6:
         raise ValueError("write_order_timestamp_precision_exceeds_microseconds")
     try:
@@ -75,6 +75,8 @@ def authority_claims(
     for kind, key, token in candidates:
         if token is None or not token.value:
             continue
+        if not re.fullmatch(r"[0-9a-f]{64}", token.effect_digest):
+            raise ValueError("write_order_requires_semantic_receipt")
         ckey = (ORDER_LABEL, recovery_digest(["claim", kind, key, token.contract, token.value]))
         claim = {
             "node_id": ckey[1],
@@ -84,6 +86,8 @@ def authority_claims(
             "value": token.value,
             "event_id": token.event_id,
             "source_digest": token.source_digest,
+            "effect_digest": token.effect_digest,
+            "bundle": token.bundle,
         }
         if ckey in claims and claims[ckey] != claim:
             raise ValueError("write_order_equal_authority_conflict")
@@ -121,11 +125,43 @@ def decide(
     changed_edges: set[EdgeKey] = set()
     counts = {"stale_fields": 0, "duplicate_fields": 0, "written_fields": 0, "edges": 0}
 
-    for ckey, claim in authority_claims(nodes, states, edges).items():
-        if ckey in current_nodes and current_nodes[ckey] != claim:
-            raise ValueError("write_order_equal_authority_conflict")
+    duplicates: set[NodeKey] = set()
+    identity_fields = (
+        "node_id",
+        "kind",
+        "contract",
+        "source",
+        "value",
+        "event_id",
+        "source_digest",
+    )
+    available = set(current_nodes) | {node_key(write.ref) for write in nodes}
+    ready_edges = [
+        edge
+        for edge in edges
+        if node_key(edge.source) in available and node_key(edge.target) in available
+    ]
+    for ckey, claim in authority_claims(nodes, states, ready_edges).items():
+        previous = current_nodes.get(ckey)
+        if previous is not None:
+            if any(previous.get(name) != claim[name] for name in identity_fields):
+                raise ValueError("write_order_equal_authority_conflict")
+            if previous.get("effect_digest") == claim["effect_digest"]:
+                duplicates.add(ckey)
+                continue
+            if not (reinterpret and previous.get("bundle") != claim["bundle"]):
+                raise ValueError("write_order_changed_effect_without_explicit_replay")
         current_nodes[ckey] = claim
         changed_nodes.add(ckey)
+
+    def duplicate(kind: str, key: NodeKey | EdgeKey, token: WriteOrder) -> bool:
+        ckey = (ORDER_LABEL, recovery_digest(["claim", kind, key, token.contract, token.value]))
+        return ckey in duplicates
+
+    def require_record(kind: str, key: NodeKey | EdgeKey, present: bool) -> None:
+        previous = current_nodes.get(clock_key(kind, key))
+        if not present and previous is not None and not previous.get("placeholder"):
+            raise ValueError(f"write_order_{kind}_missing_but_clock_survives")
 
     def clock(
         kind: str, key: NodeKey | EdgeKey, token: WriteOrder, existing: bool
@@ -192,6 +228,10 @@ def decide(
         if token is None:
             raise ValueError("write_order_port_requires_ordered_mutation")
         key = node_key(write.ref)
+        require_record("node", key, key in current_nodes)
+        if not write.placeholder and duplicate("node", key, token):
+            counts["duplicate_fields"] += len(write.properties) + len(write.remove_properties)
+            continue
         meta = clock("node", key, token, key in current_nodes)
         if write.placeholder:
             if key not in current_nodes:
@@ -221,6 +261,9 @@ def decide(
         key = node_key(state.ref)
         if key not in current_nodes:
             raise ValueError("write_order_state_record_missing")
+        if duplicate("node", key, token):
+            counts["duplicate_fields"] += 1
+            continue
         meta = clock("node", key, token, True)
         props = current_nodes[key]
         if permitted(meta, "status", ["state", state.to_state, state.only_from], token):
@@ -239,17 +282,28 @@ def decide(
         if ekey[0] not in current_nodes or ekey[2] not in current_nodes:
             # S2 journals missing endpoints separately; no clock is advanced.
             continue
+        require_record("edge", ekey, ekey in current_edges)
         if edge.create_only and ekey in current_edges:
+            continue
+        orders = [token, *(edge.property_orders or {}).values()]
+        if all(duplicate("edge", ekey, order) for order in orders):
+            counts["duplicate_fields"] += len(edge.properties) + len(edge.remove_properties)
             continue
         meta = clock("edge", ekey, token, ekey in current_edges)
         props = current_edges.get(ekey, {})
         for name, value in edge.properties.items():
-            if value is not None and permitted(
-                meta, name, ["set", value], (edge.property_orders or {}).get(name, token)
-            ):
+            field_order = (edge.property_orders or {}).get(name, token)
+            if duplicate("edge", ekey, field_order):
+                counts["duplicate_fields"] += 1
+                continue
+            if value is not None and permitted(meta, name, ["set", value], field_order):
                 props[name] = value
         for name in edge.remove_properties:
-            if permitted(meta, name, ["clear"], (edge.property_orders or {}).get(name, token)):
+            field_order = (edge.property_orders or {}).get(name, token)
+            if duplicate("edge", ekey, field_order):
+                counts["duplicate_fields"] += 1
+                continue
+            if permitted(meta, name, ["clear"], field_order):
                 props.pop(name, None)
         current_edges[ekey] = props
         changed_edges.add(ekey)

@@ -27,15 +27,24 @@ def edge_identity(edge: EdgeWrite) -> list[Any]:
     return [edge.edge_type, asdict(edge.source), asdict(edge.target)]
 
 
+def effect_descriptor(write: Any) -> dict[str, Any]:
+    data = asdict(write)
+    if data.get("order"):
+        # Full semantic receipt, source identity and declared authority remain
+        # pinned; a bookkeeping-only bundle bump does not change the effect.
+        data["order"].pop("bundle", None)
+    return data
+
+
 def effect_digest(edge: EdgeWrite, selector: str | None = None) -> str:
-    return digest([asdict(edge), selector])
+    return digest([effect_descriptor(edge), selector])
 
 
 def relationship_plan_digest(plan: ProjectionPlan) -> str:
     return digest(
         [
-            [asdict(edge) for edge in plan.edges],
-            [asdict(lookup) for lookup in plan.lookups],
+            [effect_descriptor(edge) for edge in plan.edges],
+            [effect_descriptor(lookup) for lookup in plan.lookups],
         ]
     )
 
@@ -78,7 +87,7 @@ class RelationshipRecovery:
             (plan, edge, None) for plan in plans for edge in plan.edges
         ]
         candidates += [
-            (plan, edge, digest(asdict(lookup)))
+            (plan, edge, digest(effect_descriptor(lookup)))
             for plan in plans
             for lookup in plan.lookups
             for edge in resolved.get(id(lookup), [])
@@ -87,7 +96,7 @@ class RelationshipRecovery:
             for lookup in plan.lookups:
                 if id(lookup) not in (truncated or set()):
                     continue
-                descriptor = digest(asdict(lookup))
+                descriptor = digest(effect_descriptor(lookup))
                 effect = digest(["truncated_lookup", descriptor])
                 key = digest([plan.event_id, "blocked_lookup"])
                 await self.graph.put_relationship_intent(
@@ -160,6 +169,7 @@ class RelationshipRecovery:
                     "authority": plan.authority,
                     "source_id": plan.source_id,
                     "source_digest": plan.source_digest,
+                    "ordered_effect_digest": edge.order.effect_digest if edge.order else None,
                     "effect_digest": effect,
                     "selector_digest": selector,
                     "plan_digest": relationship_plan_digest(plan),
@@ -250,9 +260,19 @@ class RelationshipRecovery:
             order=last_order,
             property_orders=property_orders or None,
         )
-        return await self.graph.settle_relationship_intent(
-            row["node_id"], row["generation"], "waiting", insert
-        )
+        try:
+            return await self.graph.settle_relationship_intent(
+                row["node_id"], row["generation"], "waiting", insert
+            )
+        except ValueError as exc:
+            reason = str(exc)
+            if not reason.startswith("write_order_"):
+                raise
+            # The ordered native transaction rolled back. Persist a blocking
+            # diagnostic in a separate generation-fenced unit, without an edge.
+            return await self.graph.settle_relationship_intent(
+                row["node_id"], row["generation"], reason
+            )
 
     def _rederive(
         self,
@@ -289,7 +309,7 @@ class RelationshipRecovery:
         from context_graph.worker.pack_projection import _edges
 
         for lookup in plan.lookups:
-            selector = digest(asdict(lookup))
+            selector = digest(effect_descriptor(lookup))
             if lookup.edge_type != row["edge_type"] or selector != pointer.get("selector_digest"):
                 continue
             known = row["target"] if lookup.reverse else row["source"]
