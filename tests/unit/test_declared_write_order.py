@@ -819,3 +819,23 @@ async def test_explicit_replay_keeps_nested_json_null_distinct_from_omission(bac
     link = (await graph.neighbors([ref], ["POSTED_TO"], "out", 10))[0]["properties"]
     assert record["data"] == ({} if location == "record" else {"x": None})
     assert link["data"] == ({} if location == "relationship" else {"x": None})
+
+
+@pytest.mark.parametrize("backend", ["memory", "spanner_transaction_fake"])
+async def test_an_added_mapping_with_an_absent_value_does_not_change_the_original_effect(backend):
+    if backend == "memory":
+        graph = MemoryGraphStore()
+    else:
+        from tests.unit.test_relationship_recovery_spanner import setup
+
+        _database, graph = setup()
+    planner = projector()
+    record = inputs()[1]
+    await apply_plan(graph, planner.plan(*record), 100)
+    data = deepcopy(PACK)
+    data["pack"]["version"] = "1.1.0"
+    data["types"]["nodes"]["Payment"]["properties"]["extra"] = "string"
+    data["projection"][0]["upsert"][0]["set"]["extra"] = "$.absent"
+    assert await apply_plan(graph, projector(data).plan(*record), 100) == 0
+    ref = NodeRef("Payment", "Payment:P1")
+    assert "extra" not in (await graph.get_nodes([ref]))[ref]

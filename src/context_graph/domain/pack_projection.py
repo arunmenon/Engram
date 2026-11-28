@@ -494,6 +494,11 @@ class PackProjector:
                 data = {key: value for key, value in asdict(write).items() if value is not None}
                 data.pop("order", None)
                 data.pop("property_orders", None)
+                for section in ("properties", "defaults"):
+                    if section in data:
+                        data[section] = {
+                            key: value for key, value in data[section].items() if value is not None
+                        }
                 if name == "nodes":
                     data["properties"].pop("ontology_version", None)
                     data["defaults"].pop("ontology_version", None)
