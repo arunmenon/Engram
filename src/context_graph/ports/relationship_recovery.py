@@ -16,8 +16,13 @@ CURSOR_LABEL = "ProjectionRecoveryCursor"
 
 
 class RelationshipRecoveryStore(Protocol):
-    async def put_relationship_intent(self, record: dict[str, Any]) -> None:
-        """Atomically retain the greatest log-order candidate; same generation is a no-op.
+    async def put_relationship_intent(
+        self, record: dict[str, Any], *, reinterpret: bool = False
+    ) -> None:
+        """Atomically retain the last original-log contribution to each field.
+
+        The stored generation is composite; obtain it through the point-read port.
+        Redelivery with no new contribution is a no-op.
 
         Equal order with conflicting generation is refused. Existing terminal state
         never regresses on redelivery. Ordering tokens are supplied by the log adapter.

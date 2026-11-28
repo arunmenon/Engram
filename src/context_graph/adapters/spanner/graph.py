@@ -56,6 +56,7 @@ from context_graph.adapters.spanner.entity_index import ENTITY_VECTOR_INDEX
 from context_graph.adapters.spanner.errors import translate_spanner_error
 from context_graph.adapters.spanner.log import json_param, json_value
 from context_graph.adapters.spanner.tenant_control import tenant_snapshot
+from context_graph.domain.relationship_recovery import merge_relationship_intent
 from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.relationship_recovery import RECOVERY_LABEL
 
@@ -734,7 +735,9 @@ class SpannerGraphStore(GraphOperations):
         found = await self._get_nodes([(RECOVERY_LABEL, key) for key in keys])
         return {key: props for (_label, key), props in found.items()}
 
-    async def put_relationship_intent(self, record: dict[str, Any]) -> None:
+    async def put_relationship_intent(
+        self, record: dict[str, Any], *, reinterpret: bool = False
+    ) -> None:
         from google.cloud.spanner_v1 import KeySet
 
         def work(transaction: Any) -> None:
@@ -744,18 +747,17 @@ class SpannerGraphStore(GraphOperations):
                 )
             )
             before = json_value(rows[0][0]) if rows else None
-            if before and before["order_key"] >= record["order_key"]:
-                if (
-                    before["order_key"] == record["order_key"]
-                    and before["generation"] != record["generation"]
-                ):
-                    raise RuntimeFencedError("Conflicting recovery event at one log position")
+            merged = merge_relationship_intent(before, record, reinterpret=reinterpret)
+            if merged is None:
                 return
-            self._budget.check([node_row_cost((RECOVERY_LABEL, record["node_id"]), record, None)])
+            record_to_store = merged
+            self._budget.check(
+                [node_row_cost((RECOVERY_LABEL, record["node_id"]), record_to_store, None)]
+            )
             transaction.insert_or_update(
                 "GraphNodes",
                 NODE_COLUMNS,
-                [[RECOVERY_LABEL, record["node_id"], json_param(record), None]],
+                [[RECOVERY_LABEL, record["node_id"], json_param(record_to_store), None]],
             )
 
         await self._transact(work)

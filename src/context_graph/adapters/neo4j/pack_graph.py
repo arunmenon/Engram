@@ -20,6 +20,7 @@ from context_graph.adapters.graph_ops import LABEL_KEYS
 from context_graph.adapters.neo4j.ontology_schema import schema_statements
 from context_graph.domain.ontology import EDGE_TYPE_NAME, NODE_TYPE_NAME, PROPERTY_NAME
 from context_graph.domain.pack_removals import validate_edge_removals, validate_node_removals
+from context_graph.domain.relationship_recovery import merge_relationship_intent
 from context_graph.ports.errors import InvalidRequestError, RuntimeFencedError
 
 if TYPE_CHECKING:
@@ -356,7 +357,9 @@ class Neo4jPackGraph:
         )
         return [orjson.loads(row["record"]) for row in rows]
 
-    async def put_relationship_intent(self, record: dict[str, Any]) -> None:
+    async def put_relationship_intent(
+        self, record: dict[str, Any], *, reinterpret: bool = False
+    ) -> None:
         async def work(tx: Any) -> None:
             result = await tx.run(
                 "MERGE (n:ProjectionRecovery {node_id: $key}) "
@@ -366,16 +369,12 @@ class Neo4jPackGraph:
             )
             row = await result.single()
             before = orjson.loads(row["record"]) if row and row["record"] else None
-            if before and before["order_key"] >= record["order_key"]:
-                if (
-                    before["order_key"] == record["order_key"]
-                    and before["generation"] != record["generation"]
-                ):
-                    raise RuntimeFencedError("Conflicting recovery event at one log position")
+            merged = merge_relationship_intent(before, record, reinterpret=reinterpret)
+            if merged is None:
                 return
             await tx.run(
                 "MATCH (n:ProjectionRecovery {node_id: $key}) SET n.record = $record",
-                {"key": record["node_id"], "record": orjson.dumps(record).decode()},
+                {"key": record["node_id"], "record": orjson.dumps(merged).decode()},
             )
 
         async with self._driver.session(database=self._database) as session:

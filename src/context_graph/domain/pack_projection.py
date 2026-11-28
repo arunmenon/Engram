@@ -46,7 +46,7 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Literal
 
-from context_graph.domain.event_acceptance import EventInterpretationError
+from context_graph.domain.event_acceptance import EventInterpretationError, request_fingerprint
 from context_graph.domain.ontology import (
     PROVENANCE_EDGE,
     EnumSpec,
@@ -147,6 +147,8 @@ class EdgeLookup:
 class ProjectionPlan:
     event_id: str = ""
     event_position: str = ""
+    source_id: str = ""
+    source_digest: str = ""
     bundle: str = ""
     authority: str = ""
     nodes: list[NodeWrite] = field(default_factory=list)
@@ -397,9 +399,21 @@ class PackProjector:
         provenance: VerifiedSourceProvenance | None = None,
     ) -> ProjectionPlan:
         trusted = self.source_trusted(event, document, provenance)
+        try:
+            source_digest = request_fingerprint(event, document.get("payload"))
+        except (ValueError, TypeError):
+            # Preserve legacy direct planning of non-JSON values; such input
+            # cannot be journalled for recovery through an accepted event log.
+            source_digest = ""
         plan = ProjectionPlan(
             event_id=str(event.event_id),
             event_position=event.global_position or "",
+            source_id=(
+                provenance.acceptance.source_id
+                if self.requires_provenance and provenance is not None
+                else event.agent_id
+            ),
+            source_digest=source_digest,
             bundle=self.registry.version,
             authority=self.authority_fingerprint,
         )

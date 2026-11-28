@@ -208,7 +208,7 @@ async def replay_event_types(
     report = ReplayReport(failed=[])
     from context_graph.worker.relationship_recovery import RelationshipRecovery
 
-    recovery = RelationshipRecovery(graph, event_log, projector)
+    recovery = RelationshipRecovery(graph, event_log, projector, reinterpreting=True)
     cursor: str | None = None
     while True:
         entries = await event_log.read_after(cursor, batch_size)

@@ -3,12 +3,12 @@
 from __future__ import annotations
 
 import asyncio
-import hashlib
-import json
 from dataclasses import asdict, dataclass
 from typing import TYPE_CHECKING, Any
 
 from context_graph.domain.models import Event
+from context_graph.domain.relationship_recovery import intent_generation
+from context_graph.domain.relationship_recovery import recovery_digest as digest
 from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.event_log import AcceptedRecordReader
 from context_graph.ports.pack_graph import EdgeWrite, NodeRef, NodeWrite
@@ -16,16 +16,11 @@ from context_graph.ports.relationship_recovery import CURSOR_LABEL
 
 if TYPE_CHECKING:
     from context_graph.domain.pack_projection import PackProjector, ProjectionPlan
+    from context_graph.domain.source_trust import VerifiedSourceProvenance
     from context_graph.ports.event_log import EventLog
     from context_graph.ports.pack_graph import PackGraph
 
 TERMINAL = {"recovered", "existing_relationship_kept"}
-
-
-def digest(value: Any) -> str:
-    return hashlib.sha256(
-        json.dumps(value, sort_keys=True, separators=(",", ":")).encode()
-    ).hexdigest()
 
 
 def edge_identity(edge: EdgeWrite) -> list[Any]:
@@ -34,6 +29,15 @@ def edge_identity(edge: EdgeWrite) -> list[Any]:
 
 def effect_digest(edge: EdgeWrite, selector: str | None = None) -> str:
     return digest([asdict(edge), selector])
+
+
+def relationship_plan_digest(plan: ProjectionPlan) -> str:
+    return digest(
+        [
+            [asdict(edge) for edge in plan.edges],
+            [asdict(lookup) for lookup in plan.lookups],
+        ]
+    )
 
 
 @dataclass
@@ -52,10 +56,17 @@ class RelationshipRecovery:
     """One coordinator per consumer; state is in the tenant's graph, not this object."""
 
     def __init__(
-        self, graph: PackGraph, log: EventLog, projector: PackProjector, *, timeout_s: float = 5.0
+        self,
+        graph: PackGraph,
+        log: EventLog,
+        projector: PackProjector,
+        *,
+        timeout_s: float = 5.0,
+        reinterpreting: bool = False,
     ) -> None:
         self.graph, self.log, self.projector = graph, log, projector
         self.timeout_s = timeout_s
+        self.reinterpreting = reinterpreting
 
     async def capture(
         self,
@@ -64,10 +75,7 @@ class RelationshipRecovery:
         truncated: set[int] | None = None,
     ) -> set[int]:
         candidates: list[tuple[ProjectionPlan, EdgeWrite, str | None]] = [
-            (plan, edge, None)
-            for plan in plans
-            for edge in plan.edges
-            if edge.edge_type != "DERIVED_FROM"
+            (plan, edge, None) for plan in plans for edge in plan.edges
         ]
         candidates += [
             (plan, edge, digest(asdict(lookup)))
@@ -105,21 +113,23 @@ class RelationshipRecovery:
             list({digest(edge_identity(edge)) for _plan, edge, _selector in candidates})
         )
         suppressed: set[int] = set()
+        ordinals: dict[int, int] = {}
         for plan, edge, selector in candidates:
+            ordinal = ordinals.get(id(plan), 0)
+            ordinals[id(plan)] = ordinal + 1
             key = digest(edge_identity(edge))
             prior = previous.get(key)
+            if self.reinterpreting and prior and prior["bundle"] != plan.bundle:
+                prior = None
             missing = edge.source not in existing or edge.target not in existing
             if not missing and prior is None:
                 continue
-            if not plan.event_id or not plan.event_position:
+            if not plan.event_id or not plan.event_position or not plan.source_digest:
                 raise ValueError(
                     "Relationship recovery requires a pinned source event and log position"
                 )
-            order = self.log.position_order_key(plan.event_position)
-            if prior is not None and order <= prior["order_key"]:
-                suppressed.add(id(edge))
-                continue
-            if missing:
+            order = f"{self.log.position_order_key(plan.event_position)}/{ordinal:010d}"
+            if missing or (prior is not None and order <= prior["order_key"]):
                 suppressed.add(id(edge))
             effect = effect_digest(edge, selector)
             await self.graph.put_relationship_intent(
@@ -129,8 +139,15 @@ class RelationshipRecovery:
                     "event_id": plan.event_id,
                     "bundle": plan.bundle,
                     "authority": plan.authority,
+                    "source_id": plan.source_id,
+                    "source_digest": plan.source_digest,
                     "effect_digest": effect,
                     "selector_digest": selector,
+                    "plan_digest": relationship_plan_digest(plan),
+                    "writes": sorted(
+                        {name for name, value in edge.properties.items() if value is not None}
+                        | set(edge.remove_properties)
+                    ),
                     "position": plan.event_position,
                     "order_key": order,
                     "edge_type": edge.edge_type,
@@ -138,8 +155,14 @@ class RelationshipRecovery:
                     "target": asdict(edge.target),
                     "required": edge.required,
                     "status": "endpoint_missing",
-                }
+                },
+                reinterpret=self.reinterpreting,
             )
+            current = (await self.graph.get_relationship_intents([key]))[key]
+            previous[key] = current
+            if prior is not None and not missing and order > prior["order_key"]:
+                # Fold older deferred partial fields before the normal later patch.
+                await self._recover(current)
         return suppressed
 
     async def _recover(self, row: dict[str, Any]) -> str:
@@ -147,71 +170,111 @@ class RelationshipRecovery:
             return str(row["status"])
         if row["node_id"] != digest([row["edge_type"], row["source"], row["target"]]) or row[
             "generation"
-        ] != digest([row["event_id"], row["bundle"], row["effect_digest"]]):
+        ] != intent_generation(row):
             return await self.graph.settle_relationship_intent(
                 row["node_id"], row["generation"], "invalid_intent"
             )
-        status = "changed_authority"
-        if row["authority"] == self.projector.authority_fingerprint:
-            provenance = None
-            document: dict[str, Any] | None
-            if self.projector.requires_provenance:
-                if not isinstance(self.log, AcceptedRecordReader):
-                    raise ValueError("Recovery requires an accepted-record reader")
-                records = await self.log.get_accepted_records([row["event_id"]])
-                document, provenance = records[0].document, records[0].provenance
-            else:
-                document = (await self.log.get_documents([row["event_id"]]))[0]
-            if document is None:
-                status = "missing_source"
-            else:
-                event = Event.model_validate(document, strict=False)
-                if str(event.event_id) != row["event_id"]:
-                    status = "changed_source"
-                else:
-                    event = event.model_copy(update={"global_position": row["position"]})
-                    plan = self.projector.plan(event, document, provenance=provenance)
-                    edges: list[tuple[EdgeWrite, str | None]] = [
-                        (edge, None) for edge in plan.edges
-                    ]
-                    # Re-derive lookup properties, but NEVER choose a different target.
-                    from context_graph.worker.pack_projection import _edges
-
-                    for lookup in plan.lookups:
-                        if lookup.edge_type != row["edge_type"] or digest(
-                            asdict(lookup)
-                        ) != row.get("selector_digest"):
-                            continue
-                        known = row["target"] if lookup.reverse else row["source"]
-                        found = row["source"] if lookup.reverse else row["target"]
-                        if asdict(lookup.known) == known and lookup.label == found["label"]:
-                            edges.extend(
-                                (edge, digest(asdict(lookup)))
-                                for edge in _edges(lookup, [{lookup.key_property: found["key"]}])
-                            )
-                    matching = [
-                        e
-                        for e, selector in edges
-                        if edge_identity(e) == [row["edge_type"], row["source"], row["target"]]
-                        and effect_digest(e, selector) == row["effect_digest"]
-                    ]
-                    if matching:
-                        edge = matching[-1]
-                        # A create path cannot remove a property; removals are vacuous.
-                        insert = EdgeWrite(
-                            edge.edge_type,
-                            edge.source,
-                            edge.target,
-                            edge.properties,
-                            create_only=True,
-                        )
-                        return await self.graph.settle_relationship_intent(
-                            row["node_id"], row["generation"], "waiting", insert
-                        )
-                    status = "changed_bundle" if row["bundle"] != plan.bundle else "changed_source"
-        return await self.graph.settle_relationship_intent(
-            row["node_id"], row["generation"], status
+        properties: dict[str, Any] = {}
+        ids = sorted({pointer["event_id"] for pointer in row["effects"]})
+        sources: dict[str, tuple[dict[str, Any] | None, VerifiedSourceProvenance | None]]
+        if self.projector.requires_provenance:
+            if not isinstance(self.log, AcceptedRecordReader):
+                raise RuntimeFencedError("Recovery requires an accepted-record reader")
+            records = await self.log.get_accepted_records(ids)
+            if len(records) != len(ids):
+                raise RuntimeFencedError("Invalid accepted-record recovery response")
+            sources = {
+                key: (record.document, record.provenance)
+                for key, record in zip(ids, records, strict=True)
+            }
+        else:
+            documents = await self.log.get_documents(ids)
+            if len(documents) != len(ids):
+                raise RuntimeFencedError("Invalid source recovery response")
+            sources = {key: (document, None) for key, document in zip(ids, documents, strict=True)}
+        for pointer in row["effects"]:
+            await asyncio.sleep(0)  # Honour the deadline between bounded deterministic plans.
+            if pointer["event_generation"] != digest(
+                [pointer["event_id"], pointer["bundle"], pointer["effect_digest"]]
+            ):
+                return await self.graph.settle_relationship_intent(
+                    row["node_id"], row["generation"], "invalid_intent"
+                )
+            edge = self._rederive(row, pointer, sources[pointer["event_id"]])
+            if isinstance(edge, str):
+                return await self.graph.settle_relationship_intent(
+                    row["node_id"], row["generation"], edge
+                )
+            properties.update(
+                {name: value for name, value in edge.properties.items() if value is not None}
+            )
+            for name in edge.remove_properties:
+                properties.pop(name, None)
+        insert = EdgeWrite(
+            row["edge_type"],
+            NodeRef(**row["source"]),
+            NodeRef(**row["target"]),
+            properties,
+            create_only=True,
         )
+        return await self.graph.settle_relationship_intent(
+            row["node_id"], row["generation"], "waiting", insert
+        )
+
+    def _rederive(
+        self,
+        row: dict[str, Any],
+        pointer: dict[str, Any],
+        source: tuple[dict[str, Any] | None, VerifiedSourceProvenance | None],
+    ) -> EdgeWrite | str:
+        if pointer["authority"] != self.projector.authority_fingerprint:
+            return "changed_authority"
+        document, provenance = source
+        if document is None:
+            return "missing_source"
+        try:
+            event = Event.model_validate(document, strict=False)
+            if str(event.event_id) != pointer["event_id"]:
+                return "changed_source"
+            event = event.model_copy(update={"global_position": pointer["position"]})
+            plan = self.projector.plan(event, document, provenance=provenance)
+        except (ValueError, TypeError):
+            return (
+                "changed_bundle"
+                if pointer["bundle"] != self.projector.registry.version
+                else "changed_source"
+            )
+        if (
+            pointer.get("source_id") != plan.source_id
+            or pointer.get("source_digest") != plan.source_digest
+        ):
+            return "changed_source"
+        if pointer.get("plan_digest") != relationship_plan_digest(plan):
+            return "changed_bundle" if pointer["bundle"] != plan.bundle else "changed_source"
+        edges: list[tuple[EdgeWrite, str | None]] = [(edge, None) for edge in plan.edges]
+        # Re-derive properties while retaining the originally selected references.
+        from context_graph.worker.pack_projection import _edges
+
+        for lookup in plan.lookups:
+            selector = digest(asdict(lookup))
+            if lookup.edge_type != row["edge_type"] or selector != pointer.get("selector_digest"):
+                continue
+            known = row["target"] if lookup.reverse else row["source"]
+            found = row["source"] if lookup.reverse else row["target"]
+            if asdict(lookup.known) == known and lookup.label == found["label"]:
+                edges.extend(
+                    (edge, selector)
+                    for edge in _edges(lookup, [{lookup.key_property: found["key"]}])
+                )
+        matching = [
+            edge
+            for edge, selector in edges
+            if edge_identity(edge) == [row["edge_type"], row["source"], row["target"]]
+            and effect_digest(edge, selector) == pointer["effect_digest"]
+        ]
+        if matching:
+            return matching[-1]
+        return "changed_bundle" if pointer["bundle"] != plan.bundle else "changed_source"
 
     async def page(self, limit: int = 100) -> RecoveryReport:
         async with asyncio.timeout(self.timeout_s):
@@ -239,11 +302,14 @@ class RelationshipRecovery:
     async def _rows(self, rows: list[dict[str, Any]]) -> RecoveryReport:
         report = RecoveryReport()
         for row in rows:
+            await asyncio.sleep(0)
             status = await self._recover(row)
             report.scanned += 1
-            if status not in TERMINAL and status != "superseded":
+            if status not in TERMINAL:
                 report.waiting += 1
                 report.blocking += int(row["required"] or status != "endpoint_missing")
+                if status == "superseded":
+                    report.complete_scan = False
         return report
 
     async def finish(self, budget: int = 10_000, page_size: int = 100) -> RecoveryReport:
@@ -264,6 +330,9 @@ class RelationshipRecovery:
             report.scanned += part.scanned
             report.waiting += part.waiting
             report.blocking += part.blocking
+            report.complete_scan = report.complete_scan and part.complete_scan
             after = rows[-1]["node_id"]
-        report.complete_scan = not bool(await self.graph.relationship_intents(after, 1))
+        report.complete_scan = report.complete_scan and not bool(
+            await self.graph.relationship_intents(after, 1)
+        )
         return report

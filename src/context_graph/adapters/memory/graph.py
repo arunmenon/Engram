@@ -22,6 +22,7 @@ from context_graph.adapters.graph_ops import (
     apply_set,
     key_property,
 )
+from context_graph.domain.relationship_recovery import merge_relationship_intent
 from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.relationship_recovery import RECOVERY_LABEL
 
@@ -107,17 +108,14 @@ class MemoryGraphStore(GraphOperations):
         self.nodes = {}
         self.edges = {}
 
-    async def put_relationship_intent(self, record: dict[str, Any]) -> None:
+    async def put_relationship_intent(
+        self, record: dict[str, Any], *, reinterpret: bool = False
+    ) -> None:
         key = (RECOVERY_LABEL, record["node_id"])
         before = self.nodes.get(key)
-        if before:
-            if before["order_key"] > record["order_key"]:
-                return
-            if before["order_key"] == record["order_key"]:
-                if before["generation"] != record["generation"]:
-                    raise RuntimeFencedError("Conflicting recovery event at one log position")
-                return
-        self.nodes[key] = deepcopy(record)
+        merged = merge_relationship_intent(before, record, reinterpret=reinterpret)
+        if merged is not None:
+            self.nodes[key] = deepcopy(merged)
 
     async def get_relationship_intents(self, keys: list[str]) -> dict[str, dict[str, Any]]:
         return {

@@ -1,15 +1,44 @@
 """Required-link and exact-endpoint recovery at validated planner/worker/store seams."""
 
-from datetime import UTC, datetime
+import asyncio
+import hashlib
+import json
+from copy import deepcopy
+from dataclasses import replace
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from uuid import uuid4
 
 import pytest
 
+from context_graph.adapters.memory.graph import MemoryGraphStore
+from context_graph.adapters.memory.log import MemoryEventLog
+from context_graph.adapters.memory.subscription import MemorySubscription
+from context_graph.domain.event_acceptance import (
+    AdmissionContext,
+    EventInterpretation,
+    stamp_acceptance,
+)
 from context_graph.domain.models import Event
-from context_graph.domain.ontology import OntologyRegistry, Pack
-from context_graph.domain.pack_projection import PackProjector
+from context_graph.domain.ontology import OntologyError, OntologyRegistry, Pack
+from context_graph.domain.pack_expressions import IdentityOperandError
+from context_graph.domain.pack_projection import PackProjector, RequiredRelationshipError
+from context_graph.domain.source_trust import (
+    AcceptedRecord,
+    SourceTrustPolicy,
+    VerifiedSourceProvenance,
+)
 from context_graph.ontology import BUILTIN_PACK_DIR, load_pack_file
+from context_graph.ontology.rebuild import project_ledger, rebuild
+from context_graph.ontology.versioning import read_state, replay_event_types
+from context_graph.ports.errors import RuntimeFencedError, UnavailableError
+from context_graph.ports.pack_graph import EdgeWrite, NodeRef, NodeWrite
+from context_graph.ports.relationship_recovery import CURSOR_LABEL
+from context_graph.settings import Settings
+from context_graph.worker.pack_projection import apply_plan
+from context_graph.worker.projection import ProjectionConsumer
+from context_graph.worker.relationship_recovery import RelationshipRecovery
+from tests.unit.test_pack_versioning import _event
 
 CORE = load_pack_file(BUILTIN_PACK_DIR / "core.pack.yaml")
 CRM = load_pack_file(Path("tests/fixtures/packs/crm/crm.pack.yaml"))
@@ -52,12 +81,6 @@ def test_required_key_lookup_waits_for_the_exact_record_without_creating_a_stub(
 
 
 async def test_required_missing_target_recovers_in_the_same_fresh_rebuild():
-    from context_graph.adapters.memory.graph import MemoryGraphStore
-    from context_graph.adapters.memory.log import MemoryEventLog
-    from context_graph.ontology.rebuild import rebuild
-    from context_graph.ports.pack_graph import NodeRef
-    from context_graph.settings import Settings
-    from tests.unit.test_pack_versioning import _event
 
     reg = registry()
     log, graph = MemoryEventLog(), MemoryGraphStore()
@@ -84,12 +107,6 @@ async def test_required_missing_target_recovers_in_the_same_fresh_rebuild():
 async def test_absent_reference_is_counted_and_only_required_link_blocks_completeness(
     required, complete
 ):
-    from context_graph.adapters.memory.graph import MemoryGraphStore
-    from context_graph.adapters.memory.log import MemoryEventLog
-    from context_graph.ontology.rebuild import rebuild
-    from context_graph.ontology.versioning import read_state
-    from context_graph.settings import Settings
-    from tests.unit.test_pack_versioning import _event
 
     reg = registry(required=required, target={"node_id": "$.account_node_id"})
     log, graph = MemoryEventLog(), MemoryGraphStore()
@@ -108,14 +125,6 @@ async def test_absent_reference_is_counted_and_only_required_link_blocks_complet
 
 
 async def test_redelivery_of_a_deferred_event_keeps_a_person_reviewed_relationship():
-    from context_graph.adapters.memory.graph import MemoryGraphStore
-    from context_graph.adapters.memory.log import MemoryEventLog
-    from context_graph.adapters.memory.subscription import MemorySubscription
-    from context_graph.ontology.rebuild import project_ledger
-    from context_graph.ports.pack_graph import EdgeWrite, NodeRef, NodeWrite
-    from context_graph.settings import Settings
-    from context_graph.worker.projection import ProjectionConsumer
-    from tests.unit.test_pack_versioning import _event
 
     reg = registry(target={"node_id": "$.account_node_id"})
     log, graph = MemoryEventLog(), MemoryGraphStore()
@@ -156,7 +165,6 @@ async def test_redelivery_of_a_deferred_event_keeps_a_person_reviewed_relationsh
     ],
 )
 def test_required_mutable_or_temporal_lookup_is_explicitly_unsupported(form, match):
-    from context_graph.domain.ontology import OntologyError
 
     data = CRM.model_dump(by_alias=True)
     edge = data["projection"][1]["edges"][0]
@@ -168,7 +176,6 @@ def test_required_mutable_or_temporal_lookup_is_explicitly_unsupported(form, mat
 
 
 def test_legacy_pack_digest_does_not_change_when_required_is_absent():
-    import hashlib
 
     assert (
         hashlib.sha256(CRM.canonical_json().encode()).hexdigest()
@@ -178,7 +185,6 @@ def test_legacy_pack_digest_does_not_change_when_required_is_absent():
 
 @pytest.mark.parametrize("value", [None, "", "not-a-valid-node-id"])
 def test_invalid_required_endpoint_refuses_the_event_plan(value):
-    from context_graph.domain.pack_projection import RequiredRelationshipError
 
     reg = registry(target={"node_id": "$.account_id"})
     event = Event(
@@ -200,11 +206,6 @@ def test_invalid_required_endpoint_refuses_the_event_plan(value):
 
 
 async def pending_links(count=1, *, log=None, graph=None):
-    from context_graph.adapters.memory.graph import MemoryGraphStore
-    from context_graph.adapters.memory.log import MemoryEventLog
-    from context_graph.ontology.rebuild import project_ledger
-    from context_graph.settings import Settings
-    from tests.unit.test_pack_versioning import _event
 
     reg = registry(target={"node_id": "$.account_node_id"})
     log, graph = log or MemoryEventLog(), graph or MemoryGraphStore()
@@ -222,9 +223,6 @@ async def pending_links(count=1, *, log=None, graph=None):
 
 
 async def test_new_recovery_instances_make_fair_progress_past_missing_targets():
-    from context_graph.ports.pack_graph import NodeRef, NodeWrite
-    from context_graph.ports.relationship_recovery import CURSOR_LABEL
-    from context_graph.worker.relationship_recovery import RelationshipRecovery
 
     reg, log, graph = await pending_links(5)
     rows = await graph.relationship_intents(None, 100)
@@ -247,8 +245,6 @@ async def test_new_recovery_instances_make_fair_progress_past_missing_targets():
 
 
 async def test_recovery_leaves_newer_node_values_and_lifecycle_state_untouched():
-    from context_graph.ports.pack_graph import NodeRef, NodeWrite
-    from context_graph.worker.relationship_recovery import RelationshipRecovery
 
     reg, log, graph = await pending_links()
     row = (await graph.relationship_intents(None, 100))[0]
@@ -267,8 +263,6 @@ async def test_recovery_leaves_newer_node_values_and_lifecycle_state_untouched()
 
 
 async def test_required_recovery_reports_expired_source_without_guessing():
-    from context_graph.ports.pack_graph import NodeRef, NodeWrite
-    from context_graph.worker.relationship_recovery import RelationshipRecovery
 
     reg, log, graph = await pending_links()
     row = (await graph.relationship_intents(None, 100))[0]
@@ -281,7 +275,6 @@ async def test_required_recovery_reports_expired_source_without_guessing():
 
 
 async def test_recovery_does_not_claim_a_full_scan_when_the_budget_ends():
-    from context_graph.worker.relationship_recovery import RelationshipRecovery
 
     reg, log, graph = await pending_links(3)
     result = await RelationshipRecovery(graph, log, PackProjector(reg, frozenset())).finish(
@@ -292,12 +285,6 @@ async def test_recovery_does_not_claim_a_full_scan_when_the_budget_ends():
 
 @pytest.mark.parametrize("target_first", [False, True])
 async def test_deferred_events_for_one_edge_keep_the_last_log_events_properties(target_first):
-    from context_graph.adapters.memory.graph import MemoryGraphStore
-    from context_graph.adapters.memory.log import MemoryEventLog
-    from context_graph.ontology.rebuild import project_ledger
-    from context_graph.ports.pack_graph import NodeRef
-    from context_graph.settings import Settings
-    from tests.unit.test_pack_versioning import _event
 
     data = CRM.model_dump(by_alias=True)
     data["types"]["edges"]["WORKS_AT"]["properties"] = {"note": "string"}
@@ -334,11 +321,6 @@ async def test_deferred_events_for_one_edge_keep_the_last_log_events_properties(
 
 
 async def test_a_truncated_optional_search_is_explicitly_incomplete():
-    from context_graph.adapters.memory.graph import MemoryGraphStore
-    from context_graph.adapters.memory.log import MemoryEventLog
-    from context_graph.ontology.rebuild import rebuild
-    from context_graph.settings import Settings
-    from tests.unit.test_pack_versioning import _event
 
     data = CRM.model_dump(by_alias=True)
     edge = data["projection"][1]["edges"][0]
@@ -366,9 +348,6 @@ async def test_a_truncated_optional_search_is_explicitly_incomplete():
 
 @pytest.mark.parametrize("error_name", ["fence", "transient"])
 async def test_recovery_source_read_failure_keeps_the_intent_unchanged(error_name):
-    from context_graph.adapters.memory.log import MemoryEventLog
-    from context_graph.ports.errors import RuntimeFencedError, UnavailableError
-    from context_graph.worker.relationship_recovery import RelationshipRecovery
 
     class FailingLog(MemoryEventLog):
         fail = False
@@ -391,11 +370,6 @@ async def test_recovery_source_read_failure_keeps_the_intent_unchanged(error_nam
 
 
 async def test_concurrent_recovery_sweeps_create_one_relationship():
-    import asyncio
-
-    from context_graph.adapters.memory.log import MemoryEventLog
-    from context_graph.ports.pack_graph import NodeRef, NodeWrite
-    from context_graph.worker.relationship_recovery import RelationshipRecovery
 
     class YieldingLog(MemoryEventLog):
         async def get_documents(self, ids):
@@ -416,24 +390,6 @@ async def test_concurrent_recovery_sweeps_create_one_relationship():
 
 
 async def test_compatible_epoch_recovery_revalidates_receipt_but_foreign_tenant_cannot_rebind():
-    from dataclasses import replace
-
-    from context_graph.adapters.memory.graph import MemoryGraphStore
-    from context_graph.adapters.memory.log import MemoryEventLog
-    from context_graph.domain.event_acceptance import (
-        AdmissionContext,
-        EventInterpretation,
-        stamp_acceptance,
-    )
-    from context_graph.domain.source_trust import (
-        AcceptedRecord,
-        SourceTrustPolicy,
-        VerifiedSourceProvenance,
-    )
-    from context_graph.ports.pack_graph import NodeRef, NodeWrite
-    from context_graph.worker.pack_projection import apply_plan
-    from context_graph.worker.relationship_recovery import RelationshipRecovery
-    from tests.unit.test_pack_versioning import _event
 
     class AcceptedLog(MemoryEventLog):
         async def get_accepted_records(self, ids):
@@ -466,6 +422,9 @@ async def test_compatible_epoch_recovery_revalidates_receipt_but_foreign_tenant_
         event,
         payload,
     )
+    from context_graph.domain.projection import event_to_node
+
+    await graph.merge_event_node(event_to_node(event))
     initial = PackProjector(
         reg,
         frozenset(),
@@ -507,13 +466,6 @@ async def test_compatible_epoch_recovery_revalidates_receipt_but_foreign_tenant_
 
 
 async def test_optional_latest_recovery_uses_the_original_selected_target_without_requery():
-    from context_graph.adapters.memory.graph import MemoryGraphStore
-    from context_graph.adapters.memory.log import MemoryEventLog
-    from context_graph.ontology.rebuild import project_ledger
-    from context_graph.ports.pack_graph import NodeRef, NodeWrite
-    from context_graph.settings import Settings
-    from context_graph.worker.relationship_recovery import RelationshipRecovery
-    from tests.unit.test_pack_versioning import _event
 
     data = CRM.model_dump(by_alias=True)
     rule = data["projection"][1]
@@ -552,8 +504,6 @@ async def test_optional_latest_recovery_uses_the_original_selected_target_withou
 
 @pytest.mark.parametrize("changed_effect", [False, True])
 async def test_new_bundle_only_recovers_if_the_original_effect_is_identical(changed_effect):
-    from context_graph.ports.pack_graph import NodeRef, NodeWrite
-    from context_graph.worker.relationship_recovery import RelationshipRecovery
 
     reg, log, graph = await pending_links()
     row = (await graph.relationship_intents(None, 100))[0]
@@ -573,10 +523,6 @@ async def test_new_bundle_only_recovers_if_the_original_effect_is_identical(chan
 
 
 async def test_a_new_consumer_recovers_on_idle_without_a_new_delivery():
-    from context_graph.adapters.memory.subscription import MemorySubscription
-    from context_graph.ports.pack_graph import NodeRef, NodeWrite
-    from context_graph.settings import Settings
-    from context_graph.worker.projection import ProjectionConsumer
 
     reg, log, graph = await pending_links()
     row = (await graph.relationship_intents(None, 100))[0]
@@ -590,10 +536,6 @@ async def test_a_new_consumer_recovers_on_idle_without_a_new_delivery():
 
 
 async def test_a_lost_reply_after_atomic_recovery_is_safe_after_restart():
-    from context_graph.adapters.memory.graph import MemoryGraphStore
-    from context_graph.ports.errors import UnavailableError
-    from context_graph.ports.pack_graph import NodeRef, NodeWrite
-    from context_graph.worker.relationship_recovery import RelationshipRecovery
 
     class LostReplyGraph(MemoryGraphStore):
         lose_reply = True
@@ -617,14 +559,6 @@ async def test_a_lost_reply_after_atomic_recovery_is_safe_after_restart():
 
 
 async def test_source_ack_failure_keeps_the_recovery_intent_for_a_restarted_consumer():
-    from context_graph.adapters.memory.graph import MemoryGraphStore
-    from context_graph.adapters.memory.log import MemoryEventLog
-    from context_graph.adapters.memory.subscription import MemorySubscription
-    from context_graph.ports.errors import RuntimeFencedError
-    from context_graph.ports.pack_graph import NodeRef, NodeWrite
-    from context_graph.settings import Settings
-    from context_graph.worker.projection import ProjectionConsumer
-    from tests.unit.test_pack_versioning import _event
 
     class StopBeforeAck(MemorySubscription):
         async def ack(self, *positions):
@@ -666,7 +600,6 @@ async def test_source_ack_failure_keeps_the_recovery_intent_for_a_restarted_cons
     "name", ["ProjectionRecovery", "Projectionrecovery", "ProjectionRecoveryCursor"]
 )
 def test_pack_cannot_shadow_internal_recovery_storage(name):
-    from context_graph.domain.ontology import OntologyError
 
     data = CRM.model_dump(by_alias=True)
     data["types"]["nodes"][name] = {"key": ["id"], "properties": {"id": "string"}}
@@ -675,7 +608,6 @@ def test_pack_cannot_shadow_internal_recovery_storage(name):
 
 
 def test_required_key_lookup_uses_s4_complete_identity_operand_checks():
-    from context_graph.domain.pack_expressions import IdentityOperandError
 
     reg = registry(
         target={"type": "Account", "match": {"account_id": "$.merchant + '|' + $.payment"}}
@@ -699,13 +631,352 @@ def test_required_key_lookup_uses_s4_complete_identity_operand_checks():
 
 
 async def test_required_missing_link_refuses_an_unconfigured_direct_writer_before_domain_writes():
-    from context_graph.adapters.memory.graph import MemoryGraphStore
-    from context_graph.ports.errors import RuntimeFencedError
-    from context_graph.ports.pack_graph import NodeRef
-    from context_graph.worker.pack_projection import apply_plan
 
     graph = MemoryGraphStore()
     plan = contact(registry())
     with pytest.raises(RuntimeFencedError, match="durable relationship recovery"):
         await apply_plan(graph, plan, 100)
     assert await graph.get_nodes([NodeRef("Contact", "Contact:ann@example.test")]) == {}
+
+
+@pytest.mark.parametrize("target_position", [0, 1, 2])
+async def test_deferred_partial_link_updates_preserve_each_fields_latest_value(target_position):
+    data = CRM.model_dump(by_alias=True)
+    data["types"]["edges"]["WORKS_AT"]["properties"] = {
+        "first_note": "string",
+        "second_note": "string",
+    }
+    edge = data["projection"][1]["edges"][0]
+    edge["to"] = {"node_id": "$.account_node_id"}
+    edge["required"] = True
+    edge["set"] = {"first_note": "$.first_note", "second_note": "$.second_note"}
+    reg = OntologyRegistry([CORE, Pack.model_validate(data)])
+    inputs = [
+        (
+            "crm.contact.added",
+            {"email": "ann@example.test", "account_node_id": "Account:acme", "first_note": "kept"},
+            1,
+        ),
+        (
+            "crm.contact.added",
+            {"email": "ann@example.test", "account_node_id": "Account:acme", "second_note": "new"},
+            2,
+        ),
+    ]
+    inputs.insert(
+        target_position, ("crm.account.created", {"account_id": "acme", "name": "Acme"}, 3)
+    )
+    log, graph, settings = MemoryEventLog(), MemoryGraphStore(), Settings()
+    settings.consumer.projection_batch_size = 1
+    for kind, payload, minute in inputs:
+        event, payload = _event(kind, payload, minute)
+        await log.append(event, payload)
+    await project_ledger(log, graph, PackProjector(reg, frozenset()), settings, batch_size=1)
+    rows = await graph.neighbors(
+        [NodeRef("Contact", "Contact:ann@example.test")], ["WORKS_AT"], "out", 10
+    )
+    assert rows[0]["properties"] == {
+        "first_note": "kept",
+        "second_note": "new",
+        "source_trust": "untrusted",
+    }
+
+
+async def test_mixed_lookup_and_exact_link_writes_keep_event_order_within_a_flush():
+    data = CRM.model_dump(by_alias=True)
+    data["types"]["edges"]["WORKS_AT"]["properties"] = {"note": "string"}
+    edge = data["projection"][1]["edges"][0]
+    edge["to"] = {"type": "Account", "match": {"account_id": "$.account_id"}}
+    edge["set"] = {"note": "$.note"}
+    later = deepcopy(data["projection"][1])
+    later["event"] = "crm.contact.refreshed"
+    later["edges"][0]["to"] = {"node_id": "$.account_node_id"}
+    data["events"]["crm.contact.refreshed"] = {}
+    data["projection"].append(later)
+    reg = OntologyRegistry([CORE, Pack.model_validate(data)])
+    log, graph, settings = MemoryEventLog(), MemoryGraphStore(), Settings()
+    settings.consumer.projection_batch_size = 10
+    for n, (kind, payload) in enumerate(
+        [
+            ("crm.account.created", {"account_id": "acme"}),
+            (
+                "crm.contact.added",
+                {"email": "ann@example.test", "account_id": "acme", "note": "older"},
+            ),
+            (
+                "crm.contact.refreshed",
+                {"email": "ann@example.test", "account_node_id": "Account:acme", "note": "newer"},
+            ),
+        ]
+    ):
+        event, payload = _event(kind, payload, n + 1)
+        await log.append(event, payload)
+    await project_ledger(log, graph, PackProjector(reg, frozenset()), settings, batch_size=10)
+    rows = await graph.neighbors(
+        [NodeRef("Contact", "Contact:ann@example.test")], ["WORKS_AT"], "out", 10
+    )
+    assert rows[0]["properties"]["note"] == "newer"
+
+
+@pytest.mark.parametrize("target_first", [False, True])
+async def test_deferred_clear_removes_one_field_and_preserves_earlier_other_fields(target_first):
+    data = CRM.model_dump(by_alias=True)
+    data["processing"]["requires"] = ["pack.properties.v1"]
+    data["types"]["edges"]["WORKS_AT"]["properties"] = {"note": "string", "kept": "string"}
+    first = data["projection"][1]
+    first["edges"][0]["required"] = True
+    first["edges"][0]["to"] = {"node_id": "$.account_node_id"}
+    first["edges"][0]["set"] = {"note": "$.note", "kept": "$.kept"}
+    later = deepcopy(first)
+    later["event"] = "crm.contact.cleared"
+    later["edges"][0]["set"] = {"note": {"value": None, "on_null": "clear"}}
+    data["events"]["crm.contact.cleared"] = {}
+    data["projection"].append(later)
+    reg = OntologyRegistry([CORE, Pack.model_validate(data)])
+    inputs = [
+        (
+            "crm.contact.added",
+            {
+                "email": "ann@example.test",
+                "account_node_id": "Account:acme",
+                "note": "private-note-value",
+                "kept": "private-kept-value",
+            },
+            1,
+        ),
+        (
+            "crm.contact.cleared",
+            {"email": "ann@example.test", "account_node_id": "Account:acme"},
+            2,
+        ),
+        ("crm.account.created", {"account_id": "acme"}, 3),
+    ]
+    if target_first:
+        inputs = [inputs[2], *inputs[:2]]
+    log, graph, settings = MemoryEventLog(), MemoryGraphStore(), Settings()
+    settings.consumer.projection_batch_size = 1
+    for kind, payload, minute in inputs:
+        event, payload = _event(kind, payload, minute)
+        await log.append(event, payload)
+    await project_ledger(log, graph, PackProjector(reg, frozenset()), settings, batch_size=1)
+    rows = await graph.neighbors(
+        [NodeRef("Contact", "Contact:ann@example.test")], ["WORKS_AT"], "out", 10
+    )
+    assert rows[0]["properties"] == {"kept": "private-kept-value", "source_trust": "untrusted"}
+    metadata = json.dumps(await graph.relationship_intents(None, 100))
+    assert "private-note-value" not in metadata and "private-kept-value" not in metadata
+
+
+async def test_two_effects_from_one_event_are_compacted_in_their_original_order():
+    data = CRM.model_dump(by_alias=True)
+    data["types"]["edges"]["WORKS_AT"]["properties"] = {"first": "string", "second": "string"}
+    edge = data["projection"][1]["edges"][0]
+    edge["required"] = True
+    edge["to"] = {"node_id": "$.account_node_id"}
+    edge["set"] = {"first": "$.first"}
+    another = deepcopy(edge)
+    another["set"] = {"second": "$.second"}
+    data["projection"][1]["edges"].append(another)
+    reg = OntologyRegistry([CORE, Pack.model_validate(data)])
+    log, graph, settings = MemoryEventLog(), MemoryGraphStore(), Settings()
+    settings.consumer.projection_batch_size = 1
+    for kind, payload, minute in [
+        (
+            "crm.contact.added",
+            {
+                "email": "ann@example.test",
+                "account_node_id": "Account:acme",
+                "first": "one",
+                "second": "two",
+            },
+            1,
+        ),
+        ("crm.account.created", {"account_id": "acme"}, 2),
+    ]:
+        event, payload = _event(kind, payload, minute)
+        await log.append(event, payload)
+    await project_ledger(log, graph, PackProjector(reg, frozenset()), settings, batch_size=1)
+    rows = await graph.neighbors(
+        [NodeRef("Contact", "Contact:ann@example.test")], ["WORKS_AT"], "out", 10
+    )
+    assert rows[0]["properties"] == {"first": "one", "second": "two", "source_trust": "untrusted"}
+    assert len(await graph.relationship_intents(None, 100)) == 1
+
+
+async def test_a_generation_replaced_during_recovery_cannot_be_counted_complete():
+    class InterleavingLog(MemoryEventLog):
+        callback = None
+
+        async def get_documents(self, ids):
+            documents = await super().get_documents(ids)
+            callback, self.callback = self.callback, None
+            if callback is not None:
+                await callback()
+            return documents
+
+    reg, log, graph = await pending_links(log=InterleavingLog())
+    row = (await graph.relationship_intents(None, 100))[0]
+    await graph.upsert_nodes([NodeWrite(NodeRef(**row["target"]))])
+    event, payload = _event(
+        "crm.contact.added",
+        {"email": "ann0@example.test", "account_node_id": row["target"]["key"]},
+        2,
+    )
+    position = await log.append(event, payload)
+    document = (await log.get_documents([str(event.event_id)]))[0]
+    event = event.model_copy(update={"global_position": position})
+    projector = PackProjector(reg, frozenset())
+
+    async def replace_generation():
+        await RelationshipRecovery(graph, log, projector).capture(
+            [projector.plan(event, document)], {}
+        )
+
+    log.callback = replace_generation
+    interrupted = await RelationshipRecovery(graph, log, projector).finish()
+    assert not interrupted.complete and not interrupted.complete_scan
+    assert (await RelationshipRecovery(graph, log, projector).finish()).complete
+    assert len(await graph.neighbors([NodeRef(**row["source"])], ["WORKS_AT"], "out", 10)) == 1
+
+
+async def test_explicit_pack_replay_can_update_a_previously_recovered_relationship():
+    data = CRM.model_dump(by_alias=True)
+    data["types"]["edges"]["WORKS_AT"]["properties"] = {"note": "string"}
+    edge = data["projection"][1]["edges"][0]
+    edge["required"] = True
+    edge["to"] = {"node_id": "$.account_node_id"}
+    edge["set"] = {"note": "$.note"}
+    reg = OntologyRegistry([CORE, Pack.model_validate(data)])
+    log, graph, settings = MemoryEventLog(), MemoryGraphStore(), Settings()
+    settings.consumer.projection_batch_size = 1
+    for kind, payload, minute in [
+        (
+            "crm.contact.added",
+            {"email": "ann@example.test", "account_node_id": "Account:acme", "note": "original"},
+            1,
+        ),
+        ("crm.account.created", {"account_id": "acme"}, 2),
+    ]:
+        event, payload = _event(kind, payload, minute)
+        await log.append(event, payload)
+    await project_ledger(log, graph, PackProjector(reg, frozenset()), settings, batch_size=1)
+    data["pack"]["version"] = "1.1.0"
+    data["projection"][1]["edges"][0]["set"] = {"note": "updated rule"}
+    updated = OntologyRegistry([CORE, Pack.model_validate(data)])
+    report = await replay_event_types(
+        log,
+        graph,
+        PackProjector(updated, frozenset()),
+        {"crm.contact.added"},
+        batch_size=1,
+        lookup_limit=100,
+    )
+    rows = await graph.neighbors(
+        [NodeRef("Contact", "Contact:ann@example.test")], ["WORKS_AT"], "out", 10
+    )
+    assert report.relationships_complete and rows[0]["properties"]["note"] == "updated rule"
+
+
+async def test_a_new_event_does_not_reopen_completed_retention_expired_source_work():
+    data = CRM.model_dump(by_alias=True)
+    data["types"]["edges"]["WORKS_AT"]["properties"] = {"first": "string", "second": "string"}
+    edge = data["projection"][1]["edges"][0]
+    edge["required"] = True
+    edge["to"] = {"node_id": "$.account_node_id"}
+    edge["set"] = {"first": "$.first", "second": "$.second"}
+    reg = OntologyRegistry([CORE, Pack.model_validate(data)])
+    now = datetime(2026, 11, 28, tzinfo=UTC)
+    log, graph, settings = (
+        MemoryEventLog(clock=lambda: now.timestamp()),
+        MemoryGraphStore(),
+        Settings(),
+    )
+    settings.consumer.projection_batch_size = 1
+    for kind, payload in [
+        (
+            "crm.contact.added",
+            {"email": "ann@example.test", "account_node_id": "Account:acme", "first": "retained"},
+        ),
+        ("crm.account.created", {"account_id": "acme"}),
+    ]:
+        event, payload = _event(kind, payload, 1)
+        await log.append(event.model_copy(update={"occurred_at": now - timedelta(days=2)}), payload)
+    await project_ledger(log, graph, PackProjector(reg, frozenset()), settings, batch_size=1)
+    assert (await log.expire(1))[1] == 2
+    event, payload = _event(
+        "crm.contact.added",
+        {"email": "ann@example.test", "account_node_id": "Account:acme", "second": "new"},
+        3,
+    )
+    event = event.model_copy(update={"occurred_at": now})
+    position = await log.append(event, payload)
+    sub = MemorySubscription(log.stream, "after-retention", "new-consumer")
+    await sub.ensure_group()
+    consumer = ProjectionConsumer(sub, log, graph, settings, PackProjector(reg, frozenset()))
+    await consumer.process_message(position, {"event_id": str(event.event_id)})
+    rows = await graph.neighbors(
+        [NodeRef("Contact", "Contact:ann@example.test")], ["WORKS_AT"], "out", 10
+    )
+    assert rows[0]["properties"] == {
+        "first": "retained",
+        "second": "new",
+        "source_trust": "untrusted",
+    }
+    assert (await graph.relationship_intents(None, 100))[0]["status"] in {
+        "recovered",
+        "existing_relationship_kept",
+    }
+
+
+@pytest.mark.parametrize("change", ["agent", "unused_payload"])
+async def test_changed_original_source_is_refused_even_when_projected_values_are_equal(change):
+    class ChangedSourceLog(MemoryEventLog):
+        altered = False
+
+        async def get_documents(self, ids):
+            documents = deepcopy(await super().get_documents(ids))
+            if self.altered:
+                for document in documents:
+                    if document is None:
+                        continue
+                    if change == "agent":
+                        document["agent_id"] = "different-source"
+                    else:
+                        document["payload"]["unused"] = "changed original content"
+            return documents
+
+    reg, log, graph = await pending_links(log=ChangedSourceLog())
+    row = (await graph.relationship_intents(None, 100))[0]
+    await graph.upsert_nodes([NodeWrite(NodeRef(**row["target"]))])
+    log.altered = True
+    report = await RelationshipRecovery(graph, log, PackProjector(reg, frozenset())).finish()
+    assert report.blocking == 1
+    assert (await graph.relationship_intents(None, 100))[0]["status"] == "changed_source"
+    assert await graph.neighbors([NodeRef(**row["source"])], ["WORKS_AT"], "out", 10) == []
+
+
+async def test_required_explicit_core_relationship_is_recovered_like_a_domain_link():
+    data = CRM.model_dump(by_alias=True)
+    edge = data["projection"][1]["edges"][0]
+    edge["type"] = "DERIVED_FROM"
+    edge["required"] = True
+    edge["to"] = {"node_id": "$.earlier_event"}
+    reg = OntologyRegistry([CORE, Pack.model_validate(data)])
+    target, target_payload = _event("tool.execute", {"text": "arrives later"}, 1)
+    source, source_payload = _event(
+        "crm.contact.added",
+        {"email": "ann@example.test", "earlier_event": f"Event:{target.event_id}"},
+        2,
+    )
+    log, graph, settings = MemoryEventLog(), MemoryGraphStore(), Settings()
+    settings.consumer.projection_batch_size = 1
+    await log.append(source, source_payload)
+    await log.append(target, target_payload)
+    report = await rebuild(
+        log, graph, PackProjector(reg, frozenset()), settings, eval_dirs=[], skip_gate=True
+    )
+    rows = await graph.neighbors(
+        [NodeRef("Contact", "Contact:ann@example.test")], ["DERIVED_FROM"], "out", 10
+    )
+    assert {row["target_key"] for row in rows} == {str(source.event_id), str(target.event_id)}
+    assert report.projection_complete

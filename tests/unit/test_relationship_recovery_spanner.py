@@ -118,14 +118,16 @@ def intent(key="a", generation="first", order="0001"):
 async def test_native_atomic_recovery_waits_then_creates_once_and_keeps_reviewed_properties():
     _db, graph = setup()
     await graph.put_relationship_intent(intent())
+    generation = (await graph.get_relationship_intents(["a"]))["a"]["generation"]
     assert (
-        await graph.settle_relationship_intent("a", "first", "waiting", EDGE) == "endpoint_missing"
+        await graph.settle_relationship_intent("a", generation, "waiting", EDGE)
+        == "endpoint_missing"
     )
     await graph.upsert_nodes([NodeWrite(SOURCE), NodeWrite(TARGET)])
-    assert await graph.settle_relationship_intent("a", "first", "waiting", EDGE) == "recovered"
+    assert await graph.settle_relationship_intent("a", generation, "waiting", EDGE) == "recovered"
     await graph.upsert_edges([EdgeWrite("WORKS_AT", SOURCE, TARGET, {"link_status": "rejected"})])
     assert (
-        await graph.settle_relationship_intent("a", "first", "waiting", EDGE)
+        await graph.settle_relationship_intent("a", generation, "waiting", EDGE)
         == "existing_relationship_kept"
     )
     rows = await graph.neighbors([SOURCE], ["WORKS_AT"], "out", 10)
@@ -143,7 +145,7 @@ async def test_newer_pending_generation_fences_stale_writer_and_scan_is_keyset_b
     await graph.put_relationship_intent(intent("a", "newer", "0002"))
     assert await graph.settle_relationship_intent("a", "first", "waiting", EDGE) == "superseded"
     assert [r["node_id"] for r in await graph.relationship_intents("a", 1)] == ["b"]
-    assert (await graph.get_relationship_intents(["a"]))["a"]["generation"] == "newer"
+    assert (await graph.get_relationship_intents(["a"]))["a"]["order_key"] == "0002"
 
 
 async def test_tenant_fence_refuses_before_changing_recovery_rows_or_edges():
@@ -158,3 +160,15 @@ async def test_tenant_fence_refuses_before_changing_recovery_rows_or_edges():
     db.owner[3] -= 1
     assert await graph.get_relationship_intents(["a"]) == before
     assert await graph.neighbors([SOURCE], ["WORKS_AT"], "out", 10) == []
+
+
+async def test_native_register_retains_references_needed_for_disjoint_property_updates():
+    _db, graph = setup()
+    first, second = intent(), intent(generation="second", order="0002")
+    first.update(event_id="one", writes=["first_note"])
+    second.update(event_id="two", writes=["second_note"])
+    await graph.put_relationship_intent(first)
+    await graph.put_relationship_intent(second)
+    row = (await graph.get_relationship_intents(["a"]))["a"]
+    assert [effect["event_id"] for effect in row["effects"]] == ["one", "two"]
+    assert row["required"] is True

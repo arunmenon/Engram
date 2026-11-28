@@ -219,9 +219,15 @@ async def apply_plans(
     edges = [edge for plan in plans for edge in plan.edges]
     by_lookup: dict[int, list[EdgeWrite]] = {}
     truncated: set[int] = set()
-    edges += await resolve_lookups(
-        graph, lookups, lookup_limit, by_lookup=by_lookup, truncated=truncated
-    )
+    await resolve_lookups(graph, lookups, lookup_limit, by_lookup=by_lookup, truncated=truncated)
+    edges = [
+        edge
+        for plan in plans
+        for edge in [
+            *plan.edges,
+            *(edge for lookup in plan.lookups for edge in by_lookup.get(id(lookup), [])),
+        ]
+    ]
     if recovery is not None:
         suppressed = await recovery.capture(plans, by_lookup, truncated)
         edges = [edge for edge in edges if id(edge) not in suppressed]

@@ -223,7 +223,9 @@ class GraphOperations:
     async def get_relationship_intents(self, keys: list[str]) -> dict[str, dict[str, Any]]:
         raise NotImplementedError("Backend must implement atomic relationship recovery")
 
-    async def put_relationship_intent(self, record: dict[str, Any]) -> None:
+    async def put_relationship_intent(
+        self, record: dict[str, Any], *, reinterpret: bool = False
+    ) -> None:
         raise NotImplementedError("Backend must implement atomic relationship recovery")
 
     async def relationship_intents(self, after: str | None, limit: int) -> list[dict[str, Any]]:
