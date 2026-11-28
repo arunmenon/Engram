@@ -151,6 +151,8 @@ class MemoryGraphStore(GraphOperations):
         record = self.nodes.get((RECOVERY_LABEL, key))
         if record is None or record["generation"] != generation:
             return "superseded"
+        if record["status"] in {"recovered", "existing_relationship_kept", "superseded_by_replay"}:
+            return str(record["status"])
         if edge is not None:
             from dataclasses import asdict
 
@@ -164,6 +166,11 @@ class MemoryGraphStore(GraphOperations):
             if source not in self.nodes or target not in self.nodes:
                 status = "endpoint_missing"
             elif (source, edge.edge_type, target) in self.edges:
+                if record.get("patch_existing"):
+                    existing = self.edges[(source, edge.edge_type, target)]
+                    existing.update(
+                        deepcopy({k: v for k, v in edge.properties.items() if k not in existing})
+                    )
                 status = "existing_relationship_kept"
             else:
                 self.edges[(source, edge.edge_type, target)] = deepcopy(edge.properties)

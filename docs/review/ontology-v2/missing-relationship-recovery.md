@@ -1,6 +1,6 @@
 # S2: Recover skipped exact relationships without replaying record updates
 
-Goal S2 / #36 / ARCH-8-012, Pillar2 supporting8. User approved explicit required relationships and valid optional-empty results. Runtime implementation candidate stacks on S4 cb302ee / draft144; first Fable contract review REVISE ($2.921166), corrections below. Final implementation review has not run. No PR, merge, deployment, provider call or concrete backend run.
+Goal S2 / #36 / ARCH-8-012, Pillar2 supporting8. User approved explicit required relationships and valid optional-empty results. Runtime implementation candidate stacks on S4 cb302ee / draft144; first Fable contract review REVISE ($2.921166), corrections below. Final implementation review returned REVISE. Both permitted calls are used. Local corrections below are not independently accepted. No merge, deployment, provider product call or concrete backend run.
 
 ## Product behavior and observed failure
 
@@ -36,3 +36,20 @@ Additional failing-before controls corrected before final review: disjoint parti
 Explicit required core relationships (including DERIVED_FROM) use the same generic recovery path; automatic provenance does not hide an explicit required reference. The corresponding source-before-target witness failed before correction and passes now. Original-source request hashes exclude server position and derived enrichment, following the existing json-v1 acceptance contract.
 
 The reference memory backend also uses a maintained ordered recovery-key index; reading a page does not copy/scan the entire pending backlog. Native Spanner/Neo4j scans use backend keyset limits. The index is maintained on metadata insert/delete/reset, with a public reset/page control.
+
+
+## Final permitted review and local disposition — acceptance remains open
+
+Fable round2 reviewed clean `5fe0ecd`, verified all27 manifest hashes and85 focused tests, and returned **REVISE**. Original report is preserved unchanged in `missing-relationship-recovery-fable-round2.md`. Round1 cost$2.921166; round2 cost$3.3146384; total$6.2358044 across two calls. No third call is authorized or made. This candidate is **changes_requested**, not ready_for_merge; S3 review cannot substitute for S2 acceptance.
+
+Three reproduced blockers have local corrections:
+
+- **B1 old-bundle replay row:** explicit replay replaces and settles an existing pending row even when its endpoints have arrived. Previously the graph updated but the old row stayed blocking. A new failing-before witness now passes. Truncated diagnostics use an event-scoped key and source fingerprint; only explicit replay of that same verified event can retire a formerly truncated lookup after it resolves. Unrelated events remain blocking.
+- **B2 first delivery of an older disjoint field:** terminal rows retain per-field winner order keys without retaining old payloads. A first-seen older contribution to an uncovered field is durably revalidated, then an atomic fill-missing patch adds it without overwriting present/reviewed fields. Recovery status and patch commit together. Same/covered effects remain suppressed; genuinely later normal updates retain ordinary semantics. Memory and actual-Spanner-adapter transaction-fake tests cover this path. This changes terminal metadata behavior after the reviewed hash.
+- **B3 elapsed deadline and healthy ACK:** page/final-pass timeouts return an incomplete scan instead of raising. Opportunistic recovery catches non-fence failures, keeping unrelated successful events out of the dead-letter path; authority fences still propagate. Replay/reconcile now accept recovery bounds and the worker passes configured values. A configured-zero-deadline replay is incomplete. External cancellation is not converted into success.
+
+The low terminal-status regression is also locally corrected: all three adapters keep a terminal status unchanged for the same generation. One pre-existing transaction-fake test expected recovered -> existing_relationship_kept; its status expectation now explicitly asserts monotonic recovered, with its reviewed-property and single-edge assertions unchanged. New late-diagnostic controls exercise the safety rule. This is a justified test-contract correction, not an edited business expectation.
+
+Post-review evidence: four failing cases in `red-final-review-blockers.txt` (replay, disjoint field, and both deadline methods);61 focused tests pass, including two later controls added after the1247-test affected selection passed (2 integration cases deselected).111 memory conformance tests pass (222 external cases deselected);54 fresh/repeat/control matrix runs retain exact expected relationship outcomes. Ruff check/format and eight touched runtime-module mypy checks pass. These local corrections have **not** received independent re-review because the cap was reached.
+
+Remaining independent-review work: verify these corrections and their combined semantics, capture latency/cost under many deferred edges, low equal-position/bundle/selector conflicts, dangling optional-row retention, and native-backend/CI acceptance. The original reviewer did not execute Neo4j or real Spanner. The separate live-backend gate remains open. No production repair, automatic cutover, automatic migration or S3 business-clock guarantee is claimed.

@@ -126,16 +126,11 @@ async def test_native_atomic_recovery_waits_then_creates_once_and_keeps_reviewed
     await graph.upsert_nodes([NodeWrite(SOURCE), NodeWrite(TARGET)])
     assert await graph.settle_relationship_intent("a", generation, "waiting", EDGE) == "recovered"
     await graph.upsert_edges([EdgeWrite("WORKS_AT", SOURCE, TARGET, {"link_status": "rejected"})])
-    assert (
-        await graph.settle_relationship_intent("a", generation, "waiting", EDGE)
-        == "existing_relationship_kept"
-    )
+    assert await graph.settle_relationship_intent("a", generation, "waiting", EDGE) == "recovered"
     rows = await graph.neighbors([SOURCE], ["WORKS_AT"], "out", 10)
     assert len(rows) == 1 and rows[0]["properties"]["link_status"] == "rejected"
     await graph.put_relationship_intent(intent())
-    assert (await graph.get_relationship_intents(["a"]))["a"][
-        "status"
-    ] == "existing_relationship_kept"
+    assert (await graph.get_relationship_intents(["a"]))["a"]["status"] == "recovered"
 
 
 async def test_newer_pending_generation_fences_stale_writer_and_scan_is_keyset_bounded():
@@ -172,3 +167,42 @@ async def test_native_register_retains_references_needed_for_disjoint_property_u
     row = (await graph.get_relationship_intents(["a"]))["a"]
     assert [effect["event_id"] for effect in row["effects"]] == ["one", "two"]
     assert row["required"] is True
+
+
+async def test_native_late_disjoint_patch_is_atomic_and_keeps_existing_reviewed_fields():
+    _db, graph = setup()
+    await graph.upsert_nodes([NodeWrite(SOURCE), NodeWrite(TARGET)])
+    initial = {**intent(order="0002"), "writes": ["second"]}
+    await graph.put_relationship_intent(initial)
+    current = (await graph.get_relationship_intents(["a"]))["a"]
+    await graph.settle_relationship_intent(
+        "a",
+        current["generation"],
+        "waiting",
+        EdgeWrite("WORKS_AT", SOURCE, TARGET, {"second": "new"}),
+    )
+    older = {
+        **intent(generation="older", order="0001"),
+        "event_id": "older-event",
+        "writes": ["first"],
+    }
+    await graph.put_relationship_intent(older)
+    pending = (await graph.get_relationship_intents(["a"]))["a"]
+    assert pending["patch_existing"]
+    assert (
+        await graph.settle_relationship_intent(
+            "a",
+            pending["generation"],
+            "waiting",
+            EdgeWrite(
+                "WORKS_AT", SOURCE, TARGET, {"first": "late", "second": "must not overwrite"}
+            ),
+        )
+        == "existing_relationship_kept"
+    )
+    rows = await graph.neighbors([SOURCE], ["WORKS_AT"], "out", 10)
+    assert rows[0]["properties"] == {"first": "late", "second": "new"}
+    assert (
+        await graph.settle_relationship_intent("a", pending["generation"], "missing_source")
+        == "existing_relationship_kept"
+    )

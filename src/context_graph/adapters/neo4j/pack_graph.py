@@ -397,6 +397,12 @@ class Neo4jPackGraph:
             record = orjson.loads(answer["record"])
             if record["generation"] != generation:
                 return "superseded"
+            if record["status"] in {
+                "recovered",
+                "existing_relationship_kept",
+                "superseded_by_replay",
+            }:
+                return str(record["status"])
             result = status
             if edge is not None:
                 if [edge.edge_type, asdict(edge.source), asdict(edge.target)] != [
@@ -430,6 +436,29 @@ class Neo4jPackGraph:
                         },
                     )
                 ).single()
+                if written and not written["created"] and record.get("patch_existing"):
+                    match = (
+                        f"MATCH (a:{_label(edge.source.label)} "
+                        f"{{{_property(edge.source.key_property)}: $source}}) "
+                        f"MATCH (b:{_label(edge.target.label)} "
+                        f"{{{_property(edge.target.key_property)}: $target}}) "
+                        f"MATCH (a)-[r:{_edge_type(edge.edge_type)}]->(b) "
+                    )
+                    parameters = {"source": edge.source.key, "target": edge.target.key}
+                    locked = await (
+                        await tx.run(
+                            match + "SET r._engram_recovery_lock = "
+                            "coalesce(r._engram_recovery_lock, 0) + 1 "
+                            "RETURN properties(r) AS props",
+                            parameters,
+                        )
+                    ).single()
+                    props = locked["props"]
+                    missing = {k: v for k, v in edge.properties.items() if k not in props}
+                    await tx.run(
+                        match + "SET r += $props REMOVE r._engram_recovery_lock",
+                        {**parameters, "props": _props(missing)},
+                    )
                 result = (
                     ("recovered" if written["created"] else "existing_relationship_kept")
                     if written

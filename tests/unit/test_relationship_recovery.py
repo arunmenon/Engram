@@ -989,3 +989,165 @@ async def test_recovery_pages_stay_empty_after_an_explicit_graph_reset():
     assert len(first) == len(next_page) == 1 and first[0]["node_id"] < next_page[0]["node_id"]
     await graph.delete_all(confirm=True)
     assert await graph.relationship_intents(None, 1) == []
+
+
+async def test_replay_settles_an_old_bundle_row_when_target_arrived_before_its_page():
+    reg, log, graph = await pending_links()
+    row = (await graph.relationship_intents(None, 100))[0]
+    await graph.upsert_nodes([NodeWrite(NodeRef(**row["target"]))])
+    data = reg.packs[-1].model_dump(by_alias=True)
+    data["pack"]["version"] = "1.1.0"
+    data["types"]["edges"]["WORKS_AT"]["properties"] = {"note": "string"}
+    data["projection"][1]["edges"][0]["set"] = {"note": "new effect"}
+    updated = OntologyRegistry([CORE, Pack.model_validate(data)])
+    report = await replay_event_types(
+        log,
+        graph,
+        PackProjector(updated, frozenset()),
+        {"crm.contact.added"},
+        batch_size=1,
+        lookup_limit=100,
+    )
+    assert report.relationships_complete
+    assert (await graph.relationship_intents(None, 100))[0]["status"] in {
+        "recovered",
+        "existing_relationship_kept",
+    }
+
+
+async def test_first_delivery_of_older_disjoint_fields_after_recovery_preserves_them():
+    data = CRM.model_dump(by_alias=True)
+    data["types"]["edges"]["WORKS_AT"]["properties"] = {
+        "first_note": "string",
+        "second_note": "string",
+    }
+    edge = data["projection"][1]["edges"][0]
+    edge["to"] = {"node_id": "$.account_node_id"}
+    edge["required"] = True
+    edge["set"] = {"first_note": "$.first_note", "second_note": "$.second_note"}
+    reg = OntologyRegistry([CORE, Pack.model_validate(data)])
+    graph, log = MemoryGraphStore(), MemoryEventLog()
+    projector = PackProjector(reg, frozenset())
+    recovery = RelationshipRecovery(graph, log, projector)
+    plans = []
+    for payload in [
+        {"first_note": "older separate field"},
+        {"second_note": "newer separate field"},
+    ]:
+        event, payload = _event(
+            "crm.contact.added",
+            {"email": "ann@example.test", "account_node_id": "Account:acme", **payload},
+            1,
+        )
+        position = await log.append(event, payload)
+        document = (await log.get_documents([str(event.event_id)]))[0]
+        plans.append(
+            projector.plan(event.model_copy(update={"global_position": position}), document)
+        )
+    await apply_plan(graph, plans[1], 100, recovery=recovery)
+    await graph.upsert_nodes([NodeWrite(NodeRef("Account", "Account:acme"))])
+    assert (await recovery.finish()).complete
+    await apply_plan(graph, plans[0], 100, recovery=recovery)
+    assert (await recovery.finish()).complete
+    rows = await graph.neighbors(
+        [NodeRef("Contact", "Contact:ann@example.test")], ["WORKS_AT"], "out", 10
+    )
+    assert rows[0]["properties"]["first_note"] == "older separate field"
+    assert rows[0]["properties"]["second_note"] == "newer separate field"
+
+
+@pytest.mark.parametrize("method", ["page", "finish"])
+async def test_recovery_deadline_returns_incomplete_instead_of_raising(method):
+    class SlowGraph(MemoryGraphStore):
+        async def relationship_intents(self, after, limit):
+            await asyncio.sleep(0.03)
+            return await super().relationship_intents(after, limit)
+
+    recovery = RelationshipRecovery(
+        SlowGraph(), MemoryEventLog(), PackProjector(registry(), frozenset()), timeout_s=0.001
+    )
+    result = await getattr(recovery, method)()
+    assert not result.complete and not result.complete_scan
+
+
+async def test_recovery_failure_on_an_unrelated_row_does_not_block_a_healthy_ack():
+    class BrokenRecoveryRead(MemoryGraphStore):
+        async def relationship_intents(self, after, limit):
+            raise ValueError("unrelated damaged recovery row")
+
+    graph, log = BrokenRecoveryRead(), MemoryEventLog()
+    event, payload = _event("crm.account.created", {"account_id": "healthy"}, 1)
+    await log.append(event, payload)
+    sub = MemorySubscription(log.stream, "healthy-recovery", "operator")
+    await sub.ensure_group()
+    delivery = (await sub.read_new(1, 0))[0]
+    settings = Settings()
+    settings.consumer.projection_batch_size = 1
+    consumer = ProjectionConsumer(sub, log, graph, settings, PackProjector(registry(), frozenset()))
+    await consumer.process_message(delivery.position, delivery.fields)
+    assert await sub.read_pending(10) == [] and sub.dead_letters == []
+    assert NodeRef("Account", "Account:healthy") in await graph.get_nodes(
+        [NodeRef("Account", "Account:healthy")]
+    )
+
+
+async def test_explicit_replay_can_retire_its_own_previously_truncated_lookup():
+    data = CRM.model_dump(by_alias=True)
+    edge = data["projection"][1]["edges"][0]
+    edge.pop("to")
+    edge["to_each"] = {"type": "Account", "match": {"industry": "$.industry"}}
+    reg = OntologyRegistry([CORE, Pack.model_validate(data)])
+    graph, log, settings = MemoryGraphStore(), MemoryEventLog(), Settings()
+    settings.ontology.lookup_limit = 1
+    for index, (kind, payload) in enumerate(
+        [
+            ("crm.account.created", {"account_id": "a1", "industry": "retail"}),
+            ("crm.account.created", {"account_id": "a2", "industry": "retail"}),
+            ("crm.contact.added", {"email": "ann@example.test", "industry": "retail"}),
+        ]
+    ):
+        event, payload = _event(kind, payload, index + 1)
+        await log.append(event, payload)
+    projector = PackProjector(reg, frozenset())
+    initial = await rebuild(log, graph, projector, settings, eval_dirs=[], skip_gate=True)
+    assert not initial.projection_complete
+    report = await replay_event_types(
+        log, graph, projector, {"crm.contact.added"}, batch_size=1, lookup_limit=100
+    )
+    assert report.relationships_complete
+    rows = await graph.neighbors(
+        [NodeRef("Contact", "Contact:ann@example.test")], ["WORKS_AT"], "out", 10
+    )
+    assert {r["target_key"] for r in rows} == {"Account:a1", "Account:a2"}
+
+
+async def test_completed_recovery_status_is_monotonic_even_after_a_late_diagnostic():
+    reg, log, graph = await pending_links()
+    row = (await graph.relationship_intents(None, 100))[0]
+    await graph.upsert_nodes([NodeWrite(NodeRef(**row["target"]))])
+    assert (
+        await RelationshipRecovery(graph, log, PackProjector(reg, frozenset())).finish()
+    ).complete
+    status = await graph.settle_relationship_intent(
+        row["node_id"], row["generation"], "missing_source"
+    )
+    assert status == "recovered"
+    assert (
+        await RelationshipRecovery(graph, log, PackProjector(reg, frozenset())).finish()
+    ).complete
+
+
+async def test_explicit_replay_respects_its_configured_recovery_deadline():
+    reg, log, graph = await pending_links()
+    result = await replay_event_types(
+        log,
+        graph,
+        PackProjector(reg, frozenset()),
+        {"crm.contact.added"},
+        batch_size=1,
+        lookup_limit=100,
+        recovery_timeout_s=0,
+        recovery_max_rows=1,
+        recovery_page_size=1,
+    )
+    assert not result.relationships_complete and not result.relationship_scan_complete

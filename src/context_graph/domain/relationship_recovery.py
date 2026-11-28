@@ -42,14 +42,28 @@ def merge_relationship_intent(
     Metadata size/effect bounds refuse work explicitly, never silently evict it.
     """
     if incoming.get("kind") == "blocked_lookup":
-        return None if before is not None else dict(incoming)
+        if before is None or reinterpret:
+            return dict(incoming)
+        return None
     if reinterpret and before and before.get("bundle") != incoming.get("bundle"):
         before = None
+    was_required = bool(before and before.get("required"))
+    field_winners = dict(before.get("field_winners", {})) if before else {}
+    if before:
+        for effect in before.get("effects", []):
+            for name in effect["writes"]:
+                field_winners[name] = max(field_winners.get(name, ""), effect["order_key"])
+    prior_order = before["order_key"] if before else ""
+    patch_existing = False
     if before and before.get("status") in {"recovered", "existing_relationship_kept"}:
         if incoming["order_key"] <= before["order_key"]:
-            return None
-        # Completed fields are already in the graph. A genuinely new event
-        # need not retain/refetch their source documents after retention.
+            uncovered = [name for name in incoming.get("writes", []) if name not in field_winners]
+            if not uncovered:
+                return None
+            incoming = {**incoming, "writes": uncovered}
+            patch_existing = True
+        # Completed fields already exist. Keep only winner order metadata;
+        # recovery never needs their retention-expired source documents again.
         before = None
     pointer_keys = (
         "event_id",
@@ -65,7 +79,7 @@ def merge_relationship_intent(
         "source_id",
         "source_digest",
     )
-    entry = {key: incoming.get(key) for key in pointer_keys}
+    entry: dict[str, Any] = {key: incoming.get(key) for key in pointer_keys}
     entry["writes"] = incoming.get("writes") or ["__edge__"]
     entry["event_generation"] = incoming["generation"]
     entries = list(before.get("effects", [])) if before else []
@@ -89,7 +103,12 @@ def merge_relationship_intent(
         if key not in {"effects", "generation", "status"}
     }
     record["effects"] = retained
-    record["required"] = bool(incoming["required"] or (before and before["required"]))
+    for name in entry["writes"]:
+        field_winners[name] = max(field_winners.get(name, ""), entry["order_key"])
+    record["field_winners"] = field_winners
+    record["order_key"] = max(prior_order, incoming["order_key"])
+    record["patch_existing"] = patch_existing or bool(before and before.get("patch_existing"))
+    record["required"] = bool(incoming["required"] or was_required)
     record["generation"] = intent_generation(record)
     if before and record["generation"] == before["generation"]:
         return None

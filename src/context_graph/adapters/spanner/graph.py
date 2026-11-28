@@ -789,6 +789,12 @@ class SpannerGraphStore(GraphOperations):
             record = json_value(rows[0][0])
             if record["generation"] != generation:
                 return "superseded"
+            if record["status"] in {
+                "recovered",
+                "existing_relationship_kept",
+                "superseded_by_replay",
+            }:
+                return str(record["status"])
             result = status
             costs = []
             if edge is not None:
@@ -814,6 +820,15 @@ class SpannerGraphStore(GraphOperations):
                         transaction.read("GraphEdges", ["props"], KeySet(keys=[edge_key]))
                     )
                     if present:
+                        if record.get("patch_existing"):
+                            props = dict(json_value(present[0][0]))
+                            props.update(
+                                {k: v for k, v in edge.properties.items() if k not in props}
+                            )
+                            costs.append(edge_row_cost((source, edge.edge_type, target), props))
+                            transaction.insert_or_update(
+                                "GraphEdges", EDGE_COLUMNS, [[*edge_key, json_param(props)]]
+                            )
                         result = "existing_relationship_kept"
                     else:
                         result = "recovered"

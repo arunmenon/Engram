@@ -198,6 +198,9 @@ async def replay_event_types(
     *,
     batch_size: int,
     lookup_limit: int,
+    recovery_timeout_s: float = 5.0,
+    recovery_max_rows: int = 10_000,
+    recovery_page_size: int = 100,
 ) -> ReplayReport:
     """Project the ledger's events of these types again, in log order.
 
@@ -208,12 +211,16 @@ async def replay_event_types(
     report = ReplayReport(failed=[])
     from context_graph.worker.relationship_recovery import RelationshipRecovery
 
-    recovery = RelationshipRecovery(graph, event_log, projector, reinterpreting=True)
+    recovery = RelationshipRecovery(
+        graph, event_log, projector, reinterpreting=True, timeout_s=recovery_timeout_s
+    )
     cursor: str | None = None
     while True:
         entries = await event_log.read_after(cursor, batch_size)
         if not entries:
-            relationships = await recovery.finish()
+            relationships = await recovery.finish(
+                budget=recovery_max_rows, page_size=recovery_page_size
+            )
             report.waiting_relationships = relationships.waiting
             report.blocking_relationships = relationships.blocking
             report.relationship_scan_complete = relationships.complete_scan
@@ -259,6 +266,9 @@ async def reconcile(
     batch_size: int,
     lookup_limit: int,
     allow_version_problems: bool = False,
+    recovery_timeout_s: float = 5.0,
+    recovery_max_rows: int = 10_000,
+    recovery_page_size: int = 100,
 ) -> ChangePlan:
     """Bring the graph's recorded ontology to the projector's (see module docstring)."""
     registry = projector.registry
@@ -346,6 +356,9 @@ async def reconcile(
             set(registry.projection_rules),
             batch_size=batch_size,
             lookup_limit=lookup_limit,
+            recovery_timeout_s=recovery_timeout_s,
+            recovery_max_rows=recovery_max_rows,
+            recovery_page_size=recovery_page_size,
         )
         log.info(
             "ontology_mapping_replayed", events=replay.replayed, failed=len(replay.failed or [])

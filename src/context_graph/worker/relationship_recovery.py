@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from context_graph.ports.event_log import EventLog
     from context_graph.ports.pack_graph import PackGraph
 
-TERMINAL = {"recovered", "existing_relationship_kept"}
+TERMINAL = {"recovered", "existing_relationship_kept", "superseded_by_replay"}
 
 
 def edge_identity(edge: EdgeWrite) -> list[Any]:
@@ -89,7 +89,7 @@ class RelationshipRecovery:
                     continue
                 descriptor = digest(asdict(lookup))
                 effect = digest(["truncated_lookup", descriptor])
-                key = digest([plan.event_id, plan.bundle, effect])
+                key = digest([plan.event_id, "blocked_lookup"])
                 await self.graph.put_relationship_intent(
                     {
                         "node_id": key,
@@ -103,8 +103,24 @@ class RelationshipRecovery:
                         "order_key": self.log.position_order_key(plan.event_position),
                         "required": True,
                         "status": "ambiguous_or_truncated_lookup",
-                    }
+                        "source_digest": plan.source_digest,
+                    },
+                    reinterpret=self.reinterpreting,
                 )
+        if self.reinterpreting:
+            # Only an explicitly replayed, source-verified event can retire its
+            # own old diagnostic; unrelated/rejected events remain blocking.
+            for plan in plans:
+                if any(id(lookup) in (truncated or set()) for lookup in plan.lookups):
+                    continue
+                key = digest([plan.event_id, "blocked_lookup"])
+                previous_block = (await self.graph.get_relationship_intents([key])).get(key)
+                if previous_block is not None:
+                    if previous_block.get("source_digest") != plan.source_digest:
+                        raise RuntimeFencedError("Blocked lookup source changed")
+                    await self.graph.settle_relationship_intent(
+                        key, previous_block["generation"], "superseded_by_replay"
+                    )
         refs = list(
             {ref for _plan, edge, _selector in candidates for ref in (edge.source, edge.target)}
         )
@@ -119,17 +135,16 @@ class RelationshipRecovery:
             ordinals[id(plan)] = ordinal + 1
             key = digest(edge_identity(edge))
             prior = previous.get(key)
-            if self.reinterpreting and prior and prior["bundle"] != plan.bundle:
-                prior = None
+            replacing = bool(self.reinterpreting and prior and prior["bundle"] != plan.bundle)
             missing = edge.source not in existing or edge.target not in existing
-            if not missing and prior is None:
+            if not missing and prior is None and not replacing:
                 continue
             if not plan.event_id or not plan.event_position or not plan.source_digest:
                 raise ValueError(
                     "Relationship recovery requires a pinned source event and log position"
                 )
             order = f"{self.log.position_order_key(plan.event_position)}/{ordinal:010d}"
-            if missing or (prior is not None and order <= prior["order_key"]):
+            if missing or (prior is not None and order <= prior["order_key"] and not replacing):
                 suppressed.add(id(edge))
             effect = effect_digest(edge, selector)
             await self.graph.put_relationship_intent(
@@ -160,7 +175,7 @@ class RelationshipRecovery:
             )
             current = (await self.graph.get_relationship_intents([key]))[key]
             previous[key] = current
-            if prior is not None and not missing and order > prior["order_key"]:
+            if prior is not None and not missing and current["status"] not in TERMINAL:
                 # Fold older deferred partial fields before the normal later patch.
                 await self._recover(current)
         return suppressed
@@ -206,10 +221,15 @@ class RelationshipRecovery:
                     row["node_id"], row["generation"], edge
                 )
             properties.update(
-                {name: value for name, value in edge.properties.items() if value is not None}
+                {
+                    name: value
+                    for name, value in edge.properties.items()
+                    if value is not None and name in pointer["writes"]
+                }
             )
             for name in edge.remove_properties:
-                properties.pop(name, None)
+                if name in pointer["writes"]:
+                    properties.pop(name, None)
         insert = EdgeWrite(
             row["edge_type"],
             NodeRef(**row["source"]),
@@ -277,8 +297,11 @@ class RelationshipRecovery:
         return "changed_bundle" if pointer["bundle"] != plan.bundle else "changed_source"
 
     async def page(self, limit: int = 100) -> RecoveryReport:
-        async with asyncio.timeout(self.timeout_s):
-            return await self._page(limit)
+        try:
+            async with asyncio.timeout(self.timeout_s):
+                return await self._page(limit)
+        except TimeoutError:
+            return RecoveryReport(complete_scan=False)
 
     async def _page(self, limit: int) -> RecoveryReport:
         cursor = NodeRef(CURSOR_LABEL, "relationships")
@@ -313,8 +336,11 @@ class RelationshipRecovery:
         return report
 
     async def finish(self, budget: int = 10_000, page_size: int = 100) -> RecoveryReport:
-        async with asyncio.timeout(self.timeout_s):
-            return await self._finish(budget, page_size)
+        try:
+            async with asyncio.timeout(self.timeout_s):
+                return await self._finish(budget, page_size)
+        except TimeoutError:
+            return RecoveryReport(complete_scan=False)
 
     async def _finish(self, budget: int, page_size: int) -> RecoveryReport:
         report, after = RecoveryReport(), None
