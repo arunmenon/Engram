@@ -182,6 +182,12 @@ def _compare_nodes(old: OntologyRegistry, new: OntologyRegistry, plan: ChangePla
             plan.note("breaking", f"node type {name} removed", before.pack)
             continue
         pack = after.pack
+        if before.definition.ordering != after.definition.ordering:
+            plan.note(
+                "breaking",
+                f"node type {name}: ordering authority changed; explicit rebuild required",
+                pack,
+            )
         if before.key != after.key or before.key_property != after.key_property:
             plan.note("breaking", f"node type {name}: key changed", pack)
         for prop, spec in before.properties.items():

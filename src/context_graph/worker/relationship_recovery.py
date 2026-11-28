@@ -35,6 +35,9 @@ def effect_descriptor(write: Any) -> dict[str, Any]:
         data["properties"] = {
             name: value for name, value in data["properties"].items() if value is not None
         }
+    if data.get("order"):
+        # Source identity, authority and the null-aware semantic receipt stay pinned.
+        data["order"].pop("bundle", None)
     return data
 
 
@@ -161,7 +164,11 @@ class RelationshipRecovery:
                 raise ValueError(
                     "Relationship recovery requires a pinned source event and log position"
                 )
-            order = f"{self.log.position_order_key(plan.event_position)}/{ordinal:010d}"
+            order = (
+                f"business/{edge.order.contract}/{edge.order.source}/{edge.order.value}/{ordinal:010d}"
+                if edge.order is not None
+                else f"{self.log.position_order_key(plan.event_position)}/{ordinal:010d}"
+            )
             suppressed.add(id(edge))
             effect = effect_digest(edge, selector)
             await self.graph.put_relationship_intent(
@@ -173,6 +180,7 @@ class RelationshipRecovery:
                     "authority": plan.authority,
                     "source_id": plan.source_id,
                     "source_digest": plan.source_digest,
+                    "ordered_effect_digest": edge.order.effect_digest if edge.order else None,
                     "effect_digest": effect,
                     "selector_digest": selector,
                     "plan_digest": relationship_plan_digest(plan),
@@ -188,6 +196,7 @@ class RelationshipRecovery:
                     "required": edge.required,
                     "status": "endpoint_missing",
                     "apply_existing": not missing,
+                    "reinterpreting": self.reinterpreting,
                     "normal_patch": bool(
                         self.reinterpreting or (prior and order > prior["order_key"])
                     ),
@@ -212,7 +221,9 @@ class RelationshipRecovery:
                 row["node_id"], row["generation"], "invalid_intent"
             )
         properties: dict[str, Any] = {}
+        property_orders = {}
         removals: set[str] = set()
+        last_order = None
         ids = sorted({pointer["event_id"] for pointer in row["effects"]})
         sources: dict[str, tuple[dict[str, Any] | None, VerifiedSourceProvenance | None]]
         if self.projector.requires_provenance:
@@ -243,31 +254,42 @@ class RelationshipRecovery:
                 return await self.graph.settle_relationship_intent(
                     row["node_id"], row["generation"], edge
                 )
+            last_order = edge.order
             for name, value in edge.properties.items():
                 if value is not None and name in pointer["writes"]:
+                    properties[name] = value
                     removals.discard(name)
-            properties.update(
-                {
-                    name: value
-                    for name, value in edge.properties.items()
-                    if value is not None and name in pointer["writes"]
-                }
-            )
+                    if edge.order is not None:
+                        property_orders[name] = edge.order
             for name in edge.remove_properties:
                 if name in pointer["writes"]:
                     properties.pop(name, None)
                     removals.add(name)
+                    if edge.order is not None:
+                        property_orders[name] = edge.order
         insert = EdgeWrite(
             row["edge_type"],
             NodeRef(**row["source"]),
             NodeRef(**row["target"]),
             properties,
-            create_only=not bool(row.get("write_modes")),
+            create_only=last_order is None and not bool(row.get("write_modes")),
             remove_properties=tuple(sorted(removals)),
+            order=last_order,
+            property_orders=property_orders or None,
         )
-        return await self.graph.settle_relationship_intent(
-            row["node_id"], row["generation"], "waiting", insert
-        )
+        try:
+            return await self.graph.settle_relationship_intent(
+                row["node_id"], row["generation"], "waiting", insert
+            )
+        except ValueError as exc:
+            reason = str(exc)
+            if not reason.startswith("write_order_"):
+                raise
+            # The ordered native transaction rolled back. Persist a blocking
+            # diagnostic in a separate generation-fenced unit, without an edge.
+            return await self.graph.settle_relationship_intent(
+                row["node_id"], row["generation"], reason
+            )
 
     def _rederive(
         self,

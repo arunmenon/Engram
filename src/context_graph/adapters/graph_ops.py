@@ -669,6 +669,16 @@ class GraphOperations:
             changed += 1
         return changed
 
+    async def apply_ordered_mutations(
+        self,
+        nodes: list[NodeWrite],
+        states: list[StateChange],
+        edges: list[EdgeWrite],
+        *,
+        reinterpret: bool = False,
+    ) -> dict[str, int]:
+        raise InvalidRequestError("Backend lacks atomic declared-order writes")
+
     async def upsert_nodes(self, writes: list[NodeWrite]) -> None:
         validate_node_removals(writes)
         if not writes:
@@ -678,7 +688,11 @@ class GraphOperations:
             updates = stored_values(write.properties)
             updates.update(dict.fromkeys(write.remove_properties))
             updates[write.ref.key_property] = write.ref.key
-            items.append((self._ref_key(write.ref), updates, stored_values(write.defaults)))
+            defaults = stored_values(write.defaults)
+            if write.placeholder:
+                defaults.update(updates)
+                updates = {write.ref.key_property: write.ref.key}
+            items.append((self._ref_key(write.ref), updates, defaults))
         await self._merge_nodes(items)
 
     async def upsert_edges(self, writes: list[EdgeWrite]) -> int:

@@ -116,7 +116,9 @@ LIFECYCLED_INTERFACE = "Lifecycled"
 # Query plugins an intent may name (served by retrieval/artifacts.py)
 INTENT_PLUGINS = frozenset({"missing_links"})
 # Node types the system writes itself; packs may not declare them
-RESERVED_NODE_TYPES = frozenset({"OntologyState", "ProjectionRecovery", "ProjectionRecoveryCursor"})
+RESERVED_NODE_TYPES = frozenset(
+    {"OntologyState", "ProjectionRecovery", "ProjectionRecoveryCursor", "ProjectionOrder"}
+)
 # Link policy settings the engine reads; others are recorded but inert
 LINK_POLICY_SETTINGS = frozenset({"applies_to", "link_status"})
 # Admission rules retrieval understands, with the settings each one takes
@@ -260,11 +262,28 @@ class LifecycleDef(_Strict):
         return self
 
 
+class WriteOrderingDef(_Strict):
+    """Explicit single-producer business order; never inferred from arrival."""
+
+    source: str = Field(min_length=1, max_length=256)
+    by: str = Field(min_length=1, max_length=1024)
+    kind: Literal["sequence", "timestamp"]
+
+    @model_validator(mode="after")
+    def _explicit_field(self) -> WriteOrderingDef:
+        if self.source != self.source.strip() or self.source == "*":
+            raise ValueError("ordering source must name one explicit producer")
+        if not isinstance(compile_value(self.by), Path):
+            raise ValueError("ordering authority must be an explicit source field path")
+        return self
+
+
 class NodeTypeDef(_Strict):
     key: list[str]
     # Existing types keep their own unique property (``event_id``); types
     # without one are identified by ``node_id`` = ``<type>:<key values>``
     id_property: str | None = None
+    ordering: WriteOrderingDef | None = None
     interfaces: list[str] = Field(default_factory=list)
     properties: dict[str, PropertySpec] = Field(default_factory=dict)
     lifecycle: LifecycleDef | None = None
@@ -1067,6 +1086,8 @@ class OntologyRegistry:
 
     def _validate_node(self, pack: str, name: str, node: NodeTypeDef, problems: list[str]) -> None:
         properties = self.node_types[name].properties
+        if node.ordering is not None:
+            self._check_expression(pack, f"{name}.ordering", node.ordering.by, problems)
         for prop, spec in node.properties.items():
             if (error := _check_property_spec(spec)) is not None:
                 problems.append(f"{pack}: {name}.{prop}: {error}")
@@ -1336,6 +1357,19 @@ class OntologyRegistry:
         for name in [*extraction.propose, *extraction.never_propose, *extraction.derived_proposals]:
             if name not in self.node_types and name not in self.edge_types:
                 problems.append(f"{pack.name}: extraction names unknown type {name!r}")
+        for name in [*extraction.propose, *extraction.derived_proposals]:
+            node = self.node_types.get(name)
+            edge = self.edge_types.get(name)
+            ordered_source = bool(
+                edge
+                and any(
+                    candidate.definition.ordering is not None
+                    and (candidate.name in edge.from_types or candidate.pack in edge.from_packs)
+                    for candidate in self.node_types.values()
+                )
+            )
+            if (node is not None and node.definition.ordering is not None) or ordered_source:
+                problems.append(f"{pack.name}: ordered_extraction_target_unsupported ({name})")
         for name in sorted(set(extraction.propose) & set(extraction.never_propose)):
             problems.append(f"{pack.name}: {name} is both proposed and never proposed")
 

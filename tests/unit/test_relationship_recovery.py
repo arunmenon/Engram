@@ -1191,6 +1191,8 @@ async def test_nested_json_null_is_not_equivalent_to_a_missing_field_in_a_pinned
 
 
 async def recovery_patch_inputs(backend, *, count=3):
+    ordered = backend.startswith("ordered_")
+    backend = backend.removeprefix("ordered_")
     if backend == "memory":
         graph = MemoryGraphStore()
     else:
@@ -1205,21 +1207,41 @@ async def recovery_patch_inputs(backend, *, count=3):
     }
     edge = data["projection"][1]["edges"][0]
     edge.update(to={"node_id": "$.account_node_id"}, required=True, set={"a": "$.a", "b": "$.b"})
-    planner = PackProjector(OntologyRegistry([CORE, Pack.model_validate(data)]), frozenset())
+    if ordered:
+        data["types"]["nodes"]["Contact"]["ordering"] = {
+            "source": "webhook:crm",
+            "by": "$.sequence",
+            "kind": "sequence",
+        }
+    planner = PackProjector(
+        OntologyRegistry([CORE, Pack.model_validate(data)]),
+        frozenset({"webhook:crm"}) if ordered else frozenset(),
+    )
     log, plans = MemoryEventLog(), []
-    for values in [{"a": "one"}, {"a": "two"}, {"b": "three"}][:count]:
+    for sequence, values in enumerate(
+        [{"a": "one"}, {"a": "two"}, {"b": "three"}][:count], start=1
+    ):
         event, payload = _event(
             "crm.contact.added",
-            {"email": "ann@example.test", "account_node_id": "Account:acme", **values},
+            {
+                "email": "ann@example.test",
+                "account_node_id": "Account:acme",
+                "sequence": sequence,
+                **values,
+            },
             1,
         )
+        if ordered:
+            event = event.model_copy(update={"agent_id": "webhook:crm"})
         position = await log.append(event, payload)
         document = (await log.get_documents([str(event.event_id)]))[0]
         plans.append(planner.plan(event.model_copy(update={"global_position": position}), document))
     return data, planner, log, graph, plans
 
 
-@pytest.mark.parametrize("backend", ["memory", "spanner_fake"])
+@pytest.mark.parametrize(
+    "backend", ["memory", "spanner_fake", "ordered_memory", "ordered_spanner_fake"]
+)
 @pytest.mark.parametrize("target_first", [False, True])
 async def test_first_delivery_of_middle_order_field_replaces_its_older_winner(
     backend, target_first
@@ -1242,7 +1264,9 @@ async def test_first_delivery_of_middle_order_field_replaces_its_older_winner(
     assert rows[0]["properties"]["b"] == "three"
 
 
-@pytest.mark.parametrize("backend", ["memory", "spanner_fake"])
+@pytest.mark.parametrize(
+    "backend", ["memory", "spanner_fake", "ordered_memory", "ordered_spanner_fake"]
+)
 @pytest.mark.parametrize("replay", [False, True])
 async def test_failure_after_capture_never_loses_the_tracked_patch_on_retry(backend, replay):
     data, planner, log, graph, plans = await recovery_patch_inputs(
@@ -1266,11 +1290,15 @@ async def test_failure_after_capture_never_loses_the_tracked_patch_on_retry(back
     if replay:
         data["pack"]["version"] = "1.1.0"
         data["projection"][1]["edges"][0]["set"] = {"note": "new effect"}
-        updated = PackProjector(OntologyRegistry([CORE, Pack.model_validate(data)]), frozenset())
+        updated = PackProjector(
+            OntologyRegistry([CORE, Pack.model_validate(data)]),
+            frozenset({"webhook:crm"}) if backend.startswith("ordered_") else frozenset(),
+        )
         for _ in range(2):
-            await replay_event_types(
+            replayed = await replay_event_types(
                 log, graph, updated, {"crm.contact.added"}, batch_size=1, lookup_limit=100
             )
+        assert not replayed.failed and replayed.relationships_complete
         field, expected = "note", "new effect"
     else:
         for _ in range(2):
@@ -1286,7 +1314,9 @@ async def test_failure_after_capture_never_loses_the_tracked_patch_on_retry(back
     ).complete
 
 
-@pytest.mark.parametrize("backend", ["memory", "spanner_fake"])
+@pytest.mark.parametrize(
+    "backend", ["memory", "spanner_fake", "ordered_memory", "ordered_spanner_fake"]
+)
 @pytest.mark.parametrize("stage", ["before_commit", "lost_reply"])
 async def test_tracked_native_patch_and_completion_are_one_retriable_unit(backend, stage):
     _data, planner, log, graph, plans = await recovery_patch_inputs(backend)
