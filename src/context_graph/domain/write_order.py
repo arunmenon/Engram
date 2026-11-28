@@ -54,6 +54,43 @@ def clock_key(kind: str, key: NodeKey | EdgeKey) -> NodeKey:
     return ORDER_LABEL, recovery_digest([kind, key])
 
 
+def authority_claims(
+    nodes: list[NodeWrite], states: list[StateChange], edges: list[EdgeWrite]
+) -> dict[NodeKey, dict[str, Any]]:
+    """Immutable identities for observed authority values, even after field supersession.
+
+    One compact row per record/authority value, not a retained payload/history
+    queue. Reusing a sequence for a different event remains detectable forever.
+    """
+    claims: dict[NodeKey, dict[str, Any]] = {}
+    candidates: list[tuple[str, NodeKey | EdgeKey, WriteOrder | None]] = [
+        ("node", node_key(w.ref), w.order) for w in nodes if not w.placeholder
+    ]
+    candidates += [("node", node_key(w.ref), w.order) for w in states]
+    for edge in edges:
+        candidates.extend(
+            ("edge", edge_key(edge), token)
+            for token in [edge.order, *(edge.property_orders or {}).values()]
+        )
+    for kind, key, token in candidates:
+        if token is None or not token.value:
+            continue
+        ckey = (ORDER_LABEL, recovery_digest(["claim", kind, key, token.contract, token.value]))
+        claim = {
+            "node_id": ckey[1],
+            "kind": "authority_claim",
+            "contract": token.contract,
+            "source": token.source,
+            "value": token.value,
+            "event_id": token.event_id,
+            "source_digest": token.source_digest,
+        }
+        if ckey in claims and claims[ckey] != claim:
+            raise ValueError("write_order_equal_authority_conflict")
+        claims[ckey] = claim
+    return claims
+
+
 def snapshot_keys(
     nodes: list[NodeWrite], states: list[StateChange], edges: list[EdgeWrite]
 ) -> tuple[set[NodeKey], set[EdgeKey]]:
@@ -62,7 +99,7 @@ def snapshot_keys(
     clocks = {clock_key("node", key) for key in keys}
     clocks |= {clock_key("edge", key) for key in edge_keys}
     keys |= {node_key(ref) for edge in edges for ref in (edge.source, edge.target)}
-    return keys | clocks, edge_keys
+    return keys | clocks | set(authority_claims(nodes, states, edges)), edge_keys
 
 
 def decide(
@@ -83,6 +120,12 @@ def decide(
     changed_nodes: set[NodeKey] = set()
     changed_edges: set[EdgeKey] = set()
     counts = {"stale_fields": 0, "duplicate_fields": 0, "written_fields": 0, "edges": 0}
+
+    for ckey, claim in authority_claims(nodes, states, edges).items():
+        if ckey in current_nodes and current_nodes[ckey] != claim:
+            raise ValueError("write_order_equal_authority_conflict")
+        current_nodes[ckey] = claim
+        changed_nodes.add(ckey)
 
     def clock(
         kind: str, key: NodeKey | EdgeKey, token: WriteOrder, existing: bool

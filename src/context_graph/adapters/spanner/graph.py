@@ -851,14 +851,18 @@ class SpannerGraphStore(GraphOperations):
     ) -> list[Any]:
         from google.cloud.spanner_v1 import KeySet
 
-        from context_graph.domain.write_order import clock_key, decide, edge_key
+        from context_graph.domain.write_order import decide, edge_key, snapshot_keys
 
         key = edge_key(edge)
-        ckey = clock_key("edge", key)
-        rows = list(transaction.read("GraphNodes", ["props"], KeySet(keys=[list(ckey)])))
-        stored_nodes: dict[tuple[str, str], dict[str, Any]] = {key[0]: {}, key[2]: {}}
-        if rows:
-            stored_nodes[ckey] = json_value(rows[0][0])
+        keys, _edges = snapshot_keys([], [], [edge])
+        rows = list(
+            transaction.read(
+                "GraphNodes",
+                ["label", "node_id", "props"],
+                KeySet(keys=[list(k) for k in sorted(keys)]),
+            )
+        )
+        stored_nodes = {(row[0], row[1]): json_value(row[2]) for row in rows}
         node_updates, edge_updates, _report = decide(
             [], [], [edge], stored_nodes, {key: existing} if existing is not None else {}
         )
