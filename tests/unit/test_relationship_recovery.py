@@ -672,3 +672,40 @@ def test_pack_cannot_shadow_internal_recovery_storage(name):
     data["types"]["nodes"][name] = {"key": ["id"], "properties": {"id": "string"}}
     with pytest.raises(OntologyError, match="reserved"):
         OntologyRegistry([CORE, Pack.model_validate(data)])
+
+
+def test_required_key_lookup_uses_s4_complete_identity_operand_checks():
+    from context_graph.domain.pack_expressions import IdentityOperandError
+
+    reg = registry(
+        target={"type": "Account", "match": {"account_id": "$.merchant + '|' + $.payment"}}
+    )
+    event = Event(
+        event_id=uuid4(),
+        event_type="crm.contact.added",
+        occurred_at=datetime(2026, 11, 1, tzinfo=UTC),
+        session_id="s",
+        agent_id="webhook:crm",
+        trace_id="t",
+        payload_ref="p",
+        global_position="1-0",
+    )
+    document = {
+        **event.model_dump(mode="json"),
+        "payload": {"email": "ann@example.test", "merchant": "acme"},
+    }
+    with pytest.raises(IdentityOperandError):
+        PackProjector(reg, frozenset()).plan(event, document)
+
+
+async def test_required_missing_link_refuses_an_unconfigured_direct_writer_before_domain_writes():
+    from context_graph.adapters.memory.graph import MemoryGraphStore
+    from context_graph.ports.errors import RuntimeFencedError
+    from context_graph.ports.pack_graph import NodeRef
+    from context_graph.worker.pack_projection import apply_plan
+
+    graph = MemoryGraphStore()
+    plan = contact(registry())
+    with pytest.raises(RuntimeFencedError, match="durable relationship recovery"):
+        await apply_plan(graph, plan, 100)
+    assert await graph.get_nodes([NodeRef("Contact", "Contact:ann@example.test")]) == {}

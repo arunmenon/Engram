@@ -16,6 +16,7 @@ import orjson
 import structlog
 
 from context_graph.domain.pack_projection import LATEST_FALLBACK
+from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.pack_graph import EdgeWrite
 from context_graph.ports.pack_graph import NodeRef as GraphRef
 
@@ -194,6 +195,20 @@ async def apply_plans(
     plans = [plan for plan in plans if not plan.empty]
     if not plans:
         return 0
+    if recovery is None:
+        required_refs = {
+            ref
+            for plan in plans
+            for edge in plan.edges
+            if edge.required
+            for ref in (edge.source, edge.target)
+        }
+        planned_refs = {node.ref for plan in plans for node in plan.nodes}
+        existing = (
+            await graph.get_nodes(list(required_refs - planned_refs)) if required_refs else {}
+        )
+        if required_refs - planned_refs - existing.keys():
+            raise RuntimeFencedError("Required links need configured durable relationship recovery")
     nodes = [node for plan in plans for node in plan.nodes]
     states = [state for plan in plans for state in plan.states]
     lookups = [lookup for plan in plans for lookup in plan.lookups]
