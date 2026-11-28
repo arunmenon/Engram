@@ -85,6 +85,13 @@ INT64_MIN, INT64_MAX = -(2**63), 2**63 - 1
 MAX_PROJECTION_OPERATIONS = 10_000
 
 
+class RequiredRelationshipError(ValueError):
+    """A required relationship has no complete endpoint identity."""
+
+    def __init__(self) -> None:
+        super().__init__("required_relationship_identity_missing")
+
+
 class ProjectionExpansionError(ValueError):
     """Deterministic whole-plan refusal, containing no event payload values."""
 
@@ -138,6 +145,10 @@ class EdgeLookup:
 
 @dataclass
 class ProjectionPlan:
+    event_id: str = ""
+    event_position: str = ""
+    bundle: str = ""
+    authority: str = ""
     nodes: list[NodeWrite] = field(default_factory=list)
     states: list[StateChange] = field(default_factory=list)
     edges: list[EdgeWrite] = field(default_factory=list)
@@ -329,6 +340,27 @@ class PackProjector:
     def registry(self) -> OntologyRegistry:
         return self._registry
 
+    @property
+    def authority_fingerprint(self) -> str:
+        """Pin tenant/source interpretation, independent of event payload values."""
+        import hashlib
+        import json
+        from dataclasses import asdict
+
+        data: dict[str, Any]
+        if self._source_policy is None:
+            data = {"trusted_sources": sorted(self._trusted), "mode": "unbound"}
+        else:
+            authority = asdict(self._source_policy.authority)
+            # The accepted-record contract explicitly permits epoch-only advances.
+            # Current read/write fences and receipt validation still enforce epoch.
+            authority.pop("epoch")
+            data = {
+                "authority": authority,
+                "trusted_sources": sorted(self._source_policy.trusted_source_ids),
+            }
+        return hashlib.sha256(json.dumps(data, sort_keys=True).encode()).hexdigest()
+
     def handles(self, event_type: str) -> bool:
         return bool(self._registry.rules_for(event_type))
 
@@ -365,7 +397,12 @@ class PackProjector:
         provenance: VerifiedSourceProvenance | None = None,
     ) -> ProjectionPlan:
         trusted = self.source_trusted(event, document, provenance)
-        plan = ProjectionPlan()
+        plan = ProjectionPlan(
+            event_id=str(event.event_id),
+            event_position=event.global_position or "",
+            bundle=self.registry.version,
+            authority=self.authority_fingerprint,
+        )
         rules = self._registry.rules_for(event.event_type)
         if not rules:
             return plan
@@ -609,6 +646,8 @@ class PackProjector:
             self._plan_lookup(edge_rule, target, sources, context, plan)
             return
         targets = self._endpoint_refs(target, context, plan)
+        if edge_rule.required and (not sources or not targets):
+            raise RequiredRelationshipError()
         # Both ends fanned from lists of the same length: pair them; otherwise every pair
         zipped = (
             bool(sources)
@@ -637,7 +676,12 @@ class PackProjector:
             props["source_trust"] = context.trust
             plan.edges.append(
                 EdgeWrite(
-                    edge_rule.type, source.ref, target_ref.ref, props, remove_properties=removals
+                    edge_rule.type,
+                    source.ref,
+                    target_ref.ref,
+                    props,
+                    remove_properties=removals,
+                    required=edge_rule.required,
                 )
             )
 
@@ -654,6 +698,27 @@ class PackProjector:
         """Plan an edge between each ``known`` end and the nodes ``matched`` finds."""
         assert matched.type is not None
         node_type = self._node_type(matched.type)
+        if edge_rule.required:
+            found = self._keyed_refs(node_type, matched.match or {}, context.scope)
+            if not known or not found:
+                raise RequiredRelationshipError()
+            for end in known:
+                for match in found:
+                    source, target = (match.ref, end.ref) if reverse else (end.ref, match.ref)
+                    props, removals = self._edge_properties(edge_rule, context.scope, end)
+                    props["source_trust"] = context.trust
+                    plan.check_capacity(1)
+                    plan.edges.append(
+                        EdgeWrite(
+                            edge_rule.type,
+                            source,
+                            target,
+                            props,
+                            remove_properties=removals,
+                            required=True,
+                        )
+                    )
+            return
         equals: dict[str, Any] = {}
         prefix_field: str | None = None
         prefixes: tuple[str, ...] = ()

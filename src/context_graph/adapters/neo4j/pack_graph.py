@@ -11,6 +11,7 @@ Source: ADR-0018
 from __future__ import annotations
 
 from collections import defaultdict
+from dataclasses import asdict
 from typing import TYPE_CHECKING, Any
 
 import orjson
@@ -19,7 +20,7 @@ from context_graph.adapters.graph_ops import LABEL_KEYS
 from context_graph.adapters.neo4j.ontology_schema import schema_statements
 from context_graph.domain.ontology import EDGE_TYPE_NAME, NODE_TYPE_NAME, PROPERTY_NAME
 from context_graph.domain.pack_removals import validate_edge_removals, validate_node_removals
-from context_graph.ports.errors import InvalidRequestError
+from context_graph.ports.errors import InvalidRequestError, RuntimeFencedError
 
 if TYPE_CHECKING:
     from neo4j import AsyncDriver
@@ -104,6 +105,11 @@ class Neo4jPackGraph:
         self, registry: OntologyRegistry, embedding_dimensions: int
     ) -> None:
         statements = schema_statements(registry, embedding_dimensions)
+        statements += [
+            f"CREATE CONSTRAINT {label.lower()}_pk IF NOT EXISTS FOR (n:{label}) "
+            "REQUIRE n.node_id IS UNIQUE"
+            for label in ("ProjectionRecovery", "ProjectionRecoveryCursor")
+        ]
         async with self._driver.session(database=self._database) as session:
             for statement in statements:
                 await session.run(statement)
@@ -331,3 +337,111 @@ class Neo4jPackGraph:
             ),
         )
         return ordered[:limit]
+
+    async def get_relationship_intents(self, keys: list[str]) -> dict[str, dict[str, Any]]:
+        rows = await self._pack_read(
+            "UNWIND $keys AS key MATCH (n:ProjectionRecovery {node_id: key}) "
+            "RETURN key, n.record AS record",
+            {"keys": keys},
+        )
+        return {row["key"]: orjson.loads(row["record"]) for row in rows}
+
+    async def relationship_intents(self, after: str | None, limit: int) -> list[dict[str, Any]]:
+        if not 0 < limit <= 1000:
+            raise ValueError("Recovery page limit outside 1..1000")
+        rows = await self._pack_read(
+            "MATCH (n:ProjectionRecovery) WHERE n.node_id > $after "
+            "RETURN n.record AS record ORDER BY n.node_id LIMIT $limit",
+            {"after": after or "", "limit": limit},
+        )
+        return [orjson.loads(row["record"]) for row in rows]
+
+    async def put_relationship_intent(self, record: dict[str, Any]) -> None:
+        async def work(tx: Any) -> None:
+            result = await tx.run(
+                "MERGE (n:ProjectionRecovery {node_id: $key}) "
+                "SET n._recovery_lock = coalesce(n._recovery_lock, 0) + 1 "
+                "RETURN n.record AS record",
+                {"key": record["node_id"]},
+            )
+            row = await result.single()
+            before = orjson.loads(row["record"]) if row and row["record"] else None
+            if before and before["order_key"] >= record["order_key"]:
+                if (
+                    before["order_key"] == record["order_key"]
+                    and before["generation"] != record["generation"]
+                ):
+                    raise RuntimeFencedError("Conflicting recovery event at one log position")
+                return
+            await tx.run(
+                "MATCH (n:ProjectionRecovery {node_id: $key}) SET n.record = $record",
+                {"key": record["node_id"], "record": orjson.dumps(record).decode()},
+            )
+
+        async with self._driver.session(database=self._database) as session:
+            await session.execute_write(work)
+
+    async def settle_relationship_intent(
+        self, key: str, generation: str, status: str, edge: EdgeWrite | None = None
+    ) -> str:
+        async def work(tx: Any) -> str:
+            answer = await (
+                await tx.run(
+                    "MATCH (n:ProjectionRecovery {node_id: $key}) "
+                    "SET n._recovery_lock = coalesce(n._recovery_lock, 0) + 1 "
+                    "RETURN n.record AS record",
+                    {"key": key},
+                )
+            ).single()
+            if not answer:
+                return "superseded"
+            record = orjson.loads(answer["record"])
+            if record["generation"] != generation:
+                return "superseded"
+            result = status
+            if edge is not None:
+                if [edge.edge_type, asdict(edge.source), asdict(edge.target)] != [
+                    record["edge_type"],
+                    record["source"],
+                    record["target"],
+                ]:
+                    raise RuntimeFencedError("Recovery endpoint identity changed")
+                # The temporary marker is created and removed inside this transaction.
+                # It distinguishes atomic creation from keeping a concurrent existing link.
+                query = (
+                    f"MATCH (a:{_label(edge.source.label)} "
+                    f"{{{_property(edge.source.key_property)}: $source}}) "
+                    f"MATCH (b:{_label(edge.target.label)} "
+                    f"{{{_property(edge.target.key_property)}: $target}}) "
+                    f"MERGE (a)-[r:{_edge_type(edge.edge_type)}]->(b) "
+                    "ON CREATE SET r += $props, r._engram_recovery_token = $generation "
+                    "WITH r, coalesce(r._engram_recovery_token = $generation, false) AS created "
+                    "FOREACH (_ IN CASE WHEN created THEN [1] ELSE [] END | "
+                    "REMOVE r._engram_recovery_token) "
+                    "RETURN created"
+                )
+                written = await (
+                    await tx.run(
+                        query,
+                        {
+                            "source": edge.source.key,
+                            "target": edge.target.key,
+                            "props": _props(edge.properties),
+                            "generation": generation,
+                        },
+                    )
+                ).single()
+                result = (
+                    ("recovered" if written["created"] else "existing_relationship_kept")
+                    if written
+                    else "endpoint_missing"
+                )
+            record["status"] = result
+            await tx.run(
+                "MATCH (n:ProjectionRecovery {node_id: $key}) SET n.record = $record",
+                {"key": key, "record": orjson.dumps(record).decode()},
+            )
+            return result
+
+        async with self._driver.session(database=self._database) as session:
+            return await session.execute_write(work)

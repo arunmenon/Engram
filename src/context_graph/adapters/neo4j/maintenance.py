@@ -332,7 +332,8 @@ async def get_graph_stats(
         edge_records = [record async for record in edge_result]
 
     for record in node_records:
-        node_counts[record["label"]] = record["cnt"]
+        if record["label"] not in {"ProjectionRecovery", "ProjectionRecoveryCursor"}:
+            node_counts[record["label"]] = record["cnt"]
 
     for record in edge_records:
         edge_counts[record["rel_type"]] = record["cnt"]

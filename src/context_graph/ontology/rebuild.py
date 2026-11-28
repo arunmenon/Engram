@@ -88,6 +88,9 @@ class LedgerReplay:
         # Entries whose document has expired from the ledger (not projected)
         self.missing_positions: set[str] = set()
         self.dead_lettered: list[str] = []
+        self.waiting_relationships = 0
+        self.blocking_relationships = 0
+        self.relationship_scan_complete = True
 
     @property
     def missing_documents(self) -> int:
@@ -144,11 +147,19 @@ class RebuildReport:
     dead_lettered: list[str] = field(default_factory=list)
     gate: list[EvalReport] = field(default_factory=list)
     gate_skipped: bool = False
+    waiting_relationships: int = 0
+    blocking_relationships: int = 0
+    relationship_scan_complete: bool = True
 
     @property
     def projection_complete(self) -> bool:
         """Every required entry observed in this ledger run was processed."""
-        return not self.missing_documents and not self.dead_lettered
+        return (
+            not self.missing_documents
+            and not self.dead_lettered
+            and not self.blocking_relationships
+            and self.relationship_scan_complete
+        )
 
     @property
     def evaluation_passed(self) -> bool | None:
@@ -182,6 +193,9 @@ class RebuildReport:
             "missing_positions": self.missing_positions[:100],
             "dead_lettered": self.dead_lettered[:100],
             "gate_skipped": self.gate_skipped,
+            "waiting_relationships": self.waiting_relationships,
+            "blocking_relationships": self.blocking_relationships,
+            "relationship_scan_complete": self.relationship_scan_complete,
             "gate": [report.as_dict() for report in self.gate],
         }
 
@@ -249,6 +263,17 @@ async def project_ledger(
         for delivery in deliveries:
             await consumer.process_message(delivery.position, delivery.fields)
     await consumer.on_stop()
+    from context_graph.worker.relationship_recovery import RelationshipRecovery
+
+    recovery = await RelationshipRecovery(
+        graph, event_log, projector, timeout_s=settings.ontology.recovery_timeout_s
+    ).finish(
+        budget=settings.ontology.recovery_max_rows,
+        page_size=settings.ontology.recovery_page_size,
+    )
+    replay.waiting_relationships = recovery.waiting
+    replay.blocking_relationships = recovery.blocking
+    replay.relationship_scan_complete = recovery.complete_scan
     return replay
 
 
@@ -315,6 +340,9 @@ async def rebuild(
     report.missing_documents = replay.missing_documents
     report.missing_positions = sorted(replay.missing_positions)[:100]
     report.dead_lettered = replay.dead_lettered
+    report.waiting_relationships = replay.waiting_relationships
+    report.blocking_relationships = replay.blocking_relationships
+    report.relationship_scan_complete = replay.relationship_scan_complete
     log.info(
         "ontology_rebuild_projected", events=replay.read, dead_lettered=len(replay.dead_lettered)
     )
@@ -345,6 +373,9 @@ async def rebuild(
         applied="rebuild",
         extra={
             "rebuild_events": report.events,
+            "waiting_relationships": report.waiting_relationships,
+            "blocking_relationships": report.blocking_relationships,
+            "relationship_scan_complete": report.relationship_scan_complete,
             "missing_documents": report.missing_documents,
             "rebuild_missing_positions": report.missing_positions,
             "rebuild_complete": report.projection_complete,

@@ -116,7 +116,7 @@ LIFECYCLED_INTERFACE = "Lifecycled"
 # Query plugins an intent may name (served by retrieval/artifacts.py)
 INTENT_PLUGINS = frozenset({"missing_links"})
 # Node types the system writes itself; packs may not declare them
-RESERVED_NODE_TYPES = frozenset({"OntologyState"})
+RESERVED_NODE_TYPES = frozenset({"OntologyState", "ProjectionRecovery", "ProjectionRecoveryCursor"})
 # Link policy settings the engine reads; others are recorded but inert
 LINK_POLICY_SETTINGS = frozenset({"applies_to", "link_status"})
 # Admission rules retrieval understands, with the settings each one takes
@@ -391,6 +391,7 @@ class TransitionDef(_Strict):
 
 
 class EdgeRuleDef(_Strict):
+    required: bool = Field(default=False, strict=True)
     type: str
     from_: NodeRef = Field(alias="from")
     to: NodeRef | None = None
@@ -552,6 +553,10 @@ class Pack(_Strict):
             data.pop("processing", None)
         if not self.open_event_namespaces:
             data.pop("open_event_namespaces", None)
+        for rule in data.get("projection", []):
+            for edge in rule.get("edges", []):
+                if edge.get("required") is False:
+                    edge.pop("required", None)
         return json.dumps(
             data,
             sort_keys=True,
@@ -1029,7 +1034,7 @@ class OntologyRegistry:
                     f"which pack {sorted(owners - {pack.name})[0]} owns"
                 )
         for name in pack.types.nodes:
-            if name in RESERVED_NODE_TYPES:
+            if name.casefold() in {reserved.casefold() for reserved in RESERVED_NODE_TYPES}:
                 problems.append(f"{pack.name}: node type name {name!r} is reserved")
         for name in pack.retrieval.intents:
             check(LOWER_NAME, name, "intent name", "lowercase letters, digits and underscores")
@@ -1253,6 +1258,21 @@ class OntologyRegistry:
         source = self._check_ref(pack, where, edge_rule.from_, problems)
         target = self._check_ref(pack, where, edge_rule.target, problems)
         origin = edge_rule.from_
+        if edge_rule.required:
+            refs = (origin, edge_rule.target)
+            unsupported = edge_rule.to_latest is not None
+            for ref in refs:
+                if ref.match_any_prefix is not None:
+                    unsupported = True
+                if ref.match is not None and ref.type is not None:
+                    node = self.node_types.get(ref.type.rpartition(":")[2])
+                    unsupported = unsupported or node is None or set(ref.match) != set(node.key)
+            if unsupported:
+                problems.append(
+                    f"{pack}: {where} required_relationship_needs_exact_identity: "
+                    "required lookups must equal the complete record key; "
+                    "prefix, non-key and latest selections are unsupported"
+                )
         if origin.match_any_prefix is not None:
             problems.append(f"{pack}: {where} cannot find an edge's source by match_any_prefix")
         if origin.match is not None and (

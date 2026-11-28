@@ -11,6 +11,7 @@ Source: ADR-0019
 
 from __future__ import annotations
 
+from copy import deepcopy
 from typing import TYPE_CHECKING, Any
 
 from context_graph.adapters.graph_ops import (
@@ -21,8 +22,11 @@ from context_graph.adapters.graph_ops import (
     apply_set,
     key_property,
 )
+from context_graph.ports.errors import RuntimeFencedError
+from context_graph.ports.relationship_recovery import RECOVERY_LABEL
 
 if TYPE_CHECKING:
+    from context_graph.ports.pack_graph import EdgeWrite
     from context_graph.settings import DecaySettings, PPRSettings
 
 
@@ -102,3 +106,62 @@ class MemoryGraphStore(GraphOperations):
     async def _clear(self) -> None:
         self.nodes = {}
         self.edges = {}
+
+    async def put_relationship_intent(self, record: dict[str, Any]) -> None:
+        key = (RECOVERY_LABEL, record["node_id"])
+        before = self.nodes.get(key)
+        if before:
+            if before["order_key"] > record["order_key"]:
+                return
+            if before["order_key"] == record["order_key"]:
+                if before["generation"] != record["generation"]:
+                    raise RuntimeFencedError("Conflicting recovery event at one log position")
+                return
+        self.nodes[key] = deepcopy(record)
+
+    async def get_relationship_intents(self, keys: list[str]) -> dict[str, dict[str, Any]]:
+        return {
+            key: deepcopy(self.nodes[(RECOVERY_LABEL, key)])
+            for key in keys
+            if (RECOVERY_LABEL, key) in self.nodes
+        }
+
+    async def relationship_intents(self, after: str | None, limit: int) -> list[dict[str, Any]]:
+        if not 0 < limit <= 1000:
+            raise ValueError("Recovery page limit outside 1..1000")
+        return [
+            deepcopy(self.nodes[key])
+            for key in sorted(self.nodes)
+            if key[0] == RECOVERY_LABEL and (after is None or key[1] > after)
+        ][:limit]
+
+    async def settle_relationship_intent(
+        self,
+        key: str,
+        generation: str,
+        status: str,
+        edge: EdgeWrite | None = None,
+    ) -> str:
+        # No await between the check and mutation: one event-loop atomic unit.
+        record = self.nodes.get((RECOVERY_LABEL, key))
+        if record is None or record["generation"] != generation:
+            return "superseded"
+        if edge is not None:
+            from dataclasses import asdict
+
+            if [edge.edge_type, asdict(edge.source), asdict(edge.target)] != [
+                record["edge_type"],
+                record["source"],
+                record["target"],
+            ]:
+                raise RuntimeFencedError("Recovery endpoint identity changed")
+            source, target = self._ref_key(edge.source), self._ref_key(edge.target)
+            if source not in self.nodes or target not in self.nodes:
+                status = "endpoint_missing"
+            elif (source, edge.edge_type, target) in self.edges:
+                status = "existing_relationship_kept"
+            else:
+                self.edges[(source, edge.edge_type, target)] = deepcopy(edge.properties)
+                status = "recovered"
+        record["status"] = status
+        return status

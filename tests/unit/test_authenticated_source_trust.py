@@ -188,6 +188,9 @@ async def test_projection_validates_before_any_graph_writes_or_disposition():
     item, doc, _ = attributed(bound)
     await store.append(item, doc["payload"], admission_context=context(bound))
     port, graph = subscription(), AsyncMock()
+    # Empty native recovery reads; retain the original authentication/ACK assertions.
+    graph.get_nodes.return_value = {}
+    graph.relationship_intents.return_value = []
     settings = bound.settings()
     settings.consumer.projection_batch_size = 1
     consumer = ProjectionConsumer(port, store, graph, settings, projector(bound))
@@ -227,6 +230,8 @@ async def test_replay_preserves_typed_source_and_refuses_document_receipt_copy()
     receipt = stamp_acceptance(context(bound), item, payload)
     provenance = VerifiedSourceProvenance(str(item.event_id), receipt)
     reader = AsyncMock()
+    graph = AsyncMock()
+    graph.relationship_intents.return_value = []
     reader.get_accepted_records = AsyncMock(side_effect=AssertionError("replay uses typed entries"))
     reader.read_after.side_effect = [
         [LogEntry("position", str(item.event_id), doc, provenance)],
@@ -234,7 +239,7 @@ async def test_replay_preserves_typed_source_and_refuses_document_receipt_copy()
     ]
     with patch("context_graph.ontology.versioning.apply_plan", new_callable=AsyncMock) as apply:
         report = await replay_event_types(
-            reader, AsyncMock(), projector(bound), {item.event_type}, batch_size=10, lookup_limit=10
+            reader, graph, projector(bound), {item.event_type}, batch_size=10, lookup_limit=10
         )
         assert report.replayed == 1
         plan = apply.await_args.args[1]

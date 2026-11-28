@@ -21,6 +21,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any, Literal, Protocol
 
+from context_graph.ports.relationship_recovery import RelationshipRecoveryStore
+
 if TYPE_CHECKING:
     from context_graph.domain.ontology import OntologyRegistry
 
@@ -65,6 +67,7 @@ class EdgeWrite:
     properties: dict[str, Any] = field(default_factory=dict)
     create_only: bool = False
     remove_properties: tuple[str, ...] = ()
+    required: bool = False
 
 
 @dataclass(frozen=True)
@@ -81,7 +84,7 @@ class StateChange:
     only_from: tuple[str, ...] = ()
 
 
-class PackGraph(Protocol):
+class PackGraph(RelationshipRecoveryStore, Protocol):
     """Generic node, edge and lifecycle operations every graph backend provides."""
 
     async def ensure_pack_schema(

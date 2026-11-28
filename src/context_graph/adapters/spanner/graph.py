@@ -26,6 +26,7 @@ Source: ADR-0009, ADR-0018, ADR-0019, spanner-design-brief.md D4/G8/G9/G10
 from __future__ import annotations
 
 import asyncio
+from dataclasses import asdict
 from typing import TYPE_CHECKING, Any, Literal
 
 import structlog
@@ -56,12 +57,13 @@ from context_graph.adapters.spanner.errors import translate_spanner_error
 from context_graph.adapters.spanner.log import json_param, json_value
 from context_graph.adapters.spanner.tenant_control import tenant_snapshot
 from context_graph.ports.errors import RuntimeFencedError
+from context_graph.ports.relationship_recovery import RECOVERY_LABEL
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
     from context_graph.adapters.spanner.tenant_control import TenantFence
-    from context_graph.ports.pack_graph import StateChange
+    from context_graph.ports.pack_graph import EdgeWrite, StateChange
     from context_graph.settings import DecaySettings, PPRSettings
 
 log = structlog.get_logger(__name__)
@@ -727,3 +729,105 @@ class SpannerGraphStore(GraphOperations):
         except Exception:  # noqa: BLE001
             return False
         return True
+
+    async def get_relationship_intents(self, keys: list[str]) -> dict[str, dict[str, Any]]:
+        found = await self._get_nodes([(RECOVERY_LABEL, key) for key in keys])
+        return {key: props for (_label, key), props in found.items()}
+
+    async def put_relationship_intent(self, record: dict[str, Any]) -> None:
+        from google.cloud.spanner_v1 import KeySet
+
+        def work(transaction: Any) -> None:
+            rows = list(
+                transaction.read(
+                    "GraphNodes", ["props"], KeySet(keys=[[RECOVERY_LABEL, record["node_id"]]])
+                )
+            )
+            before = json_value(rows[0][0]) if rows else None
+            if before and before["order_key"] >= record["order_key"]:
+                if (
+                    before["order_key"] == record["order_key"]
+                    and before["generation"] != record["generation"]
+                ):
+                    raise RuntimeFencedError("Conflicting recovery event at one log position")
+                return
+            self._budget.check([node_row_cost((RECOVERY_LABEL, record["node_id"]), record, None)])
+            transaction.insert_or_update(
+                "GraphNodes",
+                NODE_COLUMNS,
+                [[RECOVERY_LABEL, record["node_id"], json_param(record), None]],
+            )
+
+        await self._transact(work)
+
+    async def relationship_intents(self, after: str | None, limit: int) -> list[dict[str, Any]]:
+        from google.cloud.spanner_v1 import param_types
+
+        if not 0 < limit <= 1000:
+            raise ValueError("Recovery page limit outside 1..1000")
+        rows = await self._query(
+            "SELECT props FROM GraphNodes WHERE label = @label AND node_id > @after "
+            "ORDER BY node_id LIMIT @limit",
+            {"label": RECOVERY_LABEL, "after": after or "", "limit": limit},
+            {"label": param_types.STRING, "after": param_types.STRING, "limit": param_types.INT64},
+        )
+        return [json_value(row[0]) for row in rows]
+
+    async def settle_relationship_intent(
+        self, key: str, generation: str, status: str, edge: EdgeWrite | None = None
+    ) -> str:
+        from google.cloud.spanner_v1 import KeySet
+
+        def work(transaction: Any) -> str:
+            rows = list(
+                transaction.read("GraphNodes", ["props"], KeySet(keys=[[RECOVERY_LABEL, key]]))
+            )
+            if not rows:
+                return "superseded"
+            record = json_value(rows[0][0])
+            if record["generation"] != generation:
+                return "superseded"
+            result = status
+            costs = []
+            if edge is not None:
+                if [edge.edge_type, asdict(edge.source), asdict(edge.target)] != [
+                    record["edge_type"],
+                    record["source"],
+                    record["target"],
+                ]:
+                    raise RuntimeFencedError("Recovery endpoint identity changed")
+                source, target = self._ref_key(edge.source), self._ref_key(edge.target)
+                endpoints = list(
+                    transaction.read(
+                        "GraphNodes",
+                        ["label", "node_id"],
+                        KeySet(keys=[list(source), list(target)]),
+                    )
+                )
+                if {tuple(row) for row in endpoints} != {source, target}:
+                    result = "endpoint_missing"
+                else:
+                    edge_key = [source[0], source[1], edge.edge_type, target[0], target[1]]
+                    present = list(
+                        transaction.read("GraphEdges", ["props"], KeySet(keys=[edge_key]))
+                    )
+                    if present:
+                        result = "existing_relationship_kept"
+                    else:
+                        result = "recovered"
+                        costs.append(
+                            edge_row_cost((source, edge.edge_type, target), edge.properties)
+                        )
+                        transaction.insert(
+                            "GraphEdges", EDGE_COLUMNS, [[*edge_key, json_param(edge.properties)]]
+                        )
+            record["status"] = result
+            costs.append(node_row_cost((RECOVERY_LABEL, key), record, None))
+            self._budget.check(costs)
+            transaction.insert_or_update(
+                "GraphNodes", NODE_COLUMNS, [[RECOVERY_LABEL, key, json_param(record), None]]
+            )
+            return result
+
+        result: str = await self._transact(work)
+        return result

@@ -573,6 +573,12 @@ class RedisEventStore:
 
     # -- Migration (ADR-0019 §7) -------------------------------------------
 
+    def position_order_key(self, position: str) -> str:
+        milliseconds, sequence = (int(part) for part in position.split("-"))
+        if not (0 <= milliseconds < 2**64 and 0 <= sequence < 2**64):
+            raise ValueError("Invalid native log position")
+        return f"{milliseconds:030d}/{sequence:030d}"
+
     async def read_after(self, position: str | None, limit: int) -> list[LogEntry]:
         """XRANGE the global stream after ``position`` (exclusive), then fetch documents."""
         start = f"({position}" if position else "-"

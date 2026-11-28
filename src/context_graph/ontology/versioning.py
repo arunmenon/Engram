@@ -167,6 +167,13 @@ class ReplayReport:
     replayed: int = 0
     failed: list[str] | None = None
     missing_documents: int = 0
+    waiting_relationships: int = 0
+    blocking_relationships: int = 0
+    relationship_scan_complete: bool = True
+
+    @property
+    def relationships_complete(self) -> bool:
+        return not self.blocking_relationships and self.relationship_scan_complete
 
 
 def check_replay_authority(event_log: EventLog, projector: PackProjector) -> None:
@@ -199,10 +206,17 @@ async def replay_event_types(
     """
     check_replay_authority(event_log, projector)
     report = ReplayReport(failed=[])
+    from context_graph.worker.relationship_recovery import RelationshipRecovery
+
+    recovery = RelationshipRecovery(graph, event_log, projector)
     cursor: str | None = None
     while True:
         entries = await event_log.read_after(cursor, batch_size)
         if not entries:
+            relationships = await recovery.finish()
+            report.waiting_relationships = relationships.waiting
+            report.blocking_relationships = relationships.blocking
+            report.relationship_scan_complete = relationships.complete_scan
             return report
         cursor = entries[-1].position
         for entry in entries:
@@ -225,6 +239,7 @@ async def replay_event_types(
                     graph,
                     projector.plan(event, document, provenance=entry.provenance),
                     lookup_limit,
+                    recovery=recovery,
                 )
                 report.replayed += 1
             except RuntimeFencedError:
@@ -335,7 +350,7 @@ async def reconcile(
         log.info(
             "ontology_mapping_replayed", events=replay.replayed, failed=len(replay.failed or [])
         )
-        if replay.failed:
+        if replay.failed or not replay.relationships_complete:
             # Retain the last completed version/packs so a restart still sees
             # the required mapping change rather than treating it as a no-op.
             await graph.upsert_nodes(
@@ -345,7 +360,10 @@ async def reconcile(
                         {
                             "replay_incomplete": True,
                             "replay_target_version": registry.version,
-                            "replay_failures": replay.failed[:100],
+                            "replay_failures": (replay.failed or [])[:100],
+                            "waiting_relationships": replay.waiting_relationships,
+                            "blocking_relationships": replay.blocking_relationships,
+                            "relationship_scan_complete": replay.relationship_scan_complete,
                         },
                     )
                 ]
@@ -353,7 +371,9 @@ async def reconcile(
             raise OntologyChangeRefusedError(
                 plan,
                 hint=(
-                    f"replay incomplete: {len(replay.failed)} event(s) failed; "
+                    f"replay incomplete: {len(replay.failed or [])} event(s) failed; "
+                    f"{replay.blocking_relationships} blocking relationship(s), "
+                    f"relationship scan complete: {replay.relationship_scan_complete}; "
                     "the completed ontology version was not advanced. "
                     + (
                         f"{replay.missing_documents} unavailable event document(s). "
@@ -372,6 +392,9 @@ async def reconcile(
         applied=plan.kind,
         extra={
             "replayed_events": replay.replayed,
+            "waiting_relationships": replay.waiting_relationships,
+            "blocking_relationships": replay.blocking_relationships,
+            "relationship_scan_complete": replay.relationship_scan_complete,
             "replay_failures": (replay.failed or [])[:100],
             "replay_incomplete": False,
             "replay_target_version": "",
@@ -448,6 +471,14 @@ def status_for_state(
         actions.append(
             "Inspect the unfinished update and its target; recover failed work before restarting."
         )
+    if props.get("blocking_relationships") or props.get("relationship_scan_complete") is False:
+        reasons.append(
+            "Required relationships are unresolved or their recovery scan is unfinished."
+        )
+        actions.append(
+            "Inspect relationship recovery status; resolve required endpoints or "
+            "source authority before a fresh rebuild."
+        )
     if props.get("missing_documents"):
         reasons.append("The rebuild recorded unavailable source event documents.")
         actions.append(
@@ -508,6 +539,9 @@ def status_for_state(
                     "rebuild_failure_count",
                     "rebuild_history_basis",
                     "evaluation_status",
+                    "waiting_relationships",
+                    "blocking_relationships",
+                    "relationship_scan_complete",
                 )
             },
             "evaluation_passed": {"passed": True, "failed": False, "skipped": None}.get(
