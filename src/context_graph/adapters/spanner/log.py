@@ -662,6 +662,15 @@ class SpannerEventLog:
         rows = await self._query("SELECT 1 FROM Events WHERE legacy_position IS NULL LIMIT 1")
         return bool(rows)
 
+    def position_order_key(self, position: str) -> str:
+        # format_position supplies fixed-width commit timestamp/index/UUID.
+        # This token is log order, never a producer's business recency.
+        timestamp, batch_index, event_id = position.split("/", 2)
+        ordinal = int(batch_index)
+        if not 0 <= ordinal < 2**63:
+            raise ValueError("Invalid native log position")
+        return f"{timestamp}/{ordinal:020d}/{event_id}"
+
     async def read_after(self, position: str | None, limit: int) -> list[LogEntry]:
         from google.cloud.spanner_v1 import param_types
 

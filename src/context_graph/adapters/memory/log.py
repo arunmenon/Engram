@@ -211,6 +211,10 @@ class MemoryEventLog:
 
     # -- reads --------------------------------------------------------------
 
+    def position_order_key(self, position: str) -> str:
+        milliseconds, sequence = position_sort_key(position)
+        return f"{milliseconds:030d}/{sequence:030d}"
+
     async def read_after(self, position: str | None, limit: int) -> list[LogEntry]:
         after = position_sort_key(position) if position else (-1, -1)
         entries: list[LogEntry] = []

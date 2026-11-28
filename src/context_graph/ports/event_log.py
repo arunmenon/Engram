@@ -56,6 +56,10 @@ class ImportedEvent:
 class EventLog(EventStore, Protocol):
     """Protocol for the event log: append, reads for workers, retention."""
 
+    def position_order_key(self, position: str) -> str:
+        """Comparable token for native log positions; not a business recency authority."""
+        ...
+
     async def read_after(self, position: str | None, limit: int) -> list[LogEntry]:
         """Return up to ``limit`` log entries after ``position`` in log order.
 

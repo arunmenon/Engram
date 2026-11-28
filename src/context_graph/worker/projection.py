@@ -12,7 +12,7 @@ from __future__ import annotations
 import time
 from collections import OrderedDict
 from functools import partial
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 import structlog
 
@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from context_graph.domain.source_trust import VerifiedSourceProvenance
     from context_graph.ports.event_log import EventLog
     from context_graph.ports.graph_store import GraphStore
+    from context_graph.ports.pack_graph import PackGraph
     from context_graph.ports.subscription import Subscription
     from context_graph.settings import Settings
 
@@ -91,6 +92,19 @@ class ProjectionConsumer(BaseConsumer):
             and not isinstance(event_log, AcceptedRecordReader)
         ):
             raise RuntimeFencedError("Bound projection requires an accepted-record reader")
+        from context_graph.worker.relationship_recovery import RelationshipRecovery
+
+        self._relationship_recovery = (
+            RelationshipRecovery(
+                cast("PackGraph", graph_store),
+                event_log,
+                pack_projector,
+                timeout_s=settings.ontology.recovery_timeout_s,
+            )
+            if pack_projector is not None
+            else None
+        )
+        self._settings_recovery_page_size = settings.ontology.recovery_page_size
         self._pack_lookup_limit = pack_lookup_limit
         self._session_last_event: OrderedDict[str, Event] = OrderedDict()
         self._buffer: list[tuple[str, dict[str, str]]] = []
@@ -114,9 +128,24 @@ class ProjectionConsumer(BaseConsumer):
 
     async def on_idle(self) -> None:
         """Flush a partial batch once reads go quiet and the batch timeout has passed."""
+        if self._relationship_recovery is not None:
+            await self._recover_opportunistically()
         if self._buffer and self._batch_timeout_elapsed():
             log.debug("flushing_buffer_on_idle", buffered=len(self._buffer))
             await self._flush_buffer()
+
+    async def _recover_opportunistically(self) -> None:
+        assert self._relationship_recovery is not None
+        try:
+            report = await self._relationship_recovery.page(self._settings_recovery_page_size)
+            if not report.complete_scan:
+                log.debug("relationship_recovery_scan_incomplete")
+        except RuntimeFencedError:
+            raise
+        except Exception as exc:
+            # Recovery is retried from durable rows; an unrelated row must not
+            # fail or dead-letter this flush's successfully written events.
+            log.warning("relationship_recovery_deferred", error=type(exc).__name__)
 
     async def _flush_buffer(self) -> None:
         """Flush the buffered events: fetch, project, and batch-write to Neo4j."""
@@ -193,6 +222,9 @@ class ProjectionConsumer(BaseConsumer):
         if self._pack_projector is not None and pack_events:
             await self._apply_pack_rules(pack_events, provenances)
 
+        if self._relationship_recovery is not None:
+            await self._recover_opportunistically()
+
         # ACK all entries after successful write (deferred_ack = True)
         entry_ids = [eid for eid, _ in batch]
         if entry_ids:
@@ -240,6 +272,7 @@ class ProjectionConsumer(BaseConsumer):
                     self._graph_store,  # type: ignore[arg-type]
                     [plan for *_ids, plan in planned],
                     self._pack_lookup_limit,
+                    recovery=self._relationship_recovery,
                 ),
                 "apply_pack_plans",
             )
@@ -256,6 +289,7 @@ class ProjectionConsumer(BaseConsumer):
                         self._graph_store,  # type: ignore[arg-type]
                         plan,
                         self._pack_lookup_limit,
+                        recovery=self._relationship_recovery,
                     ),
                     "apply_pack_plan",
                 )

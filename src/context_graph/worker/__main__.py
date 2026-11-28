@@ -117,6 +117,9 @@ async def _build_consumer(
                 allow_version_problems=settings.ontology.allow_version_problems,
                 batch_size=settings.ontology.replay_batch_size,
                 lookup_limit=settings.ontology.lookup_limit,
+                recovery_timeout_s=settings.ontology.recovery_timeout_s,
+                recovery_max_rows=settings.ontology.recovery_max_rows,
+                recovery_page_size=settings.ontology.recovery_page_size,
             )
             return ProjectionConsumer(
                 subscription=stores.subscription(group_name, consumer_name),

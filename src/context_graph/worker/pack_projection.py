@@ -16,12 +16,14 @@ import orjson
 import structlog
 
 from context_graph.domain.pack_projection import LATEST_FALLBACK
+from context_graph.ports.errors import RuntimeFencedError
 from context_graph.ports.pack_graph import EdgeWrite
 from context_graph.ports.pack_graph import NodeRef as GraphRef
 
 if TYPE_CHECKING:
     from context_graph.domain.pack_projection import EdgeLookup, ProjectionPlan
     from context_graph.ports.pack_graph import PackGraph
+    from context_graph.worker.relationship_recovery import RelationshipRecovery
 
 log = structlog.get_logger(__name__)
 
@@ -59,7 +61,12 @@ def _latest(nodes: list[dict[str, Any]], lookup: EdgeLookup) -> list[dict[str, A
 
 
 async def resolve_lookups(
-    graph: PackGraph, lookups: list[EdgeLookup], limit: int
+    graph: PackGraph,
+    lookups: list[EdgeLookup],
+    limit: int,
+    *,
+    by_lookup: dict[int, list[EdgeWrite]] | None = None,
+    truncated: set[int] | None = None,
 ) -> list[EdgeWrite]:
     """Edges to the nodes each lookup finds.
 
@@ -69,7 +76,7 @@ async def resolve_lookups(
     """
     edges: list[EdgeWrite] = []
     latest_cache: dict[str, dict[str, Any] | None] = {}
-    found_cache = await _prefetch(graph, lookups, limit)
+    found_cache = await _prefetch(graph, lookups, limit + 1)
     for lookup in lookups:
         if lookup.latest and lookup.prefix_field is None:
             # The backend orders and limits: right however many nodes match
@@ -80,27 +87,40 @@ async def resolve_lookups(
                     lookup.label, lookup.equals, order_by, lookup.not_after
                 )
             node = latest_cache[key]
-            edges.extend(_edges(lookup, [node] if node is not None else []))
+            resolved = _edges(lookup, [node] if node is not None else [])
+            if by_lookup is not None:
+                by_lookup[id(lookup)] = resolved
+            edges.extend(resolved)
             continue
-        key = _cache_key(lookup.label, lookup.equals, limit)
+        key = _cache_key(lookup.label, lookup.equals, limit + 1)
         if key not in found_cache:
-            found_cache[key] = await graph.find_nodes(lookup.label, lookup.equals, limit)
-            if len(found_cache[key]) >= limit:
-                log.warning(
-                    "pack_lookup_limit_reached",
-                    label=lookup.label,
-                    edge_type=lookup.edge_type,
-                    limit=limit,
-                )
-        matched = [node for node in found_cache[key] if _matches_prefix(node, lookup)]
+            found_cache[key] = await graph.find_nodes(lookup.label, lookup.equals, limit + 1)
+        if len(found_cache[key]) > limit:
+            log.warning(
+                "pack_lookup_limit_reached",
+                label=lookup.label,
+                edge_type=lookup.edge_type,
+                limit=limit,
+            )
+            if truncated is not None:
+                truncated.add(id(lookup))
+        matched = [node for node in found_cache[key][:limit] if _matches_prefix(node, lookup)]
         if lookup.latest:
             matched = _latest(matched, lookup)
-        edges.extend(_edges(lookup, matched))
+        resolved = _edges(lookup, matched)
+        if by_lookup is not None:
+            by_lookup[id(lookup)] = resolved
+        edges.extend(resolved)
     return edges
 
 
 async def _prefetch(
-    graph: PackGraph, lookups: list[EdgeLookup], limit: int
+    graph: PackGraph,
+    lookups: list[EdgeLookup],
+    limit: int,
+    *,
+    by_lookup: dict[int, list[EdgeWrite]] | None = None,
+    truncated: set[int] | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
     """The matches of every distinct non-latest lookup, one call per type and field set."""
     groups: dict[tuple[str, tuple[str, ...]], dict[str, dict[str, Any]]] = {}
@@ -140,12 +160,24 @@ def _edges(lookup: EdgeLookup, matched: list[dict[str, Any]]) -> list[EdgeWrite]
     return edges
 
 
-async def apply_plan(graph: PackGraph, plan: ProjectionPlan, lookup_limit: int) -> int:
+async def apply_plan(
+    graph: PackGraph,
+    plan: ProjectionPlan,
+    lookup_limit: int,
+    *,
+    recovery: RelationshipRecovery | None = None,
+) -> int:
     """Write a plan; returns the number of edges written."""
-    return await apply_plans(graph, [plan], lookup_limit)
+    return await apply_plans(graph, [plan], lookup_limit, recovery=recovery)
 
 
-async def apply_plans(graph: PackGraph, plans: list[ProjectionPlan], lookup_limit: int) -> int:
+async def apply_plans(
+    graph: PackGraph,
+    plans: list[ProjectionPlan],
+    lookup_limit: int,
+    *,
+    recovery: RelationshipRecovery | None = None,
+) -> int:
     """Write several events' plans, in log order, in four stages; returns edges written.
 
     All nodes, then all lifecycle transitions (in order: a later event's
@@ -163,6 +195,20 @@ async def apply_plans(graph: PackGraph, plans: list[ProjectionPlan], lookup_limi
     plans = [plan for plan in plans if not plan.empty]
     if not plans:
         return 0
+    if recovery is None:
+        required_refs = {
+            ref
+            for plan in plans
+            for edge in plan.edges
+            if edge.required
+            for ref in (edge.source, edge.target)
+        }
+        planned_refs = {node.ref for plan in plans for node in plan.nodes}
+        existing = (
+            await graph.get_nodes(list(required_refs - planned_refs)) if required_refs else {}
+        )
+        if required_refs - planned_refs - existing.keys():
+            raise RuntimeFencedError("Required links need configured durable relationship recovery")
     nodes = [node for plan in plans for node in plan.nodes]
     states = [state for plan in plans for state in plan.states]
     lookups = [lookup for plan in plans for lookup in plan.lookups]
@@ -171,8 +217,23 @@ async def apply_plans(graph: PackGraph, plans: list[ProjectionPlan], lookup_limi
     if states:
         await graph.change_states(states)
     edges = [edge for plan in plans for edge in plan.edges]
-    edges += await resolve_lookups(graph, lookups, lookup_limit)
-    written = await graph.upsert_edges(edges) if edges else 0
+    by_lookup: dict[int, list[EdgeWrite]] = {}
+    truncated: set[int] = set()
+    await resolve_lookups(graph, lookups, lookup_limit, by_lookup=by_lookup, truncated=truncated)
+    edges = [
+        edge
+        for plan in plans
+        for edge in [
+            *plan.edges,
+            *(edge for lookup in plan.lookups for edge in by_lookup.get(id(lookup), [])),
+        ]
+    ]
+    captured_writes = 0
+    if recovery is not None:
+        captured = await recovery.capture(plans, by_lookup, truncated)
+        edges = [edge for edge in edges if id(edge) not in captured.suppressed]
+        captured_writes = captured.written
+    written = captured_writes + (await graph.upsert_edges(edges) if edges else 0)
     log.debug(
         "pack_plans_applied",
         events=len(plans),

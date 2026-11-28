@@ -607,6 +607,9 @@ class OntologySettings(BaseSettings):
     # Nodes read when a rule finds an edge target by matching (to_latest,
     # match_any_prefix)
     lookup_limit: int = 1000
+    recovery_page_size: int = Field(default=100, ge=1, le=1000)
+    recovery_max_rows: int = Field(default=10_000, ge=1, le=1_000_000)
+    recovery_timeout_s: float = Field(default=5.0, gt=0, le=60)
 
     # Artifact retrieval (POST /v1/query/artifacts): seeds taken from the
     # query, edges read per traversal step, and the weakest word-matched
