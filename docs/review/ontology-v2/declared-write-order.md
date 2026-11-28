@@ -38,7 +38,7 @@ Named failure logs: `red-declared-order.txt`, the earlier retained-event `late-e
 
 ## Remaining verification gates
 
-Fable round1 returned REVISE; one final correction review is available. S3 draft PR147 is open, not independently accepted. Actual Neo4j/Spanner/Redis, CI Python3.12, live-agent reasoning, tenant cutover and real human operation are separate gates. Unconfigured packs keep their previous semantics; manual low-level graph writers are trusted internal callers, not authenticated event-projection entrypoints. Cross-producer precedence, automatic guarded-transition repair, historical graph versions and live data migration are not supplied by this opt-in contract. The all-five cumulative candidate is still required. #36 remains open.
+Fable round1 returned REVISE; one final correction review is available. Current S3 delivery is draft PR148, not independently accepted on its final material corrections; draft147 was superseded. Actual Neo4j/Spanner/Redis, CI Python3.12, live-agent reasoning, tenant cutover and real human operation are separate gates. Unconfigured packs keep their previous semantics; manual low-level graph writers are trusted internal callers, not authenticated event-projection entrypoints. Cross-producer precedence, automatic guarded-transition repair, historical graph versions and live data migration are not supplied by this opt-in contract. The all-five cumulative candidate is still required. #36 remains open.
 
 
 ## First review disposition and final correction candidate
@@ -76,3 +76,6 @@ Peer residuals retained: a re-keyed mapping landing entirely on unclaimed record
 
 
 The null-aware correction also preserves the existing rule that top-level None assignments are ignored: adding a mapping whose source value is absent remains a no-op. Two native-port cases reproduce the intermediate false-refusal and now pass. A cross-version public-planner probe compares the original reviewed tag with final scalar, lookup and multi-effect configurations; all three receipt identities match (`scalar-receipt-compatibility.json`). This is a representative compatibility check, not a universal migration claim. Final focused counts are70 S3 plus62 parent recovery cases =132. No additional independent review was run after the cap.
+
+
+Current delivery: draft148 on `fix/36-declared-write-order-verified`, based on S2 `1b65173`. Draft147 is superseded to preserve a clean dependency history after the remote rejected a non-fast-forward update. There is one current draft per slice; this is not a review-budget reset. Runtime code is the verified0bc8230 tree; this last commit only clarifies delivery references. Final delivery manifests bind the resulting commit and unchanged code hashes. Nothing is merged/deployed, and final independent verification remains required.
