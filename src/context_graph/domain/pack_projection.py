@@ -42,7 +42,7 @@ from __future__ import annotations
 
 import math
 import re
-from dataclasses import dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -63,7 +63,7 @@ from context_graph.domain.pack_expressions import (
 )
 from context_graph.domain.pack_properties import PropertyUpdateError, property_action
 from context_graph.ports.errors import RuntimeFencedError
-from context_graph.ports.pack_graph import EdgeWrite, NodeWrite, StateChange
+from context_graph.ports.pack_graph import EdgeWrite, NodeWrite, StateChange, WriteOrder
 from context_graph.ports.pack_graph import NodeRef as GraphRef
 
 if TYPE_CHECKING:
@@ -141,6 +141,7 @@ class EdgeLookup:
     # The matched nodes are the edge's sources (``from: {match: ...}``)
     reverse: bool = False
     remove_properties: tuple[str, ...] = ()
+    order: WriteOrder | None = None
 
 
 @dataclass
@@ -432,9 +433,88 @@ class PackProjector:
         for _pack, rule in rules:
             self._plan_rule(rule, context, plan)
             plan.check_capacity()
+        self._stamp_write_order(plan, context.scope, trusted)
         return plan
 
     # -- rule parts --------------------------------------------------------------------
+
+    def _stamp_write_order(self, plan: ProjectionPlan, scope: Scope, trusted: bool) -> None:
+        from context_graph.domain.relationship_recovery import recovery_digest, semantic_digest
+        from context_graph.domain.write_order import ordering_value
+        from context_graph.ports.pack_graph import WriteOrder
+
+        def token(label: str, *, placeholder: bool = False) -> WriteOrder | None:
+            node_type = self.registry.node_types.get(label)
+            definition = node_type.definition.ordering if node_type else None
+            if definition is None:
+                return None
+            contract = recovery_digest(definition.model_dump())
+            if placeholder:
+                return WriteOrder(contract, definition.source, "", "", "", plan.bundle)
+            if not trusted or plan.source_id != definition.source:
+                raise ValueError("write_order_untrusted_or_competing_source")
+            value = ordering_value(self._eval(definition.by, scope), definition.kind)
+            if not plan.source_digest:
+                raise ValueError("write_order_requires_source_fingerprint")
+            return WriteOrder(
+                contract, plan.source_id, value, plan.event_id, plan.source_digest, plan.bundle
+            )
+
+        for index, node in enumerate(plan.nodes):
+            order = token(node.ref.label, placeholder=node.placeholder)
+            plan.nodes[index] = replace(
+                node, order=replace(order, ordinal=index) if order else None
+            )
+        for index, state in enumerate(plan.states):
+            order = token(state.ref.label)
+            plan.states[index] = replace(
+                state, order=replace(order, ordinal=index) if order else None
+            )
+        for index, edge in enumerate(plan.edges):
+            order = token(edge.source.label)
+            plan.edges[index] = replace(
+                edge, order=replace(order, ordinal=index) if order else None
+            )
+        for index, lookup in enumerate(plan.lookups):
+            order = token(lookup.label if lookup.reverse else lookup.known.label)
+            plan.lookups[index] = replace(
+                lookup, order=replace(order, ordinal=len(plan.edges) + index) if order else None
+            )
+
+        if not any(
+            write.order is not None
+            for name in ("nodes", "states", "edges", "lookups")
+            for write in getattr(plan, name)
+        ):
+            return
+        semantic: dict[str, Any] = {}
+        for name in ("nodes", "states", "edges", "lookups"):
+            semantic[name] = []
+            for write in getattr(plan, name):
+                data = {key: value for key, value in asdict(write).items() if value is not None}
+                data.pop("order", None)
+                data.pop("property_orders", None)
+                for section in ("properties", "defaults"):
+                    if section in data:
+                        data[section] = {
+                            key: value for key, value in data[section].items() if value is not None
+                        }
+                if name == "nodes":
+                    data["properties"].pop("ontology_version", None)
+                    data["defaults"].pop("ontology_version", None)
+                semantic[name].append(data)
+        effect = semantic_digest(semantic)
+        for name in ("nodes", "states", "edges", "lookups"):
+            setattr(
+                plan,
+                name,
+                [
+                    replace(write, order=replace(write.order, effect_digest=effect))
+                    if write.order is not None
+                    else write
+                    for write in getattr(plan, name)
+                ],
+            )
 
     def _node_type(self, ref_type: str) -> NodeType:
         return self._registry.node_type(ref_type.rpartition(":")[2])
@@ -530,6 +610,7 @@ class PackProjector:
             ref,
             {**key_props, "node_type": node_type.name, "ontology_version": self._registry.version},
             self._defaults(node_type, context),
+            placeholder=True,
         )
 
     def _plan_rule(self, rule: ProjectionRule, context: _Context, plan: ProjectionPlan) -> None:
