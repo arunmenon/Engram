@@ -597,3 +597,29 @@ async def test_a_distinct_newer_same_state_event_advances_protection_without_fai
     stored = (await graph.get_nodes([ref]))[ref]
     assert stored["status"] == "succeeded"
     assert stored["status_changed_at"] == newer[0].occurred_at.isoformat()
+
+
+@pytest.mark.parametrize("backend", ["memory", "spanner_transaction_fake"])
+async def test_conflicting_old_sequence_is_detected_after_all_its_original_fields_were_superseded(
+    backend,
+):
+    from uuid import uuid4
+
+    if backend == "memory":
+        graph = MemoryGraphStore()
+    else:
+        from tests.unit.test_relationship_recovery_spanner import setup
+
+        _database, graph = setup()
+    planner = projector()
+    older, newer = inputs()
+    await apply_plan(graph, planner.plan(*older), 100)
+    await apply_plan(graph, planner.plan(*newer), 100)
+    event = older[0].model_copy(update={"event_id": uuid4()})
+    payload = {**older[1]["payload"], "amount": 999}
+    payload.pop("description")
+    document = {**event.model_dump(mode="json"), "payload": payload}
+    with pytest.raises(ValueError, match="write_order_equal_authority_conflict"):
+        await apply_plan(graph, planner.plan(event, document), 100)
+    ref = NodeRef("Payment", "Payment:P1")
+    assert "amount" not in (await graph.get_nodes([ref]))[ref]
