@@ -623,3 +623,158 @@ async def test_conflicting_old_sequence_is_detected_after_all_its_original_field
         await apply_plan(graph, planner.plan(event, document), 100)
     ref = NodeRef("Payment", "Payment:P1")
     assert "amount" not in (await graph.get_nodes([ref]))[ref]
+
+
+@pytest.mark.parametrize("backend", ["memory", "spanner_transaction_fake"])
+@pytest.mark.parametrize("multiple_effects", [False, True])
+async def test_additive_bundle_change_keeps_exact_original_retry_a_noop(backend, multiple_effects):
+    from context_graph.domain.pack_versioning import classify_change
+
+    if backend == "memory":
+        graph = MemoryGraphStore()
+    else:
+        from tests.unit.test_relationship_recovery_spanner import setup
+
+        _database, graph = setup()
+    original = deepcopy(PACK)
+    if multiple_effects:
+        additional = deepcopy(original["projection"][0]["upsert"][0])
+        additional["set"]["description"] = "last declared effect"
+        original["projection"][0]["upsert"].append(additional)
+    planner = projector(original)
+    event, document = inputs()[1]
+    await apply_plan(graph, planner.plan(event, document), 100)
+    refs = [NodeRef("Payment", "Payment:P1"), NodeRef("Account", "Account:A1")]
+    before = await graph.get_nodes(refs)
+    links = await graph.neighbors(refs[:1], ["POSTED_TO"], "out", 10)
+    changed = deepcopy(original)
+    changed["pack"]["version"] = "1.1.0"
+    changed["types"]["nodes"]["Account"]["properties"]["unrelated"] = "string"
+    updated = projector(changed)
+    difference = classify_change(planner.registry, updated.registry)
+    assert difference.kind == "additive" and not difference.version_problems
+    assert await apply_plan(graph, updated.plan(event, document), 100) == 0
+    assert await graph.get_nodes(refs) == before
+    assert await graph.neighbors(refs[:1], ["POSTED_TO"], "out", 10) == links
+
+
+@pytest.mark.parametrize("backend", ["memory", "spanner_transaction_fake"])
+async def test_shifted_ordinal_does_not_allow_a_changed_mapping_without_replay(backend):
+    if backend == "memory":
+        graph = MemoryGraphStore()
+    else:
+        from tests.unit.test_relationship_recovery_spanner import setup
+
+        _database, graph = setup()
+    original = deepcopy(PACK)
+    original["projection"][0].pop("transition")
+    planner = projector(original)
+    record = inputs()[1]
+    await apply_plan(graph, planner.plan(*record), 100)
+    changed = deepcopy(original)
+    changed["pack"]["version"] = "1.1.0"
+    changed["projection"][0]["upsert"].insert(0, {"type": "Account", "key": {"id": "$.account"}})
+    changed["projection"][0]["upsert"][1]["set"]["description"] = "reinterpreted rule"
+    with pytest.raises(ValueError, match="write_order_changed_effect_without_explicit_replay"):
+        await apply_plan(graph, projector(changed).plan(*record), 100)
+    ref = NodeRef("Payment", "Payment:P1")
+    assert (await graph.get_nodes([ref]))[ref]["description"] == "newer"
+
+
+@pytest.mark.parametrize("target", ["Payment", "POSTED_TO"])
+def test_extraction_cannot_bypass_the_declared_owner_ordering(target):
+    from context_graph.domain.ontology import OntologyError
+
+    data = deepcopy(PACK)
+    data["extraction"] = {"propose": {target: {"description": "Candidate domain record or link"}}}
+    with pytest.raises(OntologyError, match="ordered_extraction_target_unsupported"):
+        projector(data)
+
+
+@pytest.mark.parametrize("value", ["2026-01-01T00:00:00,1234567Z", "2026-01-01T00:00:00,1234568Z"])
+def test_comma_fraction_does_not_bypass_the_authority_precision_limit(value):
+    data = deepcopy(PACK)
+    data["types"]["nodes"]["Payment"]["ordering"].update(kind="timestamp", by="$.changed_at")
+    event, document = inputs()[0]
+    document["payload"]["changed_at"] = value
+    with pytest.raises(ValueError, match="write_order_timestamp_precision_exceeds_microseconds"):
+        projector(data).plan(event, document)
+
+
+@pytest.mark.parametrize("missing", ["node", "edge"])
+async def test_surviving_clock_never_certifies_a_deleted_protected_record(missing):
+    from tests.unit.test_relationship_recovery_spanner import setup
+
+    database, graph = setup()
+    planner = projector()
+    record = inputs()[1]
+    await apply_plan(graph, planner.plan(*record), 100)
+    # Infrastructure fault injection only, in the native adapter's transaction fake.
+    # Behavior is verified through the public writer/read ports after the loss.
+    if missing == "node":
+        database.tables["GraphNodes"].pop(("Payment", "Payment:P1"))
+    else:
+        database.tables["GraphEdges"].pop(
+            ("Payment", "Payment:P1", "POSTED_TO", "Account", "Account:A1")
+        )
+    with pytest.raises(ValueError, match=f"write_order_{missing}_missing_but_clock_survives"):
+        await apply_plan(graph, planner.plan(*record), 100)
+    ref = NodeRef("Payment", "Payment:P1")
+    if missing == "node":
+        assert await graph.get_nodes([ref]) == {}
+    else:
+        assert await graph.neighbors([ref], ["POSTED_TO"], "out", 10) == []
+
+
+async def test_an_additive_bump_can_retry_and_recover_an_identical_pending_ordered_link():
+    from context_graph.adapters.memory.log import MemoryEventLog
+    from context_graph.ports.pack_graph import NodeWrite
+    from context_graph.worker.relationship_recovery import RelationshipRecovery
+
+    original = deepcopy(PACK)
+    original["projection"][0]["edges"][0].update(to={"node_id": "$.account_node_id"}, required=True)
+    planner, graph, log = projector(original), MemoryGraphStore(), MemoryEventLog()
+    event, document = inputs()[1]
+    payload = {**document["payload"], "account_node_id": "Account:A1"}
+    position = await log.append(event, payload)
+    event = event.model_copy(update={"global_position": position})
+    document = (await log.get_documents([str(event.event_id)]))[0]
+    await apply_plan(
+        graph,
+        planner.plan(event, document),
+        100,
+        recovery=RelationshipRecovery(graph, log, planner),
+    )
+    assert not (await RelationshipRecovery(graph, log, planner).finish()).complete
+    changed = deepcopy(original)
+    changed["pack"]["version"] = "1.1.0"
+    changed["types"]["nodes"]["Account"]["properties"]["unrelated"] = "string"
+    updated = projector(changed)
+    recovery = RelationshipRecovery(graph, log, updated)
+    await apply_plan(graph, updated.plan(event, document), 100, recovery=recovery)
+    await graph.upsert_nodes([NodeWrite(NodeRef("Account", "Account:A1"))])
+    assert (await recovery.finish()).complete
+    rows = await graph.neighbors([NodeRef("Payment", "Payment:P1")], ["POSTED_TO"], "out", 10)
+    assert rows[0]["properties"]["description"] == "newer"
+
+
+@pytest.mark.parametrize("backend", ["memory", "spanner_transaction_fake"])
+async def test_missing_optional_endpoint_does_not_record_a_completed_edge_receipt(backend):
+    from context_graph.ports.pack_graph import NodeWrite
+
+    if backend == "memory":
+        graph = MemoryGraphStore()
+    else:
+        from tests.unit.test_relationship_recovery_spanner import setup
+
+        _database, graph = setup()
+    data = deepcopy(PACK)
+    data["projection"][0]["edges"][0]["to"] = {"node_id": "$.account_node_id"}
+    planner = projector(data)
+    event, document = inputs()[1]
+    document["payload"]["account_node_id"] = "Account:A1"
+    assert await apply_plan(graph, planner.plan(event, document), 100) == 0
+    await graph.upsert_nodes([NodeWrite(NodeRef("Account", "Account:A1"))])
+    assert await apply_plan(graph, planner.plan(event, document), 100) == 1
+    rows = await graph.neighbors([NodeRef("Payment", "Payment:P1")], ["POSTED_TO"], "out", 10)
+    assert rows[0]["properties"]["description"] == "newer"

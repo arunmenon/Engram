@@ -35,6 +35,9 @@ def effect_descriptor(write: Any) -> dict[str, Any]:
         data["properties"] = {
             name: value for name, value in data["properties"].items() if value is not None
         }
+    if data.get("order"):
+        # Source identity, authority and the null-aware semantic receipt stay pinned.
+        data["order"].pop("bundle", None)
     return data
 
 
@@ -171,6 +174,7 @@ class RelationshipRecovery:
                     "authority": plan.authority,
                     "source_id": plan.source_id,
                     "source_digest": plan.source_digest,
+                    "ordered_effect_digest": edge.order.effect_digest if edge.order else None,
                     "effect_digest": effect,
                     "selector_digest": selector,
                     "plan_digest": relationship_plan_digest(plan),
@@ -261,9 +265,19 @@ class RelationshipRecovery:
             order=last_order,
             property_orders=property_orders or None,
         )
-        return await self.graph.settle_relationship_intent(
-            row["node_id"], row["generation"], "waiting", insert
-        )
+        try:
+            return await self.graph.settle_relationship_intent(
+                row["node_id"], row["generation"], "waiting", insert
+            )
+        except ValueError as exc:
+            reason = str(exc)
+            if not reason.startswith("write_order_"):
+                raise
+            # The ordered native transaction rolled back. Persist a blocking
+            # diagnostic in a separate generation-fenced unit, without an edge.
+            return await self.graph.settle_relationship_intent(
+                row["node_id"], row["generation"], reason
+            )
 
     def _rederive(
         self,

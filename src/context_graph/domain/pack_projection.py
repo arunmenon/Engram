@@ -42,7 +42,7 @@ from __future__ import annotations
 
 import math
 import re
-from dataclasses import dataclass, field, replace
+from dataclasses import asdict, dataclass, field, replace
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -479,6 +479,36 @@ class PackProjector:
             order = token(lookup.label if lookup.reverse else lookup.known.label)
             plan.lookups[index] = replace(
                 lookup, order=replace(order, ordinal=len(plan.edges) + index) if order else None
+            )
+
+        if not any(
+            write.order is not None
+            for name in ("nodes", "states", "edges", "lookups")
+            for write in getattr(plan, name)
+        ):
+            return
+        semantic: dict[str, Any] = {}
+        for name in ("nodes", "states", "edges", "lookups"):
+            semantic[name] = []
+            for write in getattr(plan, name):
+                data = asdict(write)
+                data.pop("order", None)
+                data.pop("property_orders", None)
+                if name == "nodes":
+                    data["properties"].pop("ontology_version", None)
+                    data["defaults"].pop("ontology_version", None)
+                semantic[name].append(data)
+        effect = recovery_digest(semantic)
+        for name in ("nodes", "states", "edges", "lookups"):
+            setattr(
+                plan,
+                name,
+                [
+                    replace(write, order=replace(write.order, effect_digest=effect))
+                    if write.order is not None
+                    else write
+                    for write in getattr(plan, name)
+                ],
             )
 
     def _node_type(self, ref_type: str) -> NodeType:

@@ -688,7 +688,11 @@ class GraphOperations:
             updates = stored_values(write.properties)
             updates.update(dict.fromkeys(write.remove_properties))
             updates[write.ref.key_property] = write.ref.key
-            items.append((self._ref_key(write.ref), updates, stored_values(write.defaults)))
+            defaults = stored_values(write.defaults)
+            if write.placeholder:
+                defaults.update(updates)
+                updates = {write.ref.key_property: write.ref.key}
+            items.append((self._ref_key(write.ref), updates, defaults))
         await self._merge_nodes(items)
 
     async def upsert_edges(self, writes: list[EdgeWrite]) -> int:

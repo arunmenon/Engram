@@ -244,6 +244,18 @@ class Neo4jPackGraph:
                 f"MERGE (a)-[r:{_edge_type(edge_type)}]->(b) SET r += $props",
                 {"source": source[1], "target": target[1], "props": patch},
             )
+        for label, key in sorted(node_keys):
+            if label == ORDER_LABEL and (label, key) not in node_updates:
+                if (label, key) in current_nodes:
+                    await tx.run(
+                        "MATCH (c:ProjectionOrder {node_id: $key}) REMOVE c._write_lock",
+                        {"key": key},
+                    )
+                else:
+                    await tx.run(
+                        "MATCH (c:ProjectionOrder {node_id: $key}) WHERE c.record IS NULL DELETE c",
+                        {"key": key},
+                    )
         return report
 
     async def upsert_nodes(self, writes: list[NodeWrite]) -> None:
@@ -251,11 +263,16 @@ class Neo4jPackGraph:
         groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
         for write in writes:
             label, key_property = _label(write.ref.label), _property(write.ref.key_property)
+            props = {**_props(write.properties), **dict.fromkeys(write.remove_properties)}
+            defaults = _props(write.defaults)
+            if write.placeholder:
+                defaults.update(props)
+                props = {write.ref.key_property: write.ref.key}
             groups[(label, key_property)].append(
                 {
                     "key": write.ref.key,
-                    "props": {**_props(write.properties), **dict.fromkeys(write.remove_properties)},
-                    "defaults": _props(write.defaults),
+                    "props": props,
+                    "defaults": defaults,
                 }
             )
         statements = [

@@ -84,6 +84,7 @@ def merge_relationship_intent(
         "plan_digest",
         "source_id",
         "source_digest",
+        "ordered_effect_digest",
     )
     entry: dict[str, Any] = {key: incoming.get(key) for key in pointer_keys}
     entry["writes"] = incoming.get("writes") or ["__edge__"]
@@ -92,7 +93,13 @@ def merge_relationship_intent(
     for prior in entries:
         if prior["order_key"] == entry["order_key"]:
             if prior != entry:
-                raise RuntimeFencedError("Conflicting deferred effects at one log position")
+                same_ordered_meaning = bool(entry.get("ordered_effect_digest")) and all(
+                    prior.get(name) == value
+                    for name, value in entry.items()
+                    if name not in {"bundle", "event_generation"}
+                )
+                if not same_ordered_meaning:
+                    raise RuntimeFencedError("Conflicting deferred effects at one log position")
             break
     else:
         entries.append(entry)

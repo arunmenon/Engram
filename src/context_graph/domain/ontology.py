@@ -1357,6 +1357,19 @@ class OntologyRegistry:
         for name in [*extraction.propose, *extraction.never_propose, *extraction.derived_proposals]:
             if name not in self.node_types and name not in self.edge_types:
                 problems.append(f"{pack.name}: extraction names unknown type {name!r}")
+        for name in [*extraction.propose, *extraction.derived_proposals]:
+            node = self.node_types.get(name)
+            edge = self.edge_types.get(name)
+            ordered_source = bool(
+                edge
+                and any(
+                    candidate.definition.ordering is not None
+                    and (candidate.name in edge.from_types or candidate.pack in edge.from_packs)
+                    for candidate in self.node_types.values()
+                )
+            )
+            if (node is not None and node.definition.ordering is not None) or ordered_source:
+                problems.append(f"{pack.name}: ordered_extraction_target_unsupported ({name})")
         for name in sorted(set(extraction.propose) & set(extraction.never_propose)):
             problems.append(f"{pack.name}: {name} is both proposed and never proposed")
 

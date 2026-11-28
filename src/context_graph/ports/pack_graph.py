@@ -45,6 +45,7 @@ class WriteOrder:
     source_digest: str
     bundle: str
     ordinal: int = 0
+    effect_digest: str = ""
 
 
 @dataclass(frozen=True)
