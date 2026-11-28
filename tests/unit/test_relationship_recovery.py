@@ -980,3 +980,12 @@ async def test_required_explicit_core_relationship_is_recovered_like_a_domain_li
     )
     assert {row["target_key"] for row in rows} == {str(source.event_id), str(target.event_id)}
     assert report.projection_complete
+
+
+async def test_recovery_pages_stay_empty_after_an_explicit_graph_reset():
+    _reg, _log, graph = await pending_links(3)
+    first = await graph.relationship_intents(None, 1)
+    next_page = await graph.relationship_intents(first[0]["node_id"], 1)
+    assert len(first) == len(next_page) == 1 and first[0]["node_id"] < next_page[0]["node_id"]
+    await graph.delete_all(confirm=True)
+    assert await graph.relationship_intents(None, 1) == []

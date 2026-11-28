@@ -11,6 +11,7 @@ Source: ADR-0019
 
 from __future__ import annotations
 
+from bisect import bisect_left, bisect_right, insort
 from copy import deepcopy
 from typing import TYPE_CHECKING, Any
 
@@ -47,6 +48,7 @@ class MemoryGraphStore(GraphOperations):
         )
         self.nodes: dict[NodeKey, dict[str, Any]] = {}
         self.edges: dict[EdgeKey, dict[str, Any]] = {}
+        self._recovery_keys: list[str] = []
 
     async def _get_nodes(self, keys: list[NodeKey]) -> dict[NodeKey, dict[str, Any]]:
         return {key: dict(self.nodes[key]) for key in keys if key in self.nodes}
@@ -63,6 +65,8 @@ class MemoryGraphStore(GraphOperations):
 
     async def _upsert_nodes(self, items: list[tuple[NodeKey, dict[str, Any]]]) -> None:
         for (label, node_id), updates in items:
+            if label == RECOVERY_LABEL and (label, node_id) not in self.nodes:
+                insort(self._recovery_keys, node_id)
             props = self.nodes.setdefault((label, node_id), {key_property(label): node_id})
             apply_set(props, updates)
 
@@ -71,6 +75,8 @@ class MemoryGraphStore(GraphOperations):
         for edge_key in [k for k in self.edges if k[0] in doomed or k[2] in doomed]:
             del self.edges[edge_key]
         for key in doomed:
+            if key[0] == RECOVERY_LABEL:
+                self._recovery_keys.pop(bisect_left(self._recovery_keys, key[1]))
             del self.nodes[key]
         return len(doomed)
 
@@ -107,6 +113,7 @@ class MemoryGraphStore(GraphOperations):
     async def _clear(self) -> None:
         self.nodes = {}
         self.edges = {}
+        self._recovery_keys = []
 
     async def put_relationship_intent(
         self, record: dict[str, Any], *, reinterpret: bool = False
@@ -115,6 +122,8 @@ class MemoryGraphStore(GraphOperations):
         before = self.nodes.get(key)
         merged = merge_relationship_intent(before, record, reinterpret=reinterpret)
         if merged is not None:
+            if before is None:
+                insort(self._recovery_keys, key[1])
             self.nodes[key] = deepcopy(merged)
 
     async def get_relationship_intents(self, keys: list[str]) -> dict[str, dict[str, Any]]:
@@ -127,11 +136,9 @@ class MemoryGraphStore(GraphOperations):
     async def relationship_intents(self, after: str | None, limit: int) -> list[dict[str, Any]]:
         if not 0 < limit <= 1000:
             raise ValueError("Recovery page limit outside 1..1000")
-        return [
-            deepcopy(self.nodes[key])
-            for key in sorted(self.nodes)
-            if key[0] == RECOVERY_LABEL and (after is None or key[1] > after)
-        ][:limit]
+        start = bisect_right(self._recovery_keys, after) if after is not None else 0
+        keys = self._recovery_keys[start : start + limit]
+        return [deepcopy(self.nodes[(RECOVERY_LABEL, key)]) for key in keys]
 
     async def settle_relationship_intent(
         self,
